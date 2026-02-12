@@ -74,9 +74,7 @@ export default function Home() {
               </div>
               <div className="flex-1 flex items-center">
                 <p className="text-3xl md:text-5xl font-black leading-tight">
-                  접속 후<br />
-                  <span className="text-primary glow-cyan">내 주변 확인</span> 및<br />
-                  <span className="text-secondary glow-magenta">베타 오픈 알림</span><br />
+                  <span className="text-secondary glow-magenta">베타 오픈 알림</span>을<br />
                   신청하세요
                 </p>
               </div>
