@@ -58,8 +58,8 @@ export default function Home() {
             {/* Subtext */}
             <div className="mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-2xl">
-                Spot은 내 주변 나와 같은 성향을 가진 사람을 보여주는<br className="hidden md:block" />
-                새로운 오프라인 소셜 앱입니다.
+                Spot은 내 주변 나와 같은 성향을 가진 사람을<br className="block" />
+                보여주는 새로운 오프라인 소셜 앱입니다.
               </p>
             </div>
 
