@@ -64,7 +64,7 @@ export default function Home() {
             </div>
 
             {/* QR Code Section */}
-            <div className="flex flex-col sm:flex-row gap-6 md:gap-8 items-start sm:items-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div className="flex flex-row gap-6 md:gap-8 items-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
               <div className="flex-shrink-0 w-40 h-40 md:w-48 md:h-48">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/ptuqDsAPUhvdZaoe.png"
@@ -72,11 +72,11 @@ export default function Home() {
                   className="w-full h-full border-brutal border-primary shadow-brutal-lg"
                 />
               </div>
-              <div className="flex-1 pt-2">
-                <p className="text-xl md:text-2xl font-black leading-relaxed">
+              <div className="flex-1">
+                <p className="text-lg md:text-2xl font-black leading-snug">
                   접속 후<br />
                   <span className="text-primary glow-cyan">내 주변 확인</span> 및<br />
-                  <span className="text-secondary glow-magenta">베타 오픈 알림</span>을<br />
+                  <span className="text-secondary glow-magenta">베타 오픈 알림</span><br />
                   신청하세요
                 </p>
               </div>
