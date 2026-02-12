@@ -63,21 +63,23 @@ export default function Home() {
               </p>
             </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <Button 
-                size="lg"
-                className="text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90 border-brutal shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-150 font-bold"
-              >
-                내 주변 확인하기
-              </Button>
-              <Button 
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground border-brutal shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-150 font-bold"
-              >
-                베타 오픈 알림 받기
-              </Button>
+            {/* QR Code Section */}
+            <div className="flex flex-col sm:flex-row gap-8 md:gap-12 items-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="flex-shrink-0">
+                <img 
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/ptuqDsAPUhvdZaoe.png"
+                  alt="Spot QR Code"
+                  className="w-48 h-48 md:w-56 md:h-56 border-brutal border-primary shadow-brutal-lg"
+                />
+              </div>
+              <div className="flex-1">
+                <p className="text-2xl md:text-3xl font-black leading-tight">
+                  접속 후<br />
+                  <span className="text-primary glow-cyan">내 주변 확인</span> 및<br />
+                  <span className="text-secondary glow-magenta">베타 오픈 알림</span>을<br />
+                  받아보세요
+                </p>
+              </div>
             </div>
           </div>
         </div>
