@@ -11,7 +11,7 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("베타 오픈 알림 신청이 완료되었습니다!");
+    toast.success("신청이 완료되었습니다!");
     setEmail("");
     setPhone("");
     setOpen(false);
@@ -34,7 +34,6 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
-              지금 이순간<br />
               반경 10m이내<br />
               나와 같은 mbti는<br />
               <span className="text-secondary glow-magenta">몇명일까?</span>
@@ -53,11 +52,51 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <a href="https://jupjup-mvp2-3g7l.vercel.app/index.html?category=%EC%B9%B4%ED%8E%98&from=qr" target="_blank" rel="noopener noreferrer">
-              <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                내 주변 확인하기
-              </Button>
-            </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
+                  내 주변 확인하기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">SPOT</span> 시작하기
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    지금 바로 내 주변의 <span className="text-secondary glow-magenta">우연</span>을 확인하세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    시작하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
             
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
@@ -206,13 +245,14 @@ export default function Home() {
 
       {/* Service Visualization - Map Section */}
       <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Feature 1: Map with MBTI markers */}
             <div className="flex flex-col items-center">
               <img 
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/MxuwpOyYEtVRNgWa.png" 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/cTVBwpOXcluwPWCAtx3YcN-img-1_1770963414000_na1fn_c3BvdC1tYXAtZmVhdHVyZTE.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L2NUVkJ3cE9YY2x1d1BXQ0F0eDNZY04taW1nLTFfMTc3MDk2MzQxNDAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRabVZoZEhWeVpURS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=aInJDzHSEKh3bZCAo3VORTCKP4GCgOPCLZ3uLONa1mmSLjXFUXuDbnB7lvKEVddd4jFphgS8ohImSZFSFMSsyIQAIdGn6edx91Wa0XgSzhWz2lgRBjZ1Y8cihRkAx0XvDxyxoOA2I4np1Hq8tNmDmPYY4IaRl0OT70LzI6Iiy4iXPoZDe3ue-kBQPjYh7BaZzWqz8S0WiLnqBOW1UIdsrt6eiPZP6to3y1L2767dUPe42pRiYo9LsF9D2sYUuBluRAm8lx-56xDx5s3XauZLPrt1VL8zsChbcNe8G-dCoUCbqNoxp2nf1DyPCwqYQL94y0ifyodzlZCH4usmjNSgpg__" 
                 alt="Map visualization"
-                className="w-full max-w-sm rounded-lg border-2 border-primary shadow-lg"
+                className="w-full max-w-sm rounded-lg shadow-2xl"
               />
               <p className="mt-6 text-lg font-semibold text-center">
                 지도 위에 나와 같은 성향의 사람들이<br />
@@ -220,17 +260,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center order-first md:order-last">
-              <div className="w-full max-w-sm rounded-lg border-2 border-secondary shadow-lg bg-card p-6">
-                <div className="bg-secondary/10 border-2 border-secondary rounded-lg p-4 mb-4">
-                  <p className="text-lg font-black text-secondary glow-magenta">🔔 SPOT 알림</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xl font-black">반경 10m 이내</p>
-                  <p className="text-2xl font-black text-primary glow-cyan">나와 같은 ENTJ가</p>
-                  <p className="text-3xl font-black text-secondary glow-magenta">10명이나 있어요!</p>
-                </div>
-              </div>
+            {/* Feature 2: Notification popup */}
+            <div className="flex flex-col items-center">
+              <img 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/cTVBwpOXcluwPWCAtx3YcN-img-2_1770963412000_na1fn_c3BvdC1tYXAtZmVhdHVyZTI.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L2NUVkJ3cE9YY2x1d1BXQ0F0eDNZY04taW1nLTJfMTc3MDk2MzQxMjAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRabVZoZEhWeVpUSS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=oQlPwDIZ1yVs2yP7cmUQzmQAjDTyHBCliF3NRt~ITEr-66YRLNSR-fVh1V0L2vUIh~bSmLtnuSegSM4~M4jXsWnB-yE~1Wg5OeV5WLfA67V~jYDZ4XiWiEZuuJtEQio3Fm944h6ZtG6NxOQO3lI8lsAgCz8dIxSjXVdFSUuEKvLsj0WqzHh~rf5a2RCdKM7f24IzyGcyZlX-0nwkCIvvLtZUeOIkNPjEi7Dlfg0Sb9CHMIv4~FRbGr5xOU25YrgmR7kxuPEJTeHnrJr4AT8NZIdCjWFzvHR0IHzpqB8seiw6wtqfqU5hxp2FBCL2IINhm7zvVYy2YBmYvJ5NJ5vbMQ__" 
+                alt="Notification popup"
+                className="w-full max-w-sm rounded-lg shadow-2xl"
+              />
               <p className="mt-6 text-lg font-semibold text-center">
                 반경 10m 이내에서 나와 같은 성향의 사람을 발견하면<br />
                 <span className="text-secondary glow-magenta">실시간 알림</span>을 받습니다.
@@ -332,11 +368,51 @@ export default function Home() {
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://jupjup-mvp2-3g7l.vercel.app/index.html?category=%EC%B9%B4%ED%8E%98&from=qr" target="_blank" rel="noopener noreferrer">
-              <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                내 주변 확인하기
-              </Button>
-            </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
+                  내 주변 확인하기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">SPOT</span> 시작하기
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    지금 바로 내 주변의 <span className="text-secondary glow-magenta">우연</span>을 확인하세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    시작하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
             
             <Dialog>
               <DialogTrigger asChild>
