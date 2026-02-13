@@ -4,19 +4,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 md:px-8 py-20 overflow-hidden bg-gradient-to-br from-[#0a0e27] via-[#1a1a3a] to-[#0a0e27]">
-        <div className="absolute inset-0 opacity-40">
+      <section className="relative min-h-screen flex items-center justify-center px-4 md:px-8 py-20 overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
-          <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 1200 800">
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,240,255,0.1)" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="1200" height="800" fill="url(#grid)" />
-          </svg>
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
@@ -41,6 +33,20 @@ export default function Home() {
               사람들의 성향을 보여주는<br />
               새로운 오프라인 소셜 플랫폼입니다.
             </p>
+          </div>
+
+          {/* Service Preview */}
+          <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-2xl mx-auto">
+            <img 
+              src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-1_1770961248000_na1fn_c3BvdC1tYXAtcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTFfMTc3MDk2MTI0ODAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=mOTyHrv8zQPAsU02ykEPr6jChujrtq6DUcDeFxtWVIAsu-LwnLHFgUqCQ0phj5hWpdS23PNxKh65EJ8UV4HMSnK9wJqnBgD-KKCeQbte9kgLjqHa3NYIL2whJ1FAYVHplNy8T5JZPAyfiv5Rg2Kg4est~QivPuspH9Z8kHBsYpAN866P6JlZGNLbI0af4E7OZa5sJztVza1id5FMa3bDNJHOYn7xp1VJ9vcO28u0aCOzlPKRWTUgib6j6E4cYGPK0Won7wybMhkkmLObM-ofj8Yk0kFzqLum6CdWH0cLSIujJdZWS7mZyvY6t62Nn3DMoxvsBbSKea-E60CH0ez-hg__" 
+              alt="Map view"
+              className="w-full rounded-lg border-2 border-primary/50 shadow-lg"
+            />
+            <img 
+              src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-2_1770961255000_na1fn_c3BvdC1ub3RpZmljYXRpb24tcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTJfMTc3MDk2MTI1NTAwMF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=eEFrYIZEsfWQ62IVguOU7n-2K7JmU9goSh-o55V9HmbS3kkUbHhwARw23LE~BJn~4au9PpXusNDhmjFh99cx-bAgHbd0q0gr93sDFRTAntWRtztwShogSezpuBA8Zt7FDiiC0YTCmfwHmUJvP2DbtDbCrMMyghJtc271lzIpJj~-CHBz~nG5lIIdGwHunlALoGNNY54Me3BP~rIK1vNpKgsNEhZhmXrdybLmPI7~fXYgDUJgRSE9j~b4T8KSD-VV2tAjs6Fj4yH8fxkiOg-MzeVLBX0NrKDaSxZ~KeGteGReSz~ne-Mbsl394MYC93cIEpfVwr7xkG90HnNm-FpJOA__" 
+              alt="Notification"
+              className="w-full rounded-lg border-2 border-secondary/50 shadow-lg"
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -94,7 +100,7 @@ export default function Home() {
 
             <p className="text-2xl font-black">
               문제는 용기가 아니라,<br />
-              <span className="text-primary glow-cyan">정보의 부재입니다.</span>
+              <span className="text-primary glow-cyan">정보의 부재</span>입니다.
             </p>
           </div>
         </div>
@@ -104,7 +110,7 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            SPOT은 오프라인 만남을<br />
+            <span className="text-primary glow-cyan">SPOT</span>은 오프라인 만남을<br />
             이렇게 바꾸고자 합니다.
           </h2>
 
@@ -132,10 +138,10 @@ export default function Home() {
             {/* Step 3 */}
             <div className="p-8 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-accent mb-4">3️⃣</div>
-              <h3 className="text-2xl font-black mb-4">강제가 아닌 우연을 연출</h3>
+              <h3 className="text-2xl font-black mb-4">강제가 아닌 <span className="text-primary glow-cyan">우연</span>을 연출</h3>
               <p className="text-muted-foreground">
-                SPOT은 유저의 GPS기반으로<br />
-                우연적인 만남을 연출하며,<br />
+                <span className="text-primary glow-cyan">SPOT</span>은 유저의 GPS기반으로<br />
+                <span className="text-primary glow-cyan">우연</span>적인 만남을 연출하지,<br />
                 타 앱과 비슷한 매칭 시스템이 아닙니다.
               </p>
             </div>
@@ -143,57 +149,20 @@ export default function Home() {
 
           <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
             <p className="text-2xl font-black mb-4">
-              SPOT을 통해 더이상 우연을 기다리지 마세요.
+              <span className="text-primary glow-cyan">SPOT</span>을 통해 더이상 <span className="text-primary glow-cyan">우연</span>을 기다리지 마세요.
             </p>
             <p className="text-2xl font-black text-primary glow-cyan">
-              이제는 우연을 설계할 차례입니다.
+              이제는 <span className="text-secondary glow-magenta">우연</span>을 설계할 차례입니다.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Service Visualization Section */}
-      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            SPOT의 서비스를 경험해보세요
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Map Visualization */}
-            <div className="flex flex-col items-center">
-              <img 
-                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/Cqx5f0Em0RYmBAUx1X8PGp-img-1_1770960494000_na1fn_c3BvdC1tYXAtdmlzdWFsaXphdGlvbg.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0NxeDVmMEVtMFJZbUJBVXgxWDhQR3AtaW1nLTFfMTc3MDk2MDQ5NDAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRkbWx6ZFdGc2FYcGhkR2x2YmcucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=LwmJsRnMyHmY9yftq45yweCeykQ~0f1U2Sv2akr2FFPZ2b62h9To4jwgXlTDx3OOpE3EzOH1XnNMGsnUZY~DY2X8KYRpQjTm00t2U1iVPco8OHdYJxPJHYsEyG0ZLNjm~PGnhWK~Z4~706DoRZsTPcmBZJ4lTzS1TXlx8g9~xHb28CMdRj6zPwXq6C-lLDmj3EzFVTp3ydFNpmThl0mkcFIZ9qJ6C3YaDKkNuhG7uvswInKJJbjVkCYNu3-JWJfTp0ekkd1w0QNgHrWLqtokVoCqBE1U1RWCZMKR0fGgYCpvjrDqDiaJDgHw92~k8baq0sUPwDqe2YbHDo8YHS0nlw__" 
-                alt="Map visualization showing nearby MBTI matches"
-                className="w-full max-w-sm rounded-lg border-2 border-primary shadow-lg"
-              />
-              <p className="mt-6 text-lg font-semibold text-center">
-                지도 위에 나와 같은 성향의 사람들이<br />
-                <span className="text-primary glow-cyan">전기 시안 색상</span>으로 표시됩니다.
-              </p>
-            </div>
-
-            {/* Notification Popup */}
-            <div className="flex flex-col items-center">
-              <img 
-                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/Cqx5f0Em0RYmBAUx1X8PGp-img-2_1770960495000_na1fn_c3BvdC1ub3RpZmljYXRpb24tcG9wdXA.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0NxeDVmMEVtMFJZbUJBVXgxWDhQR3AtaW1nLTJfMTc3MDk2MDQ5NTAwMF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRjRzl3ZFhBLnBuZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=D-kgElfUkuxYb~OVbAYqYxIiBPzAdQAFfrJbhKRTDd16CF-kEA91tDA2T1sNoEaYD7jatQKFDpX0Bonv2mAf7HaR0t1e0ElFRtkfWDIzJUwLFJTzZHGZ4xx~LUH1tfSkHJxxbiOs0mnkVSl9eD4BgZGkumuwFOtgzNV43kbZ9Xnzrvi9l5jnpP4E744fYjMLjc6FiUVASPXQMJFOiV0SKUgybu9zs9qrk860px775xch5EraFGbhfSp3Pc5keAyOCuwGSrcHHhCQDUPdQ1IPoDX3P4oF3qeT9asnFmNEfeFjhuLvO0JyW3EXPMnDT8XKpiCuH1t-qrldxRwsIC2Ajw__" 
-                alt="Notification popup showing nearby matches"
-                className="w-full max-w-sm rounded-lg border-2 border-secondary shadow-lg"
-              />
-              <p className="mt-6 text-lg font-semibold text-center">
-                반경 10m 이내에서 나와 같은 성향의 사람을 발견하면<br />
-                <span className="text-secondary glow-magenta">실시간 알림</span>을 받습니다.
-              </p>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 px-4 md:px-8 border-t border-border">
+      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            SPOT은 사람을 노출하지 않습니다.
+            <span className="text-primary glow-cyan">SPOT</span>은 사람을 노출하지 않습니다.
           </h2>
 
           <div className="space-y-6 mb-12">
@@ -217,7 +186,7 @@ export default function Home() {
             <p className="text-xl font-semibold mb-4">우리는</p>
             <p className="text-2xl font-black mb-6">
               "존재를 보여주되, 개인은 보호한다"의<br />
-              원칙 위에 우연을 설계합니다.
+              원칙 위에 <span className="text-secondary glow-magenta">우연</span>을 설계합니다.
             </p>
             <p className="text-xl text-primary glow-cyan font-semibold">
               통제권은 항상 사용자에게 있습니다.
@@ -227,7 +196,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
+      <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
             자주 묻는 질문
@@ -240,7 +209,7 @@ export default function Home() {
                 Q. 제 위치가 그대로 보이나요?
               </h3>
               <p className="text-lg text-muted-foreground">
-                A. 아닙니다. 사용자님의 GPS는 반경 10m오차범위내로 측정되며, 사용자님과 비슷한 성향을 가진 유저와 마주칠 정도로 거리가 가까워지거나 사용자님과 비슷한 성향을 가진 유저가 많은 지역에 도착하실 경우 알려드립니다.
+                A. 아닙니다. GPS는 반경 10m 오차범위로 측정되며, 비슷한 성향의 유저가 근처에 있을 때만 알려드립니다.
               </p>
             </div>
 
@@ -250,17 +219,17 @@ export default function Home() {
                 Q. 연애 매칭앱인가요?
               </h3>
               <p className="text-lg text-muted-foreground">
-                A. 절대 아닙니다. SPOT은 사용자끼리의 단순 상호작용을 할 수 있는 우연을 설계하는 플랫폼이지 우연을 필연으로 만들지, 우연으로 새길지는 오로지 사용자에게 달려 있습니다.
+                A. 아닙니다. <span className="text-primary glow-cyan">SPOT</span>은 <span className="text-secondary glow-magenta">우연</span>을 설계하는 플랫폼일 뿐, 그 <span className="text-secondary glow-magenta">우연</span>을 필연으로 만들지는 사용자에게 달려있습니다.
               </p>
             </div>
 
             {/* FAQ 3 */}
             <div className="p-6 border-2 border-border bg-background/50">
               <h3 className="text-xl font-black mb-3 text-accent">
-                Q. MBTI만으로 저와 성향이 같다고 확신이 안들어요
+                Q. MBTI만으로 충분한가요?
               </h3>
               <p className="text-lg text-muted-foreground">
-                A. 맞습니다. 하지만 베타버전에서만 MBTI 기반이며, 향후 정식 버전의 경우 다양한 성향 데이터가 삽입됩니다.
+                A. 베타는 MBTI 기반입니다. 정식 버전에서는 다양한 성향 데이터가 추가됩니다.
               </p>
             </div>
           </div>
@@ -268,11 +237,11 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 px-4 md:px-8 border-t border-border">
+      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-black mb-8">
-            지금 바로 SPOT를 다운받아<br />
-            우연을 설계해보세요.
+            지금 바로 <span className="text-primary glow-cyan">SPOT</span>을 다운받아<br />
+            <span className="text-secondary glow-magenta">우연</span>을 설계해보세요.
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
