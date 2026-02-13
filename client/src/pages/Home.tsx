@@ -1,6 +1,22 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("베타 오픈 알림 신청이 완료되었습니다!");
+    setEmail("");
+    setPhone("");
+    setOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
@@ -18,8 +34,9 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
-              내 주변에는<br />
-              나와 같은 mbti가<br />
+              지금 이순간<br />
+              반경 10m이내<br />
+              나와 같은 mbti는<br />
               <span className="text-secondary glow-magenta">몇명일까?</span>
             </h2>
 
@@ -41,9 +58,52 @@ export default function Home() {
                 내 주변 확인하기
               </Button>
             </a>
-            <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
-              베타 오픈 알림 받기
-            </Button>
+            
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
+                  베타 오픈 알림 받기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    가장 먼저 <span className="text-secondary glow-magenta">우연</span>을 설계해보세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    알림 신청하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>
@@ -150,22 +210,27 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="flex flex-col items-center">
               <img 
-                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-1_1770961248000_na1fn_c3BvdC1tYXAtcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTFfMTc3MDk2MTI0ODAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=mOTyHrv8zQPAsU02ykEPr6jChujrtq6DUcDeFxtWVIAsu-LwnLHFgUqCQ0phj5hWpdS23PNxKh65EJ8UV4HMSnK9wJqnBgD-KKCeQbte9kgLjqHa3NYIL2whJ1FAYVHplNy8T5JZPAyfiv5Rg2Kg4est~QivPuspH9Z8kHBsYpAN866P6JlZGNLbI0af4E7OZa5sJztVza1id5FMa3bDNJHOYn7xp1VJ9vcO28u0aCOzlPKRWTUgib6j6E4cYGPK0Won7wybMhkkmLObM-ofj8Yk0kFzqLum6CdWH0cLSIujJdZWS7mZyvY6t62Nn3DMoxvsBbSKea-E60CH0ez-hg__" 
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/MxuwpOyYEtVRNgWa.png" 
                 alt="Map visualization"
                 className="w-full max-w-sm rounded-lg border-2 border-primary shadow-lg"
               />
               <p className="mt-6 text-lg font-semibold text-center">
                 지도 위에 나와 같은 성향의 사람들이<br />
-                <span className="text-primary glow-cyan">전기 시안 색상</span>으로 표시됩니다.
+                <span className="text-primary glow-cyan">실시간</span>으로 표시됩니다.
               </p>
             </div>
 
             <div className="flex flex-col items-center order-first md:order-last">
-              <img 
-                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-2_1770961255000_na1fn_c3BvdC1ub3RpZmljYXRpb24tcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTJfMTc3MDk2MTI1NTAwMF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNDRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=eEFrYIZEsfWQ62IVguOU7n-2K7JmU9goSh-o55V9HmbS3kkUbHhwARw23LE~BJn~4au9PpXusNDhmjFh99cx-bAgHbd0q0gr93sDFRTAntWRtztwShogSezpuBA8Zt7FDiiC0YTCmfwHmUJvP2DbtDbCrMMyghJtc271lzIpJj~-CHBz~nG5lIIdGwHunlALoGNNY54Me3BP~rIK1vNpKgsNEhZhmXrdybLmPI7~fXYgDUJgRSE9j~b4T8KSD-VV2tAjs6Fj4yH8fxkiOg-MzeVLBX0NrKDaSxZ~KeGteGReSz~ne-Mbsl394MYC93cIEpfVwr7xkG90HnNm-FpJOA__" 
-                alt="Notification popup"
-                className="w-full max-w-sm rounded-lg border-2 border-secondary shadow-lg"
-              />
+              <div className="w-full max-w-sm rounded-lg border-2 border-secondary shadow-lg bg-card p-6">
+                <div className="bg-secondary/10 border-2 border-secondary rounded-lg p-4 mb-4">
+                  <p className="text-lg font-black text-secondary glow-magenta">🔔 SPOT 알림</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xl font-black">반경 10m 이내</p>
+                  <p className="text-2xl font-black text-primary glow-cyan">나와 같은 ENTJ가</p>
+                  <p className="text-3xl font-black text-secondary glow-magenta">10명이나 있어요!</p>
+                </div>
+              </div>
               <p className="mt-6 text-lg font-semibold text-center">
                 반경 10m 이내에서 나와 같은 성향의 사람을 발견하면<br />
                 <span className="text-secondary glow-magenta">실시간 알림</span>을 받습니다.
@@ -225,8 +290,10 @@ export default function Home() {
               <h3 className="text-xl font-black mb-3 text-primary glow-cyan">
                 Q. 제 위치가 그대로 보이나요?
               </h3>
-              <p className="text-lg text-muted-foreground">
-                A. 아닙니다. GPS는 반경 10m 오차범위로 측정되며, 비슷한 성향의 유저가 근처에 있을 때만 알려드립니다.
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                A. 아닙니다. 사용자님의 위치 정보는 타인에게 반경 10m 이내의 오차로 보여지고,
+                반경 내에 가까워질 경우 <span className="text-primary glow-cyan">SPOT</span>에서 알려드리며,
+                사용자님의 반경 10m 이내에 사용자님과 성향이 비슷한 분이 많을 경우에도 <span className="text-primary glow-cyan">SPOT</span>에서 알려드립니다.
               </p>
             </div>
 
@@ -235,8 +302,10 @@ export default function Home() {
               <h3 className="text-xl font-black mb-3 text-secondary glow-magenta">
                 Q. 연애 매칭앱인가요?
               </h3>
-              <p className="text-lg text-muted-foreground">
-                A. 아닙니다. <span className="text-primary glow-cyan">SPOT</span>은 <span className="text-secondary glow-magenta">우연</span>을 설계하는 플랫폼일 뿐, 그 <span className="text-secondary glow-magenta">우연</span>을 필연으로 만들지는 사용자에게 달려있습니다.
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                A. 절대 아닙니다. <span className="text-primary glow-cyan">SPOT</span>은 <span className="text-secondary glow-magenta">우연</span>을 설계해드리는 플랫폼일 뿐,
+                그 <span className="text-secondary glow-magenta">우연</span>이 이성관계, 동성친구, 동네친구, 모임, 타지에서 우연히 만나게 된 가벼운 관계 등으로 만들지는
+                오로지 사용자에 의존합니다.
               </p>
             </div>
 
@@ -245,8 +314,9 @@ export default function Home() {
               <h3 className="text-xl font-black mb-3 text-accent">
                 Q. MBTI만으로 충분한가요?
               </h3>
-              <p className="text-lg text-muted-foreground">
-                A. 베타는 MBTI 기반입니다. 정식 버전에서는 다양한 성향 데이터가 추가됩니다.
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                A. 맞습니다. MBTI만으로는 나와 성향이 비슷한지 불확실합니다.
+                이에 정식 버전에서는 다양한 성향 데이터가 추가될 예정입니다.
               </p>
             </div>
           </div>
@@ -267,9 +337,52 @@ export default function Home() {
                 내 주변 확인하기
               </Button>
             </a>
-            <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
-              베타 오픈 알림 받기
-            </Button>
+            
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
+                  베타 오픈 알림 받기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    가장 먼저 <span className="text-secondary glow-magenta">우연</span>을 설계해보세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    알림 신청하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>
