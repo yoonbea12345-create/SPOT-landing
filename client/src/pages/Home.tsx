@@ -34,20 +34,20 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
-              반경 10m이내<br />
-              나와 같은 mbti는<br />
-              <span className="text-secondary glow-magenta">몇명일까?</span>
+              반경 10m 이내<br />
+              나와 맞는 사람은<br />
+              <span className="text-secondary glow-magenta">몇 명일까?</span>
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              온라인 말고,<br />
-              현실 공간에서 연결되는 순간.
+              말 걸기 전에<br />
+              확률을 먼저 확인하세요.
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Spot은 내 주변에 존재하는<br />
-              사람들의 성향을 보여주는<br />
-              공간 기반 소셜 플랫폼입니다.
+              Spot은 공간 위에 호환성을 매핑합니다.<br />
+              감정적 리스크를 낮추고,<br />
+              용기를 더 쉽게 만듭니다.
             </p>
           </div>
 
@@ -55,7 +55,7 @@ export default function Home() {
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                  내 주변 확인하기
+                  내 주변 확률 확인
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
@@ -64,7 +64,7 @@ export default function Home() {
                     <span className="text-primary glow-cyan">SPOT</span> 시작하기
                   </DialogTitle>
                   <DialogDescription className="text-center">
-                    지금 바로 내 주변의 <span className="text-secondary glow-magenta">우연</span>을 확인하세요
+                    당신이 선택합니다. 우리는 확률만 보여줍니다.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -110,7 +110,7 @@ export default function Home() {
                     <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
                   </DialogTitle>
                   <DialogDescription className="text-center">
-                    가장 먼저 <span className="text-secondary glow-magenta">우연</span>을 설계해보세요
+                    가장 먼저 확률을 확인하세요
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -151,41 +151,41 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            혹시 이런 적 없었나요?
+            당신이 회피하는 진짜 이유
           </h2>
 
           <div className="space-y-8 mb-16">
             <div className="p-6 border-2 border-primary/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                " 저 사람 왠지 나랑 잘맞을거 같은데...말 걸어도 될까?"
+                "말 걸었다가 안 맞으면 어떡하지?"
               </p>
             </div>
 
             <div className="p-6 border-2 border-secondary/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                "여기 핫플이라고는 하던데, 나랑 맞는 곳일까?"
+                "여기 사람들이 나랑 맞는 사람들일까?"
               </p>
             </div>
 
             <div className="p-6 border-2 border-accent/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                "요즘은 다 온라인이지...오프라인은 너무 부담돼,"
+                "감정 쏟았다가 헛수고 하기 싫어."
               </p>
             </div>
           </div>
 
           <div className="space-y-6 text-center">
             <p className="text-2xl font-black">
-              우리는 사람이 싫은게 아닙니다.
+              당신은 사람이 싫은 게 아닙니다.
             </p>
 
             <p className="text-xl text-muted-foreground">
-              모르는 상태가 불안한 겁니다.
+              감정적 상처가 두려운 겁니다.
             </p>
 
             <p className="text-2xl font-black">
               문제는 용기가 아니라,<br />
-              <span className="text-primary glow-cyan">정보의 부재</span>입니다.
+              <span className="text-primary glow-cyan">호환성 불확실성</span>입니다.
             </p>
           </div>
         </div>
@@ -195,49 +195,51 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            <span className="text-primary glow-cyan">SPOT</span>은 오프라인 만남을<br />
-            이렇게 바꾸고자 합니다.
+            <span className="text-primary glow-cyan">SPOT</span>은 감정적 리스크를<br />
+            이렇게 낮춥니다.
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="p-8 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-primary mb-4">1️⃣</div>
-              <h3 className="text-2xl font-black mb-4">내 주변 동질성 확인</h3>
+              <h3 className="text-2xl font-black mb-4">호환성 확률 계산</h3>
               <p className="text-muted-foreground">
-                지금 반경 안에<br />
-                나와 같은 MBTI가 몇 명 있는지 확인
+                반경 10m 이내<br />
+                나와 성향이 맞는 사람이<br />
+                몇 명인지 확인합니다.
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="p-8 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-secondary mb-4">2️⃣</div>
-              <h3 className="text-2xl font-black mb-4">결 맞는 공간 탐색</h3>
+              <h3 className="text-2xl font-black mb-4">공간 기반 필터링</h3>
               <p className="text-muted-foreground">
-                인기 많은 곳이 아니라,<br />
-                나와 비슷한 사람들이 모이는 공간을 선택
+                핫플이 아니라<br />
+                나와 맞는 사람들이<br />
+                모이는 공간을 찾습니다.
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="p-8 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-accent mb-4">3️⃣</div>
-              <h3 className="text-2xl font-black mb-4">강제가 아닌 <span className="text-primary glow-cyan">우연</span>을 연출</h3>
+              <h3 className="text-2xl font-black mb-4">완전한 사용자 통제</h3>
               <p className="text-muted-foreground">
-                <span className="text-primary glow-cyan">SPOT</span>은 유저의 GPS기반으로<br />
-                <span className="text-primary glow-cyan">우연</span>적인 만남을 연출하지,<br />
-                타 앱과 비슷한 매칭 시스템이 아닙니다.
+                당신이 보일지 말지 결정합니다.<br />
+                당신이 누구를 볼지 결정합니다.<br />
+                강요는 없습니다.
               </p>
             </div>
           </div>
 
           <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
             <p className="text-2xl font-black mb-4">
-              <span className="text-primary glow-cyan">SPOT</span>을 통해 더이상 <span className="text-primary glow-cyan">우연</span>을 기다리지 마세요.
+              우리는 사랑을 보장하지 않습니다.
             </p>
             <p className="text-2xl font-black text-primary glow-cyan">
-              이제는 <span className="text-secondary glow-magenta">우연</span>을 설계할 차례입니다.
+              단지 확률을 높이고, 용기를 더 쉽게 만듭니다.
             </p>
           </div>
         </div>
@@ -255,8 +257,8 @@ export default function Home() {
                 className="w-full max-w-sm rounded-lg shadow-2xl"
               />
               <p className="mt-6 text-lg font-semibold text-center">
-                지도 위에 나와 같은 성향의 사람들이<br />
-                <span className="text-primary glow-cyan">실시간</span>으로 표시됩니다.
+                공간 위에 호환성 확률이<br />
+                <span className="text-primary glow-cyan">실시간</span>으로 매핑됩니다.
               </p>
             </div>
 
@@ -268,8 +270,8 @@ export default function Home() {
                 className="w-full max-w-sm rounded-lg shadow-2xl"
               />
               <p className="mt-6 text-lg font-semibold text-center">
-                반경 10m 이내에서 나와 같은 성향의 사람을 발견하면<br />
-                <span className="text-secondary glow-magenta">실시간 알림</span>을 받습니다.
+                확률이 높아지면<br />
+                <span className="text-secondary glow-magenta">알림</span>을 받습니다.
               </p>
             </div>
           </div>
@@ -280,8 +282,25 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            <span className="text-primary glow-cyan">SPOT</span>은 사람을 노출하지 않습니다.
+            통제권은 당신에게 있습니다.
           </h2>
+
+          <div className="space-y-6 mb-12">
+            <div className="p-6 border-2 border-primary/50 bg-primary/5 flex items-center gap-4">
+              <span className="text-3xl">✓</span>
+              <p className="text-lg font-semibold">당신이 보일지 말지 선택합니다</p>
+            </div>
+
+            <div className="p-6 border-2 border-primary/50 bg-primary/5 flex items-center gap-4">
+              <span className="text-3xl">✓</span>
+              <p className="text-lg font-semibold">당신이 누구를 볼지 필터링합니다</p>
+            </div>
+
+            <div className="p-6 border-2 border-primary/50 bg-primary/5 flex items-center gap-4">
+              <span className="text-3xl">✓</span>
+              <p className="text-lg font-semibold">부적절한 사용자는 자동 차단됩니다</p>
+            </div>
+          </div>
 
           <div className="space-y-6 mb-12">
             <div className="p-6 border-2 border-destructive/50 bg-destructive/5 flex items-center gap-4">
@@ -296,18 +315,17 @@ export default function Home() {
 
             <div className="p-6 border-2 border-destructive/50 bg-destructive/5 flex items-center gap-4">
               <span className="text-3xl">✕</span>
-              <p className="text-lg font-semibold">동의 없는 노출</p>
+              <p className="text-lg font-semibold">강제 매칭 시스템</p>
             </div>
           </div>
 
           <div className="p-8 border-2 border-primary/50 bg-primary/5">
-            <p className="text-xl font-semibold mb-4">우리는</p>
-            <p className="text-2xl font-black mb-6">
-              "존재를 보여주되, 개인은 보호한다"의<br />
-              원칙 위에 <span className="text-secondary glow-magenta">우연</span>을 설계합니다.
+            <p className="text-2xl font-black mb-6 text-center">
+              우리는 확률을 보여줄 뿐,<br />
+              당신을 강요하지 않습니다.
             </p>
-            <p className="text-xl text-primary glow-cyan font-semibold">
-              통제권은 항상 사용자에게 있습니다.
+            <p className="text-xl text-primary glow-cyan font-semibold text-center">
+              선택은 항상 당신의 것입니다.
             </p>
           </div>
         </div>
@@ -324,24 +342,22 @@ export default function Home() {
             {/* FAQ 1 */}
             <div className="p-6 border-2 border-border bg-background/50">
               <h3 className="text-xl font-black mb-3 text-primary glow-cyan">
-                Q. 제 위치가 그대로 보이나요?
+                Q. 내 위치가 정확히 노출되나요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 아닙니다. 사용자님의 위치 정보는 타인에게 반경 10m 이내의 오차로 보여지고,
-                반경 내에 가까워질 경우 <span className="text-primary glow-cyan">SPOT</span>에서 알려드리며,
-                사용자님의 반경 10m 이내에 사용자님과 성향이 비슷한 분이 많을 경우에도 <span className="text-primary glow-cyan">SPOT</span>에서 알려드립니다.
+                A. 아닙니다. 반경 10m 오차 범위로만 표시됩니다.
+                정밀한 좌표는 절대 공개되지 않습니다.
               </p>
             </div>
 
             {/* FAQ 2 */}
             <div className="p-6 border-2 border-border bg-background/50">
               <h3 className="text-xl font-black mb-3 text-secondary glow-magenta">
-                Q. 연애 매칭앱인가요?
+                Q. 연애 앱인가요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 절대 아닙니다. <span className="text-primary glow-cyan">SPOT</span>은 <span className="text-secondary glow-magenta">우연</span>을 설계해드리는 플랫폼일 뿐,
-                그 <span className="text-secondary glow-magenta">우연</span>이 이성관계, 동성친구, 동네친구, 모임, 타지에서 우연히 만나게 된 가벼운 관계 등으로 만들지는
-                오로지 사용자에 의존합니다.
+                A. 아닙니다. <span className="text-primary glow-cyan">SPOT</span>은 호환성 확률을 보여주는 인프라입니다.
+                연애든, 친구든, 네트워킹이든—당신이 결정합니다.
               </p>
             </div>
 
@@ -351,8 +367,30 @@ export default function Home() {
                 Q. MBTI만으로 충분한가요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 맞습니다. MBTI만으로는 나와 성향이 비슷한지 불확실합니다.
-                이에 정식 버전에서는 다양한 성향 데이터가 추가될 예정입니다.
+                A. 베타 버전은 MBTI 기반입니다.
+                정식 버전에서는 더 정교한 호환성 데이터가 추가됩니다.
+              </p>
+            </div>
+
+            {/* FAQ 4 - NEW */}
+            <div className="p-6 border-2 border-border bg-background/50">
+              <h3 className="text-xl font-black mb-3 text-primary glow-cyan">
+                Q. 나를 숨길 수 있나요?
+              </h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                A. 네. 언제든지 가시성을 끄거나 켤 수 있습니다.
+                당신이 보고 싶을 때만 보입니다.
+              </p>
+            </div>
+
+            {/* FAQ 5 - NEW */}
+            <div className="p-6 border-2 border-border bg-background/50">
+              <h3 className="text-xl font-black mb-3 text-secondary glow-magenta">
+                Q. 이상한 사람은 어떻게 걸러지나요?
+              </h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                A. 신고 시스템과 AI 필터링으로 부적절한 사용자는 자동 차단됩니다.
+                안전은 최우선입니다.
               </p>
             </div>
           </div>
@@ -363,15 +401,15 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-black mb-8">
-            지금 바로 <span className="text-primary glow-cyan">SPOT</span>을 다운받아<br />
-            <span className="text-secondary glow-magenta">우연</span>을 설계해보세요.
+            확률을 확인하세요.<br />
+            용기는 그 다음입니다.
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                  내 주변 확인하기
+                  내 주변 확률 확인
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
@@ -380,7 +418,7 @@ export default function Home() {
                     <span className="text-primary glow-cyan">SPOT</span> 시작하기
                   </DialogTitle>
                   <DialogDescription className="text-center">
-                    지금 바로 내 주변의 <span className="text-secondary glow-magenta">우연</span>을 확인하세요
+                    당신이 선택합니다. 우리는 확률만 보여줍니다.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -426,7 +464,7 @@ export default function Home() {
                     <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
                   </DialogTitle>
                   <DialogDescription className="text-center">
-                    가장 먼저 <span className="text-secondary glow-magenta">우연</span>을 설계해보세요
+                    가장 먼저 확률을 확인하세요
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 mt-4">
