@@ -47,7 +47,7 @@ export default function Home() {
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               Spot은 내 주변에 존재하는<br />
               사람들의 성향을 보여주는<br />
-              새로운 오프라인 소셜 플랫폼입니다.
+              공간 기반 소셜 플랫폼입니다.
             </p>
           </div>
 
