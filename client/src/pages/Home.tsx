@@ -35,20 +35,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Service Preview */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-2xl mx-auto">
-            <img 
-              src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-1_1770961248000_na1fn_c3BvdC1tYXAtcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTFfMTc3MDk2MTI0ODAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=mOTyHrv8zQPAsU02ykEPr6jChujrtq6DUcDeFxtWVIAsu-LwnLHFgUqCQ0phj5hWpdS23PNxKh65EJ8UV4HMSnK9wJqnBgD-KKCeQbte9kgLjqHa3NYIL2whJ1FAYVHplNy8T5JZPAyfiv5Rg2Kg4est~QivPuspH9Z8kHBsYpAN866P6JlZGNLbI0af4E7OZa5sJztVza1id5FMa3bDNJHOYn7xp1VJ9vcO28u0aCOzlPKRWTUgib6j6E4cYGPK0Won7wybMhkkmLObM-ofj8Yk0kFzqLum6CdWH0cLSIujJdZWS7mZyvY6t62Nn3DMoxvsBbSKea-E60CH0ez-hg__" 
-              alt="Map view"
-              className="w-full rounded-lg border-2 border-primary/50 shadow-lg"
-            />
-            <img 
-              src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-2_1770961255000_na1fn_c3BvdC1ub3RpZmljYXRpb24tcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTJfMTc3MDk2MTI1NTAwMF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=eEFrYIZEsfWQ62IVguOU7n-2K7JmU9goSh-o55V9HmbS3kkUbHhwARw23LE~BJn~4au9PpXusNDhmjFh99cx-bAgHbd0q0gr93sDFRTAntWRtztwShogSezpuBA8Zt7FDiiC0YTCmfwHmUJvP2DbtDbCrMMyghJtc271lzIpJj~-CHBz~nG5lIIdGwHunlALoGNNY54Me3BP~rIK1vNpKgsNEhZhmXrdybLmPI7~fXYgDUJgRSE9j~b4T8KSD-VV2tAjs6Fj4yH8fxkiOg-MzeVLBX0NrKDaSxZ~KeGteGReSz~ne-Mbsl394MYC93cIEpfVwr7xkG90HnNm-FpJOA__" 
-              alt="Notification"
-              className="w-full rounded-lg border-2 border-secondary/50 shadow-lg"
-            />
-          </div>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <a href="https://jupjup-mvp2-3g7l.vercel.app/index.html?category=%EC%B9%B4%ED%8E%98&from=qr" target="_blank" rel="noopener noreferrer">
               <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
@@ -158,8 +144,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trust Section */}
+      {/* Service Visualization - Map Section */}
       <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="flex flex-col items-center">
+              <img 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-1_1770961248000_na1fn_c3BvdC1tYXAtcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTFfMTc3MDk2MTI0ODAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=mOTyHrv8zQPAsU02ykEPr6jChujrtq6DUcDeFxtWVIAsu-LwnLHFgUqCQ0phj5hWpdS23PNxKh65EJ8UV4HMSnK9wJqnBgD-KKCeQbte9kgLjqHa3NYIL2whJ1FAYVHplNy8T5JZPAyfiv5Rg2Kg4est~QivPuspH9Z8kHBsYpAN866P6JlZGNLbI0af4E7OZa5sJztVza1id5FMa3bDNJHOYn7xp1VJ9vcO28u0aCOzlPKRWTUgib6j6E4cYGPK0Won7wybMhkkmLObM-ofj8Yk0kFzqLum6CdWH0cLSIujJdZWS7mZyvY6t62Nn3DMoxvsBbSKea-E60CH0ez-hg__" 
+                alt="Map visualization"
+                className="w-full max-w-sm rounded-lg border-2 border-primary shadow-lg"
+              />
+              <p className="mt-6 text-lg font-semibold text-center">
+                지도 위에 나와 같은 성향의 사람들이<br />
+                <span className="text-primary glow-cyan">전기 시안 색상</span>으로 표시됩니다.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center order-first md:order-last">
+              <img 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/2w0KUQtNPoCtXFq4c2TcnN-img-2_1770961255000_na1fn_c3BvdC1ub3RpZmljYXRpb24tcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzJ3MEtVUXROUG9DdFhGcTRjMlRjbk4taW1nLTJfMTc3MDk2MTI1NTAwMF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNDRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=eEFrYIZEsfWQ62IVguOU7n-2K7JmU9goSh-o55V9HmbS3kkUbHhwARw23LE~BJn~4au9PpXusNDhmjFh99cx-bAgHbd0q0gr93sDFRTAntWRtztwShogSezpuBA8Zt7FDiiC0YTCmfwHmUJvP2DbtDbCrMMyghJtc271lzIpJj~-CHBz~nG5lIIdGwHunlALoGNNY54Me3BP~rIK1vNpKgsNEhZhmXrdybLmPI7~fXYgDUJgRSE9j~b4T8KSD-VV2tAjs6Fj4yH8fxkiOg-MzeVLBX0NrKDaSxZ~KeGteGReSz~ne-Mbsl394MYC93cIEpfVwr7xkG90HnNm-FpJOA__" 
+                alt="Notification popup"
+                className="w-full max-w-sm rounded-lg border-2 border-secondary shadow-lg"
+              />
+              <p className="mt-6 text-lg font-semibold text-center">
+                반경 10m 이내에서 나와 같은 성향의 사람을 발견하면<br />
+                <span className="text-secondary glow-magenta">실시간 알림</span>을 받습니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
             <span className="text-primary glow-cyan">SPOT</span>은 사람을 노출하지 않습니다.
@@ -196,7 +213,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 md:px-8 border-t border-border">
+      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
             자주 묻는 질문
@@ -237,7 +254,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
+      <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-black mb-8">
             지금 바로 <span className="text-primary glow-cyan">SPOT</span>을 다운받아<br />
