@@ -267,7 +267,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Service Visualization - Notification */}
+      {/* Progressive Precision Visualization */}
       <section className="relative py-24 md:py-32 px-4 md:px-8 overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
@@ -277,19 +277,19 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="text-center mb-12 space-y-6">
             <h3 className="text-3xl md:text-4xl font-black">
-              마주칠 듯 가까운 거리,<br />
-              <span className="text-primary glow-cyan">알려드립니다.</span>
+              가까워질수록,<br />
+              <span className="text-primary glow-cyan">더 정확해집니다.</span>
             </h3>
             <p className="text-xl text-muted-foreground">
-              에어드랍처럼,<br />
-              바로 그 골목에<br />
-              같은 성향이 있을 때.
+              거리가 줄어들수록<br />
+              존재의 정보가<br />
+              점점 선명해집니다.
             </p>
           </div>
           <div className="flex justify-center">
             <img 
-            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/7rZtM0uR1H2Bno6SGOawz1_1771335869498_na1fn_c3BvdC1ub3RpZmljYXRpb24taG9uZ2RhZS1jbG9zZQ.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzdyWnRNMHVSMUgyQm5vNlNHT2F3ejFfMTc3MTMzNTg2OTQ5OF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRhRzl1WjJSaFpTMWpiRzl6WlEucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=YmyPF4fdxXnXXjPGFPDjX4zjibatjFB~Y0NmwPPBRYDT0vPJsbQVy4Xrg5ZFsCrcS95wCTbv1W1sGKVIbjCwdynEgcysSkbPr~ce5ZD1uM8EffN~XXycrNsJMeUB9~8QmIhL8E4kg-tfR-Xa3fS1hgjaPry1P1Lna3qb15cmFRDxoXVAc3FE6sTzFIzcK6YCr5pSkfPZOM1WFL4Sg26T8X~Kc2K5~Exan5AYyHSTTTJk6qS9HyjqqBavCLbB8zbfAfNcHeSORRDEDSVL5aD1RY4DTgLGHuJqcXiGxFMpjA2DtUaCkz69MjwEcyARA6~bIi4rMrUqqGVms6mBo~Ikcg__" 
-            alt="SPOT Notification Popup" 
+            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/6zw4BcyJtFtqoSDcxvdJqq_1771351475125_na1fn_c3BvdC1wcm9ncmVzc2l2ZS1wcmVjaXNpb24.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzZ6dzRCY3lKdEZ0cW9TRGN4dmRKcXFfMTc3MTM1MTQ3NTEyNV9uYTFmbl9jM0J2ZEMxd2NtOW5jbVZ6YzJsMlpTMXdjbVZqYVhOcGIyNC5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=tO7CZoBQUkIru5OKCEdenMuR-5L03XIRgg~2tRdMk9ZrHCjvxg9WLPhjj3JFXcFo~CMA-k5ulCokMsy89W39TEMjsbCWTuriTNk~ozgA2ZBhSLSrTLUnf~QVbypjPyMEG5BCzpkXQFWFEQ9vA5mbUjaWUmK5sOoA4qUQgd5Lp~~CHcTNkv72kbXEFF5Han4Ac4LpYCBD~84g0XiZpsh63L6qSowjM8X-77N4Rc0kkjpR45ANcnaaaazgAEq8LqgnthSliG~dKeDTGm30R85ospunVpDYHE8xhSnXcM3FvS8-TeDR3XIgb9xk2isZjmSolm0v2qaNaemAohxNW~IEHA__" 
+            alt="SPOT Progressive Precision" 
             className="w-80 md:w-96 rounded-lg shadow-2xl"
           />
           </div>
