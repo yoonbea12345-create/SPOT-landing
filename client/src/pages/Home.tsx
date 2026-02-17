@@ -259,7 +259,7 @@ export default function Home() {
           </div>
           <div className="flex justify-center">
             <img 
-            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/rHuu4yIbJYJT0kpUCnaEBm_1771334643157_na1fn_c3BvdC1tYXAtdjI.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L3JIdXU0eUliSllKVDBrcFVDbmFFQm1fMTc3MTMzNDY0MzE1N19uYTFmbl9jM0J2ZEMxdFlYQXRkakkucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=cA3qIB5pX66jfwYXwS8h1c5vbrhQrK9SbbySO8g~SDlyX3hDOLOdkkEtIUpsLnp8zsNqdk-Awvr~HcQLOb3yUvlgrcZjhrjuQRzEwnlxg2NdD2kbAweyaSozAJM06079Z1MqjheRfRCqEiTLT-8ETg1lxygNZGcihjWbl3J5NsfhBTLXKCCb8uV1W-k6bxPl8-JKqBS0ET15We3fB0rROjv67YZTYjOhHnlv0ZL~SFWpGvzgiiA2vb~V99rei12S5DWAHw-WVq082Muf0UBAJ6bgm182gOQng5Ls8PaAtcZEIp6rjndzsLZtmrNfVHd2AkLaDnIgL~MHGywb1w3VTQ__" 
+            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/7rZtM0uR1H2Bno6SGOawz1_1771335869498_na1fn_c3BvdC1tYXAtaG9uZ2RhZS13aWRl.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzdyWnRNMHVSMUgyQm5vNlNHT2F3ejFfMTc3MTMzNTg2OTQ5OF9uYTFmbl9jM0J2ZEMxdFlYQXRhRzl1WjJSaFpTMTNhV1JsLnBuZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=Jf~5ir4inwzta2WeIxkod5J7SC5YxV3MqUY0yFRNSIIq37jOLnvHpt7TPUt3SCYWnSmPoKCpB4uvQHfUEpbzYSjYucCRzKwYd9lTualuHofuz51btJHftJbRYa6g-UbKgkomJrPNoJZWgsIaPfh58tmmr5SBoNxzAOgPKfly0z64wzoBaUaFPltyvNpGp2OrL68a5smMTABCvcDuMB3JazRtBCWGQv6AOABH4UMou1B4PglZyGihMJ0C1UCPKb6dsrNFlBX9jI-lZ8ZjDLBfrxmYpOC0NFd4SrUbdTDxGteAzD337X8ttbYv04OYyZjqQ1biPaGdP4O5zg2F-fv53A__" 
             alt="SPOT Map Visualization" 
             className="w-80 md:w-96 rounded-lg shadow-2xl"
           />
@@ -274,12 +274,25 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
-        <div className="relative z-10 max-w-2xl mx-auto flex justify-center">
-          <img 
-            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/Adsdq3lOWQgnTuQlsiPBX1_1771335386593_na1fn_c3BvdC1ub3RpZmljYXRpb24tdjM.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0Fkc2RxM2xPV1FnblR1UWxzaVBCWDFfMTc3MTMzNTM4NjU5M19uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRkak0ucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=R23l06Xl52DGPvsBICNYHRPFU2~qdKgbhvuAwNe6XUDEnYHYn7IEisWe1vW6XGEnHaxJD2C9uzpGsljVG9WiLQsmCzSr6mNwhX1U5i8tr63K6q32fmorc5f6qZiX--Vs2ArNvoiWUgjop5TjuMbMclgZs6qRhgwMZIi00pI4sY2Yh-LRyKw9ZytxAW9T0e0og0AgAHkry8fRlYkXdcirqiD2Y5km3fhcH~TCbPvHheMURr-tl~IA90PoYw980twfqlxT8lf4Fqkusw666uKdurGmfUA7LDRcC9mKGAEkZVkdbTpVt~nceodqN2MOo1xoXS1wDG9GBv52OvFht3lHEQ__" 
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="text-center mb-12 space-y-6">
+            <h3 className="text-3xl md:text-4xl font-black">
+              마주칠 듯 가까운 거리,<br />
+              <span className="text-primary glow-cyan">알려드립니다.</span>
+            </h3>
+            <p className="text-xl text-muted-foreground">
+              에어드랍처럼,<br />
+              바로 그 골목에<br />
+              같은 성향이 있을 때.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <img 
+            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/7rZtM0uR1H2Bno6SGOawz1_1771335869498_na1fn_c3BvdC1ub3RpZmljYXRpb24taG9uZ2RhZS1jbG9zZQ.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94LzdyWnRNMHVSMUgyQm5vNlNHT2F3ejFfMTc3MTMzNTg2OTQ5OF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRhRzl1WjJSaFpTMWpiRzl6WlEucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=YmyPF4fdxXnXXjPGFPDjX4zjibatjFB~Y0NmwPPBRYDT0vPJsbQVy4Xrg5ZFsCrcS95wCTbv1W1sGKVIbjCwdynEgcysSkbPr~ce5ZD1uM8EffN~XXycrNsJMeUB9~8QmIhL8E4kg-tfR-Xa3fS1hgjaPry1P1Lna3qb15cmFRDxoXVAc3FE6sTzFIzcK6YCr5pSkfPZOM1WFL4Sg26T8X~Kc2K5~Exan5AYyHSTTTJk6qS9HyjqqBavCLbB8zbfAfNcHeSORRDEDSVL5aD1RY4DTgLGHuJqcXiGxFMpjA2DtUaCkz69MjwEcyARA6~bIi4rMrUqqGVms6mBo~Ikcg__" 
             alt="SPOT Notification Popup" 
             className="w-80 md:w-96 rounded-lg shadow-2xl"
           />
+          </div>
         </div>
       </section>
 
