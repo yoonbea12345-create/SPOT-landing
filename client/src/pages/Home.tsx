@@ -148,49 +148,27 @@ export default function Home() {
       {/* Problem Recognition Section */}
       <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            핫플은 알지만 거기 누가 있는지는 모릅니다
-          </h2>
-
-          <div className="space-y-8 mb-16">
-            <div className="p-6 border-2 border-primary/30 bg-background/50">
-              <p className="text-lg md:text-xl font-semibold">
-                "이 공간에<br />
-                나와 맞는 사람이<br />
-                있는지 알 수 없다."
-              </p>
-            </div>
-
-            <div className="p-6 border-2 border-secondary/30 bg-background/50">
-              <p className="text-lg md:text-xl font-semibold">
-                "핫플이라고 하지만,<br />
-                내 성향과 맞는 공간인지<br />
-                확인할 방법이 없다."
-              </p>
-            </div>
-
-            <div className="p-6 border-2 border-accent/30 bg-background/50">
-              <p className="text-lg md:text-xl font-semibold">
-                "온라인은 피상적이고,<br />
-                오프라인은 불확실하다."
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-6 text-center">
-            <p className="text-2xl font-black">
-              문제는 공간이 아닙니다.
+          <div className="space-y-12 text-center">
+            <p className="text-3xl md:text-5xl font-black leading-tight">
+              <span className="bg-secondary/30 px-2">핫플</span>은 알지만 거기<br />
+              <span className="bg-secondary/30 px-2">누가</span> 있는지는 모릅니다.
             </p>
 
-            <p className="text-xl text-muted-foreground">
-              문제는 성향 정보의 부재입니다.
+            <p className="text-3xl md:text-5xl font-black leading-tight">
+              지금 <span className="bg-secondary/30 px-2">여기</span>, <span className="bg-secondary/30 px-2">어떤</span> 사람들이<br />
+              있는지도 모릅니다.
             </p>
 
-            <p className="text-2xl font-black">
-              공간은 공유되지만,<br />
-              <span className="text-primary glow-cyan">성향의 존재는<br />
-              보이지 않습니다.</span>
+            <p className="text-3xl md:text-5xl font-black leading-tight">
+              <span className="bg-secondary/30 px-2">어디</span>인지는 알지만<br />
+              <span className="bg-secondary/30 px-2">누가</span> 있는지는 모릅니다.
             </p>
+
+            <div className="pt-8">
+              <p className="text-4xl md:text-6xl font-black leading-tight">
+                <span className="text-primary glow-cyan">SPOT</span>은 그 정보를 보여줍니다.
+              </p>
+            </div>
           </div>
         </div>
       </section>
