@@ -146,8 +146,13 @@ export default function Home() {
       </section>
 
       {/* Problem Recognition Section */}
-      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
-        <div className="max-w-4xl mx-auto">
+      <section className="relative py-20 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-12 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight">
               핫플은 알지만 거기<br />
@@ -175,8 +180,13 @@ export default function Home() {
       </section>
 
       {/* Solution Section */}
-      <section className="py-20 px-4 md:px-8">
-        <div className="max-w-4xl mx-auto">
+      <section className="relative py-20 px-4 md:px-8 overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
             <span className="text-primary glow-cyan">SPOT</span>은<br />
             성향의 존재를<br />
@@ -234,8 +244,13 @@ export default function Home() {
       </section>
 
       {/* Service Visualization - Map */}
-      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative py-20 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
               <img 
@@ -266,8 +281,13 @@ export default function Home() {
       </section>
 
       {/* Service Visualization - Notification */}
-      <section className="py-20 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative py-20 px-4 md:px-8 overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h3 className="text-3xl font-black">
@@ -298,8 +318,13 @@ export default function Home() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 px-4 md:px-8 border-t border-border">
-        <div className="max-w-4xl mx-auto">
+      <section className="relative py-20 px-4 md:px-8 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
             <span className="text-primary glow-cyan">SPOT</span>은<br />
             개인을 노출하지 않습니다.
@@ -380,8 +405,13 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
-        <div className="max-w-4xl mx-auto">
+      <section className="relative py-20 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
             자주 묻는 질문
           </h2>
@@ -478,8 +508,13 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 px-4 md:px-8 border-t border-border">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative py-20 px-4 md:px-8 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-6xl font-black mb-8">
             지금 바로<br />
             <span className="text-primary glow-cyan">SPOT</span>을<br />
