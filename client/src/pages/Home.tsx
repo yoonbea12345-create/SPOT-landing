@@ -149,7 +149,7 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            공간 안의 보이지 않는 정보
+            핫플은 알지만 거기 누가 있는지는 모릅니다
           </h2>
 
           <div className="space-y-8 mb-16">
