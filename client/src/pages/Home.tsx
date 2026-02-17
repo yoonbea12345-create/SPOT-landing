@@ -253,15 +253,16 @@ export default function Home() {
             <div className="order-1 md:order-2 space-y-6">
               <h3 className="text-3xl font-black">
                 지도 위에,<br />
-                <span className="text-primary glow-cyan">성향이 보입니다.</span>
+                <span className="text-primary glow-cyan">사람들이 보입니다.</span>
               </h3>
               <p className="text-xl text-muted-foreground">
-                같은 공간 안,<br />
-                어떤 성향이 어디에 모여 있는지 보여줍니다.
+                지금여기,<br />
+                어떤 사람들이 어디에<br />
+                모여 있는지 보입니다.
               </p>
               <p className="text-lg text-muted-foreground">
                 개인은 보이지 않습니다.<br />
-                존재의 밀도만 보입니다.
+                그저 존재만 보입니다.
               </p>
             </div>
           </div>
