@@ -260,7 +260,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
               <img 
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/PrZGnxhDHUZBdGRq.png" 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/tK9Ec1K8N7bDk45ZKgBJ25-img-1_1771320887000_na1fn_c3BvdC1tYXAtbmV3.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L3RLOUVjMUs4TjdiRGs0NVpLZ0JKMjUtaW1nLTFfMTc3MTMyMDg4NzAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRibVYzLnBuZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=ddLGPnL2rAtMLZl7OQCyILxMM3b0d8BtoDKfWvX2x~j1OMUK56kkeSi7WRIp1zCjn0z6EVmy9yDZeSiXbacER7Gil61jCiURRsGhPeFcx7VLTsFNV~cZ4DfxJ9wjXS8bJKAvn2VqZlhXw5b2hax0uW7S9Qe~D7tY9JqsTvDKmg6~xMmyGO5M2yvYk3NmgkODpWhNF2E3x8a10cadK2F8IKfPkQJ93pg6kLgJf9FOu6BWuxlagJMinZRzl5CUVEahpyhWSgPH7cQiS9W8E0j6dZEqNmModbirhcucsnoAPulXA9XHbTFFvrN9MCcck2DXNaj89lyypDuF9YwGT13-Pw__" 
                 alt="SPOT Map Visualization" 
                 className="w-full rounded-lg border-2 border-primary shadow-2xl"
               />
@@ -309,7 +309,7 @@ export default function Home() {
             </div>
             <div>
               <img 
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/OPXQRKWPfAEYZZrR.png" 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/tK9Ec1K8N7bDk45ZKgBJ25-img-2_1771320881000_na1fn_c3BvdC1ub3RpZmljYXRpb24tbmV3.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L3RLOUVjMUs4TjdiRGs0NVpLZ0JKMjUtaW1nLTJfMTc3MTMyMDg4MTAwMF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRibVYzLnBuZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=QSmJEJbXHrcJPIJGoj6SXY2YWjdHys2zgW~XF4gH4amXA9yXYxWlwjKqNkCeEJRMMDJbmVlXmnTs5ul4bOnmNIsf-9HVpzXFrEXjb3rqzZwX1PDCfKWu6TvwfpJlq3NDbyItX1EdNwWQgkOcG9G48oUtigfMv~Be1EZ0IBGhpNRldONYUakq2CeuASTCiQqqAOxLas~bxA3O1ptIbvG1ttqwGfqdUuLiUNN5HHcaeZP~fOQw3zlFQc1rFF4oPSe0TZdC4J8SC5ZT1Zwd1YE5l~tUYERRFls9nhfKknduNBtMd1xADeiQ9cUy7oSIQrxXPNuwQH9XgLXHhcFlhkUa1g__" 
                 alt="SPOT Notification Popup" 
                 className="w-full rounded-lg border-2 border-secondary shadow-2xl"
               />
