@@ -332,6 +332,48 @@ export default function Home() {
               전적으로 사용자에게 있습니다.
             </p>
           </div>
+
+          {/* Distance-Based Visibility System */}
+          <div className="mt-16">
+            <h3 className="text-3xl font-black mb-8 text-center">
+              거리 기반 가시성 시스템
+            </h3>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Far Distance */}
+              <div className="p-6 border-2 border-secondary/50 bg-secondary/5">
+                <div className="text-4xl mb-4">🔲</div>
+                <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
+                  먼 거리
+                </h4>
+                <p className="text-muted-foreground">
+                  먼 거리의 사용자는<br />
+                  넓은 구역 단위로만 표시됩니다.<br />
+                  정확한 위치는 공개되지 않습니다.
+                </p>
+              </div>
+
+              {/* Close Proximity */}
+              <div className="p-6 border-2 border-primary/50 bg-primary/5">
+                <div className="text-4xl mb-4">🎯</div>
+                <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
+                  근접 거리
+                </h4>
+                <p className="text-muted-foreground">
+                  가까운 거리에서만<br />
+                  위치 정밀도가 증가합니다.<br />
+                  개인 추적은 불가능합니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 p-6 border-2 border-border bg-background/50">
+              <p className="text-lg text-center text-muted-foreground">
+                거리에 따라 가시성이 동적으로 변화하며,<br />
+                프라이버시와 정보 제공의 균형을 유지합니다.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
