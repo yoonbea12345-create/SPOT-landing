@@ -277,7 +277,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="text-center mb-12 space-y-6">
             <h3 className="text-3xl md:text-4xl font-black">
-              가까워질수록,  <span className="text-primary glow-cyan">더 정확해집니다.</span>
+              가까워질수록,  <span className="text-primary glow-cyan">더 정확해 집니다.</span>
             </h3>
             <p className="text-xl text-muted-foreground">
               거리가 줄어들수록<br />
