@@ -241,31 +241,12 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="order-2 md:order-1">
-              <img 
-                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/K61f8KTixS3AhZNDOnb9sq_1771333824827_na1fn_c3BvdC1tYXAtcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0s2MWY4S1RpeFMzQWhaTkRPbmI5c3FfMTc3MTMzMzgyNDgyN19uYTFmbl9jM0J2ZEMxdFlYQXRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=agdGHws~08w~-VXDwM01KSMErSLznmbAL3qCIRuwJbBSq0DgLmoyCXMjZfKibQXYtpiq6HmD1~h0efCABmeL-xw6FoAulw1K92xXToZkoTeAmH4FvEsdvVBdMbpnYX2sAK--7kblj-JQWhoG0e-5RjE6jJ~qZq~YWJ1xncyNReAN7MqZt2JOJF1O5yMi2YHR9gl62t07eYNp~y3YQz4iUza9TA~Hju5TisvEAp4v8Sz-6pFe8q3TqzYwvMzZHPNfFBeUxdDyi2G6gyyP2b13aEV6Vr1iRIfSau81lkNPFL-Oh3-ZxvoDMcqfAJp9IWaS6QrfvU4U5yPqf0quJkqihw__" 
-                alt="SPOT Map Visualization" 
-                className="w-full rounded-lg border-2 border-primary shadow-2xl"
-              />
-            </div>
-            <div className="order-1 md:order-2 space-y-6">
-              <h3 className="text-3xl font-black">
-                지도 위에,<br />
-                <span className="text-primary glow-cyan">사람들이 보입니다.</span>
-              </h3>
-              <p className="text-xl text-muted-foreground">
-                지금여기,<br />
-                어떤 사람들이 어디에<br />
-                모여 있는지 보입니다.
-              </p>
-              <p className="text-lg text-muted-foreground">
-                개인은 보이지 않습니다.<br />
-                그저 존재만 보입니다.
-              </p>
-            </div>
-          </div>
+        <div className="relative z-10 max-w-2xl mx-auto flex justify-center">
+          <img 
+            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/zk11KFp3Yo9ZfVtEe01m63_1771334353497_na1fn_c3BvdC1tYXAtYnJpZ2h0LnBuZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=a6z~JwX7fLotQ9rf8C95sJhj0O6PKNruVBjZS3rPTvEUz~bBbeHJtrqkHF8koFmYITKklvLT2WWDIrxGgYMTZvawcoWclQm6-A8f2UqVYBH5l7k8hQWmrj1~VmQc-HCWUB8y2s4aUsezeaQ0H6lj3YpQ6LXLVkARgqU6HnRh1wY5vm25e7C0JC6r17Hn356gHkbRfY-N3gDeK9-iDMF03tumy0YKUif9mzOo3RIZQiUWCaQUSTezXMIGGBx6it49DdYCXV7TQNwVmSLdt8KgId5bT0d3eXDrfii7pU99YCQyctaJ74~xYXu5yOq8Zq1G-reCf9Rw7aK4ycs4bsyXPg__" 
+            alt="SPOT Map Visualization" 
+            className="w-80 md:w-96 rounded-lg shadow-2xl"
+          />
         </div>
       </section>
 
@@ -276,33 +257,12 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h3 className="text-3xl font-black">
-                실시간<br />
-                <span className="text-secondary glow-magenta">근접 알림</span>
-              </h3>
-              <p className="text-xl text-muted-foreground">
-                반경 10m 이내에<br />
-                나와 같은 성향의 사용자가<br />
-                많아질 경우<br />
-                실시간으로 알려드립니다.
-              </p>
-              <p className="text-lg text-muted-foreground">
-                <span className="text-secondary glow-magenta">SPOT</span>은<br />
-                정보만 제공할 뿐,<br />
-                어떤 행동도 강요하지 않습니다.
-              </p>
-            </div>
-            <div>
-              <img 
-                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/K61f8KTixS3AhZNDOnb9sq_1771333824828_na1fn_c3BvdC1ub3RpZmljYXRpb24tcmVhbGlzdGlj.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0s2MWY4S1RpeFMzQWhaTkRPbmI5c3FfMTc3MTMzMzgyNDgyOF9uYTFmbl9jM0J2ZEMxdWIzUnBabWxqWVhScGIyNHRjbVZoYkdsemRHbGoucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=UG4oks-nwH6jrYD0tmT1T3hEbHhIPY~tqQ6Ipoh7FxzpDWVLh78UPPxVFQb8oIzgPNnvtZKPKhh0SHV6n1eaq2XJ2zwqzzAUpvkAFpvJUIk3kYXu2zgiO-4jreJVTZRE1rxzvhPrBqs6oESsK9gswDRTmSml~WFHHM70K-foG5EdfCNG0n5mbkjTqNwFBCXdmb1GSYRoA4GOcfsXrfIAZrB41~-IesKSl78UC9ilq6cxxCysgDB9mbNmqUN1obkAhBx4DHYfOLqeibVPj2I74IJpF3YcgEjnqqVnZ3TGKMWvQLuEyTutBRCdmufEkgwXFjlQ7LWO3oBIxo4ubJSj9g__" 
-                alt="SPOT Notification Popup" 
-                className="w-full rounded-lg border-2 border-secondary shadow-2xl"
-              />
-            </div>
-          </div>
+        <div className="relative z-10 max-w-2xl mx-auto flex justify-center">
+          <img 
+            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/zk11KFp3Yo9ZfVtEe01m63_1771334353497_na1fn_c3BvdC1ub3RpZmljYXRpb24tYnJpZ2h0LnBuZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=XcZc7~vS22iKxLd-0TQSVeiWfyv2i-ly0wLr5mffzAp7mK4rXvWsppUJJpWvy5sFKXxYGYEEom8D5gqKWaJ4PvYSkoRRcepm86eCaV~IERUTwe~9KkG0F7w~HhtVvKMopoagKe8v451LFA3OvOtpt4~YVz1eSVR2Nfyogdg9QaV2ImjcIbSKFVnFZiJLiN1ExKutHm1my1m7QnoMpBOvJ5IyCjXbXDa8cS4XtGj0JW87zrkUMAI4fkW6Ddu9fOQiX~wUMqe0ulyfLyPcHSoLP~7MzBmqJB42JkrSi60Ee1YyI-a~Y260W0fExC7uwFR8mgaHJxNJqNQqR0ts5OanYQ__" 
+            alt="SPOT Notification Popup" 
+            className="w-80 md:w-96 rounded-lg shadow-2xl"
+          />
         </div>
       </section>
 
