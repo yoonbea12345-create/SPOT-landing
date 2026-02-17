@@ -41,7 +41,7 @@ export default function Home() {
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               SPOT은 지금 여기 어떤<br />
-              사람들이 있는지 지도위에 보여줍니다.<br />
+              사람들이 있는지 지도 위에 보여줍니다.<br />
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
