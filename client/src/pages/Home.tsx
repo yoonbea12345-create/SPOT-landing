@@ -35,7 +35,7 @@ export default function Home() {
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
               반경 10m 이내<br />
-              나와 같은 mbti는<br />
+              나와 같은 MBTI는<br />
               <span className="text-secondary glow-magenta">몇 명일까?</span>
             </h2>
 
