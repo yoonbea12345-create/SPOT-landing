@@ -40,13 +40,13 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              SPOT은 이 공간 안에 나와<br />
-              비슷한 사람이 몇명 있는지 보여줍니다.<br />
+              SPOT은 지금 여기 어떤<br />
+              사람들이 있는지 지도위에 보여줍니다.<br />
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              SPOT은 같은 공간 내 성향 존재를<br />
-              지도 위에 표시하는 공간 정보 플랫폼입니다.
+              지금 여기 누가 있는지,<br />
+              바로 확인해보세요.
             </p>
           </div>
 
