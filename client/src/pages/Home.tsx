@@ -150,18 +150,18 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight">
-              <span className="bg-secondary/30 px-2">핫플</span>은 알지만 거기<br />
-              <span className="bg-secondary/30 px-2">누가</span> 있는지는 모릅니다.
+              <span className="text-secondary glow-magenta">핫플</span>은 알지만 거기<br />
+              <span className="text-secondary glow-magenta">누가</span> 있는지는 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
-              지금 <span className="bg-secondary/30 px-2">여기</span>, <span className="bg-secondary/30 px-2">어떤</span> 사람들이<br />
+              지금 <span className="text-secondary glow-magenta">여기</span>, <span className="text-secondary glow-magenta">어떤</span> 사람들이<br />
               있는지도 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
-              <span className="bg-secondary/30 px-2">어디</span>인지는 알지만<br />
-              <span className="bg-secondary/30 px-2">누가</span> 있는지는 모릅니다.
+              <span className="text-secondary glow-magenta">어디</span>인지는 알지만<br />
+              <span className="text-secondary glow-magenta">누가</span> 있는지는 모릅니다.
             </p>
 
             <div className="pt-8">
