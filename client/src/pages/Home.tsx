@@ -197,8 +197,8 @@ export default function Home() {
               <div className="text-5xl font-black text-primary mb-4">1️⃣</div>
               <h3 className="text-2xl font-black mb-4">반경 10m 안에</h3>
               <p className="text-muted-foreground">
-                같은 MBTI가<br />
-                몇 명 있는지 표시
+                같은 MBTI<br />
+                인원 수 표
               </p>
             </div>
 
@@ -208,7 +208,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-4">사람 많은 곳이 아니라,</h3>
               <p className="text-muted-foreground">
                 나와 비슷한 사람이<br />
-                많은 곳을 보기
+                많은 곳.
               </p>
             </div>
 
@@ -217,8 +217,8 @@ export default function Home() {
               <div className="text-5xl font-black text-accent mb-4">3️⃣</div>
               <h3 className="text-2xl font-black mb-4">보여주기만 합니다.</h3>
               <p className="text-muted-foreground">
-                연결은<br />
-                강요하지 않습니다.
+                연결은 강요하지<br />
+                않습니다.
               </p>
             </div>
           </div>
