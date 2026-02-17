@@ -40,9 +40,8 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              공간은 공유되지만,<br />
-              성향의 존재는<br />
-              보이지 않습니다.
+              지도는 공간만을 보여줍니다<br />
+              나와 비슷한 사람은 보여주지 않습니다.<br />
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
