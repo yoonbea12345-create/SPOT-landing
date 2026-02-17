@@ -34,19 +34,21 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
-              반경 10m이내<br />
+              반경 10m 이내<br />
               나와 같은 mbti는<br />
-              <span className="text-secondary glow-magenta">몇 명 일까?</span>
+              <span className="text-secondary glow-magenta">몇 명일까?</span>
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               공간은 공유되지만,<br />
-              성향의 존재는 보이지 않습니다.
+              성향의 존재는<br />
+              보이지 않습니다.
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               Spot은 같은 공간 안에<br />
-              유사한 성향이 존재하는지를 보여주는<br />
+              유사한 성향이<br />
+              존재하는지를 보여주는<br />
               공간 정보 플랫폼입니다.
             </p>
           </div>
@@ -157,19 +159,24 @@ export default function Home() {
           <div className="space-y-8 mb-16">
             <div className="p-6 border-2 border-primary/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                "이 공간에 나와 맞는 사람이 있는지 알 수 없다."
+                "이 공간에<br />
+                나와 맞는 사람이<br />
+                있는지 알 수 없다."
               </p>
             </div>
 
             <div className="p-6 border-2 border-secondary/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                "핫플이라고 하지만, 내 성향과 맞는 공간인지 확인할 방법이 없다."
+                "핫플이라고 하지만,<br />
+                내 성향과 맞는 공간인지<br />
+                확인할 방법이 없다."
               </p>
             </div>
 
             <div className="p-6 border-2 border-accent/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                "온라인은 피상적이고, 오프라인은 불확실하다."
+                "온라인은 피상적이고,<br />
+                오프라인은 불확실하다."
               </p>
             </div>
           </div>
@@ -185,7 +192,8 @@ export default function Home() {
 
             <p className="text-2xl font-black">
               공간은 공유되지만,<br />
-              <span className="text-primary glow-cyan">성향의 존재는 보이지 않습니다.</span>
+              <span className="text-primary glow-cyan">성향의 존재는<br />
+              보이지 않습니다.</span>
             </p>
           </div>
         </div>
@@ -195,7 +203,8 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            <span className="text-primary glow-cyan">SPOT</span>은 성향의 존재를<br />
+            <span className="text-primary glow-cyan">SPOT</span>은<br />
+            성향의 존재를<br />
             공간 위에 표시합니다.
           </h2>
 
@@ -203,29 +212,32 @@ export default function Home() {
             {/* Step 1 */}
             <div className="p-8 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-primary mb-4">1️⃣</div>
-              <h3 className="text-2xl font-black mb-4">반경 내 성향 분포 확인</h3>
+              <h3 className="text-2xl font-black mb-4">반경 내<br />성향 분포 확인</h3>
               <p className="text-muted-foreground">
                 지금 이 공간에<br />
-                같은 MBTI가 몇 명 존재하는지 표시
+                같은 MBTI가<br />
+                몇 명 존재하는지 표시
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="p-8 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-secondary mb-4">2️⃣</div>
-              <h3 className="text-2xl font-black mb-4">성향 밀도 기반 공간 선택</h3>
+              <h3 className="text-2xl font-black mb-4">성향 밀도 기반<br />공간 선택</h3>
               <p className="text-muted-foreground">
                 인기 순위가 아닌,<br />
-                유사 성향 밀도로 공간을 선택
+                유사 성향 밀도로<br />
+                공간을 선택
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="p-8 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-accent mb-4">3️⃣</div>
-              <h3 className="text-2xl font-black mb-4">가시성 제공, 강제 없음</h3>
+              <h3 className="text-2xl font-black mb-4">가시성 제공,<br />강제 없음</h3>
               <p className="text-muted-foreground">
-                <span className="text-primary glow-cyan">SPOT</span>은 존재를 보여줄 뿐,<br />
+                <span className="text-primary glow-cyan">SPOT</span>은<br />
+                존재를 보여줄 뿐,<br />
                 연결을 강요하지 않습니다.<br />
                 선택은 사용자의 몫입니다.
               </p>
@@ -234,10 +246,13 @@ export default function Home() {
 
           <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
             <p className="text-2xl font-black mb-4">
-              <span className="text-primary glow-cyan">SPOT</span>은 정보를 제공합니다.
+              <span className="text-primary glow-cyan">SPOT</span>은<br />
+              정보를 제공합니다.
             </p>
             <p className="text-2xl font-black text-primary glow-cyan">
-              그 정보를 어떻게 활용할지는 당신이 결정합니다.
+              그 정보를<br />
+              어떻게 활용할지는<br />
+              당신이 결정합니다.
             </p>
           </div>
         </div>
@@ -284,7 +299,8 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            <span className="text-primary glow-cyan">SPOT</span>은 개인을 노출하지 않습니다.
+            <span className="text-primary glow-cyan">SPOT</span>은<br />
+            개인을 노출하지 않습니다.
           </h2>
 
           <div className="space-y-6 mb-12">
@@ -307,11 +323,13 @@ export default function Home() {
           <div className="p-8 border-2 border-primary/50 bg-primary/5">
             <p className="text-xl font-semibold mb-4">우리는</p>
             <p className="text-2xl font-black mb-6">
-              "성향의 존재는 보여주되, 개인은 보호한다"의<br />
+              "성향의 존재는 보여주되,<br />
+              개인은 보호한다"의<br />
               원칙으로 설계되었습니다.
             </p>
             <p className="text-xl text-primary glow-cyan font-semibold">
-              가시성 제어권은 전적으로 사용자에게 있습니다.
+              가시성 제어권은<br />
+              전적으로 사용자에게 있습니다.
             </p>
           </div>
         </div>
@@ -331,8 +349,11 @@ export default function Home() {
                 Q. 제 위치가 그대로 노출되나요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 아닙니다. 사용자의 위치는 반경 10m 오차 범위로만 표시됩니다.
-                정밀 좌표는 공개되지 않으며, 성향 분포 정보만 제공됩니다.
+                A. 아닙니다.<br />
+                사용자의 위치는<br />
+                반경 10m 오차 범위로만 표시됩니다.<br />
+                정밀 좌표는 공개되지 않으며,<br />
+                성향 분포 정보만 제공됩니다.
               </p>
             </div>
 
@@ -342,8 +363,13 @@ export default function Home() {
                 Q. 연애 앱인가요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 아닙니다. <span className="text-primary glow-cyan">SPOT</span>은 공간 내 성향 존재 정보를 제공하는 플랫폼입니다.
-                연결을 강요하지 않으며, 정보 활용 방식은 전적으로 사용자가 결정합니다.
+                A. 아닙니다.<br />
+                <span className="text-primary glow-cyan">SPOT</span>은<br />
+                공간 내 성향 존재 정보를<br />
+                제공하는 플랫폼입니다.<br />
+                연결을 강요하지 않으며,<br />
+                정보 활용 방식은<br />
+                전적으로 사용자가 결정합니다.
               </p>
             </div>
 
@@ -353,8 +379,11 @@ export default function Home() {
                 Q. MBTI만으로 충분한가요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 베타 버전은 MBTI 기반입니다.
-                정식 버전에서는 다양한 성향 데이터가 추가될 예정입니다.
+                A. 베타 버전은<br />
+                MBTI 기반입니다.<br />
+                정식 버전에서는<br />
+                다양한 성향 데이터가<br />
+                추가될 예정입니다.
               </p>
             </div>
 
@@ -364,8 +393,11 @@ export default function Home() {
                 Q. 내 존재를 숨길 수 있나요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 가능합니다. 사용자는 자신의 가시성을 제어할 수 있으며,
-                타인의 정보만 확인하는 모드도 선택 가능합니다.
+                A. 가능합니다.<br />
+                사용자는<br />
+                자신의 가시성을 제어할 수 있으며,<br />
+                타인의 정보만 확인하는<br />
+                모드도 선택 가능합니다.
               </p>
             </div>
 
@@ -375,8 +407,10 @@ export default function Home() {
                 Q. 부적절한 사용자는 어떻게 필터링되나요?
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                A. 신고 시스템과 자동 필터링이 작동하며,
-                부적절한 행동이 감지된 사용자는 즉시 제한됩니다.
+                A. 신고 시스템과<br />
+                자동 필터링이 작동하며,<br />
+                부적절한 행동이 감지된<br />
+                사용자는 즉시 제한됩니다.
               </p>
             </div>
           </div>
@@ -387,8 +421,10 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 border-t border-border">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-black mb-8">
-            지금 바로 <span className="text-primary glow-cyan">SPOT</span>으로<br />
-            공간 내 성향 정보를 확인하세요.
+            지금 바로<br />
+            <span className="text-primary glow-cyan">SPOT</span>으로<br />
+            공간 내 성향 정보를<br />
+            확인하세요.
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
