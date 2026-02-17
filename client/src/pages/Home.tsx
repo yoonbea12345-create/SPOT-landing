@@ -157,7 +157,7 @@ export default function Home() {
           <div className="space-y-8 mb-16">
             <div className="p-6 border-2 border-primary/30 bg-background/50">
               <p className="text-lg md:text-xl font-semibold">
-                " 저 사람 왠지 나랑 잘맞을거 같은데...말 걸어도 될까?"
+                "온라인에서도, 오프라인에서도 나와 맞는 사람이 왜이렇게 없는거지...."
               </p>
             </div>
 
