@@ -198,7 +198,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-4">반경 10m 안에</h3>
               <p className="text-muted-foreground">
                 같은 MBTI<br />
-                인원 수 표
+                인원 수 표시
               </p>
             </div>
 
