@@ -188,56 +188,47 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            <span className="text-primary glow-cyan">SPOT</span>은<br />
-            성향의 존재를<br />
-            공간 위에 표시합니다.
+            이제, 보입니다.
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="p-8 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-primary mb-4">1️⃣</div>
-              <h3 className="text-2xl font-black mb-4">반경 내<br />성향 분포 확인</h3>
+              <h3 className="text-2xl font-black mb-4">반경 10m 안에</h3>
               <p className="text-muted-foreground">
-                지금 이 공간에<br />
                 같은 MBTI가<br />
-                몇 명 존재하는지 표시
+                몇 명 있는지 표시
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="p-8 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-secondary mb-4">2️⃣</div>
-              <h3 className="text-2xl font-black mb-4">성향 밀도 기반<br />공간 선택</h3>
+              <h3 className="text-2xl font-black mb-4">사람 많은 곳이 아니라,</h3>
               <p className="text-muted-foreground">
-                인기 순위가 아닌,<br />
-                유사 성향 밀도로<br />
-                공간을 선택
+                나와 비슷한 사람이<br />
+                많은 곳을 보기
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="p-8 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
               <div className="text-5xl font-black text-accent mb-4">3️⃣</div>
-              <h3 className="text-2xl font-black mb-4">가시성 제공,<br />강제 없음</h3>
+              <h3 className="text-2xl font-black mb-4">보여주기만 합니다.</h3>
               <p className="text-muted-foreground">
-                <span className="text-primary glow-cyan">SPOT</span>은<br />
-                존재를 보여줄 뿐,<br />
-                연결을 강요하지 않습니다.<br />
-                선택은 사용자의 몫입니다.
+                연결은<br />
+                강요하지 않습니다.
               </p>
             </div>
           </div>
 
           <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
             <p className="text-2xl font-black mb-4">
-              <span className="text-primary glow-cyan">SPOT</span>은<br />
-              정보를 제공합니다.
+              <span className="text-primary glow-cyan">SPOT</span>은 정보만 제공합니다.
             </p>
             <p className="text-2xl font-black text-primary glow-cyan">
-              그 정보를<br />
-              어떻게 활용할지는<br />
-              전적으로 당신의 선택입니다.
+              선택은 당신의 몫입니다.
             </p>
           </div>
         </div>
