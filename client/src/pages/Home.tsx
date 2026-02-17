@@ -45,7 +45,7 @@ export default function Home() {
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              SPOT은 같은 공간 내 성향 존재<br />
+              SPOT은 같은 공간 내 성향 존재를<br />
               지도 위에 표시하는 공간 정보 플랫폼입니다.
             </p>
           </div>
