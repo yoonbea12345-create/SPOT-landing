@@ -40,15 +40,13 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지도는 공간만을 보여줍니다<br />
-              나와 비슷한 사람은 보여주지 않습니다.<br />
+              SPOT은 이 공간 안에 나와<br />
+              비슷한 사람이 몇명 있는지 보여줍니다.<br />
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Spot은 같은 공간 안에<br />
-              유사한 성향이<br />
-              존재하는지를 보여주는<br />
-              공간 정보 플랫폼입니다.
+              SPOT은 같은 공간 내 성향 존재<br />
+              지도 위에 표시하는 공간 정보 플랫폼입니다.
             </p>
           </div>
 
