@@ -241,12 +241,29 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
-        <div className="relative z-10 max-w-2xl mx-auto flex justify-center">
-          <img 
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="text-center mb-12 space-y-6">
+            <h3 className="text-3xl md:text-4xl font-black">
+              지도 위에,<br />
+              <span className="text-primary glow-cyan">사람들이 보입니다.</span>
+            </h3>
+            <p className="text-xl text-muted-foreground">
+              지금여기,<br />
+              어떤 사람들이 어디에<br />
+              모여 있는지 보입니다.
+            </p>
+            <p className="text-lg text-muted-foreground">
+              개인은 보이지 않습니다.<br />
+              그저 존재만 보입니다.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <img 
             src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/rHuu4yIbJYJT0kpUCnaEBm_1771334643157_na1fn_c3BvdC1tYXAtdjI.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L3JIdXU0eUliSllKVDBrcFVDbmFFQm1fMTc3MTMzNDY0MzE1N19uYTFmbl9jM0J2ZEMxdFlYQXRkakkucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=cA3qIB5pX66jfwYXwS8h1c5vbrhQrK9SbbySO8g~SDlyX3hDOLOdkkEtIUpsLnp8zsNqdk-Awvr~HcQLOb3yUvlgrcZjhrjuQRzEwnlxg2NdD2kbAweyaSozAJM06079Z1MqjheRfRCqEiTLT-8ETg1lxygNZGcihjWbl3J5NsfhBTLXKCCb8uV1W-k6bxPl8-JKqBS0ET15We3fB0rROjv67YZTYjOhHnlv0ZL~SFWpGvzgiiA2vb~V99rei12S5DWAHw-WVq082Muf0UBAJ6bgm182gOQng5Ls8PaAtcZEIp6rjndzsLZtmrNfVHd2AkLaDnIgL~MHGywb1w3VTQ__" 
             alt="SPOT Map Visualization" 
             className="w-80 md:w-96 rounded-lg shadow-2xl"
           />
+          </div>
         </div>
       </section>
 
