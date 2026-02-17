@@ -285,12 +285,31 @@ export default function Home() {
               점점 선명해집니다.
             </p>
           </div>
-          <div className="flex justify-center">
-            <img 
-            src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/s7mFIBGnFo3mMksLRJ7XE2-img-1_1771352398000_na1fn_c3BvdC1tYXAtZGVuc2l0eS1vdmVybGFw.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L3M3bUZJQkduRm8zbU1rc0xSSjdYRTItaW1nLTFfMTc3MTM1MjM5ODAwMF9uYTFmbl9jM0J2ZEMxdFlYQXRaR1Z1YzJsMGVTMXZkbVZ5YkdGdy5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=lqB4Ch3cACgBGphuHDtdl3QUZunQYq1Tn7t3Pobol2TpfP6BzzUOxJOCIiNgLnl3ZThWM1GOHgfjI29n4fzV2RRMgslRBkaM29txpFsX9SGfnKY7FC0KYZnus6q6hlCguCBfeZZSmJQx-5krkE1Hqd3cBEbFJ8vGur3k8CfiLtUdoPWwDAJhjM3TOB2sgETS9s02PScdN3IcSpie-Q3~CitrdXgeZ2WUcrhYgzasBw~qnPkI9~lqijX9k3eGOC75z4IuPHnoUkRVdp03869m-lAeZXSRRkPs4j1RXH-gO3p6ibmtE0K9zmSji7fPHV-HHrWDsA-AGM8qU0Np3L74RA__" 
-            alt="SPOT Progressive Precision" 
-            className="w-80 md:w-96 rounded-lg shadow-2xl"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="flex flex-col items-center space-y-4">
+              <img 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/Bsixny29XuXzOioMyFRSQd_1771352629627_na1fn_c3BvdC1zdGFnZTEtZGlzdGFudA.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0JzaXhueTI5WHVYek9pb015RlJTUWRfMTc3MTM1MjYyOTYyN19uYTFmbl9jM0J2ZEMxemRHRm5aVEV0WkdsemRHRnVkQS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=L8WTrX9-kGpGAI9Yr~~B-Ck1vwDnzHA4EwE3rQ~T4D~mKgVrUnPeITRf88qBN~7MLdM0JsQiZ1~Dpjs1nfiCarTG8sc4V4jS83mmVZqHesvK9wQy87XAhtf6GyaEIVHlvVtIiwrPCJuoiowGHaOFlcU4Z7r5Ih5vDoPJ1ZIyQIu3nEMaKbrnivZBoDyqZE52M~1ssg9EASo34stCX2qXyIAn9MQhQ9DrnkvcedXLUCU6O-MFh5o6X9gQ~XWzdAzpoD2fUeKMt-MdeKW4Ux7Tx16R9ItkZJa6HrLkvfSvu-BPehztpySGQhi9D4fsIMqau0XHHX3ftuL2COM0b43gBQ__" 
+                alt="Stage 1: Distant" 
+                className="w-64 rounded-lg shadow-2xl"
+              />
+              <p className="text-sm text-muted-foreground text-center">먼 거리 - 흐릿한 존재</p>
+            </div>
+            <div className="flex flex-col items-center space-y-4">
+              <img 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/TKQEmPzDaKhbrIvYFwVYOZ_1771352691263_na1fn_c3BvdC1zdGFnZTItMTBt.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L1RLUUVtUHpEYUtoYnJJdllGd1ZZT1pfMTc3MTM1MjY5MTI2M19uYTFmbl9jM0J2ZEMxemRHRm5aVEl0TVRCdC5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=OhUr2FP3gCwxrRuwrzGT5dXr1B74j8Ufl7uge0BWZCr72ZX1YFHZmRnJ9zAcTTiHNiPKcxfWcJIbE8Y8rd8G~bng1ZozcaDX8ghv3QSE7aN2nH-rA1nGP5~poPXdbS0xBppZ-Y1kWDo16j0QRhGKYYdszzARk7Aoar0-JvdRVqEmUOIFagi6f9N8sdtOJpOGDsRV0meP2Mh3aeUpxsuS0kqVsZrEY-7DTaft4DXauhbYGAxFZjigjv5l5oEESP73KXuMebf2Eexo67vX7g0n9d7fyaMZT6yrV-uJl7VVfN04Jwok7HqKKeGYWvqj07E8xdVN7XEaEKK6LGGYSnrqCg__" 
+                alt="Stage 2: 10m Detection" 
+                className="w-64 rounded-lg shadow-2xl"
+              />
+              <p className="text-sm text-muted-foreground text-center">10m 감지 - 선명해진 정보</p>
+            </div>
+            <div className="flex flex-col items-center space-y-4">
+              <img 
+                src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/sgt0EMubeDOUnAHlj07KBW_1771352753799_na1fn_c3BvdC1zdGFnZTMtb3ZlcmxhcA.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L3NndDBFTXViZURPVW5BSGxqMDdLQldfMTc3MTM1Mjc1Mzc5OV9uYTFmbl9jM0J2ZEMxemRHRm5aVE10YjNabGNteGhjQS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=cURbVWK~PczE16iMXH31VlLeZ9bky7TXZIhcKaN6-u0fGtWN2l5Uig40aQKVzgG9FdX5Otf1TPf9i~711slDU2qga01iyEMqM6QJ65dbRdkoY7FX~lMG~OZh8GA0o049083H53EJifaCe3xnzMnsYP-uMSViXvHkK510y0rVkv7X0rs5P7gclaBL3iuUwHjIDMyoL6NlOHSY7rbCmBRkmqBpuWuQtovij9YeKBGHxpvXdTi~tYWZhrYNaXG~LvoEJgn4yPhAt5pWlU93nCsqf27RpnBIw4r~X925lj9gkv9AZwdmtm6E04J6X5yLOedx1isIiu7d6YQZNJjTFmKgVg__" 
+                alt="Stage 3: Ultra-Close Overlap" 
+                className="w-64 rounded-lg shadow-2xl"
+              />
+              <p className="text-sm text-muted-foreground text-center">초근접 - 겹치는 구간</p>
+            </div>
           </div>
         </div>
       </section>
