@@ -188,7 +188,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            이제, 보입니다.
+            이제,  보입니다.
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
