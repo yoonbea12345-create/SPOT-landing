@@ -45,8 +45,7 @@ export default function Home() {
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 여기 누가 있는지,<br />
-              바로 확인해보세요.
+              지금 여기 누가 있는지, 바로 확인해보세요.
             </p>
           </div>
 
