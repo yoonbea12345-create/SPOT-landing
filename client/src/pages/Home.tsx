@@ -146,7 +146,7 @@ export default function Home() {
       </section>
 
       {/* Problem Recognition Section */}
-      <section className="relative py-20 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
+      <section className="relative py-32 md:py-40 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
