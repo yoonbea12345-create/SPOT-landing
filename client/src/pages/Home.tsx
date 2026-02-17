@@ -224,7 +224,7 @@ export default function Home() {
           </div>
 
           <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
-            <p className="text-2xl font-black mb-4">
+            <p className="text-2xl font-black mb-4" style={{fontSize: '23px'}}>
               <span className="text-primary glow-cyan">SPOT</span>은 정보만 제공합니다.
             </p>
             <p className="text-2xl font-black text-primary glow-cyan">
