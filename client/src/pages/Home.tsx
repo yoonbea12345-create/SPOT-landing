@@ -170,7 +170,7 @@ export default function Home() {
             </p>
 
             <div className="pt-8">
-              <p className="text-4xl md:text-6xl font-black leading-tight">
+              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
                 <span className="text-primary glow-cyan">SPOT</span>은 그 정보를
                 보여줍니다.
               </p>
