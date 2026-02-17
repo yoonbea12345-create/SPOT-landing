@@ -252,19 +252,16 @@ export default function Home() {
             </div>
             <div className="order-1 md:order-2 space-y-6">
               <h3 className="text-3xl font-black">
-                지도 위<br />
-                <span className="text-primary glow-cyan">성향 분포 시각화</span>
+                지도 위에,<br />
+                <span className="text-primary glow-cyan">성향이 보입니다.</span>
               </h3>
               <p className="text-xl text-muted-foreground">
-                같은 공간 내<br />
-                나와 유사한 MBTI를 가진<br />
-                사용자의 위치를<br />
-                지도 위에 표시합니다.
+                같은 공간 안,<br />
+                어떤 성향이 어디에 모여 있는지 보여줍니다.
               </p>
               <p className="text-lg text-muted-foreground">
-                개인 식별은 불가능하며,<br />
-                성향의 <span className="text-primary glow-cyan">존재 여부</span>만<br />
-                확인할 수 있습니다.
+                개인은 보이지 않습니다.<br />
+                존재의 밀도만 보입니다.
               </p>
             </div>
           </div>
