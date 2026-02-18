@@ -39,8 +39,8 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              SPOT은 지금 여기 어떤<br />
-              사람들이 있는지 지도 위에 보여줍니다.<br />
+              지금 여기, MBTI가 보입니다.
+
             </p>
           </div>
 
@@ -161,8 +161,7 @@ export default function Home() {
 
             <div className="pt-8">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
-                <span className="text-primary glow-cyan">SPOT</span>은 그걸 보이게 합니다.
-              
+                <span className="text-primary glow-cyan">SPOT</span>이 비춥니다.              
               </p>
             </div>
           </div>
@@ -194,8 +193,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면</h3>
               <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
                 
-               오늘 어디에 사람이 모였는지 한눈에 보입니다.
-               <br /> 어떤 유형이 어디에 많은지도 함께.
+               오늘의 흐름. 어디로 모였는지.
               </p>
             </div>
 
@@ -208,10 +206,10 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-secondary">가까워 질수록</h3>
+              <h3 className="text-2xl font-black mb-3 text-secondary">가까워질수록</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                지도가 정리됩니다.<br />
-                이제, 나랑 비슷하거나 맞는 사람만.
+               가까워질수록 또렷해집니다.<br />
+               비슷한 유형이 먼저 보입니다.
               </p>
             </div>
 
@@ -278,11 +276,10 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">3️⃣</div>
               <h4 className="text-xl font-black mb-3 text-accent">
-                사용자 통제 가능
+                선택은 당신
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                SPOT은 존재만 보여줍니다.<br />
-                선택은 오로지 당신에게 달려있습니다.
+                지나칠지. 다가갈지.
               </p>
             </div>
           </div>
