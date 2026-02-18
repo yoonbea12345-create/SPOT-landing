@@ -308,7 +308,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-6xl font-black mb-12">
-            지금 이 근처엔,<br />
+            지금 이 근처엔<br />
             누가 있을까.
           </h2>
 
