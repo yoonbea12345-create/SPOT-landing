@@ -33,7 +33,7 @@ export default function Home() {
           </h1>
 
           <div className="space-y-6 mb-12">
-            <h2 className="text-4xl md:text-6xl font-black leading-tight">
+            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
               지금 이 골목에 나와 <br />
               같은 MBTI는 <span className="text-secondary glow-magenta">몇 명일까?</span>
             </h2>
