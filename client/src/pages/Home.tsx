@@ -189,7 +189,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
-            이제, 시야를 바꿔보세요.
+            이제, <span className="text-primary glow-cyan">시야</span>를 바꿔보세요.
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
