@@ -46,7 +46,7 @@ export default function Home() {
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               MBTI는 시작일 뿐.<br />
-              <span className="text-primary glow-cyan">SPOT</span>은 존재를 드러냅니다.
+              <span className="text-primary glow-cyan">SPOT</span>은 지도 위에 존재를 드러냅니다.
             </p>
           </div>
 
