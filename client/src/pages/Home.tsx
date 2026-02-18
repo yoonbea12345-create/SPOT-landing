@@ -263,42 +263,42 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto">
-          <h3 className="text-3xl font-black mb-8 text-center">
-            거리 기반 가시성 시스템
-          </h3>
+          <h2 className="text-4xl md:text-5xl font-black mb-4 text-center">
+            거리 따라, <span className="text-primary glow-cyan">다르게 보입니다.</span>
+          </h2>
+          <p className="text-lg text-muted-foreground text-center mb-12">
+            <span className="text-primary glow-cyan">SPOT</span>은 위치를 찍지 않습니다.<br />
+            존재만 비춥니다.
+          </p>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Far Distance */}
-            <div className="p-6 border-2 border-secondary/50 bg-secondary/5">
-              <div className="text-4xl mb-4">🔲</div>
-              <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
-                먼 거리
+            <div className="p-8 border-2 border-secondary/30 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg hover:border-secondary/50 transition-all">
+              <h4 className="text-2xl font-black mb-4 text-secondary glow-magenta">
+                멀리선, 흐립니다.
               </h4>
-              <p className="text-muted-foreground">
-                먼 거리의 사용자는<br />
-                넓은 구역 단위로만 표시됩니다.<br />
-                정확한 위치는 공개되지 않습니다.
+              <p className="text-base leading-relaxed text-muted-foreground">
+                어디에 모였는지만 보입니다.<br />
+                누군지는 보이지 않습니다.
               </p>
             </div>
 
             {/* Close Proximity */}
-            <div className="p-6 border-2 border-primary/50 bg-primary/5">
-              <div className="text-4xl mb-4">🎯</div>
-              <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
-                근접 거리
+            <div className="p-8 border-2 border-primary/30 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg hover:border-primary/50 transition-all">
+              <h4 className="text-2xl font-black mb-4 text-primary glow-cyan">
+                가까워질수록, 선명해집니다.
               </h4>
-              <p className="text-muted-foreground">
-                가까운 거리에서만<br />
-                위치 정밀도가 증가합니다.<br />
-                개인 추적은 불가능합니다.
+              <p className="text-base leading-relaxed text-muted-foreground">
+                불필요한 정보는 사라지고,<br />
+                나와 비슷한 존재만 남습니다.
               </p>
             </div>
           </div>
 
-          <div className="mt-8 p-6 border-2 border-border bg-background/50">
-            <p className="text-lg text-center text-muted-foreground">
-              거리에 따라 가시성이 동적으로 변화하며,<br />
-              프라이버시와 정보 제공의 균형을 유지합니다.
+          <div className="mt-12 p-8 border-2 border-primary/50 bg-primary/5 text-center">
+            <p className="text-xl font-black">
+              <span className="text-primary glow-cyan">SPOT</span>은 추적하지 않습니다.<br />
+              거리에 따라, 보이는 정보가 달라질 뿐입니다.
             </p>
           </div>
         </div>
