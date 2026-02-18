@@ -189,7 +189,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
-            이제, <span className="text-primary glow-cyan">보입니다.</span>
+            같은<span className="text-secondary glow-magenta">지도</span>,  다른<span className="text-primary glow-cyan">시야.</span>
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -205,8 +205,10 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 
-               지금 어디가 뜨는지, 어디에 어떤 유형이<br />
-               몰렸는지 한눈에 보입니다.
+               이 동네에 어떤<br /> 
+               유형이 모여 있는지 보입니다.<br />
+               오늘, 어디에 어떤<br />
+               사람이 몰렸는지 한눈에.
               </p>
             </div>
 
@@ -221,7 +223,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-secondary">가까워 질수록,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                지도가 정리됩니다.<br />
+                불필요한건 사라집니다.<br />
                 이제, 나랑 비슷하거나 맞는 사람만.
               </p>
             </div>
@@ -239,7 +241,7 @@ export default function Home() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 3m 안.
                 이 골목 어딘가에.<br />
-                <span className="text-primary glow-cyan">바로 지금, 마주칩니다. </span>
+                <span className="text-primary glow-cyan">지금, 스쳐 지나갈 수도 있습니다. </span>
               </p>
             </div>
           </div>
