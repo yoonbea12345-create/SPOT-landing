@@ -205,10 +205,8 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 
-               이 동네에 어떤<br /> 
-               유형이 모여 있는지 보입니다.<br />
-               오늘, 어디에 어떤<br />
-               사람이 몰렸는지 한눈에.
+               오늘 어디에 사람이 모였는지 한눈에 보입니다.
+               <br /> 어떤 유형이 어디에 많은지도 함께.
               </p>
             </div>
 
@@ -223,7 +221,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-secondary">가까워 질수록,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                불필요한건 사라집니다.<br />
+                지도가 정리됩니다.<br />
                 이제, 나랑 비슷하거나 맞는 사람만.
               </p>
             </div>
@@ -241,7 +239,7 @@ export default function Home() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 3m 안.
                 이 골목 어딘가에.<br />
-                <span className="text-primary glow-cyan">지금, 스쳐 지나갈 수도 있습니다. </span>
+                <span className="text-primary glow-cyan">지금, 지나쳤을 수도 있습니다. </span>
               </p>
             </div>
           </div>
