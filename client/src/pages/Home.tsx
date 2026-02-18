@@ -239,7 +239,7 @@ export default function Home() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 3m 안.
                 이 골목 어딘가에.<br />
-                <span className="text-primary glow-cyan">지금, 지나쳤을 수도 있습니다. </span>
+                <span className="text-primary glow-cyan">지금,  마주칠 거리입니다. </span>
               </p>
             </div>
           </div>
