@@ -246,7 +246,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-5xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-4 text-center">
-            위치, <span className="text-primary glow-cyan">찍히지 않습니다.</span>
+           걱정하지 마세요
           </h2>
           <p className="text-lg text-muted-foreground text-center mb-16">
           </p>
