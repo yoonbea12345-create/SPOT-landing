@@ -237,9 +237,9 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                <span className="text-primary glow-cyan">3m 안.</span><br />
+                3m 안.
                 이 골목 어딘가에.<br />
-                지금, 마주칠 수도 있습니다. 
+                <span className="text-primary glow-cyan">지금, 마주칠 수도 있습니다. </span>
               </p>
             </div>
           </div>
