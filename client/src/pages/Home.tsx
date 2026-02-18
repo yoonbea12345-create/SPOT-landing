@@ -254,7 +254,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 p-8 border-2 border-primary/50 bg-primary/5 text-center">
-            <p className="text-2xl font-black">
+            <p className="text-2xl font-black" style={{fontSize: '22px'}}>
               <span className="text-primary glow-cyan">SPOT</span>은 존재만 보여줍니다.<br />
               선택은 당신의 몫입니다.
             </p>
