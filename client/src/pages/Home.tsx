@@ -204,10 +204,12 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                이 지역에<br />
-                어떤 유형이 많은지 한눈에 보입니다.<br />
-                밀도와 클러스터로<br />
-                공간의 흐름을 관찰하세요.
+                이 지역에 어떤 유형이, 어디에<br />
+                많은지 한눈에 보입니다.<br />
+                <br />
+                밀도와 클러스터로 핫플이 어디인지<br />
+                나와 비슷한 유형은 어디에 있는지<br />
+                한눈에 보입니다.
               </p>
             </div>
 
@@ -223,10 +225,12 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-secondary">가까이 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 정보가 자동으로 정리됩니다.<br />
+                <br />
                 나와 비슷하거나 잘 맞는 성향만<br />
                 더 또렷해집니다.<br />
-                골목 단위로<br />
-                존재가 선명해집니다.
+                <br />
+                골목 단위로 위치가<br />
+                선명해집니다.
               </p>
             </div>
 
@@ -242,8 +246,9 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 겹침이 감지됩니다.<br />
+                <br />
                 알림 또는 화면 변화로<br />
-                존재를 알려줍니다.
+                비슷한 유형을 현실공간에서 마주쳐 보세요.
               </p>
             </div>
           </div>
