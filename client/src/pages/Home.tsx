@@ -206,7 +206,7 @@ export default function Home() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 
                어디에 어떤 사람들이 몰려있는지 보입니다.<br />
-               오늘, 어디가 핫플인지. 어디가 조용한지.
+               오늘 어디가 핫플인지, 한눈에.
               </p>
             </div>
 
