@@ -166,14 +166,14 @@ export default function Home() {
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
-              어디인지는 알지만<br />
-              <span className="text-secondary glow-magenta">누가</span> 있는지는 모릅니다.
+              어디로 갈지는 정하지만,<br />
+              <span className="text-secondary glow-magenta">누가</span> 있을지는 모릅니다.
             </p>
 
             <div className="pt-8">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
-                <span className="text-primary glow-cyan">SPOT</span>은 그 정보를
-                보여줍니다.
+                <span className="text-primary glow-cyan">SPOT</span>은 그걸 보이게 합니다.
+              
               </p>
             </div>
           </div>
