@@ -39,8 +39,8 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 여기,<br />
-              보이지 않던 성향이 드러납니.
+              지금 여기, 지도 위에<br />
+              보이지 않던 성향이 드러납니다.
 
             </p>
           </div>
@@ -162,7 +162,7 @@ export default function Home() {
 
             <div className="pt-8">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
-                <span className="text-primary glow-cyan">SPOT</span>이, 그 공백을 채웁니다.            
+                <span className="text-primary glow-cyan">SPOT</span>이 그 공백을 채웁니다.            
               </p>
             </div>
           </div>
