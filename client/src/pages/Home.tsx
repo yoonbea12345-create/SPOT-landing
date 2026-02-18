@@ -204,12 +204,11 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                이 지역에 어떤 유형이, 어디에<br />
-                많은지 한눈에 보입니다.<br />
+                전국 어디에서도<br />
+                그 동네의 분위기가 보입니다.
                 <br />
-                밀도와 클러스터로 핫플이 어디인지<br />
-                나와 비슷한 유형은 어디에 있는지<br />
-                한눈에 보입니다.
+                어떤 사람들이 모여 있는지<br />
+                어디가 핫플인지 한눈에 보입니다.<br />
               </p>
             </div>
 
@@ -222,15 +221,12 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-secondary">가까이 보면,</h3>
+              <h3 className="text-2xl font-black mb-3 text-secondary">가까이 가면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                정보가 자동으로 정리됩니다.<br />
+                정보가 정리됩니다.<br />
                 <br />
-                나와 비슷하거나 잘 맞는 성향만<br />
-                더 또렷해집니다.<br />
-                <br />
-                골목 단위로 위치가<br />
-                선명해집니다.
+                나와 비슷하거나 잘 맞는<br />
+                성향만 남습니다.
               </p>
             </div>
 
@@ -245,10 +241,8 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                겹침이 감지됩니다.<br />
-                <br />
-                알림 또는 화면 변화로<br />
-                비슷한 유형을 현실공간에서 마주쳐 보세요.
+                마주칠 정도로 가까워지면<br />
+                SPOT에서 정밀한 위치를 나태냅니다.<br />
               </p>
             </div>
           </div>
