@@ -207,6 +207,7 @@ export default function Home() {
                 전국 어디에서도<br />
                 그 동네의 분위기가 보입니다.
                 <br />
+                <br />
                 어떤 사람들이 모여 있는지<br />
                 어디가 핫플인지 한눈에 보입니다.<br />
               </p>
@@ -225,7 +226,7 @@ export default function Home() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 정보가 정리됩니다.<br />
                 <br />
-                나와 비슷하거나 잘 맞는<br />
+                나와 비슷하거나 잘 맞는
                 성향만 남습니다.
               </p>
             </div>
@@ -241,8 +242,8 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                마주칠 정도로 가까워지면<br />
-                SPOT에서 정밀한 위치를 나태냅니다.<br />
+                마주칠 정도로 가까워지면,<br />
+                <span className="text-primary glow-cyan">SPOT</span>에서 정밀한 위치가 나타납니다.<br />
               </p>
             </div>
           </div>
