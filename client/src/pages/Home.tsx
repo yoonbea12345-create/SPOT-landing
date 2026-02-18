@@ -39,7 +39,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 여기, 지도 위에<br />
+              지금 여기,<br />
               보이지 않던 성향이 드러납니다.
 
             </p>
