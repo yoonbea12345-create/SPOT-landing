@@ -261,9 +261,7 @@ export default function Home() {
                 개인 식별 불가
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                개별 프로필,<br />
-                정확한 위치,<br />
-                좌표 정보는 표시되지 않습니다.
+                3단계 시점 변화 시스템으로 개인 식별은 불가능합니다.
               </p>
             </div>
 
@@ -274,8 +272,7 @@ export default function Home() {
                 반경 기반 시각화
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                존재는 '점'이 아니라<br />
-                '구간'으로 표시됩니다.
+                존재는 '점'이 아니라 '구간'으로 표시됩니다.
               </p>
             </div>
 
@@ -286,8 +283,7 @@ export default function Home() {
                 사용자 통제 가능
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                원하면,<br />
-                언제든 표시를 끌 수 있습니다.
+                SPOT은 존재만 보여줍니다. 선택은 오로지 당신에게 달려있습니다.
               </p>
             </div>
           </div>
