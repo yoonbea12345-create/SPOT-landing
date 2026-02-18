@@ -236,6 +236,8 @@ export default function Home() {
                 <span className="text-primary glow-cyan">지금,  마주칠 수도 있습니다. </span>
               </p>
             </div>
+          </div>
+        </div>
       </section>
 
 
