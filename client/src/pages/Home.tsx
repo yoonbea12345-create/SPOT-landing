@@ -258,7 +258,7 @@ export default function Home() {
               <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
                 개인 식별 불가
               </h4>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '12px'}}>
                 3단계 시점 변화 시스템으로 개인 식별은 불가능합니다.
               </p>
             </div>
