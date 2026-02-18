@@ -161,7 +161,7 @@ export default function Home() {
             </p>
 
             <div className="pt-8">
-              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
+              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '28px'}}>
                 <span className="text-primary glow-cyan">SPOT</span>이 그 공백을 채웁니다.            
               </p>
             </div>
