@@ -256,10 +256,10 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">1️⃣</div>
               <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
-                개인 식별 불가
+                누구인지 모릅니다.
               </h4>
-              <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '12px'}}>
-                3단계 시점 변화 시스템으로 개인 식별은 불가능합니다.
+              <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '14px'}}>
+                거리에 따른 MBTI만 보입니다. 
               </p>
             </div>
 
@@ -267,10 +267,10 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">2️⃣</div>
               <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
-                반경 기반 시각화
+                점이 아닌 범위
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                존재는 '점'이 아니라 '구간'으로 표시됩니다.
+                정확한 자리는 보이지 않습니다.
               </p>
             </div>
 
