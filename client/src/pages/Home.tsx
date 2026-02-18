@@ -188,12 +188,9 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-4 text-center" style={{fontSize: '33px'}}>
-            같은 지도,  다른 시점
+          <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
+            같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">시야</span>
           </h2>
-          <p className="text-lg text-muted-foreground text-center mb-16" style={{fontSize: '31px'}}>
-            <span className="text-primary glow-cyan" style={{fontWeight: '600'}}>Wide / Near / 3M </span>
-          </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             {/* Card 1 - Wide View */}
@@ -205,11 +202,11 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-primary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-primary"><span className="text-primary glow-cyan">Wide Mode</span></h3>
+              <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
-                넓은 지역 단위.<br />
-                오늘 어디에 사람이 모였는지,<br />
-                어떤 유형이 어디에 많은지 한눈에.
+                
+               오늘 어디에 사람이 모였는지 한눈에 보입니다.
+               <br /> 어떤 유형이 어디에 많은지도 함께.
               </p>
             </div>
 
@@ -222,11 +219,10 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-secondary"><span className="text-secondary glow-magenta">Near Mode</span></h3>
+              <h3 className="text-2xl font-black mb-3 text-secondary">가까워 질수록,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                10m 이내 확대.<br />
                 지도가 정리됩니다.<br />
-                나랑 비슷하거나 맞는 사람만.
+                이제, 나랑 비슷하거나 맞는 사람만.
               </p>
             </div>
 
@@ -239,11 +235,11 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-accent/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-accent"><span className="text-accent">3m Mode</span></h3>
+              <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                골목 단위 초근접.<br />
-                3m 안, 이 골목 어딘가에.<br />
-                <span className="text-primary glow-cyan">지금, 마주칠 수도 있습니다.</span>
+                3m 안.
+                이 골목 어딘가에.<br />
+                <span className="text-primary glow-cyan">지금,  마주칠 수도 있습니다. </span>
               </p>
             </div>
           </div>
