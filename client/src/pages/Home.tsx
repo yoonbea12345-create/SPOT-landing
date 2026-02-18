@@ -194,7 +194,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면</h3>
               <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
                 
-               오늘의 흐름이 보입니다<br /> 
+               오늘의 흐름.<br /> 
                어디로 모였는지.
               </p>
             </div>
