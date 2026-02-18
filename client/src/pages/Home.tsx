@@ -35,11 +35,11 @@ export default function Home() {
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
               지금 이 골목에 나와 <br />
-              같은 MBTI는 <span className="text-secondary glow-magenta">몇 명일까?</span>
+              같은 MBTI는 몇 명일까?
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              <span className="text-primary glow-cyan">SPOT</span>은 지금 여기 어떤<br />
+              SPOT은 지금 여기 어떤<br />
               사람들이 있는지 지도 위에 보여줍니다.<br />
             </p>
           </div>
@@ -152,11 +152,6 @@ export default function Home() {
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '24px'}}>
               핫플은 알지만 거기<br />
               <span className="text-secondary glow-magenta">누가</span> 있는지는 모릅니다.
-            </p>
-
-            <p className="text-3xl md:text-5xl font-black leading-tight">
-              지금 여기, <span className="text-secondary glow-magenta">어떤</span> 사람들이<br />
-              있는지도 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
