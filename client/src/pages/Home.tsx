@@ -39,7 +39,8 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 여기, MBTI가 보입니다.
+              지금 여기,<br />
+              MBTI가 보입니다.
 
             </p>
           </div>
@@ -193,7 +194,8 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면</h3>
               <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
                 
-               오늘의 흐름. 어디로 모였는지.
+               오늘의 흐름.<br /> 
+               어디로 모였는지.
               </p>
             </div>
 
@@ -257,7 +259,7 @@ export default function Home() {
                 누구인지 모릅니다.
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '14px'}}>
-                거리에 따른 MBTI만 보입니다. 
+                오직 MBTI만 보입니다. 
               </p>
             </div>
 
