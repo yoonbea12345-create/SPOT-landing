@@ -45,7 +45,8 @@ export default function Home() {
             </p>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 여기 누가 있는지, 바로 확인해보세요.
+              MBTI는 시작일 뿐.<br />
+              <span className="text-primary glow-cyan">SPOT</span>은 존재를 드러냅니다.
             </p>
           </div>
 
