@@ -188,7 +188,7 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
+          <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
             이제, 시야를 바꿔보세요.
           </h2>
 
