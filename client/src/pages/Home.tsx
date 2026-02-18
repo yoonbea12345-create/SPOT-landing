@@ -189,7 +189,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
-            같은 <span className="text-secondary glow-magenta">지도,</span> 다른 <span className="text-primary glow-cyan">시야</span>
+            이제, <span className="text-primary glow-cyan">보입</span>니다.
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -205,11 +205,8 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 
-                그 동네의 분위기가 보입니다.
-                <br />
-                <br />
-                어떤 사람들이 모여 있는지
-                어디가 핫플인지 한눈에 보입니다.<br />
+               어디에 어떤 사람들이 몰려있는지 보입니다.<br />
+               오늘, 어디가 핫플인지. 어디가 조용한지.
               </p>
             </div>
 
@@ -224,9 +221,8 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-secondary">가까이 가면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                정보가 정리됩니다.<br />
-                나와 비슷하거나 잘 맞는
-                성향만 남습니다.
+                불필요한 건 사라집니다.<br />
+                나와 비슷하거나 잘 맞는 사람만 남습니다.
               </p>
             </div>
 
@@ -241,8 +237,9 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                3M 안.<br />
+                <span className="text-primary glow-cyan">3m 안.</span><br />
                 이 골목 어딘가에.<br />
+                지금, 마주칠 수도 있습니다. 
               </p>
             </div>
           </div>
@@ -250,7 +247,7 @@ export default function Home() {
           <div className="mt-12 p-8 border-2 border-primary/50 bg-primary/5 text-center">
             <p className="text-2xl font-black" style={{fontSize: '22px'}}>
               <span className="text-primary glow-cyan">SPOT</span>은 존재만 보여줍니다.<br />
-              선택은 당신의 몫입니다.
+              <span className="text-primary glow-cyan">선택</span>은 당신의 몫입니다.
             </p>
           </div>
         </div>
