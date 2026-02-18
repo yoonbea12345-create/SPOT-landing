@@ -273,7 +273,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Principle 1 */}
-            <div className="p-8 border-2 border-border/50 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center">
+            <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">1️⃣</div>
               <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
                 개인 식별 불가
@@ -286,7 +286,7 @@ export default function Home() {
             </div>
 
             {/* Principle 2 */}
-            <div className="p-8 border-2 border-border/50 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center">
+            <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">2️⃣</div>
               <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
                 반경 기반 시각화
@@ -298,7 +298,7 @@ export default function Home() {
             </div>
 
             {/* Principle 3 */}
-            <div className="p-8 border-2 border-border/50 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center">
+            <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">3️⃣</div>
               <h4 className="text-xl font-black mb-3 text-accent">
                 사용자 통제 가능
@@ -310,12 +310,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
-            <p className="text-2xl font-black">
-              <span className="text-primary glow-cyan">SPOT</span>은 추적하지 않습니다.<br />
-              존재만 보여줍니다.
-            </p>
-          </div>
+
         </div>
       </section>
 
