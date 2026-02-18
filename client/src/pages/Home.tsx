@@ -34,19 +34,13 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight">
-              10m 이내에<br />
-              나와 같은 MBTI는<br />
-              <span className="text-secondary glow-magenta">몇 명일까?</span>
+              지금 이 골목에 나와 <br />
+              같은 MBTI는 <span className="text-secondary glow-magenta">몇 명일까?</span>
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              SPOT은 지금 여기 어떤<br />
+              <span className="text-primary glow-cyan">SPOT</span>은 지금 여기 어떤<br />
               사람들이 있는지 지도 위에 보여줍니다.<br />
-            </p>
-
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              MBTI는 시작일 뿐.<br />
-              <span className="text-primary glow-cyan">SPOT</span>은 지도 위에 존재를 드러냅니다.
             </p>
           </div>
 
