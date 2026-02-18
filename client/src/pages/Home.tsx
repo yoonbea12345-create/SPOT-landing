@@ -203,7 +203,7 @@ export default function Home() {
                 />
               </div>
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
-              <p className="text-base leading-relaxed text-muted-foreground">
+              <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
                 
                오늘 어디에 사람이 모였는지 한눈에 보입니다.
                <br /> 어떤 유형이 어디에 많은지도 함께.
