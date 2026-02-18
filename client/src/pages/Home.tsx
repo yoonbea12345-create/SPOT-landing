@@ -205,8 +205,8 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 
-               어디에 어떤 사람들이 몰려있는지 보입니다.<br />
-               오늘 어디가 핫플인지, 한눈에.
+               지금 어디가 뜨는지, 어디에 어떤 유형이<br />
+               몰렸는지 한눈에 보입니다.
               </p>
             </div>
 
@@ -222,7 +222,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-secondary">가까워 질수록,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 지도가 정리됩니다.<br />
-                나랑 비슷하거나 맞는 사람만 남습니다.
+                이제, 나랑 비슷하거나 맞는 사람만.
               </p>
             </div>
 
