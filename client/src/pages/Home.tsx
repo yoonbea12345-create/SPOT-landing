@@ -255,50 +255,65 @@ export default function Home() {
 
 
 
-      {/* Distance-Based Visibility System */}
+      {/* Trust & Privacy Section */}
       <section className="relative py-24 md:py-32 px-4 md:px-8 overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div className="relative z-10 max-w-5xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-4 text-center">
-            거리 따라, <span className="text-primary glow-cyan">다르게 보입니다.</span>
+            위치, <span className="text-primary glow-cyan">찍히지 않습니다.</span>
           </h2>
-          <p className="text-lg text-muted-foreground text-center mb-12">
-            <span className="text-primary glow-cyan">SPOT</span>은 위치를 찍지 않습니다.<br />
-            존재만 비춥니다.
+          <p className="text-lg text-muted-foreground text-center mb-16">
+            <span className="text-primary glow-cyan">SPOT</span>은 정확한 좌표를 공개하지 않습니다.<br />
+            존재는 반경 단위로만 표현됩니다.
           </p>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Far Distance */}
-            <div className="p-8 border-2 border-secondary/30 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg hover:border-secondary/50 transition-all">
-              <h4 className="text-2xl font-black mb-4 text-secondary glow-magenta">
-                멀리선, 흐립니다.
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Principle 1 */}
+            <div className="p-8 border-2 border-border/50 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center">
+              <div className="text-5xl mb-4">1️⃣</div>
+              <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
+                개인 식별 불가
               </h4>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                어디에 모였는지만 보입니다.<br />
-                누군지는 보이지 않습니다.
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                개별 프로필,<br />
+                정확한 위치,<br />
+                좌표 정보는 표시되지 않습니다.
               </p>
             </div>
 
-            {/* Close Proximity */}
-            <div className="p-8 border-2 border-primary/30 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg hover:border-primary/50 transition-all">
-              <h4 className="text-2xl font-black mb-4 text-primary glow-cyan">
-                가까워질수록, 선명해집니다.
+            {/* Principle 2 */}
+            <div className="p-8 border-2 border-border/50 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center">
+              <div className="text-5xl mb-4">2️⃣</div>
+              <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
+                반경 기반 시각화
               </h4>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                불필요한 정보는 사라지고,<br />
-                나와 비슷한 존재만 남습니다.
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                존재는 '점'이 아니라<br />
+                '구간'으로 표시됩니다.
+              </p>
+            </div>
+
+            {/* Principle 3 */}
+            <div className="p-8 border-2 border-border/50 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center">
+              <div className="text-5xl mb-4">3️⃣</div>
+              <h4 className="text-xl font-black mb-3 text-accent">
+                사용자 통제 가능
+              </h4>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                원하면,<br />
+                언제든 표시를 끌 수 있습니다.
               </p>
             </div>
           </div>
 
-          <div className="mt-12 p-8 border-2 border-primary/50 bg-primary/5 text-center">
-            <p className="text-xl font-black">
+          <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
+            <p className="text-2xl font-black">
               <span className="text-primary glow-cyan">SPOT</span>은 추적하지 않습니다.<br />
-              거리에 따라, 보이는 정보가 달라질 뿐입니다.
+              존재만 보여줍니다.
             </p>
           </div>
         </div>
