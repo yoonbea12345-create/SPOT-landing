@@ -307,24 +307,16 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-black mb-8">
-            지금 바로<br />
-            <span className="text-primary glow-cyan">SPOT</span>을<br />
-            경험해보세요.
+          <h2 className="text-4xl md:text-6xl font-black mb-12">
+            지금 이 근처엔,<br />
+            누가 있을까.
           </h2>
 
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12">
-            같은 공간 내<br />
-            성향 정보를 확인하고,<br />
-            당신만의 방식으로<br />
-            활용하세요.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                  내 주변 확인하기
+                <Button className="px-12 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
+                  SPOT 시작하기
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
@@ -362,52 +354,6 @@ export default function Home() {
                     className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
                   >
                     시작하기
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-            
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
-                  베타 오픈 알림 받기
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-center">
-                    <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
-                  </DialogTitle>
-                  <DialogDescription className="text-center">
-                    가장 먼저 공간 정보를 확인해보세요
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="이메일 주소"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="border-2 border-primary/50 focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="tel"
-                      placeholder="전화번호 (예: 010-1234-5678)"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      className="border-2 border-secondary/50 focus:border-secondary"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
-                  >
-                    알림 신청하기
                   </Button>
                 </form>
               </DialogContent>
