@@ -192,7 +192,7 @@ export default function Home() {
             같은 <span className="text-secondary glow-magenta">지도</span>, 다른 <span className="text-primary glow-cyan">시점</span>
           </h2>
           <p className="text-lg text-muted-foreground text-center mb-16">
-            현재 위치에 따라 보이는 정보가 달라집니다.
+            Wide / Near / 3m
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
