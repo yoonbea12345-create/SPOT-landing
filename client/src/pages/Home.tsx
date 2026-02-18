@@ -219,10 +219,10 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-secondary">가까이 가면,</h3>
+              <h3 className="text-2xl font-black mb-3 text-secondary">가까워 질수록,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                불필요한 건 사라집니다.<br />
-                나와 비슷하거나 잘 맞는 사람만 남습니다.
+                지도가 정리됩니다.<br />
+                나랑 비슷하거나 맞는 사람만 남습니다.
               </p>
             </div>
 
@@ -239,7 +239,7 @@ export default function Home() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 3m 안.
                 이 골목 어딘가에.<br />
-                <span className="text-primary glow-cyan">지금, 마주칠 수도 있습니다. </span>
+                <span className="text-primary glow-cyan">바로 지금, 마주칩니다. </span>
               </p>
             </div>
           </div>
