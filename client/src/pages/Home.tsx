@@ -204,7 +204,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                전국 어디에서도<br />
+                
                 그 동네의 분위기가 보입니다.
                 <br />
                 <br />
@@ -241,8 +241,8 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                마주칠 정도로 가까워지면,<br />
-                <span className="text-primary glow-cyan">SPOT</span>에서 정밀한 위치가 나타납니다.<br />
+                3M 안.<br />
+                이 골목 어딘가에.<br />
               </p>
             </div>
           </div>
