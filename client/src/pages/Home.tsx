@@ -253,50 +253,6 @@ export default function Home() {
         </div>
       </section>
 
-
-      {/* Trust Section */}
-      <section className="relative py-28 md:py-36 px-4 md:px-8 border-t border-border overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-12 text-center">
-            <span className="text-primary glow-cyan">SPOT</span>은<br />
-            개인을 노출하지 않습니다.
-          </h2>
-
-          <div className="space-y-6 mb-12">
-            <div className="p-6 border-2 border-destructive/50 bg-destructive/5 flex items-center gap-4">
-              <span className="text-3xl">✕</span>
-              <p className="text-lg font-semibold">정밀 위치 좌표 공개</p>
-            </div>
-
-            <div className="p-6 border-2 border-destructive/50 bg-destructive/5 flex items-center gap-4">
-              <span className="text-3xl">✕</span>
-              <p className="text-lg font-semibold">개인 식별 정보 표시</p>
-            </div>
-
-            <div className="p-6 border-2 border-destructive/50 bg-destructive/5 flex items-center gap-4">
-              <span className="text-3xl">✕</span>
-              <p className="text-lg font-semibold">동의 없는 가시성</p>
-            </div>
-          </div>
-
-          <div className="p-8 border-2 border-primary/50 bg-primary/5">
-            <p className="text-xl font-semibold mb-4">우리는</p>
-            <p className="text-2xl font-black mb-6">
-              "성향의 존재는 보여주되,<br />
-              개인은 보호한다"의<br />
-              원칙으로 설계되었습니다.
-            </p>
-            <p className="text-xl text-primary glow-cyan font-semibold">
-              가시성 제어권은<br />
-              전적으로 사용자에게 있습니다.
-            </p>
-          </div>
-
           {/* Distance-Based Visibility System */}
           <div className="mt-16">
             <h3 className="text-3xl font-black mb-8 text-center">
