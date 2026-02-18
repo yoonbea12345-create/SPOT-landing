@@ -180,55 +180,77 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Solution Section */}
+      {/* 2-View System Section */}
       <section className="relative py-32 md:py-40 px-4 md:px-8 overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div className="relative z-10 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center">
-            이제,  보입니다.
+            이제, 시야를 바꿔보세요.
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="p-8 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-black text-primary mb-4">1️⃣</div>
-              <h3 className="text-2xl font-black mb-4">반경 10m 안에</h3>
-              <p className="text-muted-foreground">
-                같은 MBTI
-                인원 수 표시
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Card 1 - Wide View */}
+            <div className="p-6 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
+              <div className="mb-6">
+                <img 
+                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/mfz25qaE6UCvvakc1JXMz7-img-1_1771404278000_na1fn_c3BvdC13aWRlLXZpZXctdjI.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L21mejI1cWFFNlVDdnZha2MxSlhNejctaW1nLTFfMTc3MTQwNDI3ODAwMF9uYTFmbl9jM0J2ZEMxM2FXUmxMWFpwWlhjdGRqSS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=ZiC-gNmUAVrCVtD8shGsjNeSoS82Hg9q2mXUV9~GU0cF-Yk3jUqKVxiis1PjaigWpaXks3z3K9IPNSYJP~v~LY7MK4rJr55XWgHQYaUzA8UmyZ6lb00UNwXIOXquOzJA2hg0hgfp1BkGavge0fQDlHv4QP8AOcsaAuoELRvGmxvcjSbXhnc~EVgT-k4-Ah5FvVz6TVZSMdQ95broURtrwLcezSY4vushiFxxQsfv7JP5Gcyt~yRFjcV79XyGRD5CvYMVpYisBTf6ZlTqH8XULRqHQXGaS-~YL62u3TBX0DeLb62Kq4atb5r~aFvqFFPeGbXoRxe-z6XXevNyFeGv2w__"
+                  alt="Wide View"
+                  className="w-full h-auto rounded-lg border border-primary/30"
+                />
+              </div>
+              <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면,</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                이 지역에<br />
+                어떤 유형이 많은지 한눈에 보입니다.<br />
+                밀도와 클러스터로<br />
+                공간의 흐름을 관찰하세요.
               </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="p-8 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-black text-secondary mb-4">2️⃣</div>
-              <h3 className="text-2xl font-black mb-4">사람 많은 곳이 아니라,</h3>
-              <p className="text-muted-foreground">
-                나와 비슷한 사람이
-                많은 곳.
+            {/* Card 2 - Near View */}
+            <div className="p-6 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
+              <div className="mb-6">
+                <img 
+                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/mfz25qaE6UCvvakc1JXMz7-img-2_1771404273000_na1fn_c3BvdC1uZWFyLXZpZXctdjI.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L21mejI1cWFFNlVDdnZha2MxSlhNejctaW1nLTJfMTc3MTQwNDI3MzAwMF9uYTFmbl9jM0J2ZEMxdVpXRnlMWFpwWldjdGRqSS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=shhtxfpjWnUDVbF3ISHYTk4kIjJmzXPX~MuXrMRaci5jcCn3FZ7U2eLpkOI4zfPIhrVa9wPUdeO2ZylISHOmxsAqtTuaiirPcjo5GmkqJPOoWPb7wd1PpANrTSp-bObcsIQgkw0qH7TuAHGUSEBRKJ3E9dU-7g1F5Slik8nO8yW9~W9fcOULxqRnUS11A05cPjq3h4cD1UGKh-XMNWTSdIvc3W8UE8Qr6JAakQc5aDEg3wUgkeou7rHJvbIot2QfX0gSYJt1cwPE-BvOQ~1SYumKwHEcwIC7qJvTGk0pgubeoREBQVj~FkgSs-stV-6awdNVemPu8MXZkKzYQf08jg__"
+                  alt="Near View"
+                  className="w-full h-auto rounded-lg border border-secondary/30"
+                />
+              </div>
+              <h3 className="text-2xl font-black mb-3 text-secondary">가까이 보면,</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                정보가 자동으로 정리됩니다.<br />
+                나와 비슷하거나 잘 맞는 성향만<br />
+                더 또렷해집니다.<br />
+                골목 단위로<br />
+                존재가 선명해집니다.
               </p>
             </div>
 
-            {/* Step 3 */}
-            <div className="p-8 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
-              <div className="text-5xl font-black text-accent mb-4">3️⃣</div>
-              <h3 className="text-2xl font-black mb-4">보여주기만 합니다.</h3>
-              <p className="text-muted-foreground">
-                연결은 강요하지
-                않습니다.
+            {/* Card 3 - Ultra Near */}
+            <div className="p-6 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
+              <div className="mb-6">
+                <img 
+                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/mfz25qaE6UCvvakc1JXMz7-img-3_1771404278000_na1fn_c3BvdC11bHRyYS1uZWFyLXYy.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L21mejI1cWFFNlVDdnZha2MxSlhNejctaW1nLTNfMTc3MTQwNDI3ODAwMF9uYTFmbl9jM0J2ZEMxMWJIUnlZUzF1WldGeUxYWXkucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=FEFhVXqSF0uaLbEGz2j5ol5N8cF0187-486ESxe1k4jiB84nEIQU2p0KdDrZ~rgPK9Q06H-Q0Jb46cxpaKqIncBbzYayQ73AMoAFiHHZbQVzbjWXqXvLG7D3UKVI3UE1WxzcoVSGxrID4uOQkoZJI0QMqBItWZr2cL94PzpurlYPgAqpl8hqAEXTqK5WvdS2RJHbSb3ntMyc7qw9CAdC6T~0ZVxEZY6cSBneP00cdAf65OkB6oU5GfFtHPX6I~GacHwKRIw~0-JMw-VyEBhFQQi46febV6RGBqDTQEDmbYuS7IAYztYLaUJ8zAHfgNN7a6nZJJu0kMv0IxdAZDf7tg__"
+                  alt="Ultra Near"
+                  className="w-full h-auto rounded-lg border border-accent/30"
+                />
+              </div>
+              <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면,</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                겹침이 감지됩니다.<br />
+                알림 또는 화면 변화로<br />
+                존재를 알려줍니다.
               </p>
             </div>
           </div>
 
-          <div className="mt-16 p-8 border-2 border-primary/50 bg-primary/5 text-center">
-            <p className="text-2xl font-black mb-4" style={{fontSize: '23px'}}>
-              <span className="text-primary glow-cyan">SPOT</span>은 정보만 제공합니다.
-            </p>
-            <p className="text-2xl font-black text-primary glow-cyan">
+          <div className="mt-12 p-8 border-2 border-primary/50 bg-primary/5 text-center">
+            <p className="text-2xl font-black">
+              <span className="text-primary glow-cyan">SPOT</span>은 존재만 보여줍니다.<br />
               선택은 당신의 몫입니다.
             </p>
           </div>
