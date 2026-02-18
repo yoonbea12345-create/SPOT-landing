@@ -191,7 +191,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-black mb-4 text-center" style={{fontSize: '33px'}}>
             같은 <span className="text-secondary glow-magenta">지도</span>, 다른 <span className="text-primary glow-cyan">시점</span>
           </h2>
-          <p className="text-lg text-muted-foreground text-center mb-16">
+          <p className="text-lg text-muted-foreground text-center mb-16" style={{fontSize: '31px'}}>
             Wide / Near / 3m
           </p>
 
