@@ -281,7 +281,8 @@ export default function Home() {
                 사용자 통제 가능
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                SPOT은 존재만 보여줍니다. 선택은 오로지 당신에게 달려있습니다.
+                SPOT은 존재만 보여줍니다.<br />
+                선택은 오로지 당신에게 달려있습니다.
               </p>
             </div>
           </div>
