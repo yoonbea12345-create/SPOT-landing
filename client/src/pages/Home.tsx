@@ -40,7 +40,7 @@ export default function Home() {
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               지금 여기,<br />
-              MBTI가 보입니다.
+              보이지 않던 성향이 드러납니.
 
             </p>
           </div>
@@ -162,7 +162,7 @@ export default function Home() {
 
             <div className="pt-8">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
-                <span className="text-primary glow-cyan">SPOT</span>이 비춥니다.              
+                <span className="text-primary glow-cyan">SPOT</span>이, 그 공백을 채웁니다.            
               </p>
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면</h3>
               <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
                 
-               오늘의 흐름.<br /> 
+               오늘의 흐름이 보입니다<br /> 
                어디로 모였는지.
               </p>
             </div>
@@ -256,10 +256,10 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">1️⃣</div>
               <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
-                누구인지 모릅니다.
+                누구인지 보이지 않습니다.
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '14px'}}>
-                오직 MBTI만 보입니다. 
+                오직 MBTI만. 
               </p>
             </div>
 
@@ -270,7 +270,7 @@ export default function Home() {
                 점이 아닌 범위
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                정확한 자리는 보이지 않습니다.
+                정확한 위치는 공개되지 않습니다.
               </p>
             </div>
 
@@ -311,13 +311,13 @@ export default function Home() {
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="px-12 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                  SPOT 시작하기
+                  내 주변 MBTI 보기
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-black text-center">
-                    <span className="text-primary glow-cyan">SPOT</span> 시작하기
+                    <span className="text-primary glow-cyan">내 주변 MBTI 보기</span> 
                   </DialogTitle>
                   <DialogDescription className="text-center">
                     지금 바로 내 주변의 성향 분포를 확인하세요
