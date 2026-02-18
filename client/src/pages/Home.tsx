@@ -236,15 +236,6 @@ export default function Home() {
                 <span className="text-primary glow-cyan">지금,  마주칠 수도 있습니다. </span>
               </p>
             </div>
-          </div>
-
-          <div className="mt-12 p-8 border-2 border-primary/50 bg-primary/5 text-center">
-            <p className="text-2xl font-black" style={{fontSize: '22px'}}>
-              <span className="text-primary glow-cyan">SPOT</span>은 존재만 보여줍니다.<br />
-              <span className="text-primary glow-cyan">선택</span>은 당신의 몫입니다.
-            </p>
-          </div>
-        </div>
       </section>
 
 
