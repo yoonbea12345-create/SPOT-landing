@@ -192,7 +192,7 @@ export default function Home() {
             같은 지도,  다른 시점
           </h2>
           <p className="text-lg text-muted-foreground text-center mb-16" style={{fontSize: '31px'}}>
-            <span className="text-primary glow-cyan">Wide / Near / 3M </span>
+            <span className="text-primary glow-cyan" style={{fontWeight: '600'}}>Wide / Near / 3M </span>
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
