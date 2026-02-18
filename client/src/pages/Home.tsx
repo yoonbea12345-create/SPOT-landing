@@ -249,8 +249,6 @@ export default function Home() {
             위치, <span className="text-primary glow-cyan">찍히지 않습니다.</span>
           </h2>
           <p className="text-lg text-muted-foreground text-center mb-16">
-            <span className="text-primary glow-cyan">SPOT</span>은 정확한 좌표를 공개하지 않습니다.<br />
-            존재는 반경 단위로만 표현됩니다.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">
