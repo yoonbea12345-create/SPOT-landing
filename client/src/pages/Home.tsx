@@ -225,7 +225,6 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-secondary">가까이 가면,</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                 정보가 정리됩니다.<br />
-                <br />
                 나와 비슷하거나 잘 맞는
                 성향만 남습니다.
               </p>
