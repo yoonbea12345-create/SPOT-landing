@@ -1,40 +1,15 @@
-/* 
- * Design Philosophy: Neo-Brutalism Digital Street Culture
- * Dark mode with electric cyan (#00F0FF) and hot magenta (#FF006E) accents
- */
-import MVP from "./pages/mvp";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import React from "react";
 import { Route, Switch } from "wouter";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import MVP from "./pages/mvp";
+import NotFound from "./pages/NotFound";
 
-
-function Router() {
+export default function App() {
   return (
     <Switch>
-  <Route path={"/mvp"} component={MVP} />
-  <Route path={"/"} exact component={Home} />
-  <Route path={"/404"} component={NotFound} />
-  <Route component={NotFound} />
-</Switch>
-
+      <Route path="/" component={Home} />
+      <Route path="/mvp" component={MVP} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
-
-function App() {
-  return (
-    <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-  );
-}
-
-export default App;
