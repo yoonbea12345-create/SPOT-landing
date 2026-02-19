@@ -35,7 +35,7 @@ export default function Home() {
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
               지금 이 골목에 나와 <br />
-              같은 MBTI는 몇 명일까?
+              같은 MBTI가 있다?
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
@@ -112,12 +112,12 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-12 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '30px'}}>
-              핫플은 알지만 <span className="text-secondary glow-magenta">누가</span><br />
-              있는지는 모릅니다.
+              핫플은 압니다. <span className="text-secondary glow-magenta">누가</span><br />
+              거기 누가 있는지는 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
-              어디로 갈지는 정하지만,<br />
+              어디로 갈지는 정합니다.<br />
               <span className="text-secondary glow-magenta">누가</span> 있을지는 모릅니다.
             </p>
 
@@ -171,8 +171,8 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-secondary">가까워질수록</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-               가까워질수록 또렷해집니다.<br />
-               비슷한 유형이 먼저 보입니다.
+               나와 비슷한 유형이 먼저 보입니다.<br />
+             
               </p>
             </div>
 
@@ -231,7 +231,7 @@ export default function Home() {
                 점이 아닌 범위
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                정확한 위치는 공개되지 않습니다.
+                정확한 자는 보지 않습니다.
               </p>
             </div>
 
