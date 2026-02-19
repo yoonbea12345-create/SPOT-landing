@@ -35,7 +35,7 @@ export default function Home() {
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
               지금 이 골목에 나와 <br />
-              같은 MBTI가 있다?
+              같은 MBTI가 있다면?
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
@@ -112,8 +112,8 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-12 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '30px'}}>
-              핫플은 압니다. <span className="text-secondary glow-magenta">누가</span><br />
-              거기 누가 있는지는 모릅니다.
+              핫플은 압니다. <br />거기 <span className="text-secondary glow-magenta">누가</span>
+                있는지는 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
@@ -123,7 +123,7 @@ export default function Home() {
 
             <div className="pt-8">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '28px'}}>
-                <span className="text-primary glow-cyan">SPOT</span>이 그 공백을 채웁니다.            
+                그래서, <span className="text-primary glow-cyan">SPOT.</span>       
               </p>
             </div>
           </div>
@@ -231,7 +231,7 @@ export default function Home() {
                 점이 아닌 범위
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                정확한 자는 보지 않습니다.
+                정확한 자리는 보이지 않습니다.
               </p>
             </div>
 
