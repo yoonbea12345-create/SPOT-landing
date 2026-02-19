@@ -122,7 +122,7 @@ export default function Home() {
             </p>
 
             <div className="pt-8">
-              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '28px'}}>
+              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '49px'}}>
                 그래서, <span className="text-primary glow-cyan">SPOT.</span>       
               </p>
             </div>
