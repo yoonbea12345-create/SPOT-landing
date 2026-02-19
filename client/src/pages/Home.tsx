@@ -1,124 +1,361 @@
-import React from "react";
-import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("신청이 완료되었습니다!");
+    setEmail("");
+    setPhone("");
+    setOpen(false);
+  };
+
   return (
-    <div style={wrap}>
-      <div style={card}>
-        <div style={brand}>SPOT</div>
-        <div style={headline}>내 주변 MBTI 분포, 지금 바로</div>
-        <div style={sub}>
-          위치 기반으로 “흐름”만 보여주는 지도 MVP. <br />
-          누군지는 몰라. 대신, 어디에 모였는지 보여.
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center px-4 md:px-8 py-20 overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-          <Link href="/mvp">
-            <a style={{ ...btn, borderColor: "rgba(255,90,160,0.55)", background: "rgba(255,90,160,0.14)" }}>
-              지도 MVP 열기
-            </a>
-          </Link>
-          <a
-            href="https://github.com/"
-            target="_blank"
-            rel="noreferrer"
-            style={btnGhost}
-            onClick={(e) => e.preventDefault()}
-            title="나중에 팀 링크로 교체"
-          >
-            GitHub
-          </a>
-        </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <h1 className="font-black text-6xl md:text-8xl mb-8 tracking-tighter">
+            <span className="text-primary glow-cyan">SPOT</span>
+          </h1>
 
-        <div style={mini}>
-          테스트: <code style={code}>/mvp</code> 직접 접속 / 새로고침해도 404 안 나게 설정됨.
-        </div>
-      </div>
+          <div className="space-y-6 mb-12">
+            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
+              지금 이 골목에 나와 <br />
+              같은 MBTI는 몇 명일까?
+            </h2>
 
-      <div style={bgGlow} />
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+              지금 여기,<br />
+              보이지 않던 성향이 드러납니다.
+
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
+                  내 주변 확인하기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">SPOT</span> 시작하기
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    지금 바로 내 주변의 성향 분포를 확인하세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    시작하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+            
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
+                  베타 오픈 알림 받기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    가장 먼저 공간 정보를 확인해보세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    알림 신청하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Recognition Section */}
+      <section className="relative py-32 md:py-40 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="space-y-12 text-center">
+            <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '30px'}}>
+              핫플은 알지만 <span className="text-secondary glow-magenta">누가</span><br />
+              있는지는 모릅니다.
+            </p>
+
+            <p className="text-3xl md:text-5xl font-black leading-tight">
+              어디로 갈지는 정하지만,<br />
+              <span className="text-secondary glow-magenta">누가</span> 있을지는 모릅니다.
+            </p>
+
+            <div className="pt-8">
+              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '28px'}}>
+                <span className="text-primary glow-cyan">SPOT</span>이 그 공백을 채웁니다.            
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2-View System Section */}
+      <section className="relative py-32 md:py-40 px-4 md:px-8 overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
+            같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">시야</span>
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Card 1 - Wide View */}
+            <div className="p-6 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
+              <div className="mb-6">
+                <img 
+                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/HTOcYJztATeL8wW6AtrCwW-img-1_1771406265000_na1fn_c3BvdC13aWRlLXZpZXctdjM.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L0hUT2NZSnp0QVRlTDh3VzZBdHJDd1ctaW1nLTFfMTc3MTQwNjI2NTAwMF9uYTFmbl9jM0J2ZEMxM2FXUmxMWFpwWlhjdGRqTS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=qGRDcy88-VhHQr6v2U8QNl9W~wrcTlRge4ZbOWHJZ3kO4AWOvYO37CKypgr8pH6QdCDD3gskOBNGv3Lgu1q9WbBeueOgn2oUCmNWsEecQYdiHMHS6-FOflTlRwLVvX6PRnWKF4W1L~DMbuJseoEGEjaIoxTegIYaIR5VaeSZAt0tZZqHkSJg2W5gDhdb8amhAzdeZH4Ek4k-QoRDG38U25zQudFx4Hic-gbbFlaT-GioUTBLnhiaY74~JYqlr-heWK0G1dmHVOmeXCNqRVkFKudxvXiidor7ZqNVF7m9tcDGplfjYsLSez8IQ4qVY398GzxM7igJBBa040e5y1XcpA__"
+                  alt="Wide View"
+                  className="w-full h-auto rounded-lg border border-primary/30"
+                />
+              </div>
+              <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면</h3>
+              <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
+                
+               오늘의 흐름이 보입니다.<br /> 
+               어디로 모였는지.
+              </p>
+            </div>
+
+            {/* Card 2 - Near View */}
+            <div className="p-6 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
+              <div className="mb-6">
+                <img 
+                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/hvcCS8soPsTawcjp313kt3-img-1_1771406330000_na1fn_c3BvdC1uZWFyLXZpZXctdjQ.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L2h2Y0NTOHNvUHNUYXdjanAzMTNrdDMtaW1nLTFfMTc3MTQwNjMzMDAwMF9uYTFmbl9jM0J2ZEMxdVpXRnlMWFpwWlhjdGRqUS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=O7g78MEdKLt9c2OkhqgiwhR-QQ1DXkyKKjiqWJxEfOjQVhX-APiz07lRoPaX80XmKdaDCOCSDMWiyX8ln4KgqWo3FnOZOlgTKgRAPr7kx~243XKP7e3HNPT4lKPjgnl4SG5bF-hIoZXkDsLT0dyMaaeWmSoazeYL2Swe2Ws~YB7jUqyqvceOlz9A7ZETJbmskgZ2WjLrj3bS1UdU6O1Zgd-UFNmnPdgoHeca3ZpaNgij8V0l4Yx6rX-Bxy0T4ZqMyi9Dur7r3~hM-u2H2gjASdNwu~IGygYWD5IuoLS2PRM7jmD8IA44hnrU8TMUPCqaePnXfO5f4f3kt2SsT8CJHg__"
+                  alt="Near View"
+                  className="w-full h-auto rounded-lg border border-secondary/30"
+                />
+              </div>
+              <h3 className="text-2xl font-black mb-3 text-secondary">가까워질수록</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+               가까워질수록 또렷해집니다.<br />
+               비슷한 유형이 먼저 보입니다.
+              </p>
+            </div>
+
+            {/* Card 3 - Ultra Near */}
+            <div className="p-6 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
+              <div className="mb-6">
+                <img 
+                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/hvcCS8soPsTawcjp313kt3-img-2_1771406328000_na1fn_c3BvdC11bHRyYS1uZWFyLXY0.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L2h2Y0NTOHNvUHNUYXdjanAzMTNrdDMtaW1nLTJfMTc3MTQwNjMyODAwMF9uYTFmbl9jM0J2ZEMxMWJIUnlZUzF1WldGeUxYWTAucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=OYMnucIooceI5nfV9cAllB74uYjrzTczJb6j5QqDb98Gmbxvm90S~Qp-p8tx-7gBkozhs-ak~p1qRsupxyEF8UkkjMVTK7JRv52OamM3DayEWeM93n7cNU8yCkteoWbs7WwRM-6MOPVjXeZOGu-0xY4FSlUQhsg9czHkQ9Km23NFzKGNB5NglPJmTnmL-W9CJ47OnyqBSGmzgFegbO-ZHtSISHkyzssOJ85PogM-tnWNjrVuuvT-R-SF2v2D0kWSuCkesG3lmM2peLzxPVNTjUp035a0G4hN8izhzpAb05JV3Ck8J0kxjsEhM1gu4KtzQ8xH1oyfo-~nxP-MM~aLkA__"
+                  alt="Ultra Near"
+                  className="w-full h-auto rounded-lg border border-accent/30"
+                />
+              </div>
+              <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                3m 안.
+                이 골목 어딘가에.<br />
+                <span className="text-primary glow-cyan">지금,  마주칠 수도 있습니다. </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      {/* Trust & Privacy Section */}
+      <section className="relative py-24 md:py-32 px-4 md:px-8 overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-black mb-4 text-center">
+           걱정하지 마세요
+          </h2>
+          <p className="text-lg text-muted-foreground text-center mb-16">
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Principle 1 */}
+            <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
+              <div className="text-5xl mb-4">1️⃣</div>
+              <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
+                누구인지 보이지 않습니다.
+              </h4>
+              <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '14px'}}>
+                오직 MBTI만. 
+              </p>
+            </div>
+
+            {/* Principle 2 */}
+            <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
+              <div className="text-5xl mb-4">2️⃣</div>
+              <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
+                점이 아닌 범위
+              </h4>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                정확한 위치는 공개되지 않습니다.
+              </p>
+            </div>
+
+            {/* Principle 3 */}
+            <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
+              <div className="text-5xl mb-4">3️⃣</div>
+              <h4 className="text-xl font-black mb-3 text-accent">
+                선택은 당신
+              </h4>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                지나칠지. 다가갈지.
+              </p>
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
+
+
+
+      {/* Final CTA Section */}
+      <section className="relative py-28 md:py-36 px-4 md:px-8 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-6xl font-black mb-12">
+            지금 이 근처엔<br />
+            
+            누가 있을까.
+          </h2>
+
+          <div className="flex justify-center">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="px-12 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
+                  내 주변 MBTI 보기
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-center">
+                    <span className="text-primary glow-cyan">내 주변 MBTI 보기</span> 
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    지금 바로 내 주변의 성향 분포를 확인하세요
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="이메일 주소"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="border-2 border-primary/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="tel"
+                      placeholder="전화번호 (예: 010-1234-5678)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="border-2 border-secondary/50 focus:border-secondary"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  >
+                    시작하기
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-const wrap: React.CSSProperties = {
-  minHeight: "100vh",
-  background: "#07070a",
-  color: "white",
-  display: "grid",
-  placeItems: "center",
-  padding: 18,
-  position: "relative",
-  overflow: "hidden",
-};
-
-const bgGlow: React.CSSProperties = {
-  position: "absolute",
-  inset: -200,
-  background:
-    "radial-gradient(900px 500px at 30% 20%, rgba(255,90,160,0.18), rgba(0,0,0,0) 60%), radial-gradient(900px 500px at 70% 60%, rgba(120,180,255,0.12), rgba(0,0,0,0) 60%)",
-  filter: "blur(10px)",
-  pointerEvents: "none",
-};
-
-const card: React.CSSProperties = {
-  width: "min(560px, 100%)",
-  borderRadius: 22,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(10,10,12,0.78)",
-  backdropFilter: "blur(12px)",
-  boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
-  padding: "18px 16px",
-  position: "relative",
-  zIndex: 1,
-};
-
-const brand: React.CSSProperties = {
-  fontWeight: 950,
-  letterSpacing: "-0.6px",
-  fontSize: 18,
-  opacity: 0.95,
-};
-
-const headline: React.CSSProperties = {
-  marginTop: 10,
-  fontSize: 26,
-  fontWeight: 950,
-  letterSpacing: "-0.8px",
-  lineHeight: 1.1,
-};
-
-const sub: React.CSSProperties = {
-  marginTop: 10,
-  fontSize: 14,
-  opacity: 0.8,
-  lineHeight: 1.4,
-};
-
-const mini: React.CSSProperties = {
-  marginTop: 14,
-  fontSize: 12,
-  opacity: 0.7,
-};
-
-const code: React.CSSProperties = {
-  padding: "2px 6px",
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.10)",
-};
-
-const btn: React.CSSProperties = {
-  display: "inline-block",
-  padding: "12px 14px",
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.06)",
-  color: "white",
-  fontWeight: 950,
-  textDecoration: "none",
-};
-
-const btnGhost: React.CSSProperties = {
-  ...btn,
-  opacity: 0.9,
-};
