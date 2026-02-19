@@ -46,51 +46,12 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                  내 주변 확인하기
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-center">
-                    <span className="text-primary glow-cyan">SPOT</span> 시작하기
-                  </DialogTitle>
-                  <DialogDescription className="text-center">
-                    지금 바로 내 주변의 성향 분포를 확인하세요
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="이메일 주소"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="border-2 border-primary/50 focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="tel"
-                      placeholder="전화번호 (예: 010-1234-5678)"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      className="border-2 border-secondary/50 focus:border-secondary"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
-                  >
-                    시작하기
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Button 
+              className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan"
+              onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
+            >
+              내 주변 확인하기
+            </Button>
             
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
@@ -308,51 +269,12 @@ export default function Home() {
           </h2>
 
           <div className="flex justify-center">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="px-12 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan">
-                  내 주변 MBTI 보기
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-center">
-                    <span className="text-primary glow-cyan">내 주변 MBTI 보기</span> 
-                  </DialogTitle>
-                  <DialogDescription className="text-center">
-                    지금 바로 내 주변의 성향 분포를 확인하세요
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="이메일 주소"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="border-2 border-primary/50 focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="tel"
-                      placeholder="전화번호 (예: 010-1234-5678)"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      className="border-2 border-secondary/50 focus:border-secondary"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
-                  >
-                    시작하기
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Button 
+              className="px-12 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan"
+              onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
+            >
+              내 주변 MBTI 보기
+            </Button>
           </div>
         </div>
       </section>
