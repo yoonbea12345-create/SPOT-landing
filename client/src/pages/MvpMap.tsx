@@ -1,23 +1,23 @@
 import React from "react";
+import { Link } from "wouter";
 
-export default function MvpMap() {
+export default function Home() {
   return (
     <div style={wrap}>
       <div style={card}>
         <div style={brand}>SPOT</div>
         <div style={headline}>내 주변 MBTI 분포, 지금 바로</div>
         <div style={sub}>
-          위치 기반으로 "흐름"만 보여주는 지도 MVP. <br />
+          위치 기반으로 “흐름”만 보여주는 지도 MVP. <br />
           누군지는 몰라. 대신, 어디에 모였는지 보여.
         </div>
 
         <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-          <a
-            href="/"
-            style={{ ...btn, borderColor: "rgba(120,180,255,0.55)", background: "rgba(120,180,255,0.14)" }}
-          >
-            ← 랜딩 페이지로
-          </a>
+          <Link href="/mvp">
+            <a style={{ ...btn, borderColor: "rgba(255,90,160,0.55)", background: "rgba(255,90,160,0.14)" }}>
+              지도 MVP 열기
+            </a>
+          </Link>
           <a
             href="https://github.com/"
             target="_blank"
@@ -31,8 +31,7 @@ export default function MvpMap() {
         </div>
 
         <div style={mini}>
-          여기에 지도 MVP 컴포넌트를 추가하세요. <br />
-          <code style={code}>client/src/pages/MvpMap.tsx</code>
+          테스트: <code style={code}>/mvp</code> 직접 접속 / 새로고침해도 404 안 나게 설정됨.
         </div>
       </div>
 
