@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Circle, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 
 type Mode = "wide" | "near" | "3m";
 type Spot = { id: string; lat: number; lng: number; mbti: string };
@@ -14,7 +13,6 @@ const MBTIS = [
 
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
 
-// meters
 function distanceMeters(aLat: number, aLng: number, bLat: number, bLng: number) {
   const R = 6371000;
   const toRad = (d: number) => (d * Math.PI) / 180;
@@ -86,13 +84,19 @@ function Toast({ show, title, sub }: { show: boolean; title: string; sub?: strin
         }}
       >
         <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: "-0.2px" }}>{title}</div>
-        {sub ? <div style={{ marginTop: 4, fontSize: 13, opacity: 0.85, lineHeight: 1.25 }}>{sub}</div> : null}
+        {sub ? (
+          <div style={{ marginTop: 4, fontSize: 13, opacity: 0.85, lineHeight: 1.25 }}>{sub}</div>
+        ) : null}
       </div>
     </div>
   );
 }
 
 export default function MVP_SPOT() {
+  // 클라이언트에서만 맵 렌더(배포/StrictMode 안정)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const [mode, setMode] = useState<Mode>("wide");
   const [myMbti, setMyMbti] = useState(() => MBTIS[Math.floor(Math.random() * MBTIS.length)]);
 
@@ -100,23 +104,41 @@ export default function MVP_SPOT() {
   const [spots, setSpots] = useState<Spot[]>(() => generateSpots(37.5665, 126.9780, 40));
 
   const [toast, setToast] = useState({ show: true, title: "지금 이 근처에…", sub: "나랑 비슷한 MBTI가 있을까?" });
-  const timer = useRef<number | null>(null);
+
+  const timer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current);
+    };
+  }, []);
 
   const zoomByMode: Record<Mode, number> = { wide: 13, near: 16, "3m": 18 };
   const is3m = mode === "3m";
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setToast({ show: true, title: "위치 기능을 사용할 수 없어요.", sub: "브라우저에서 위치 권한을 확인해줘." });
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setMe({ lat, lng });
         setSpots(generateSpots(lat, lng, 40));
+        showToast("여기구나.", "지금의 공기를 띄웠어.");
       },
-      () => {},
+      (err) => {
+        setToast({
+          show: true,
+          title: "위치를 못 가져왔어.",
+          sub: err.code === err.PERMISSION_DENIED ? "위치 권한을 허용해줘." : "네트워크/권한 상태를 확인해줘.",
+        });
+      },
       { enableHighAccuracy: true, timeout: 8000 }
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function showToast(title: string, sub?: string, ms = 1500) {
@@ -138,7 +160,7 @@ export default function MVP_SPOT() {
   const visibleSpots = useMemo(() => {
     if (mode === "wide") return spots;
 
-    // Near/3M: 나랑 vibe 맞는 애들 위주로 정리 (정보 과부하 방지)
+    // Near/3M: vibe 맞는 애들 위주 (정보 과부하 방지)
     const scored = spots
       .map((s) => ({ s, score: vibeScore(myMbti, s.mbti) }))
       .sort((a, b) => b.score - a.score);
@@ -163,6 +185,14 @@ export default function MVP_SPOT() {
 
   const pageBg =
     "radial-gradient(1200px 700px at 50% 0%, rgba(255,255,255,0.08), rgba(0,0,0,0) 55%), #07070A";
+
+  if (!mounted) {
+    return (
+      <div style={{ height: "100vh", width: "100vw", background: pageBg, display: "grid", placeItems: "center", color: "white" }}>
+        <div style={{ opacity: 0.8, fontWeight: 900 }}>Loading map…</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ height: "100vh", width: "100vw", background: pageBg, position: "relative", color: "white" }}>
@@ -229,9 +259,16 @@ export default function MVP_SPOT() {
 
       {/* map */}
       <div style={{ position: "absolute", inset: 0, opacity: 0.98 }}>
-        <MapContainer center={[me.lat, me.lng]} zoom={zoomByMode[mode]} style={{ height: "100%", width: "100%" }} zoomControl={false}>
+        <MapContainer
+          center={[me.lat, me.lng]}
+          zoom={zoomByMode[mode]}
+          style={{ height: "100%", width: "100%" }}
+          zoomControl={false}
+        >
           <Recenter lat={me.lat} lng={me.lng} zoom={zoomByMode[mode]} />
-          <TileLayer attribution="" url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+
+          {/* ✅ OSM 타일: 가장 안 막힘 */}
+          <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {/* me */}
           <CircleMarker center={[me.lat, me.lng]} radius={7} pathOptions={{ color: "rgba(255,255,255,0.92)" }} />
