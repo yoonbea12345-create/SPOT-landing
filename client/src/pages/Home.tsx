@@ -112,7 +112,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-12 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '30px'}}>
-              핫플은 압니다. <br />거기 <span className="text-secondary glow-magenta">누가</span>
+              핫플은 압니다. <br /> <span className="text-secondary glow-magenta">누가</span>
                 있는지는 모릅니다.
             </p>
 
