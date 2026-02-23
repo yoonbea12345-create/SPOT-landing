@@ -204,7 +204,7 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">3️⃣</div>
               <h4 className="text-xl font-black mb-3 text-accent">
-                선택은 당신의 몹
+                선택은 당신의 몫
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 지나칠지. 다가갈지.
