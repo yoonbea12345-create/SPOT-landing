@@ -245,7 +245,7 @@ export default function Home() {
             <DialogContent className="sm:max-w-[360px] bg-background border-2 border-primary">
               <DialogHeader>
                 <DialogTitle className="text-3xl font-black text-center mb-2">
-                  알림받기
+                  알림 받기
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6 mt-2">
