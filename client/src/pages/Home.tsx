@@ -6,14 +6,12 @@ import { toast } from "sonner";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("신청이 완료되었습니다!");
+    toast.success("알림 신청이 완료되었습니다!");
     setEmail("");
-    setPhone("");
     setOpen(false);
   };
 
@@ -226,45 +224,32 @@ export default function Home() {
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="px-12 py-7 text-xl font-black border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary glow-magenta transition-all hover:scale-105">
-                소식 받기
+              <Button className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105">
+                출시 알림
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-background border-2 border-secondary">
+            <DialogContent className="sm:max-w-[360px] bg-background border-2 border-primary">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-black text-center">
-                  <span className="text-secondary glow-magenta">SPOT</span> 소식 받기
+                <DialogTitle className="text-3xl font-black text-center mb-2">
+                  출시 알림
                 </DialogTitle>
-                <DialogDescription className="text-center">
-                  가장 먼저 새로운 소식을 받아보세요
-                </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+              <form onSubmit={handleSubmit} className="space-y-6 mt-2">
                 <div>
                   <Input
                     type="email"
-                    placeholder="이메일 주소"
+                    placeholder="이메일"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="border-2 border-secondary/50 focus:border-secondary"
-                  />
-                </div>
-                <div>
-                  <Input
-                    type="tel"
-                    placeholder="전화번호 (예: 010-1234-5678)"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                    className="border-2 border-secondary/50 focus:border-secondary"
+                    className="border-2 border-primary/50 focus:border-primary text-center text-lg py-6"
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full py-6 text-lg font-black border-2 border-secondary bg-secondary/10 hover:bg-secondary/20 text-secondary glow-magenta"
+                  className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
                 >
-                  알림 신청하기
+                  알림 받기
                 </Button>
               </form>
             </DialogContent>
