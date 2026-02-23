@@ -44,59 +44,13 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex justify-center mb-12">
             <Button 
-              className="px-8 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan"
+              className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
               onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
             >
-              내 주변 확인하기
+              보러가기
             </Button>
-            
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="px-8 py-6 text-lg font-black border-2 border-secondary text-secondary hover:bg-secondary/10 glow-magenta">
-                  베타 오픈 알림 받기
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-background border-2 border-primary">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-center">
-                    <span className="text-primary glow-cyan">SPOT</span> 베타 오픈 알림
-                  </DialogTitle>
-                  <DialogDescription className="text-center">
-                    가장 먼저 공간 정보를 확인해보세요
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="이메일 주소"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="border-2 border-primary/50 focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="tel"
-                      placeholder="전화번호 (예: 010-1234-5678)"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      className="border-2 border-secondary/50 focus:border-secondary"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
-                  >
-                    알림 신청하기
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
       </section>
@@ -253,6 +207,71 @@ export default function Home() {
 
 
 
+      {/* Beta Announcement Section */}
+      <section className="relative py-32 md:py-40 px-4 md:px-8 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <div className="space-y-8 mb-16">
+            <p className="text-4xl md:text-6xl font-black leading-tight">
+              지금은 베타.
+            </p>
+            <p className="text-3xl md:text-5xl font-black leading-tight text-muted-foreground">
+              곧, 더 가까이.
+            </p>
+          </div>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="px-12 py-7 text-xl font-black border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary glow-magenta transition-all hover:scale-105">
+                소식 받기
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md bg-background border-2 border-secondary">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black text-center">
+                  <span className="text-secondary glow-magenta">SPOT</span> 소식 받기
+                </DialogTitle>
+                <DialogDescription className="text-center">
+                  가장 먼저 새로운 소식을 받아보세요
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                <div>
+                  <Input
+                    type="email"
+                    placeholder="이메일 주소"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="border-2 border-secondary/50 focus:border-secondary"
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="tel"
+                    placeholder="전화번호 (예: 010-1234-5678)"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="border-2 border-secondary/50 focus:border-secondary"
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full py-6 text-lg font-black border-2 border-secondary bg-secondary/10 hover:bg-secondary/20 text-secondary glow-magenta"
+                >
+                  알림 신청하기
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </section>
+
       {/* Final CTA Section */}
       <section className="relative py-28 md:py-36 px-4 md:px-8 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-30">
@@ -269,10 +288,10 @@ export default function Home() {
 
           <div className="flex justify-center">
             <Button 
-              className="px-12 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan"
+              className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
               onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
             >
-              내 주변 MBTI 보기
+              보러가기
             </Button>
           </div>
         </div>
