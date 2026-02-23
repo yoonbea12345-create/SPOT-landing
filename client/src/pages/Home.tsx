@@ -47,7 +47,7 @@ export default function Home() {
               className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
               onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
             >
-              보러가기
+              보러 가기
             </Button>
           </div>
         </div>
@@ -276,7 +276,7 @@ export default function Home() {
               className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
               onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
             >
-              보러가기
+              보러 가기
             </Button>
           </div>
         </div>
