@@ -239,13 +239,13 @@ export default function Home() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <button className="text-sm font-medium text-muted-foreground/70 hover:text-primary transition-colors underline underline-offset-4 decoration-dotted">
-                출시 알림 받기
+                출시 알림
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[360px] bg-background border-2 border-primary">
               <DialogHeader>
                 <DialogTitle className="text-3xl font-black text-center mb-2">
-                  출시 알림
+                  알림받기
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6 mt-2">
