@@ -39,8 +39,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 여기,<br />
-              보이지 않던 성향이 드러납니다.
+              지금 나와 비슷한 사람은 어디에.
 
             </p>
           </div>
