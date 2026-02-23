@@ -238,7 +238,7 @@ export default function Home() {
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="px-8 py-4 text-base font-bold border-2 border-primary/40 bg-transparent hover:bg-primary/10 text-foreground hover:text-primary transition-colors">
+              <Button variant="outline" className="px-8 py-4 text-base font-bold border-2 border-primary/40 bg-transparent hover:bg-primary/10 text-foreground hover:text-primary transition-colors" style={{color: 'oklch(0.6 0.28 340)'}}>
                 출시 알림
               </Button>
             </DialogTrigger>
