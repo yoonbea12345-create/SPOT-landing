@@ -137,7 +137,7 @@ export default function Home() {
               <h3 className="text-2xl font-black mb-3 text-secondary">가까워질수록</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
                나와 비슷한 유형이 먼저 보입니다.<br />
-               <span className="text-secondary">가까워질수록 더 선명해집니다.</span>
+               <span className="text-secondary">더 가까이. 더 선명하게.</span>
               </p>
             </div>
 
@@ -204,7 +204,7 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">3️⃣</div>
               <h4 className="text-xl font-black mb-3 text-accent">
-                선택은 당신의 몸
+                선택은 당신의 몹
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 지나칠지. 다가갈지.
@@ -238,7 +238,7 @@ export default function Home() {
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="px-8 py-4 text-base font-bold border border-muted-foreground/30 bg-transparent hover:bg-muted/10 text-muted-foreground hover:text-foreground transition-colors">
+              <Button variant="outline" className="px-8 py-4 text-base font-bold border-2 border-primary/40 bg-transparent hover:bg-primary/10 text-foreground hover:text-primary transition-colors">
                 출시 알림
               </Button>
             </DialogTrigger>
@@ -279,8 +279,9 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl font-black mb-16">
-            지금, 이 근처.
+          <h2 className="text-5xl md:text-7xl font-black mb-16 leading-tight">
+            지금, 이 근처엔<br /><br />
+            누가 있을까.
           </h2>
 
           <div className="flex justify-center">
