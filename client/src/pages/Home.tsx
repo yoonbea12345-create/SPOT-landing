@@ -231,7 +231,7 @@ export default function Home() {
             <p className="text-4xl md:text-6xl font-black leading-tight">
               지금은 베타.
             </p>
-            <p className="text-3xl md:text-5xl font-black leading-tight text-muted-foreground">
+            <p className="text-3xl md:text-5xl font-black leading-tight text-muted-foreground" style={{color: 'oklch(0.98 0 0)'}}>
               곧, 더 가까이.
             </p>
           </div>
