@@ -8,11 +8,26 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("알림 신청이 완료되었습니다!");
-    setEmail("");
-    setOpen(false);
+    
+    try {
+      const response = await fetch('https://script.google.com/macros/s/AKfycbyZyy0SdTsdYasmg4RkKAqH6gmDGwtQnqQTylfd0DtTlHtM62ikpcqCn-IMbYitS8gc/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      toast.success("알림 신청이 완료되었습니다!");
+      setEmail("");
+      setOpen(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
