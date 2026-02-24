@@ -280,8 +280,8 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h2 className="text-5xl md:text-7xl font-black mb-16 leading-tight">
-            지금, 이 근처엔<br /><br />
-            누가 있을까.
+            지금, 이 골목에 누가<br /><br />
+            모였는지 확인해보세요.
           </h2>
 
           <div className="flex justify-center">
