@@ -7,9 +7,15 @@ import { toast } from "sonner";
 export default function Home() {
   const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!agreed) {
+      toast.error("정보 수신 동의가 필요합니다.");
+      return;
+    }
     
     try {
       const response = await fetch('https://script.google.com/macros/s/AKfycbyZyy0SdTsdYasmg4RkKAqH6gmDGwtQnqQTylfd0DtTlHtM62ikpcqCn-IMbYitS8gc/exec', {
@@ -23,6 +29,7 @@ export default function Home() {
       
       toast.success("알림 신청이 완료되었습니다!");
       setEmail("");
+      setAgreed(false);
       setOpen(false);
     } catch (error) {
       console.error('Error:', error);
@@ -259,6 +266,24 @@ export default function Home() {
                     className="border-2 border-primary/50 focus:border-primary text-center text-lg py-6"
                   />
                 </div>
+                
+                {/* 개인정보 수신 동의 체크박스 */}
+                <div className="flex items-start gap-2 px-2">
+                  <input
+                    type="checkbox"
+                    id="agreement"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded border-2 border-primary/50 bg-background checked:bg-primary checked:border-primary cursor-pointer flex-shrink-0"
+                  />
+                  <label
+                    htmlFor="agreement"
+                    className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
+                  >
+                    서비스의 정식 출시 정보를 담은 정보 수신에 동의합니다.
+                  </label>
+                </div>
+                
                 <Button 
                   type="submit" 
                   className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
