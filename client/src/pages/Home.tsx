@@ -278,7 +278,7 @@ export default function Home() {
                   />
                   <label
                     htmlFor="agreement"
-                    className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
+                    className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none" style={{fontSize: '18px'}}
                   >
                     서비스의 정식 출시 정보를 담은 정보 수신에 동의합니다.
                   </label>
