@@ -79,6 +79,7 @@ export default function MvpMap() {
   const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
   const [viewMode, setViewMode] = useState<"wide" | "near" | "3m">("near");
   const [nearbyEntities3m, setNearbyEntities3m] = useState<Entity[]>([]);
+  const [screenHeight, setScreenHeight] = useState(window.innerHeight);
   
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Circle[]>([]);
@@ -141,6 +142,13 @@ export default function MvpMap() {
       ISTP: "장인형", ISFP: "모험가형", ESTP: "사업가형", ESFP: "연예인형"
     };
     return names[mbti] || mbti;
+  }, []);
+
+  // 화면 높이 업데이트
+  useEffect(() => {
+    const handleResize = () => setScreenHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // 위치 권한 요청
@@ -361,7 +369,7 @@ export default function MvpMap() {
   // 위치 권한 요청 화면
   if (step === "permission") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-purple-900 flex items-center justify-center p-4">
+      <div style={{ minHeight: `${screenHeight}px`, background: 'linear-gradient(to bottom right, #000, #1e293b, #581c87)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
         <div className="max-w-2xl w-full bg-black/50 backdrop-blur-xl border-2 border-cyan-500/30 rounded-2xl p-8 space-y-6">
           <h1 className="text-5xl font-black text-center mb-4" style={{ color: "#00f5ff", textShadow: "0 0 20px rgba(0, 245, 255, 0.5)" }}>SPOT</h1>
           
@@ -399,13 +407,42 @@ export default function MvpMap() {
           </div>
           
           <div className="pt-4">
-            <Button
+            <button
               onClick={handleRequestLocation}
-              className="w-full py-6 text-xl font-black border-2 border-cyan-500 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400"
-              style={{ boxShadow: "0 0 20px rgba(0, 245, 255, 0.3)" }}
+              style={{
+                width: '100%',
+                padding: '20px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(229, 231, 235, 0.1)',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
             >
-              동의
-            </Button>
+              <span style={{ fontSize: '18px', fontWeight: '600', color: '#3b82f6' }}>사용 중</span>
+              <div style={{
+                width: '51px',
+                height: '31px',
+                borderRadius: '15.5px',
+                backgroundColor: '#3b82f6',
+                position: 'relative',
+                transition: 'all 0.3s'
+              }}>
+                <div style={{
+                  width: '27px',
+                  height: '27px',
+                  borderRadius: '50%',
+                  backgroundColor: '#fff',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '2px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}></div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -415,7 +452,7 @@ export default function MvpMap() {
   // 로딩 화면
   if (step === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-purple-900 flex flex-col items-center justify-center">
+      <div style={{ minHeight: `${screenHeight}px`, background: 'linear-gradient(to bottom right, #000, #1e293b, #581c87)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <h1 className="text-6xl font-black mb-8" style={{ color: "#00f5ff", textShadow: "0 0 30px rgba(0, 245, 255, 0.6)" }}>SPOT</h1>
         <p className="text-xl text-gray-300 animate-pulse">{loadingMessage}</p>
         <p className="text-sm text-gray-500 mt-4">오래 걸릴 경우 새로고침 해주세요.</p>
@@ -425,7 +462,7 @@ export default function MvpMap() {
 
   // 지도 화면
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden', backgroundColor: '#000' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: `${screenHeight}px`, overflow: 'hidden', backgroundColor: '#000' }}>
       {/* 상단 헤더 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(0,245,255,0.3)', padding: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1280px', margin: '0 auto' }}>
