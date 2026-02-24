@@ -164,11 +164,10 @@ export default function MvpMap() {
 
   // 위치 권한 요청
   const handleRequestLocation = useCallback(() => {
-    setStep("loading");
-    setLoadingMessage("위치 정보를 불러오는 중...");
-    
     if (!navigator.geolocation) {
       toast.error("위치 서비스를 지원하지 않는 브라우저입니다.");
+      setStep("loading");
+      setLoadingMessage("지도를 불러오는 중...");
       const fallbackLocation = { lat: 37.5665, lng: 126.9780 };
       setUserLocation(fallbackLocation);
       generateAllEntities(fallbackLocation);
@@ -176,26 +175,36 @@ export default function MvpMap() {
       return;
     }
 
-    const timeout = setTimeout(() => {
-      setLoadingMessage("지도를 불러오는 중...");
-    }, 2000);
-
+    // GPS 권한 팝업 먼저 띄우기
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        clearTimeout(timeout);
+        // 권한 허용 후 로딩 화면으로 전환
+        setStep("loading");
+        setLoadingMessage("위치 정보를 불러오는 중...");
+        
         const location = { lat: position.coords.latitude, lng: position.coords.longitude };
         setUserLocation(location);
         generateAllEntities(location);
-        setTimeout(() => setStep("map"), 1000);
+        
+        setTimeout(() => {
+          setLoadingMessage("지도를 불러오는 중...");
+        }, 1000);
+        
+        setTimeout(() => setStep("map"), 2000);
       },
       (error) => {
-        clearTimeout(timeout);
         console.error("위치 정보 오류:", error);
+        
+        // 권한 거부 시에도 로딩 화면으로 전환
+        setStep("loading");
+        setLoadingMessage("기본 위치로 설정 중...");
+        
         toast.error("위치 정보를 가져올 수 없습니다. 기본 위치(서울)로 표시합니다.");
         const fallbackLocation = { lat: 37.5665, lng: 126.9780 };
         setUserLocation(fallbackLocation);
         generateAllEntities(fallbackLocation);
-        setTimeout(() => setStep("map"), 1000);
+        
+        setTimeout(() => setStep("map"), 1500);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
