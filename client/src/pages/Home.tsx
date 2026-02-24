@@ -268,19 +268,20 @@ export default function Home() {
                 </div>
                 
                 {/* 개인정보 수신 동의 체크박스 */}
-                <div className="flex items-start gap-2 px-2">
+                <div className="flex items-center gap-2 px-2">
                   <input
                     type="checkbox"
                     id="agreement"
                     checked={agreed}
                     onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-1 w-4 h-4 rounded border-2 border-primary/50 bg-background checked:bg-primary checked:border-primary cursor-pointer flex-shrink-0"
+                    className="w-4 h-4 rounded border-2 border-primary/50 bg-background checked:bg-primary checked:border-primary cursor-pointer flex-shrink-0"
                   />
                   <label
                     htmlFor="agreement"
                     className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none" style={{fontSize: '18px'}}
                   >
-                    서비스의 정식 출시 정보를 담은 정보 수신에 동의합니다.
+                    서비스의 정식 출시 정보를<br />
+                    담은 정보 수신에 동의합니다.
                   </label>
                 </div>
                 
