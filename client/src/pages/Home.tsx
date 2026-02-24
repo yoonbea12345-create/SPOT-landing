@@ -279,7 +279,7 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl font-black mb-16 leading-tight">
+          <h2 className="text-5xl md:text-7xl font-black mb-16 leading-tight" style={{fontSize: '35px'}}>
             지금, 이 골목에 누가<br /><br />
             모였는지 확인해보세요.
           </h2>
