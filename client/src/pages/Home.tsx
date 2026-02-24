@@ -256,17 +256,6 @@ export default function Home() {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6 mt-2">
-                <div>
-                  <Input
-                    type="email"
-                    placeholder="이메일"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="border-2 border-primary/50 focus:border-primary text-center text-lg py-6"
-                  />
-                </div>
-                
                 {/* 개인정보 수신 동의 체크박스 */}
                 <div className="flex items-center gap-3 px-2">
                   <input
@@ -283,6 +272,17 @@ export default function Home() {
                     서비스의 정식 출시 정보를<br />
                     담은 정보 수신에 동의합니다.
                   </label>
+                </div>
+                
+                <div>
+                  <Input
+                    type="email"
+                    placeholder="이메일"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="border-2 border-primary/50 focus:border-primary text-center text-lg py-6"
+                  />
                 </div>
                 
                 <Button 
