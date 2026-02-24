@@ -220,7 +220,7 @@ export default function MvpMap() {
       },
       {
         enableHighAccuracy: true,
-        timeout: 5000,
+        timeout: 15000,
         maximumAge: 0
       }
     );
@@ -556,7 +556,13 @@ export default function MvpMap() {
           
           <div className="flex gap-4 pt-4">
             <Button
-              onClick={() => window.history.back()}
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  window.location.href = '/';
+                }
+              }}
               variant="outline"
               className="flex-1 py-6 text-lg border-2 border-gray-600 bg-transparent hover:bg-gray-800"
             >
@@ -595,7 +601,7 @@ export default function MvpMap() {
 
   // 지도 화면
   return (
-    <div className="relative w-full h-screen bg-black">
+    <div className="relative w-full h-screen bg-black overflow-hidden">
       {/* 상단 헤더 */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -641,38 +647,62 @@ export default function MvpMap() {
       </div>
 
       {/* 지도 */}
-      <MapView
-        initialCenter={userLocation || { lat: 37.5665, lng: 126.9780 }}
-        initialZoom={15}
-        onMapReady={handleMapReady}
-      />
+      <div className="absolute top-0 left-0 right-0 bottom-0 z-0">
+        <MapView
+          initialCenter={userLocation || { lat: 37.5665, lng: 126.9780 }}
+          initialZoom={15}
+          onMapReady={handleMapReady}
+        />
+      </div>
 
       {/* 하단 정보 카드 */}
       <div className="absolute bottom-0 left-0 right-0 z-10 bg-black/90 backdrop-blur-sm border-t border-cyan-500/30 p-4">
-        <div className="max-w-7xl mx-auto">
-          {selectedEntity ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-black"
+        <div className="max-w-7xl mx-auto space-y-3">
+          {/* 스포트라이트 시스템 정보 */}
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+              <span className="text-gray-400">스포트라이트 시스템 활성</span>
+            </div>
+            {selectedMbti && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">필터:</span>
+                <span 
+                  className="px-2 py-1 rounded font-bold"
                   style={{
-                    backgroundColor: MBTI_COLORS[selectedEntity.mbti],
-                    color: "#000"
+                    backgroundColor: `${MBTI_COLORS[selectedMbti]}20`,
+                    color: MBTI_COLORS[selectedMbti],
+                    border: `1px solid ${MBTI_COLORS[selectedMbti]}`
                   }}
                 >
-                  {selectedEntity.mbti}
-                </div>
-                <div>
-                  <p className="text-white font-semibold">{getMbtiName(selectedEntity.mbti)} ({selectedEntity.mbti})</p>
-                  <p className="text-sm text-gray-400">
-                    {selectedEntity.state === "move" ? "이동 중" : "정지 중"}
-                    {userLocation && ` · ${Math.round(calculateDistance(userLocation.lat, userLocation.lng, selectedEntity.lat, selectedEntity.lng))}m`}
-                  </p>
-                </div>
+                  {selectedMbti}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* 선택된 엔티티 정보 */}
+          {selectedEntity ? (
+            <div className="flex items-center gap-3 pt-2 border-t border-gray-700">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center font-black"
+                style={{
+                  backgroundColor: MBTI_COLORS[selectedEntity.mbti],
+                  color: "#000"
+                }}
+              >
+                {selectedEntity.mbti}
+              </div>
+              <div>
+                <p className="text-white font-semibold">{getMbtiName(selectedEntity.mbti)} ({selectedEntity.mbti})</p>
+                <p className="text-sm text-gray-400">
+                  {selectedEntity.state === "move" ? "이동 중" : "정지 중"}
+                  {userLocation && ` · ${Math.round(calculateDistance(userLocation.lat, userLocation.lng, selectedEntity.lat, selectedEntity.lng))}m`}
+                </p>
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-400 text-sm">
+            <p className="text-center text-gray-400 text-sm pt-2 border-t border-gray-700">
               마커를 클릭하거나 위의 MBTI 버튼으로 필터링하세요
             </p>
           )}
