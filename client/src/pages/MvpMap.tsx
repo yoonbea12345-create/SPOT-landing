@@ -152,16 +152,6 @@ export default function MvpMap() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 토글 버튼 클릭
-  const handleToggleClick = useCallback(() => {
-    if (!isToggleOn) {
-      setIsToggleOn(true);
-      setTimeout(() => {
-        handleRequestLocation();
-      }, 500);
-    }
-  }, [isToggleOn]);
-
   // 위치 권한 요청
   const handleRequestLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -209,6 +199,15 @@ export default function MvpMap() {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, [generateAllEntities]);
+
+  // 토글 버튼 클릭
+  const handleToggleClick = useCallback(() => {
+    if (!isToggleOn) {
+      setIsToggleOn(true);
+      // 즉시 GPS 권한 요청
+      handleRequestLocation();
+    }
+  }, [isToggleOn, handleRequestLocation]);
 
   // 움직임 시뮬레이션
   useEffect(() => {
@@ -429,6 +428,7 @@ export default function MvpMap() {
           <div className="pt-4">
             <button
               onClick={handleToggleClick}
+              disabled={isToggleOn}
               style={{
                 width: '100%',
                 padding: '20px',
