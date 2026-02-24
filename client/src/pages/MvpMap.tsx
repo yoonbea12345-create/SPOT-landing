@@ -80,6 +80,7 @@ export default function MvpMap() {
   const [viewMode, setViewMode] = useState<"wide" | "near" | "3m">("near");
   const [nearbyEntities3m, setNearbyEntities3m] = useState<Entity[]>([]);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
+  const [isToggleOn, setIsToggleOn] = useState(false);
   
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Circle[]>([]);
@@ -150,6 +151,16 @@ export default function MvpMap() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // 토글 버튼 클릭
+  const handleToggleClick = useCallback(() => {
+    if (!isToggleOn) {
+      setIsToggleOn(true);
+      setTimeout(() => {
+        handleRequestLocation();
+      }, 500);
+    }
+  }, [isToggleOn]);
 
   // 위치 권한 요청
   const handleRequestLocation = useCallback(() => {
@@ -408,7 +419,7 @@ export default function MvpMap() {
           
           <div className="pt-4">
             <button
-              onClick={handleRequestLocation}
+              onClick={handleToggleClick}
               style={{
                 width: '100%',
                 padding: '20px',
@@ -422,12 +433,14 @@ export default function MvpMap() {
                 transition: 'all 0.2s'
               }}
             >
-              <span style={{ fontSize: '18px', fontWeight: '600', color: '#3b82f6' }}>사용 중</span>
+              <span style={{ fontSize: '18px', fontWeight: '600', color: isToggleOn ? '#3b82f6' : '#9ca3af' }}>
+                {isToggleOn ? '사용 중' : '사용 안함'}
+              </span>
               <div style={{
                 width: '51px',
                 height: '31px',
                 borderRadius: '15.5px',
-                backgroundColor: '#3b82f6',
+                backgroundColor: isToggleOn ? '#3b82f6' : '#4b5563',
                 position: 'relative',
                 transition: 'all 0.3s'
               }}>
@@ -437,9 +450,11 @@ export default function MvpMap() {
                   borderRadius: '50%',
                   backgroundColor: '#fff',
                   position: 'absolute',
-                  right: '2px',
+                  left: isToggleOn ? 'auto' : '2px',
+                  right: isToggleOn ? '2px' : 'auto',
                   top: '2px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  transition: 'all 0.3s'
                 }}></div>
               </div>
             </button>
