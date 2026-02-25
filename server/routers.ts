@@ -56,6 +56,42 @@ export const appRouter = router({
           return { success: false };
         }
       }),
+
+    // Get access logs with pagination
+    list: publicProcedure
+      .input(
+        z.object({
+          limit: z.number().min(1).max(100).default(50),
+          offset: z.number().min(0).default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) {
+          return { logs: [], total: 0 };
+        }
+
+        try {
+          const { desc, sql, count } = await import("drizzle-orm");
+          
+          // Get total count
+          const totalResult = await db.select({ count: count() }).from(accessLogs);
+          const total = totalResult[0]?.count || 0;
+
+          // Get paginated logs
+          const logs = await db
+            .select()
+            .from(accessLogs)
+            .orderBy(desc(accessLogs.timestamp))
+            .limit(input.limit)
+            .offset(input.offset);
+
+          return { logs, total };
+        } catch (error) {
+          console.error("[AccessLog] Failed to fetch logs:", error);
+          return { logs: [], total: 0 };
+        }
+      }),
   }),
 });
 
