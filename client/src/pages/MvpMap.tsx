@@ -207,7 +207,7 @@ export default function MvpMap() {
         style={{ height: `${screenHeight}px` }}
       >
         <h1
-          className="text-6xl font-bold mb-8"
+          className="text-6xl font-bold"
           style={{
             fontFamily: "'Orbitron', sans-serif",
             color: "#00f0ff",
@@ -216,12 +216,6 @@ export default function MvpMap() {
         >
           SPOT
         </h1>
-        <p
-          className="text-lg text-gray-400 text-center px-6"
-          style={{ fontFamily: "'Noto Sans KR', sans-serif" }}
-        >
-        
-        </p>
       </div>
     );
   }
