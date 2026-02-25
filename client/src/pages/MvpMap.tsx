@@ -24,7 +24,18 @@ const MBTI_COLORS: Record<string, string> = {
 // 더미 데이터 생성
 const generateDummyData = (center: google.maps.LatLngLiteral) => {
   const data = [];
-  for (let i = 0; i < 30; i++) {
+  
+  // 첫 번째 마커: 기본 위치 1m 앞(북쪽)에 ENFP 고정
+  // 위도 1m ≈ 0.000009도
+  data.push({ 
+    mbti: "ENFP", 
+    lat: center.lat + 0.000009, 
+    lng: center.lng, 
+    id: 0 
+  });
+  
+  // 나머지 29개 랜덤 마커
+  for (let i = 1; i < 30; i++) {
     const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
     const lat = center.lat + (Math.random() - 0.5) * 0.02;
     const lng = center.lng + (Math.random() - 0.5) * 0.02;
