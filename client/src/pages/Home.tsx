@@ -136,7 +136,7 @@ export default function Home() {
             <div className="p-6 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="mb-6">
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/wWyTazLhsdMvssnA.png"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/fcZsriYfiGhtKKHb.png"
                   alt="Near View"
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
