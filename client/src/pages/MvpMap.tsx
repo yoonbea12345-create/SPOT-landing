@@ -63,10 +63,10 @@ export default function MvpMap() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 지도 표시 후 1.1초 뒤 GPS 동의 팝업
+  // 지도 표시 후 2초 뒤 GPS 동의 팝업
   useEffect(() => {
     if (screen === "map") {
-      const timer = setTimeout(() => setShowConsentPopup(true), 1100);
+      const timer = setTimeout(() => setShowConsentPopup(true), 2000);
       return () => clearTimeout(timer);
     }
   }, [screen]);
