@@ -108,6 +108,7 @@ export default function MvpMap() {
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const watchIdRef = useRef<number | null>(null);
   const [currentZoom, setCurrentZoom] = useState(15);
 
   // 홍대입구역 기본 위치
@@ -241,6 +242,71 @@ export default function MvpMap() {
     // 첫 시도
     attemptGetLocation();
   }, [preloadedLocation]);
+
+  // 실시간 GPS 추적 시작
+  const startWatchingPosition = useCallback(() => {
+    // 이미 추적 중이면 중복 방지
+    if (watchIdRef.current !== null) {
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      console.log("Geolocation not supported");
+      return;
+    }
+
+    console.log("📍 실시간 GPS 추적 시작");
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        console.log("📍 위치 업데이트:", newLocation);
+
+        // 상태 업데이트
+        setUserLocation(newLocation);
+
+        // 사용자 마커 업데이트
+        if (userMarkerRef.current) {
+          userMarkerRef.current.position = newLocation;
+        }
+
+        // 지도 중심은 업데이트하지 않음 (사용자가 지도를 보고 있을 수 있으므로)
+      },
+      (error) => {
+        console.log("GPS watch error:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }, []);
+
+  // 실시간 GPS 추적 중지
+  const stopWatchingPosition = useCallback(() => {
+    if (watchIdRef.current !== null) {
+      console.log("🚫 실시간 GPS 추적 중지");
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+  }, []);
+
+  // GPS 권한 허용 후 실시간 추적 시작
+  useEffect(() => {
+    if (userLocation && screen === "map") {
+      startWatchingPosition();
+    }
+
+    // 컴포넌트 언마운트 시 추적 중지
+    return () => {
+      stopWatchingPosition();
+    };
+  }, [userLocation, screen, startWatchingPosition, stopWatchingPosition]);
 
   // 도시별 MBTI 개수 집계
   const aggregateCityData = useCallback(() => {
