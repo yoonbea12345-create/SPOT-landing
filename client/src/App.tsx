@@ -11,9 +11,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import MvpMap from "./pages/MvpMap";
-
+import { useAccessLog } from "./hooks/useAccessLog";
 
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -25,6 +26,9 @@ function Router() {
 }
 
 function App() {
+  // Track page access logs
+  useAccessLog();
+  
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">

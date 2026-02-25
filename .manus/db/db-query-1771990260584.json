@@ -1,0 +1,90 @@
+{
+  "query": "SELECT * FROM accessLogs ORDER BY timestamp DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute SELECT * FROM accessLogs ORDER BY timestamp DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "32",
+      "ipAddress": "47.128.247.90",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36; Manus-User/1.0",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/mvp",
+      "pathname": "/mvp",
+      "timestamp": "2026-02-25 03:30:42"
+    },
+    {
+      "id": "31",
+      "ipAddress": "47.128.247.90",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36; Manus-User/1.0",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:30:31"
+    },
+    {
+      "id": "30",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:30:07"
+    },
+    {
+      "id": "29",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:30:05"
+    },
+    {
+      "id": "28",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:30:04"
+    },
+    {
+      "id": "27",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:30:03"
+    },
+    {
+      "id": "26",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:29:55"
+    },
+    {
+      "id": "25",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:29:52"
+    },
+    {
+      "id": "24",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:29:46"
+    },
+    {
+      "id": "23",
+      "ipAddress": "112.221.224.125",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1",
+      "pathname": "/",
+      "timestamp": "2026-02-25 03:29:43"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tipAddress\tuserAgent\treferer\tpathname\ttimestamp\n32\t47.128.247.90\tMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36; Manus-User/1.0\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/mvp\t/mvp\t2026-02-25 03:30:42\n31\t47.128.247.90\tMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36; Manus-User/1.0\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/\t/\t2026-02-25 03:30:31\n30\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:30:07\n29\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:30:05\n28\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:30:04\n27\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-02-25 03:30:03\n26\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:29:55\n25\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:29:52\n24\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:29:46\n23\t112.221.224.125\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://3000-if2gbw7zxhkci19nlc6gp-b15ec820.sg1.manus.computer/?from_webdev=1\t/\t2026-02-25 03:29:43\n",
+  "stderr": "",
+  "execution_time_ms": 1596
+}
