@@ -39,6 +39,7 @@ export default function MvpMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
+  const [preloadedLocation, setPreloadedLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
@@ -71,6 +72,26 @@ export default function MvpMap() {
     }
   }, [screen]);
 
+  // 지도 로드 시 GPS 위치 정보를 미리 받아오기 (백그라운드)
+  useEffect(() => {
+    if (screen === "map" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setPreloadedLocation(location);
+        },
+        (error) => {
+          console.log("Preload GPS error:", error);
+          // 조용히 실패 처리 (사용자에게 토스트 표시 안함)
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    }
+  }, [screen]);
+
   // GPS 동의 처리
   const handleConsent = useCallback((agreed: boolean) => {
     setShowConsentPopup(false);
@@ -80,6 +101,24 @@ export default function MvpMap() {
       return;
     }
 
+    // 이미 받아온 위치 정보가 있으면 즉시 적용
+    if (preloadedLocation) {
+      setUserLocation(preloadedLocation);
+      
+      if (mapRef.current) {
+        mapRef.current.setCenter(preloadedLocation);
+      }
+
+      // 사용자 마커 업데이트
+      if (userMarkerRef.current && mapRef.current) {
+        userMarkerRef.current.position = preloadedLocation;
+      }
+
+      toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
+      return;
+    }
+
+    // 미리 받아오지 못했다면 다시 시도
     if (!navigator.geolocation) {
       toast.info("📍 GPS를 켜주시고 새로고침 해주세요", { duration: 5000 });
       return;
@@ -110,7 +149,7 @@ export default function MvpMap() {
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
-  }, []);
+  }, [preloadedLocation]);
 
   // 지도 준비 완료 시 마커 생성
   const handleMapReady = useCallback((map: google.maps.Map) => {
