@@ -21,26 +21,45 @@ const MBTI_COLORS: Record<string, string> = {
   ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
 };
 
-// 더미 데이터 생성
-const generateDummyData = (center: google.maps.LatLngLiteral) => {
+// 더미 데이터 생성 (전국 고정 위치)
+const generateDummyData = () => {
   const data = [];
+  let id = 0;
   
-  // 첫 번째 마커: 기본 위치 1m 앞(북쪽)에 ENFP 고정
-  // 위도 1m ≈ 0.000009도
-  data.push({ 
-    mbti: "ENFP", 
-    lat: center.lat + 0.000009, 
-    lng: center.lng, 
-    id: 0 
+  // 주요 도시 중심 좌표
+  const cities = [
+    { name: "홍대", lat: 37.5566, lng: 126.9236 },
+    { name: "강남", lat: 37.4979, lng: 127.0276 },
+    { name: "여의도", lat: 37.5219, lng: 126.9245 },
+    { name: "성수", lat: 37.5444, lng: 127.0557 },
+    { name: "명동", lat: 37.5838, lng: 127.0017 },
+    { name: "부산", lat: 35.1796, lng: 129.0756 },
+    { name: "대구", lat: 35.8714, lng: 128.6014 },
+    { name: "인천", lat: 37.4563, lng: 126.7052 },
+    { name: "광주", lat: 35.1595, lng: 126.8526 },
+    { name: "대전", lat: 36.3504, lng: 127.3845 },
+  ];
+  
+  // 각 도시마다 20-40개의 랜덤 마커 생성
+  cities.forEach((city) => {
+    const count = Math.floor(Math.random() * 21) + 20; // 20-40개
+    for (let i = 0; i < count; i++) {
+      const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
+      // 도시 중심에서 반경 0.05도 내 랜덤 분포
+      const lat = city.lat + (Math.random() - 0.5) * 0.1;
+      const lng = city.lng + (Math.random() - 0.5) * 0.1;
+      data.push({ mbti, lat, lng, id: id++ });
+    }
   });
   
-  // 나머지 29개 랜덤 마커
-  for (let i = 1; i < 30; i++) {
-    const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
-    const lat = center.lat + (Math.random() - 0.5) * 0.02;
-    const lng = center.lng + (Math.random() - 0.5) * 0.02;
-    data.push({ mbti, lat, lng, id: i });
-  }
+  // 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
+  data.push({ 
+    mbti: "ENFP", 
+    lat: 37.5566 + 0.000009, 
+    lng: 126.9236, 
+    id: id++ 
+  });
+  
   return data;
 };
 
@@ -186,7 +205,7 @@ export default function MvpMap() {
     });
 
     // 더미 데이터 마커
-    const dummyData = generateDummyData(center);
+    const dummyData = generateDummyData();
     dummyData.forEach((item) => {
       const markerElement = document.createElement("div");
       markerElement.className = "custom-marker";
