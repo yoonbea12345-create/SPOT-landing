@@ -221,7 +221,7 @@ export default function MvpMap() {
           style={{ fontFamily: "'Noto Sans KR', sans-serif" }}
         >
           골목 위치 파악을 위해
-          <br />
+          
           GPS를 켜주세요.
         </p>
       </div>
