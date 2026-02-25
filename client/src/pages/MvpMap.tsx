@@ -325,9 +325,9 @@ export default function MvpMap() {
                 textShadow: "0 0 15px rgba(0, 240, 255, 0.6)",
               }}
             >
-              지금, 이 골목을 보기위해선
+              지금, 이 골목을 보기위해
               <br />
-              기기에서 위치 정확도가 필요해요.
+              GPS를 수동으로 켜주세요.
             </h2>
 
             <div className="border-t border-gray-700" />
