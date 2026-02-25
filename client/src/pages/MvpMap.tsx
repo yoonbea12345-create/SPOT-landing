@@ -312,13 +312,13 @@ export default function MvpMap() {
         </div>
       </div>
 
-      {/* GPS 동의 팝업 (중간) */}
+      {/* GPS 동의 팝업 (중간, 작게) */}
       {showConsentPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6">
-          <div className="bg-black border-2 border-cyan-500/50 rounded-2xl p-6 max-w-md w-full space-y-4">
+          <div className="bg-black border-2 border-cyan-500/50 rounded-2xl p-5 max-w-sm w-full space-y-3">
             {/* 제목 */}
             <h2
-              className="text-xl font-bold text-center"
+              className="text-lg font-bold text-center"
               style={{
                 fontFamily: "'Noto Sans KR', sans-serif",
                 color: "#00f0ff",
@@ -333,7 +333,7 @@ export default function MvpMap() {
             <div className="border-t border-gray-700" />
 
             {/* 설명 */}
-            <div className="space-y-3 text-sm text-gray-300 leading-relaxed">
+            <div className="space-y-2 text-xs text-gray-300 leading-relaxed">
               <p>
                 위치 정확도는 해당 서비스에 대해
                 <br />
@@ -354,7 +354,7 @@ export default function MvpMap() {
 
             <div className="border-t border-gray-700" />
 
-            <p className="text-sm text-gray-400 text-center">
+            <p className="text-xs text-gray-400 text-center">
               동의하면, 지금 이 근처를 바로 보여드립니다.
               <br />
               <br />
@@ -364,16 +364,16 @@ export default function MvpMap() {
             <div className="border-t border-gray-700" />
 
             {/* 버튼 */}
-            <div className="flex gap-4 pt-2">
+            <div className="flex gap-3 pt-1">
               <button
                 onClick={() => handleConsent(false)}
-                className="flex-1 py-3 px-6 rounded-lg border border-gray-600 text-gray-400 hover:bg-gray-900 transition-all"
+                className="flex-1 py-2 px-4 rounded-lg border border-gray-600 text-gray-400 text-sm hover:bg-gray-900 transition-all"
               >
                 미동의
               </button>
               <button
                 onClick={() => handleConsent(true)}
-                className="flex-1 py-3 px-6 rounded-lg border-2 transition-all"
+                className="flex-1 py-2 px-4 rounded-lg border-2 text-sm transition-all"
                 style={{
                   borderColor: "#00f0ff",
                   color: "#00f0ff",
