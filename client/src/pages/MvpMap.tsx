@@ -26,43 +26,65 @@ const generateDummyData = () => {
   const data = [];
   let id = 0;
   
-  // 1. 주요 도시에 집약 배치 (50-100개/도시)
+  // 대한민국 주요 도시 및 지역 (40개)
   const cities = [
-    { name: "홍대", lat: 37.5566, lng: 126.9236 },
-    { name: "강남", lat: 37.4979, lng: 127.0276 },
-    { name: "여의도", lat: 37.5219, lng: 126.9245 },
-    { name: "성수", lat: 37.5444, lng: 127.0557 },
-    { name: "명동", lat: 37.5838, lng: 127.0017 },
-    { name: "부산", lat: 35.1796, lng: 129.0756 },
-    { name: "대구", lat: 35.8714, lng: 128.6014 },
-    { name: "인천", lat: 37.4563, lng: 126.7052 },
-    { name: "광주", lat: 35.1595, lng: 126.8526 },
-    { name: "대전", lat: 36.3504, lng: 127.3845 },
-    { name: "울산", lat: 35.5384, lng: 129.3114 },
-    { name: "수원", lat: 37.2636, lng: 127.0286 },
-    { name: "제주", lat: 33.4996, lng: 126.5312 },
+    // 서울 (5개 지역)
+    { name: "홍대", lat: 37.5566, lng: 126.9236, count: [50, 100] },
+    { name: "강남", lat: 37.4979, lng: 127.0276, count: [50, 100] },
+    { name: "여의도", lat: 37.5219, lng: 126.9245, count: [40, 80] },
+    { name: "성수", lat: 37.5444, lng: 127.0557, count: [40, 80] },
+    { name: "명동", lat: 37.5838, lng: 127.0017, count: [30, 60] },
+    // 광역시
+    { name: "부산", lat: 35.1796, lng: 129.0756, count: [40, 70] },
+    { name: "대구", lat: 35.8714, lng: 128.6014, count: [40, 70] },
+    { name: "인천", lat: 37.4563, lng: 126.7052, count: [40, 70] },
+    { name: "광주", lat: 35.1595, lng: 126.8526, count: [30, 60] },
+    { name: "대전", lat: 36.3504, lng: 127.3845, count: [30, 60] },
+    { name: "울산", lat: 35.5384, lng: 129.3114, count: [30, 60] },
+    // 경기도
+    { name: "수원", lat: 37.2636, lng: 127.0286, count: [30, 60] },
+    { name: "성남", lat: 37.4386, lng: 127.1378, count: [25, 50] },
+    { name: "고양", lat: 37.6584, lng: 126.8320, count: [25, 50] },
+    { name: "용인", lat: 37.2411, lng: 127.1776, count: [25, 50] },
+    { name: "부천", lat: 37.4989, lng: 126.7831, count: [20, 40] },
+    { name: "안양", lat: 37.3943, lng: 126.9568, count: [20, 40] },
+    { name: "안산", lat: 37.3219, lng: 126.8309, count: [20, 40] },
+    { name: "평택", lat: 37.0703, lng: 127.1127, count: [15, 30] },
+    { name: "파주", lat: 37.7608, lng: 126.7800, count: [15, 30] },
+    // 강원도
+    { name: "춘천", lat: 37.8813, lng: 127.7300, count: [15, 30] },
+    { name: "강릉", lat: 37.7519, lng: 128.8761, count: [15, 30] },
+    { name: "원주", lat: 37.3422, lng: 127.9202, count: [10, 25] },
+    // 충청도
+    { name: "청주", lat: 36.6424, lng: 127.4890, count: [20, 40] },
+    { name: "천안", lat: 36.8151, lng: 127.1139, count: [15, 30] },
+    { name: "충주", lat: 36.9910, lng: 127.9258, count: [10, 25] },
+    // 경상도
+    { name: "창원", lat: 35.5396, lng: 128.6292, count: [20, 40] },
+    { name: "김해", lat: 35.2285, lng: 128.8811, count: [15, 30] },
+    { name: "진주", lat: 35.1800, lng: 128.1076, count: [10, 25] },
+    { name: "포항", lat: 36.0190, lng: 129.3435, count: [15, 30] },
+    { name: "경주", lat: 35.8562, lng: 129.2247, count: [15, 30] },
+    // 전라도
+    { name: "전주", lat: 35.8242, lng: 127.1480, count: [20, 40] },
+    { name: "군산", lat: 35.9761, lng: 126.7366, count: [10, 25] },
+    { name: "여수", lat: 34.7604, lng: 127.6622, count: [10, 25] },
+    { name: "순천", lat: 34.9507, lng: 127.4872, count: [10, 25] },
+    { name: "목포", lat: 34.8118, lng: 126.3922, count: [10, 25] },
+    // 제주도
+    { name: "제주시", lat: 33.4996, lng: 126.5312, count: [30, 60] },
+    { name: "서귀포", lat: 33.2541, lng: 126.5601, count: [15, 30] },
   ];
   
   cities.forEach((city) => {
-    const count = Math.floor(Math.random() * 51) + 50; // 50-100개
+    const count = Math.floor(Math.random() * (city.count[1] - city.count[0] + 1)) + city.count[0];
     for (let i = 0; i < count; i++) {
       const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
-      // 도시 중심에서 반경 0.1도 내 랜덤 분포
       const lat = city.lat + (Math.random() - 0.5) * 0.2;
       const lng = city.lng + (Math.random() - 0.5) * 0.2;
       data.push({ mbti, lat, lng, id: id++ });
     }
-  });
-  
-  // 2. 전국 무작위 분포 (500-800개)
-  // 대한민국 범위: 위도 33-38.5, 경도 124-132
-  const randomCount = Math.floor(Math.random() * 301) + 500; // 500-800개
-  for (let i = 0; i < randomCount; i++) {
-    const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
-    const lat = 33 + Math.random() * 5.5; // 33-38.5
-    const lng = 124 + Math.random() * 8; // 124-132
-    data.push({ mbti, lat, lng, id: id++ });
-  }
+  })
   
   // 3. 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
   data.push({ 
