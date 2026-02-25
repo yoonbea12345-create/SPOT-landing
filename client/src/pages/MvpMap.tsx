@@ -21,12 +21,12 @@ const MBTI_COLORS: Record<string, string> = {
   ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
 };
 
-// 더미 데이터 생성 (전국 고정 위치)
+// 더미 데이터 생성 (주요 도시 집약 + 전국 무작위 분포)
 const generateDummyData = () => {
   const data = [];
   let id = 0;
   
-  // 주요 도시 중심 좌표
+  // 1. 주요 도시에 집약 배치 (50-100개/도시)
   const cities = [
     { name: "홍대", lat: 37.5566, lng: 126.9236 },
     { name: "강남", lat: 37.4979, lng: 127.0276 },
@@ -38,21 +38,33 @@ const generateDummyData = () => {
     { name: "인천", lat: 37.4563, lng: 126.7052 },
     { name: "광주", lat: 35.1595, lng: 126.8526 },
     { name: "대전", lat: 36.3504, lng: 127.3845 },
+    { name: "울산", lat: 35.5384, lng: 129.3114 },
+    { name: "수원", lat: 37.2636, lng: 127.0286 },
+    { name: "제주", lat: 33.4996, lng: 126.5312 },
   ];
   
-  // 각 도시마다 20-40개의 랜덤 마커 생성
   cities.forEach((city) => {
-    const count = Math.floor(Math.random() * 21) + 20; // 20-40개
+    const count = Math.floor(Math.random() * 51) + 50; // 50-100개
     for (let i = 0; i < count; i++) {
       const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
-      // 도시 중심에서 반경 0.05도 내 랜덤 분포
-      const lat = city.lat + (Math.random() - 0.5) * 0.1;
-      const lng = city.lng + (Math.random() - 0.5) * 0.1;
+      // 도시 중심에서 반경 0.1도 내 랜덤 분포
+      const lat = city.lat + (Math.random() - 0.5) * 0.2;
+      const lng = city.lng + (Math.random() - 0.5) * 0.2;
       data.push({ mbti, lat, lng, id: id++ });
     }
   });
   
-  // 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
+  // 2. 전국 무작위 분포 (500-800개)
+  // 대한민국 범위: 위도 33-38.5, 경도 124-132
+  const randomCount = Math.floor(Math.random() * 301) + 500; // 500-800개
+  for (let i = 0; i < randomCount; i++) {
+    const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
+    const lat = 33 + Math.random() * 5.5; // 33-38.5
+    const lng = 124 + Math.random() * 8; // 124-132
+    data.push({ mbti, lat, lng, id: id++ });
+  }
+  
+  // 3. 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
   data.push({ 
     mbti: "ENFP", 
     lat: 37.5566 + 0.000009, 
