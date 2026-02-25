@@ -136,7 +136,7 @@ export default function Home() {
             <div className="p-6 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="mb-6">
                 <img 
-                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/hvcCS8soPsTawcjp313kt3-img-1_1771406330000_na1fn_c3BvdC1uZWFyLXZpZXctdjQ.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L2h2Y0NTOHNvUHNUYXdjanAzMTNrdDMtaW1nLTFfMTc3MTQwNjMzMDAwMF9uYTFmbl9jM0J2ZEMxdVpXRnlMWFpwWlhjdGRqUS5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=O7g78MEdKLt9c2OkhqgiwhR-QQ1DXkyKKjiqWJxEfOjQVhX-APiz07lRoPaX80XmKdaDCOCSDMWiyX8ln4KgqWo3FnOZOlgTKgRAPr7kx~243XKP7e3HNPT4lKPjgnl4SG5bF-hIoZXkDsLT0dyMaaeWmSoazeYL2Swe2Ws~YB7jUqyqvceOlz9A7ZETJbmskgZ2WjLrj3bS1UdU6O1Zgd-UFNmnPdgoHeca3ZpaNgij8V0l4Yx6rX-Bxy0T4ZqMyi9Dur7r3~hM-u2H2gjASdNwu~IGygYWD5IuoLS2PRM7jmD8IA44hnrU8TMUPCqaePnXfO5f4f3kt2SsT8CJHg__"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/wWyTazLhsdMvssnA.png"
                   alt="Near View"
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
@@ -152,7 +152,7 @@ export default function Home() {
             <div className="p-6 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
               <div className="mb-6">
                 <img 
-                  src="https://private-us-east-1.manuscdn.com/sessionFile/RI0UmZT2UawdZQgkbddR7v/sandbox/hvcCS8soPsTawcjp313kt3-img-2_1771406328000_na1fn_c3BvdC11bHRyYS1uZWFyLXY0.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvUkkwVW1aVDJVYXdkWlFna2JkZFI3di9zYW5kYm94L2h2Y0NTOHNvUHNUYXdjanAzMTNrdDMtaW1nLTJfMTc3MTQwNjMyODAwMF9uYTFmbl9jM0J2ZEMxMWJIUnlZUzF1WldGeUxYWTAucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=OYMnucIooceI5nfV9cAllB74uYjrzTczJb6j5QqDb98Gmbxvm90S~Qp-p8tx-7gBkozhs-ak~p1qRsupxyEF8UkkjMVTK7JRv52OamM3DayEWeM93n7cNU8yCkteoWbs7WwRM-6MOPVjXeZOGu-0xY4FSlUQhsg9czHkQ9Km23NFzKGNB5NglPJmTnmL-W9CJ47OnyqBSGmzgFegbO-ZHtSISHkyzssOJ85PogM-tnWNjrVuuvT-R-SF2v2D0kWSuCkesG3lmM2peLzxPVNTjUp035a0G4hN8izhzpAb05JV3Ck8J0kxjsEhM1gu4KtzQ8xH1oyfo-~nxP-MM~aLkA__"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/OCgzvxCVPPufqysU.png"
                   alt="Ultra Near"
                   className="w-full h-auto rounded-lg border border-accent/30"
                 />
