@@ -226,7 +226,7 @@ export default function MvpMap() {
       className="fixed inset-0 bg-black flex flex-col"
       style={{ height: `${screenHeight}px` }}
     >
-      <Toaster position="top-center" />
+      <Toaster position="top-right" />
       
       {/* 상단 헤더 */}
       <div className="bg-black/95 backdrop-blur-lg border-b border-cyan-500/20 px-4 py-3 flex items-center justify-between z-10">
