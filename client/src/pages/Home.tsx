@@ -67,7 +67,7 @@ export default function Home() {
           <div className="flex justify-center mb-12">
             <Button 
               className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
-              onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
+              onClick={() => window.location.href = '/mvp'}
             >
               보러 가기
             </Button>
@@ -317,7 +317,7 @@ export default function Home() {
           <div className="flex justify-center">
             <Button 
               className="px-16 py-8 text-2xl font-black border-4 border-primary bg-primary/20 hover:bg-primary/30 text-primary glow-cyan transition-all hover:scale-110 shadow-2xl shadow-primary/50 hover:shadow-primary/80"
-              onClick={() => window.open('https://spot-landing-6oai.vercel.app/mvp', '_blank')}
+              onClick={() => window.location.href = '/mvp'}
             >
               보러 가기
             </Button>
