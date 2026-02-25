@@ -17,7 +17,7 @@ const MBTI_TYPES = [
 const MBTI_COLORS: Record<string, string> = {
   INTJ: "#00f5ff", INTP: "#00d4ff", ENTJ: "#00b8ff", ENTP: "#009cff",
   INFJ: "#bf00ff", INFP: "#d400ff", ENFJ: "#e900ff", ENFP: "#ff00e5",
-  ISTJ: "#00ff9f", ISFJ: "#00ffb8", ESTJ: "#00ffd1", ESFJ: "#00ffea",
+  ISTJ: "#ff9500", ISFJ: "#ffb800", ESTJ: "#ffd700", ESFJ: "#ffaa00",
   ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
 };
 
