@@ -220,9 +220,7 @@ export default function MvpMap() {
           className="text-lg text-gray-400 text-center px-6"
           style={{ fontFamily: "'Noto Sans KR', sans-serif" }}
         >
-          골목 위치 파악을 위해
-          
-          GPS를 켜주세요.
+        
         </p>
       </div>
     );
