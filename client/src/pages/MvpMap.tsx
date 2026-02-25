@@ -523,6 +523,56 @@ export default function MvpMap() {
           onMapReady={handleMapReady}
         />
 
+        {/* 줄 레벨 슬라이더 */}
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-2xl p-3 shadow-2xl" style={{boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"}}>
+          {/* 모드 표시 */}
+          <div className="text-center mb-3">
+            <div className="text-xs font-black" style={{
+              color: currentZoom >= 18 ? '#ff00ff' : currentZoom >= 12 ? '#9d4edd' : '#00f0ff',
+              textShadow: `0 0 10px ${currentZoom >= 18 ? '#ff00ff88' : currentZoom >= 12 ? '#9d4edd88' : '#00f0ff88'}`,
+              transition: 'all 0.3s'
+            }}>
+              {currentZoom >= 18 ? '3M' : currentZoom >= 12 ? 'NEAR' : 'WIDE'}
+            </div>
+          </div>
+          
+          {/* 세로 슬라이더 */}
+          <div className="relative h-32 w-8 flex items-center justify-center">
+            <input
+              type="range"
+              min="8"
+              max="20"
+              value={currentZoom}
+              onChange={(e) => {
+                const newZoom = parseInt(e.target.value);
+                setCurrentZoom(newZoom);
+                if (mapRef.current) {
+                  mapRef.current.setZoom(newZoom);
+                }
+              }}
+              className="absolute"
+              style={{
+                width: '128px',
+                height: '8px',
+                transform: 'rotate(-90deg)',
+                transformOrigin: 'center',
+                appearance: 'none',
+                background: `linear-gradient(to right, #00f0ff 0%, #00f0ff ${((12-8)/(20-8)*100)}%, #9d4edd ${((12-8)/(20-8)*100)}%, #9d4edd ${((18-8)/(20-8)*100)}%, #ff00ff ${((18-8)/(20-8)*100)}%, #ff00ff 100%)`,
+                borderRadius: '4px',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            />
+          </div>
+          
+          {/* 구간 표시 */}
+          <div className="flex flex-col items-center gap-1 mt-2 text-[8px] font-bold">
+            <div style={{color: '#ff00ff', textShadow: '0 0 5px #ff00ff88'}}>3M</div>
+            <div style={{color: '#9d4edd', textShadow: '0 0 5px #9d4edd88'}}>NEAR</div>
+            <div style={{color: '#00f0ff', textShadow: '0 0 5px #00f0ff88'}}>WIDE</div>
+          </div>
+        </div>
+
         {/* 내 위치로 돌아가기 버튼 */}
         <button
           onClick={() => {
