@@ -107,6 +107,8 @@ export default function MvpMap() {
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const [currentZoom, setCurrentZoom] = useState(15);
 
   // 홍대입구역 기본 위치
   const HONGDAE_CENTER = { lat: 37.5566, lng: 126.9236 };
@@ -215,10 +217,89 @@ export default function MvpMap() {
     );
   }, [preloadedLocation]);
 
+  // 도시별 MBTI 개수 집계
+  const aggregateCityData = useCallback(() => {
+    const dummyData = generateDummyData();
+    const cityStats: Record<string, Record<string, number>> = {};
+    
+    const cities = [
+      { name: "홍대", lat: 37.5566, lng: 126.9236 },
+      { name: "강남", lat: 37.4979, lng: 127.0276 },
+      { name: "여의도", lat: 37.5219, lng: 126.9245 },
+      { name: "성수", lat: 37.5444, lng: 127.0557 },
+      { name: "명동", lat: 37.5838, lng: 127.0017 },
+      { name: "부산", lat: 35.1796, lng: 129.0756 },
+      { name: "대구", lat: 35.8714, lng: 128.6014 },
+      { name: "인천", lat: 37.4563, lng: 126.7052 },
+      { name: "광주", lat: 35.1595, lng: 126.8526 },
+      { name: "대전", lat: 36.3504, lng: 127.3845 },
+      { name: "울산", lat: 35.5384, lng: 129.3114 },
+      { name: "수원", lat: 37.2636, lng: 127.0286 },
+      { name: "성남", lat: 37.4386, lng: 127.1378 },
+      { name: "고양", lat: 37.6584, lng: 126.8320 },
+      { name: "용인", lat: 37.2411, lng: 127.1776 },
+      { name: "부천", lat: 37.4989, lng: 126.7831 },
+      { name: "안양", lat: 37.3943, lng: 126.9568 },
+      { name: "안산", lat: 37.3219, lng: 126.8309 },
+      { name: "평택", lat: 37.0703, lng: 127.1127 },
+      { name: "파주", lat: 37.7608, lng: 126.7800 },
+      { name: "춘천", lat: 37.8813, lng: 127.7300 },
+      { name: "강릉", lat: 37.7519, lng: 128.8761 },
+      { name: "원주", lat: 37.3422, lng: 127.9202 },
+      { name: "청주", lat: 36.6424, lng: 127.4890 },
+      { name: "천안", lat: 36.8151, lng: 127.1139 },
+      { name: "충주", lat: 36.9910, lng: 127.9258 },
+      { name: "창원", lat: 35.5396, lng: 128.6292 },
+      { name: "김해", lat: 35.2285, lng: 128.8811 },
+      { name: "진주", lat: 35.1800, lng: 128.1076 },
+      { name: "포항", lat: 36.0190, lng: 129.3435 },
+      { name: "경주", lat: 35.8562, lng: 129.2247 },
+      { name: "전주", lat: 35.8242, lng: 127.1480 },
+      { name: "군산", lat: 35.9761, lng: 126.7366 },
+      { name: "여수", lat: 34.7604, lng: 127.6622 },
+      { name: "순천", lat: 34.9507, lng: 127.4872 },
+      { name: "목포", lat: 34.8118, lng: 126.3922 },
+      { name: "제주시", lat: 33.4996, lng: 126.5312 },
+      { name: "서귀포", lat: 33.2541, lng: 126.5601 },
+    ];
+
+    cities.forEach(city => {
+      cityStats[city.name] = {};
+    });
+
+    dummyData.forEach(item => {
+      let closestCity = cities[0];
+      let minDistance = Infinity;
+
+      cities.forEach(city => {
+        const distance = Math.sqrt(
+          Math.pow(city.lat - item.lat, 2) + Math.pow(city.lng - item.lng, 2)
+        );
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestCity = city;
+        }
+      });
+
+      if (!cityStats[closestCity.name][item.mbti]) {
+        cityStats[closestCity.name][item.mbti] = 0;
+      }
+      cityStats[closestCity.name][item.mbti]++;
+    });
+
+    return { cities, cityStats };
+  }, []);
+
   // 지도 준비 완료 시 마커 생성
   const handleMapReady = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
     const center = userLocation || HONGDAE_CENTER;
+
+    // 줌 레벨 변경 감지
+    map.addListener('zoom_changed', () => {
+      const zoom = map.getZoom() || 15;
+      setCurrentZoom(zoom);
+    });
 
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
@@ -280,7 +361,69 @@ export default function MvpMap() {
 
       markersRef.current.push(marker);
     });
-  }, [userLocation]);
+
+    // 도시별 텍스트 라벨 생성
+    const { cities, cityStats } = aggregateCityData();
+    cities.forEach(city => {
+      const stats = cityStats[city.name];
+      if (!stats || Object.keys(stats).length === 0) return;
+
+      const labelElement = document.createElement('div');
+      labelElement.style.cssText = `
+        background: rgba(0, 0, 0, 0.95);
+        border: 2px solid rgba(0, 240, 255, 0.5);
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #00f0ff;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+      `;
+
+      const sortedStats = Object.entries(stats)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      labelElement.innerHTML = `
+        <div style="font-size: 12px; margin-bottom: 4px; color: #00f0ff;">${city.name}</div>
+        ${sortedStats.map(([mbti, count]) => 
+          `<div style="color: ${MBTI_COLORS[mbti]}; text-shadow: 0 0 8px ${MBTI_COLORS[mbti]}88;">${mbti} × ${count}</div>`
+        ).join('')}
+      `;
+
+      const cityLabel = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: city.lat, lng: city.lng },
+        content: labelElement,
+      });
+
+      cityLabelsRef.current.push(cityLabel);
+    });
+  }, [userLocation, aggregateCityData]);
+
+  // 줌 레벨에 따른 표시 전환
+  useEffect(() => {
+    const isZoomedOut = currentZoom < 12;
+
+    // 반경원 표시/숨김
+    markersRef.current.forEach(marker => {
+      if (marker.content instanceof HTMLElement) {
+        marker.content.style.opacity = isZoomedOut ? '0' : '1';
+      }
+    });
+
+    // 도시 라벨 표시/숨김
+    cityLabelsRef.current.forEach(label => {
+      if (label.content instanceof HTMLElement) {
+        label.content.style.opacity = isZoomedOut ? '1' : '0';
+      }
+    });
+  }, [currentZoom]);
 
   // MBTI 필터링
   const filterByMBTI = (mbti: string) => {
