@@ -184,37 +184,62 @@ export default function MvpMap() {
       return;
     }
 
-    // 미리 받아오지 못했다면 다시 시도
+    // 미리 받아오지 못했다면 다시 시도 (권한 허용 후 재시도)
     if (!navigator.geolocation) {
       toast.info("📍 GPS를 켜주시고 새로고침 해주세요", { duration: 5000 });
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        setUserLocation(newLocation);
-        
-        if (mapRef.current) {
-          mapRef.current.setCenter(newLocation);
-        }
+    // 로딩 토스트 표시
+    const loadingToast = toast.loading("📍 위치 정보를 가져오는 중...");
 
-        // 사용자 마커 업데이트
-        if (userMarkerRef.current && mapRef.current) {
-          userMarkerRef.current.position = newLocation;
-        }
+    // 재시도 로직: 최대 3번 시도
+    let retryCount = 0;
+    const maxRetries = 3;
 
-        toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
-      },
-      (error) => {
-        console.log("GPS error:", error);
-        toast.info("📍 GPS를 켜주시고 새로고침 해주세요", { duration: 5000 });
-      },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-    );
+    const attemptGetLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const newLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setUserLocation(newLocation);
+          
+          if (mapRef.current) {
+            mapRef.current.setCenter(newLocation);
+          }
+
+          // 사용자 마커 업데이트
+          if (userMarkerRef.current && mapRef.current) {
+            userMarkerRef.current.position = newLocation;
+          }
+
+          toast.dismiss(loadingToast);
+          toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
+        },
+        (error) => {
+          console.log(`GPS error (attempt ${retryCount + 1}):`, error);
+          retryCount++;
+
+          if (retryCount < maxRetries) {
+            // 1초 후 재시도
+            setTimeout(() => {
+              console.log(`Retrying GPS... (${retryCount}/${maxRetries})`);
+              attemptGetLocation();
+            }, 1000);
+          } else {
+            // 최대 재시도 횟수 초과
+            toast.dismiss(loadingToast);
+            toast.error("📍 위치 정보를 가져올 수 없습니다. 새로고침 해주세요.", { duration: 5000 });
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    };
+
+    // 첫 시도
+    attemptGetLocation();
   }, [preloadedLocation]);
 
   // 도시별 MBTI 개수 집계
