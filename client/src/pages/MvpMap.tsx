@@ -320,13 +320,13 @@ export default function MvpMap() {
     mapRef.current = map;
     const center = userLocation || HONGDAE_CENTER;
 
-    // 줌 레벨 변경 감지
+    // 줄 레벨 변경 감지
     map.addListener('zoom_changed', () => {
       const zoom = map.getZoom() || 15;
       setCurrentZoom(zoom);
     });
 
-    // 사용자 위치 마커
+    // 사용자 위치 마커 (촬영용: FILMING_LOCATION으로 고정)
     const userMarkerElement = document.createElement("div");
     userMarkerElement.style.cssText = `
       width: 20px;
@@ -339,7 +339,7 @@ export default function MvpMap() {
 
     userMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
       map,
-      position: center,
+      position: FILMING_LOCATION,
       content: userMarkerElement,
       title: "내 위치",
     });
