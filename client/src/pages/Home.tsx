@@ -64,8 +64,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 나와 비슷한 사람은 어디에.
-
+              지금 바로 지도로 확인하세요
             </p>
           </div>
 
