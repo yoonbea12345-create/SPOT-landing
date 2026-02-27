@@ -59,12 +59,12 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
-              지금, 이 골목에 누가 <br />
-              모였는지 확인해보세요.
+              지금 이 골목에 나랑 <br />
+              같은 MBTI가 몇명일까?
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              
+              지금 바로 지도에서 확인
             </p>
           </div>
 
