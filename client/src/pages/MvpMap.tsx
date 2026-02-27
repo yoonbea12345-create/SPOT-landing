@@ -113,9 +113,6 @@ export default function MvpMap() {
 
   // 홍대입구역 기본 위치
   const HONGDAE_CENTER = { lat: 37.5566, lng: 126.9236 };
-  
-  // 촬영용: ENFP 마커 바로 앞 위치 (내 위치 고정)
-  const FILMING_LOCATION = { lat: 37.5566 + 0.000005, lng: 126.9236 };
 
   // 화면 높이 계산
   const [screenHeight, setScreenHeight] = useState(
@@ -142,13 +139,23 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // 지도 로드 시 GPS 위치를 ENFP 마커 앞으로 고정 (촬영용)
+  // 지도 로드 시 GPS 위치 정보를 미리 받아오기 (백그라운드)
   useEffect(() => {
-    if (screen === "map") {
-      // ENFP 마커 바로 앞으로 고정
-      const location = FILMING_LOCATION;
-      setPreloadedLocation(location);
-      console.log("📍 GPS 고정: ENFP 마커 앞", location);
+    if (screen === "map" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setPreloadedLocation(location);
+        },
+        (error) => {
+          console.log("Preload GPS error:", error);
+          // 조용히 실패 처리 (사용자에게 토스트 표시 안함)
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
     }
   }, [screen]);
 
@@ -161,27 +168,123 @@ export default function MvpMap() {
       return;
     }
 
-    // ENFP 마커 앞으로 고정 (촬영용)
-    const fixedLocation = FILMING_LOCATION;
-    setUserLocation(fixedLocation);
-    
-    if (mapRef.current) {
-      mapRef.current.setCenter(fixedLocation);
+    // 이미 받아온 위치 정보가 있으면 즉시 적용
+    if (preloadedLocation) {
+      setUserLocation(preloadedLocation);
+      
+      if (mapRef.current) {
+        mapRef.current.setCenter(preloadedLocation);
+      }
+
+      // 사용자 마커 업데이트
+      if (userMarkerRef.current && mapRef.current) {
+        userMarkerRef.current.position = preloadedLocation;
+      }
+
+      toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
+      return;
     }
 
-    // 사용자 마커 업데이트
-    if (userMarkerRef.current && mapRef.current) {
-      userMarkerRef.current.position = fixedLocation;
+    // 미리 받아오지 못했다면 다시 시도 (권한 허용 후 재시도)
+    if (!navigator.geolocation) {
+      toast.info("📍 GPS를 켜주시고 새로고침 해주세요", { duration: 5000 });
+      return;
     }
 
-    toast.success("✅ 촬영 위치로 이동했어요! (ENFP 마커 앞)", { duration: 3000 });
+    // 로딩 토스트 표시
+    const loadingToast = toast.loading("📍 위치 정보를 가져오는 중...");
+
+    // 재시도 로직: 최대 3번 시도
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const attemptGetLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const newLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setUserLocation(newLocation);
+          
+          if (mapRef.current) {
+            mapRef.current.setCenter(newLocation);
+          }
+
+          // 사용자 마커 업데이트
+          if (userMarkerRef.current && mapRef.current) {
+            userMarkerRef.current.position = newLocation;
+          }
+
+          toast.dismiss(loadingToast);
+          toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
+        },
+        (error) => {
+          console.log(`GPS error (attempt ${retryCount + 1}):`, error);
+          retryCount++;
+
+          if (retryCount < maxRetries) {
+            // 1초 후 재시도
+            setTimeout(() => {
+              console.log(`Retrying GPS... (${retryCount}/${maxRetries})`);
+              attemptGetLocation();
+            }, 1000);
+          } else {
+            // 최대 재시도 횟수 초과
+            toast.dismiss(loadingToast);
+            toast.error("📍 위치 정보를 가져올 수 없습니다. 새로고침 해주세요.", { duration: 5000 });
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    };
+
+    // 첫 시도
+    attemptGetLocation();
   }, [preloadedLocation]);
 
-  // 실시간 GPS 추적 시작 (촬영용: FILMING_LOCATION 고정)
+  // 실시간 GPS 추적 시작
   const startWatchingPosition = useCallback(() => {
-    // 촬영 모드에서는 실제 GPS 추적하지 않고 FILMING_LOCATION에 고정
-    console.log("📍 촬영 모드: 위치 FILMING_LOCATION에 고정");
-    // 아무것도 하지 않음 - 위치는 이미 FILMING_LOCATION으로 고정됨
+    // 이미 추적 중이면 중복 방지
+    if (watchIdRef.current !== null) {
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      console.log("Geolocation not supported");
+      return;
+    }
+
+    console.log("📍 실시간 GPS 추적 시작");
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        console.log("📍 위치 업데이트:", newLocation);
+
+        // 상태 업데이트
+        setUserLocation(newLocation);
+
+        // 사용자 마커 업데이트
+        if (userMarkerRef.current) {
+          userMarkerRef.current.position = newLocation;
+        }
+
+        // 지도 중심은 업데이트하지 않음 (사용자가 지도를 보고 있을 수 있으므로)
+      },
+      (error) => {
+        console.log("GPS watch error:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   }, []);
 
   // 실시간 GPS 추적 중지
@@ -283,13 +386,13 @@ export default function MvpMap() {
     mapRef.current = map;
     const center = userLocation || HONGDAE_CENTER;
 
-    // 줄 레벨 변경 감지
+    // 줌 레벨 변경 감지
     map.addListener('zoom_changed', () => {
       const zoom = map.getZoom() || 15;
       setCurrentZoom(zoom);
     });
 
-    // 사용자 위치 마커 (촬영용: FILMING_LOCATION으로 고정)
+    // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
     userMarkerElement.style.cssText = `
       width: 20px;
@@ -302,7 +405,7 @@ export default function MvpMap() {
 
     userMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
       map,
-      position: FILMING_LOCATION,
+      position: center,
       content: userMarkerElement,
       title: "내 위치",
     });
@@ -394,7 +497,7 @@ export default function MvpMap() {
     });
   }, [userLocation, aggregateCityData]);
 
-  // 줄 레벨에 따른 표시 전환
+  // 줌 레벨에 따른 표시 전환
   useEffect(() => {
     const isZoomedOut = currentZoom < 12;
 
@@ -411,11 +514,6 @@ export default function MvpMap() {
         label.content.style.opacity = isZoomedOut ? '1' : '0';
       }
     });
-
-    // 내 위치 핀은 항상 표시
-    if (userMarkerRef.current && userMarkerRef.current.content instanceof HTMLElement) {
-      userMarkerRef.current.content.style.opacity = '1';
-    }
   }, [currentZoom]);
 
   // MBTI 필터링
@@ -566,13 +664,15 @@ export default function MvpMap() {
           </div>
         </div>
 
-        {/* 내 위치로 돌아가기 버튼 (촬영용: FILMING_LOCATION으로 고정) */}
+        {/* 내 위치로 돌아가기 버튼 */}
         <button
           onClick={() => {
-            if (mapRef.current) {
-              mapRef.current.panTo(FILMING_LOCATION);
+            if (mapRef.current && userLocation) {
+              mapRef.current.panTo(userLocation);
               mapRef.current.setZoom(15);
-              toast.success("촬영 위치로 이동했습니다 (ENFP 마커 앞)");
+              toast.success("내 위치로 이동했습니다");
+            } else {
+              toast.error("GPS 위치를 찾을 수 없습니다");
             }
           }}
           className="absolute bottom-24 left-4 bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-3 shadow-2xl hover:scale-110 transition-transform"
@@ -601,7 +701,7 @@ export default function MvpMap() {
         </button>
 
         {/* 하단 정보 카드 */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl" style={{maxWidth: '320px', width: 'calc(100% - 2rem)'}}>
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl max-w-md w-full mx-4">
           <div className="text-center">
             {selectedMarker ? (
               <>
