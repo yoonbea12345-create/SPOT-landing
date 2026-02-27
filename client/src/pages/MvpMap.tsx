@@ -103,7 +103,7 @@ export default function MvpMap() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
-  const [preloadedLocation, setPreloadedLocation] = useState<google.maps.LatLngLiteral | null>(null);
+
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
@@ -139,27 +139,9 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // 지도 로드 시 GPS 위치 정보를 미리 받아오기 (백그라운드)
-  useEffect(() => {
-    if (screen === "map" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setPreloadedLocation(location);
-        },
-        (error) => {
-          console.log("Preload GPS error:", error);
-          // 조용히 실패 처리 (사용자에게 토스트 표시 안함)
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    }
-  }, [screen]);
 
-  // GPS 동의 처리
+
+  // GPS 동의 처리 - 동의 버튼 클릭 시 즉시 GPS 권한 요청
   const handleConsent = useCallback((agreed: boolean) => {
     setShowConsentPopup(false);
 
@@ -168,80 +150,62 @@ export default function MvpMap() {
       return;
     }
 
-    // 이미 받아온 위치 정보가 있으면 즉시 적용
-    if (preloadedLocation) {
-      setUserLocation(preloadedLocation);
-      
-      if (mapRef.current) {
-        mapRef.current.setCenter(preloadedLocation);
-      }
-
-      // 사용자 마커 업데이트
-      if (userMarkerRef.current && mapRef.current) {
-        userMarkerRef.current.position = preloadedLocation;
-      }
-
-      toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
-      return;
-    }
-
-    // 미리 받아오지 못했다면 다시 시도 (권한 허용 후 재시도)
+    // 브라우저가 Geolocation을 지원하지 않는 경우
     if (!navigator.geolocation) {
-      toast.info("📍 GPS를 켜주시고 새로고침 해주세요", { duration: 5000 });
+      toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
       return;
     }
 
     // 로딩 토스트 표시
     const loadingToast = toast.loading("📍 위치 정보를 가져오는 중...");
 
-    // 재시도 로직: 최대 3번 시도
-    let retryCount = 0;
-    const maxRetries = 3;
+    // 동의 버튼 클릭 시 즉시 getCurrentPosition 호출
+    // → 안드로이드 시스템 GPS 권한 팝업 자동 표시
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        
+        console.log("✅ GPS 위치 수신 성공:", newLocation);
+        
+        setUserLocation(newLocation);
+        
+        if (mapRef.current) {
+          mapRef.current.setCenter(newLocation);
+        }
 
-    const attemptGetLocation = () => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const newLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserLocation(newLocation);
-          
-          if (mapRef.current) {
-            mapRef.current.setCenter(newLocation);
-          }
+        // 사용자 마커 업데이트
+        if (userMarkerRef.current) {
+          userMarkerRef.current.position = newLocation;
+        }
 
-          // 사용자 마커 업데이트
-          if (userMarkerRef.current && mapRef.current) {
-            userMarkerRef.current.position = newLocation;
-          }
-
-          toast.dismiss(loadingToast);
-          toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
-        },
-        (error) => {
-          console.log(`GPS error (attempt ${retryCount + 1}):`, error);
-          retryCount++;
-
-          if (retryCount < maxRetries) {
-            // 1초 후 재시도
-            setTimeout(() => {
-              console.log(`Retrying GPS... (${retryCount}/${maxRetries})`);
-              attemptGetLocation();
-            }, 1000);
-          } else {
-            // 최대 재시도 횟수 초과
-            toast.dismiss(loadingToast);
-            toast.error("📍 위치 정보를 가져올 수 없습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    };
-
-    // 첫 시도
-    attemptGetLocation();
-  }, [preloadedLocation]);
+        toast.dismiss(loadingToast);
+        toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
+      },
+      (error) => {
+        console.log("GPS 에러:", error);
+        toast.dismiss(loadingToast);
+        
+        // 에러 타입에 따른 메시지
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          toast.error("📍 위치 정보를 가져올 수 없습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
+        } else if (error.code === error.TIMEOUT) {
+          toast.error("📍 위치 정보 요청 시간이 초과되었습니다. GPS를 켜주시고 다시 시도해주세요.", { duration: 5000 });
+        } else {
+          toast.error("📍 알 수 없는 오류가 발생했습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
+        }
+      },
+      { 
+        enableHighAccuracy: true, 
+        timeout: 15000, 
+        maximumAge: 0 
+      }
+    );
+  }, []);
 
   // 실시간 GPS 추적 시작
   const startWatchingPosition = useCallback(() => {
@@ -536,6 +500,16 @@ export default function MvpMap() {
     }
   };
 
+  // 스플래시 화면에서 GPS 안내 토스트 표시
+  useEffect(() => {
+    if (screen === "splash") {
+      toast.info("📍 GPS를 켜주세요", { 
+        duration: 2000,
+        position: "top-center"
+      });
+    }
+  }, [screen]);
+
   // 스플래시 화면
   if (screen === "splash") {
     return (
@@ -543,6 +517,7 @@ export default function MvpMap() {
         className="fixed inset-0 bg-black flex flex-col items-center justify-center"
         style={{ height: `${screenHeight}px` }}
       >
+        <Toaster position="top-center" />
         <h1
           className="text-6xl font-bold"
           style={{
