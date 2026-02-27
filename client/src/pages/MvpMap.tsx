@@ -113,6 +113,9 @@ export default function MvpMap() {
 
   // 홍대입구역 기본 위치
   const HONGDAE_CENTER = { lat: 37.5566, lng: 126.9236 };
+  
+  // 촬영용: ENFP 마커 바로 앞 위치 (내 위치 고정)
+  const FILMING_LOCATION = { lat: 37.5566 + 0.000005, lng: 126.9236 };
 
   // 화면 높이 계산
   const [screenHeight, setScreenHeight] = useState(
@@ -139,13 +142,13 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // 지도 로드 시 GPS 위치를 홍대입구역으로 고정 (촬영용)
+  // 지도 로드 시 GPS 위치를 ENFP 마커 앞으로 고정 (촬영용)
   useEffect(() => {
     if (screen === "map") {
-      // 홍대입구역으로 고정
-      const location = HONGDAE_CENTER;
+      // ENFP 마커 바로 앞으로 고정
+      const location = FILMING_LOCATION;
       setPreloadedLocation(location);
-      console.log("📍 GPS 고정: 홍대입구역", location);
+      console.log("📍 GPS 고정: ENFP 마커 앞", location);
     }
   }, [screen]);
 
@@ -158,8 +161,8 @@ export default function MvpMap() {
       return;
     }
 
-    // 홍대입구역으로 고정 (촬영용)
-    const fixedLocation = HONGDAE_CENTER;
+    // ENFP 마커 앞으로 고정 (촬영용)
+    const fixedLocation = FILMING_LOCATION;
     setUserLocation(fixedLocation);
     
     if (mapRef.current) {
@@ -171,7 +174,7 @@ export default function MvpMap() {
       userMarkerRef.current.position = fixedLocation;
     }
 
-    toast.success("✅ 홍대입구역으로 이동했어요! (촬영 모드)", { duration: 3000 });
+    toast.success("✅ 촬영 위치로 이동했어요! (ENFP 마커 앞)", { duration: 3000 });
   }, [preloadedLocation]);
 
   // 실시간 GPS 추적 시작
@@ -595,15 +598,13 @@ export default function MvpMap() {
           </div>
         </div>
 
-        {/* 내 위치로 돌아가기 버튼 */}
+        {/* 내 위치로 돌아가기 버튼 (촬영용: FILMING_LOCATION으로 고정) */}
         <button
           onClick={() => {
-            if (mapRef.current && userLocation) {
-              mapRef.current.panTo(userLocation);
+            if (mapRef.current) {
+              mapRef.current.panTo(FILMING_LOCATION);
               mapRef.current.setZoom(15);
-              toast.success("내 위치로 이동했습니다");
-            } else {
-              toast.error("GPS 위치를 찾을 수 없습니다");
+              toast.success("촬영 위치로 이동했습니다 (ENFP 마커 앞)");
             }
           }}
           className="absolute bottom-24 left-4 bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-3 shadow-2xl hover:scale-110 transition-transform"
@@ -632,7 +633,7 @@ export default function MvpMap() {
         </button>
 
         {/* 하단 정보 카드 */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl max-w-md w-full mx-4">
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl" style={{maxWidth: '320px', width: 'calc(100% - 2rem)'}}>
           <div className="text-center">
             {selectedMarker ? (
               <>
