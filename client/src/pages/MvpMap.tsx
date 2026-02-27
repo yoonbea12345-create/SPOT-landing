@@ -232,7 +232,7 @@ export default function MvpMap() {
           } else {
             // 최대 재시도 횟수 초과
             toast.dismiss(loadingToast);
-            toast.error("📍 위치 정보를 가져올 수 없습니다. 새로고침 해주세요.", { duration: 5000 });
+            toast.error("📍 위치 정보를 가져올 수 없습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
           }
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
