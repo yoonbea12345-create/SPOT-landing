@@ -693,7 +693,7 @@ export default function MvpMap() {
                 </div>
               </>
             ) : (
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-400 whitespace-nowrap">
                 마커를 클릭하여 MBTI 정보를 확인하세요
               </div>
             )}
