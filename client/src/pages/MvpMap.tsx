@@ -157,7 +157,7 @@ export default function MvpMap() {
     }
 
     // 로딩 토스트 표시
-    const loadingToast = toast.loading("📍 위치 정보를 가져오는 중...");
+    const loadingToast = toast.loading("📍 위치 정보를 가져오는 중... GPS를 켜주세요");
 
     // 동의 버튼 클릭 시 즉시 getCurrentPosition 호출
     // → 안드로이드 시스템 GPS 권한 팝업 자동 표시
@@ -500,16 +500,6 @@ export default function MvpMap() {
     }
   };
 
-  // 스플래시 화면에서 GPS 안내 토스트 표시
-  useEffect(() => {
-    if (screen === "splash") {
-      toast.info("📍 GPS를 켜주세요", { 
-        duration: 2000,
-        position: "top-center"
-      });
-    }
-  }, [screen]);
-
   // 스플래시 화면
   if (screen === "splash") {
     return (
@@ -517,7 +507,6 @@ export default function MvpMap() {
         className="fixed inset-0 bg-black flex flex-col items-center justify-center"
         style={{ height: `${screenHeight}px` }}
       >
-        <Toaster position="top-center" />
         <h1
           className="text-6xl font-bold"
           style={{
