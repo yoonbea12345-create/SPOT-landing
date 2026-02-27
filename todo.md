@@ -79,3 +79,8 @@
 - [x] 내 위치 핀이 사라지지 않도록 수정
 - [x] 줄 레벨 변경 시에도 계속 표시
 - [x] 테스트 및 체크포인트 저장
+
+## 내 위치 핀 FILMING_LOCATION 고정
+- [x] 내 위치 핀을 실제 GPS 대신 FILMING_LOCATION으로 고정
+- [x] userLocation을 FILMING_LOCATION으로 변경
+- [x] 테스트 및 체크포인트 저장

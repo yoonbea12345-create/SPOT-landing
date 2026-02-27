@@ -177,48 +177,11 @@ export default function MvpMap() {
     toast.success("✅ 촬영 위치로 이동했어요! (ENFP 마커 앞)", { duration: 3000 });
   }, [preloadedLocation]);
 
-  // 실시간 GPS 추적 시작
+  // 실시간 GPS 추적 시작 (촬영용: FILMING_LOCATION 고정)
   const startWatchingPosition = useCallback(() => {
-    // 이미 추적 중이면 중복 방지
-    if (watchIdRef.current !== null) {
-      return;
-    }
-
-    if (!navigator.geolocation) {
-      console.log("Geolocation not supported");
-      return;
-    }
-
-    console.log("📍 실시간 GPS 추적 시작");
-
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-
-        console.log("📍 위치 업데이트:", newLocation);
-
-        // 상태 업데이트
-        setUserLocation(newLocation);
-
-        // 사용자 마커 업데이트
-        if (userMarkerRef.current) {
-          userMarkerRef.current.position = newLocation;
-        }
-
-        // 지도 중심은 업데이트하지 않음 (사용자가 지도를 보고 있을 수 있으므로)
-      },
-      (error) => {
-        console.log("GPS watch error:", error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
+    // 촬영 모드에서는 실제 GPS 추적하지 않고 FILMING_LOCATION에 고정
+    console.log("📍 촬영 모드: 위치 FILMING_LOCATION에 고정");
+    // 아무것도 하지 않음 - 위치는 이미 FILMING_LOCATION으로 고정됨
   }, []);
 
   // 실시간 GPS 추적 중지
