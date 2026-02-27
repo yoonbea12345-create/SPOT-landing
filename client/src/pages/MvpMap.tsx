@@ -665,7 +665,7 @@ export default function MvpMap() {
         </button>
 
         {/* 하단 정보 카드 */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl max-w-md w-full mx-4">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl max-w-md">
           <div className="text-center">
             {selectedMarker ? (
               <>
