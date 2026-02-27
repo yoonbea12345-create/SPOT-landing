@@ -80,8 +80,18 @@ const generateDummyData = () => {
     const count = Math.floor(Math.random() * (city.count[1] - city.count[0] + 1)) + city.count[0];
     for (let i = 0; i < count; i++) {
       const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
-      const lat = city.lat + (Math.random() - 0.5) * 0.2;
-      const lng = city.lng + (Math.random() - 0.5) * 0.2;
+      
+      // 제주도 지역은 바다 영역 제외하고 육지에만 마커 배치
+      let lat, lng;
+      if (city.name === "제주시" || city.name === "서귀포") {
+        // 제주도는 반경을 줄여서 육지 중심부에만 배치 (0.2 → 0.08)
+        lat = city.lat + (Math.random() - 0.5) * 0.08;
+        lng = city.lng + (Math.random() - 0.5) * 0.08;
+      } else {
+        lat = city.lat + (Math.random() - 0.5) * 0.2;
+        lng = city.lng + (Math.random() - 0.5) * 0.2;
+      }
+      
       data.push({ mbti, lat, lng, id: id++ });
     }
   })
