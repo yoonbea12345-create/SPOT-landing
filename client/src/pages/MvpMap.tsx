@@ -431,7 +431,7 @@ export default function MvpMap() {
     });
   }, [userLocation, aggregateCityData]);
 
-  // 줌 레벨에 따른 표시 전환
+  // 줄 레벨에 따른 표시 전환
   useEffect(() => {
     const isZoomedOut = currentZoom < 12;
 
@@ -448,6 +448,11 @@ export default function MvpMap() {
         label.content.style.opacity = isZoomedOut ? '1' : '0';
       }
     });
+
+    // 내 위치 핀은 항상 표시
+    if (userMarkerRef.current && userMarkerRef.current.content instanceof HTMLElement) {
+      userMarkerRef.current.content.style.opacity = '1';
+    }
   }, [currentZoom]);
 
   // MBTI 필터링
