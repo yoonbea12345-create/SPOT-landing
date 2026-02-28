@@ -1,0 +1,8 @@
+{
+  "query": "DELETE FROM access_logs;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute DELETE FROM access_logs;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'unzs4ztvsfwb6baqqul6mc.access_logs' doesn't exist"
+  ]
+}

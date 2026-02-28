@@ -43,6 +43,14 @@ export const appRouter = router({
             ctx.req.socket?.remoteAddress ||
             "unknown";
 
+          // IP whitelist - skip logging for owner's devices
+          const IP_WHITELIST = [
+            "221.141.9.83",
+          ];
+          if (IP_WHITELIST.includes(ipAddress)) {
+            return { success: true };
+          }
+
           await db.insert(accessLogs).values({
             ipAddress,
             userAgent: ctx.req.headers["user-agent"] || null,
