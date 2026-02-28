@@ -76,20 +76,52 @@ const generateDummyData = () => {
     { name: "서귀포", lat: 33.2541, lng: 126.5601, count: [15, 30] },
   ];
   
+  // 제주도 육지 경계 체크 함수
+  // 제주도 본섬의 대략적인 육지 폴리곤 (간략화)
+  const isJejuLand = (lat: number, lng: number): boolean => {
+    // 제주도 본섬 대략 경계: 위도 33.20~33.56, 경도 126.15~126.97
+    if (lat < 33.20 || lat > 33.56 || lng < 126.15 || lng > 126.97) return false;
+    // 북쪽 바다 제외: 제주시 북쪽 해안선은 약 33.52 이하
+    if (lat > 33.52) return false;
+    // 남쪽 바다 제외: 서귀포 남쪽 해안선은 약 33.22 이상
+    if (lat < 33.22) return false;
+    // 동쪽 끝 (성산 방향) 좁아지는 부분
+    if (lng > 126.85 && lat > 33.45) return false;
+    if (lng > 126.90 && lat < 33.30) return false;
+    // 서쪽 끝 좁아지는 부분
+    if (lng < 126.25 && lat > 33.45) return false;
+    if (lng < 126.20 && lat < 33.35) return false;
+    return true;
+  };
+
   cities.forEach((city) => {
     const count = Math.floor(Math.random() * (city.count[1] - city.count[0] + 1)) + city.count[0];
     for (let i = 0; i < count; i++) {
       const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
       
-      // 제주도 지역은 바다 영역 제외하고 육지에만 마커 배치
       let lat, lng;
       if (city.name === "제주시" || city.name === "서귀포") {
-        // 제주도는 반경을 줄여서 육지 중심부에만 배치 (0.2 → 0.08)
-        lat = city.lat + (Math.random() - 0.5) * 0.08;
-        lng = city.lng + (Math.random() - 0.5) * 0.08;
+        // 제주도: 육지 경계 체크 후 배치 (최대 20번 시도)
+        let attempts = 0;
+        do {
+          // 무작위 분산 (0.12도 범위, 약 13km)
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 0.06;
+          lat = city.lat + Math.sin(angle) * dist;
+          lng = city.lng + Math.cos(angle) * dist;
+          attempts++;
+        } while (!isJejuLand(lat, lng) && attempts < 20);
+        // 20번 시도 후에도 실패하면 도심 중앙 근처에 배치
+        if (!isJejuLand(lat, lng)) {
+          lat = city.lat + (Math.random() - 0.5) * 0.02;
+          lng = city.lng + (Math.random() - 0.5) * 0.02;
+        }
       } else {
-        lat = city.lat + (Math.random() - 0.5) * 0.2;
-        lng = city.lng + (Math.random() - 0.5) * 0.2;
+        // 다른 도시: 무작위 방향으로 분산 (겹침 완화)
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.pow(Math.random(), 0.6) * 0.18; // 제곱근으로 중심 집중 완화
+        lat = city.lat + Math.sin(angle) * dist;
+        lng = city.lng + Math.cos(angle) * dist;
       }
       
       data.push({ mbti, lat, lng, id: id++ });
