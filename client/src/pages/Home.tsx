@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -13,6 +13,23 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
+  const totalSections = 6;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('section');
+      const scrollY = window.scrollY + window.innerHeight / 2;
+      let current = 0;
+      sections.forEach((section, i) => {
+        const top = (section as HTMLElement).offsetTop;
+        if (scrollY >= top) current = i;
+      });
+      setActiveSection(current);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,6 +345,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Scroll Dot Indicator */}
+      <div className="fixed right-3 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[6px]">
+        {Array.from({ length: totalSections }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => {
+              const sections = document.querySelectorAll('section');
+              sections[i]?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="transition-all duration-300"
+            style={{
+              width: activeSection === i ? '6px' : '4px',
+              height: activeSection === i ? '6px' : '4px',
+              borderRadius: '50%',
+              background: activeSection === i
+                ? 'oklch(0.8 0.15 195)'
+                : 'rgba(255,255,255,0.35)',
+              boxShadow: activeSection === i
+                ? '0 0 6px 1px oklch(0.8 0.15 195)'
+                : 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'block',
+            }}
+            aria-label={`섹션 ${i + 1}로 이동`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
