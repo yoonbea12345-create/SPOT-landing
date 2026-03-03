@@ -175,11 +175,8 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
   );
 }
 
-export default function Admin() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "1");
+function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("stats");
-
-  if (!authed) return <PasswordGate onAuth={() => setAuthed(true)} />;
   const [page, setPage] = useState(0);
   const [eventPage, setEventPage] = useState(0);
   const [emailPage, setEmailPage] = useState(0);
@@ -634,4 +631,11 @@ export default function Admin() {
       </div>
     </div>
   );
+}
+
+export default function Admin() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "1");
+
+  if (!authed) return <PasswordGate onAuth={() => setAuthed(true)} />;
+  return <AdminDashboard />;
 }
