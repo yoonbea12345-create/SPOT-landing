@@ -48,8 +48,33 @@ export const appRouter = router({
             "112.221.224.125",
             "211.235.89.25",
             "2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f",
+            // 내부 로칼호스트 (Manus 샌드박스 상태체크)
+            "::ffff:127.0.0.1",
+            "127.0.0.1",
+            "::1",
           ];
           if (IP_WHITELIST.includes(ipAddress)) {
+            return { success: true, logId: null };
+          }
+
+          // 봇/크롤러 User-Agent 필터링
+          const userAgent = (ctx.req.headers["user-agent"] || "").toLowerCase();
+          const BOT_PATTERNS = [
+            "googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider",
+            "yandexbot", "sogou", "exabot", "facebot", "ia_archiver",
+            "twitterbot", "linkedinbot", "whatsapp", "telegrambot",
+            "applebot", "semrushbot", "ahrefsbot", "mj12bot", "dotbot",
+            "petalbot", "bytespider", "gptbot", "claudebot", "anthropic",
+            "python-requests", "go-http-client", "curl", "wget", "axios",
+            "node-fetch", "okhttp", "java/", "libwww", "scrapy",
+            "facebookexternalhit", "rogerbot", "embedly", "quora link preview",
+          ];
+          if (BOT_PATTERNS.some(p => userAgent.includes(p))) {
+            return { success: true, logId: null };
+          }
+
+          // 빈 User-Agent도 봇으로 간주
+          if (!userAgent || userAgent.length < 10) {
             return { success: true, logId: null };
           }
 

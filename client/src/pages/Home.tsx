@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -20,37 +20,7 @@ export default function Home() {
   // Tracking
   const trackEvent = trpc.log.trackEvent.useMutation();
   const emailSubscribe = trpc.email.subscribe.useMutation();
-  const logIdRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
-
-  // Session duration tracking
-  useEffect(() => {
-    const stored = sessionStorage.getItem('spotLogId');
-    if (stored) logIdRef.current = Number(stored);
-    startTimeRef.current = Date.now();
-
-    const sendDuration = () => {
-      const id = logIdRef.current;
-      if (!id) return;
-      const sec = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      if (sec < 1) return;
-      navigator.sendBeacon(
-        '/api/trpc/log.updateDuration',
-        JSON.stringify({ json: { logId: id, durationSec: sec } })
-      );
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') sendDuration();
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', sendDuration);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', sendDuration);
-    };
-  }, []);
+  // 체류 시간 기록은 useAccessLog에서 통합 처리
 
   const handleTrackEvent = (eventName: string) => {
     trackEvent.mutate({ eventName, page: '/' });
