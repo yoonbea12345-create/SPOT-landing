@@ -153,6 +153,7 @@ export default function MvpMap() {
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const watchIdRef = useRef<number | null>(null);
+  const startWatchingPositionRef = useRef<() => void>(() => {});
   const [currentZoom, setCurrentZoom] = useState(15);
 
   // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
@@ -190,7 +191,9 @@ export default function MvpMap() {
     setShowConsentPopup(false);
 
     if (!agreed) {
-      // 미동의: 팝업만 닫고 전국 지도 그대로 유지
+      // 미동의: 팝업만 닫고 전국 지도 유지
+      // 단, GPS 실시간 추적은 시작 → 사용자가 나중에 GPS를 켜면 자동 반영
+      startWatchingPositionRef.current();
       return;
     }
 
@@ -255,6 +258,7 @@ export default function MvpMap() {
         maximumAge: 0 
       }
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 실시간 GPS 추적 시작
@@ -300,6 +304,9 @@ export default function MvpMap() {
       }
     );
   }, []);
+
+  // ref에 할당하여 handleConsent에서 사용 가능하게
+  startWatchingPositionRef.current = startWatchingPosition;
 
   // 실시간 GPS 추적 중지
   const stopWatchingPosition = useCallback(() => {
