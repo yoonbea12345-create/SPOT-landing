@@ -140,3 +140,16 @@
 - [x] Admin: 이벤트 로그 탭 추가
 - [x] Admin: GPS 위치, 체류시간 컬럼 표시
 - [x] 체크포인트 저장
+
+## Admin 기능 확장 (GPS 지도, 퍼널, 이메일 구독)
+- [x] DB: emailSubscriptions 테이블 추가 (email, agreedAt, source)
+- [x] pnpm db:push 실행
+- [x] 서버: email.subscribe API (이메일 저장)
+- [x] 서버: log.funnelStats API (퍼널 전환율)
+- [x] 서버: email.list API (이메일 목록 조회)
+- [x] Home.tsx: 알림 신청 시 DB에도 저장
+- [x] Admin: GPS 좌표 지도 시각화 탭 추가
+- [x] Admin: 이벤트 퍼널 차트 추가 (보러가기→MVP접속→GPS허용)
+- [x] Admin: 이메일 구독 목록 탭 추가
+- [x] 테스트 작성 및 통과 (16 tests passed)
+- [x] 체크포인트 저장

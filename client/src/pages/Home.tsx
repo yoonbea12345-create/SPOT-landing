@@ -19,6 +19,7 @@ export default function Home() {
 
   // Tracking
   const trackEvent = trpc.log.trackEvent.useMutation();
+  const emailSubscribe = trpc.email.subscribe.useMutation();
   const logIdRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
@@ -79,15 +80,16 @@ export default function Home() {
     }
     
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbyZyy0SdTsdYasmg4RkKAqH6gmDGwtQnqQTylfd0DtTlHtM62ikpcqCn-IMbYitS8gc/exec', {
+      // Google Script에도 전송 (기존 유지)
+      fetch('https://script.google.com/macros/s/AKfycbyZyy0SdTsdYasmg4RkKAqH6gmDGwtQnqQTylfd0DtTlHtM62ikpcqCn-IMbYitS8gc/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
-      });
-      
+      }).catch(() => {});
+      // DB에도 저장
+      await emailSubscribe.mutateAsync({ email, source: 'landing' });
+      handleTrackEvent('click_알림받기_submit');
       toast.success("알림 신청이 완료되었습니다!");
       setEmail("");
       setAgreed(false);

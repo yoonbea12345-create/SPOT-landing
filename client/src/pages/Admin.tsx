@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -19,14 +19,115 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  FunnelChart,
+  Funnel,
+  LabelList,
+  Cell,
 } from "recharts";
 
-type Tab = "logs" | "events" | "stats";
+type Tab = "stats" | "logs" | "events" | "gpsmap" | "funnel" | "emails";
+
+// GPS Map Component using Leaflet
+function GpsMapView({ locations }: { locations: Array<{ id: number; lat: number | null; lng: number | null; timestamp: Date; ipAddress: string }> }) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    // Dynamically load Leaflet
+    const loadLeaflet = async () => {
+      if (!(window as any).L) {
+        // Load Leaflet CSS
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(link);
+
+        // Load Leaflet JS
+        await new Promise<void>((resolve) => {
+          const script = document.createElement("script");
+          script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+          script.onload = () => resolve();
+          document.head.appendChild(script);
+        });
+      }
+
+      const L = (window as any).L;
+      if (!mapRef.current) return;
+
+      const map = L.map(mapRef.current).setView([36.5, 127.8], 7);
+      mapInstanceRef.current = map;
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      // Add markers
+      locations.forEach((loc) => {
+        if (loc.lat == null || loc.lng == null) return;
+        const marker = L.circleMarker([loc.lat, loc.lng], {
+          radius: 8,
+          fillColor: "#00f0ff",
+          color: "#00f0ff",
+          weight: 2,
+          opacity: 0.9,
+          fillOpacity: 0.7,
+        }).addTo(map);
+
+        const date = new Date(loc.timestamp).toLocaleString("ko-KR");
+        marker.bindPopup(`
+          <div style="font-family: monospace; font-size: 12px; color: #000;">
+            <b>IP:</b> ${loc.ipAddress}<br/>
+            <b>시간:</b> ${date}<br/>
+            <b>좌표:</b> ${loc.lat?.toFixed(5)}, ${loc.lng?.toFixed(5)}
+          </div>
+        `);
+      });
+    };
+
+    loadLeaflet();
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [locations]);
+
+  return (
+    <div
+      ref={mapRef}
+      style={{ height: "480px", width: "100%", borderRadius: "8px", border: "1px solid rgba(0,240,255,0.3)" }}
+    />
+  );
+}
+
+// Funnel Bar Component
+function FunnelBar({ step, count, rate, maxCount, color }: { step: string; count: number; rate: number; maxCount: number; color: string }) {
+  const pct = maxCount > 0 ? (count / maxCount) * 100 : 0;
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between items-center text-sm">
+        <span className="font-bold text-foreground">{step}</span>
+        <span className="font-mono" style={{ color }}>{count}명 ({rate}%)</span>
+      </div>
+      <div className="w-full h-8 bg-card/50 rounded-lg overflow-hidden border border-white/10">
+        <div
+          className="h-full rounded-lg transition-all duration-700"
+          style={{ width: `${pct}%`, backgroundColor: color, opacity: 0.85 }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function Admin() {
   const [tab, setTab] = useState<Tab>("stats");
   const [page, setPage] = useState(0);
   const [eventPage, setEventPage] = useState(0);
+  const [emailPage, setEmailPage] = useState(0);
   const limit = 50;
 
   const { data, isLoading, refetch } = trpc.log.list.useQuery({
@@ -41,9 +142,16 @@ export default function Admin() {
 
   const { data: statsData, isLoading: statsLoading } = trpc.log.dailyStats.useQuery();
   const { data: summaryData } = trpc.log.eventSummary.useQuery();
+  const { data: funnelData } = trpc.log.funnelStats.useQuery();
+  const { data: gpsData } = trpc.log.gpsLocations.useQuery();
+  const { data: emailData, isLoading: emailLoading } = trpc.email.list.useQuery({
+    limit,
+    offset: emailPage * limit,
+  });
 
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
   const totalEventPages = eventData ? Math.ceil(eventData.total / limit) : 0;
+  const totalEmailPages = emailData ? Math.ceil(emailData.total / limit) : 0;
 
   const formatDate = (timestamp: Date) => {
     return new Date(timestamp).toLocaleString("ko-KR", {
@@ -73,6 +181,27 @@ export default function Admin() {
       순방문자: Number(s.unique_visitors),
     }));
   }, [statsData]);
+
+  const funnelColors = ["#00f0ff", "#ff006e", "#8b5cf6"];
+  const maxFunnelCount = funnelData?.funnel?.[0]?.count ?? 1;
+
+  // Copy emails to clipboard
+  const handleCopyEmails = () => {
+    if (!emailData?.emails) return;
+    const text = emailData.emails.map((e) => e.email).join("\n");
+    navigator.clipboard.writeText(text).then(() => {
+      alert("이메일 목록이 클립보드에 복사되었습니다.");
+    });
+  };
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: "stats", label: "📊 일별 통계" },
+    { id: "funnel", label: "🔽 퍼널 분석" },
+    { id: "gpsmap", label: "🗺️ GPS 지도" },
+    { id: "emails", label: "📧 이메일 구독" },
+    { id: "logs", label: "📋 접속 로그" },
+    { id: "events", label: "🖱️ 이벤트 로그" },
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
@@ -105,35 +234,35 @@ export default function Admin() {
           </Card>
           <Card className="border-accent/20 bg-card/50">
             <CardHeader className="pb-2">
-              <CardDescription>오늘 방문</CardDescription>
+              <CardDescription>GPS 수집</CardDescription>
               <CardTitle className="text-2xl font-black text-accent">
-                {statsData?.stats?.find(s => s.day === new Date().toLocaleDateString('sv-SE'))?.visits ?? 0}
+                {gpsData?.locations?.length ?? "-"}
               </CardTitle>
             </CardHeader>
           </Card>
           <Card className="border-primary/20 bg-card/50">
             <CardHeader className="pb-2">
-              <CardDescription>GPS 수집</CardDescription>
+              <CardDescription>이메일 구독</CardDescription>
               <CardTitle className="text-2xl font-black text-primary">
-                {data?.logs?.filter(l => l.gpsLat).length ?? "-"}
+                {emailData?.total ?? "-"}
               </CardTitle>
             </CardHeader>
           </Card>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 border-b border-primary/20">
-          {(["stats", "logs", "events"] as Tab[]).map((t) => (
+        <div className="flex flex-wrap gap-1 border-b border-primary/20">
+          {TABS.map((t) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2 text-sm font-bold transition-colors ${
-                tab === t
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
+                tab === t.id
                   ? "border-b-2 border-primary text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "stats" ? "📊 일별 통계" : t === "logs" ? "📋 접속 로그" : "🖱️ 이벤트 로그"}
+              {t.label}
             </button>
           ))}
         </div>
@@ -190,6 +319,147 @@ export default function Admin() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Funnel Tab */}
+        {tab === "funnel" && (
+          <Card className="border-2 border-primary/20 bg-card/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-black text-primary">전환 퍼널 분석</CardTitle>
+              <CardDescription>보러가기 클릭 → MVP 지도 접속 → GPS 허용 전환율</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {funnelData?.funnel && funnelData.funnel.length > 0 ? (
+                <div className="space-y-6 py-4">
+                  {funnelData.funnel.map((step, i) => (
+                    <FunnelBar
+                      key={step.step}
+                      step={step.step}
+                      count={step.count}
+                      rate={step.rate}
+                      maxCount={maxFunnelCount}
+                      color={funnelColors[i] || "#aaa"}
+                    />
+                  ))}
+
+                  {/* Conversion rate summary */}
+                  <div className="mt-8 grid grid-cols-2 gap-4">
+                    {funnelData.funnel.length >= 2 && (
+                      <div className="p-4 border border-secondary/30 rounded-lg bg-card/30 text-center">
+                        <div className="text-xs text-muted-foreground mb-1">보러가기 → MVP 전환율</div>
+                        <div className="text-3xl font-black text-secondary">
+                          {funnelData.funnel[1].rate}%
+                        </div>
+                      </div>
+                    )}
+                    {funnelData.funnel.length >= 3 && (
+                      <div className="p-4 border border-accent/30 rounded-lg bg-card/30 text-center">
+                        <div className="text-xs text-muted-foreground mb-1">MVP → GPS 허용 전환율</div>
+                        <div className="text-3xl font-black text-accent">
+                          {funnelData.funnel[2].rate}%
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">아직 데이터가 없습니다.</div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* GPS Map Tab */}
+        {tab === "gpsmap" && (
+          <Card className="border-2 border-primary/20 bg-card/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-black text-primary">GPS 수집 지도</CardTitle>
+              <CardDescription>
+                총 {gpsData?.locations?.length ?? 0}개의 GPS 좌표 수집됨
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {gpsData?.locations && gpsData.locations.length > 0 ? (
+                <GpsMapView locations={gpsData.locations as any} />
+              ) : (
+                <div className="text-center py-16 text-muted-foreground">
+                  <div className="text-4xl mb-4">📍</div>
+                  <div>아직 수집된 GPS 데이터가 없습니다.</div>
+                  <div className="text-xs mt-2">사용자가 MVP 지도에 접속하면 GPS 좌표가 수집됩니다.</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Email Subscriptions Tab */}
+        {tab === "emails" && (
+          <Card className="border-2 border-primary/20 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-black text-primary">이메일 구독 목록</CardTitle>
+                  <CardDescription>총 {emailData?.total || 0}명이 출시 알림을 신청했습니다.</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleCopyEmails}
+                  className="border-primary/50 hover:bg-primary/10 text-primary text-sm"
+                  disabled={!emailData?.emails?.length}
+                >
+                  📋 이메일 복사
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {emailLoading ? (
+                <div className="text-center py-8 text-muted-foreground">로딩 중...</div>
+              ) : emailData && emailData.emails.length > 0 ? (
+                <>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-primary/20">
+                          <TableHead className="font-black text-primary">#</TableHead>
+                          <TableHead className="font-black text-primary">이메일</TableHead>
+                          <TableHead className="font-black text-primary">신청 시간</TableHead>
+                          <TableHead className="font-black text-primary">출처</TableHead>
+                          <TableHead className="font-black text-primary">IP</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {emailData.emails.map((sub, idx) => (
+                          <TableRow key={sub.id} className="border-primary/10">
+                            <TableCell className="text-xs text-muted-foreground">
+                              {emailPage * limit + idx + 1}
+                            </TableCell>
+                            <TableCell className="font-mono text-sm text-primary">{sub.email}</TableCell>
+                            <TableCell className="font-mono text-xs">{formatDate(sub.agreedAt)}</TableCell>
+                            <TableCell className="text-xs text-secondary">{sub.source}</TableCell>
+                            <TableCell className="font-mono text-xs text-muted-foreground">{sub.ipAddress}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {totalEmailPages > 1 && (
+                    <div className="flex items-center justify-between mt-6">
+                      <div className="text-sm text-muted-foreground">페이지 {emailPage + 1} / {totalEmailPages}</div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setEmailPage(Math.max(0, emailPage - 1))} disabled={emailPage === 0} className="border-primary/50 hover:bg-primary/10">이전</Button>
+                        <Button variant="outline" onClick={() => setEmailPage(emailPage + 1)} disabled={emailPage >= totalEmailPages - 1} className="border-primary/50 hover:bg-primary/10">다음</Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-4xl mb-4">📧</div>
+                  <div>아직 이메일 구독 신청이 없습니다.</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
 
         {/* Access Logs Tab */}

@@ -54,3 +54,15 @@ export const eventLogs = mysqlTable("eventLogs", {
 
 export type EventLog = typeof eventLogs.$inferSelect;
 export type InsertEventLog = typeof eventLogs.$inferInsert;
+
+// Email subscriptions table - beta launch notification sign-ups
+export const emailSubscriptions = mysqlTable("emailSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  agreedAt: timestamp("agreedAt").defaultNow().notNull(),
+  source: varchar("source", { length: 64 }).default("landing").notNull(), // e.g. "landing", "mvp"
+  ipAddress: varchar("ipAddress", { length: 45 }),
+});
+
+export type EmailSubscription = typeof emailSubscriptions.$inferSelect;
+export type InsertEmailSubscription = typeof emailSubscriptions.$inferInsert;

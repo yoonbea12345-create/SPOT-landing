@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
-import { accessLogs, eventLogs } from "../drizzle/schema";
+import { accessLogs, eventLogs, emailSubscriptions } from "../drizzle/schema";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -248,6 +248,128 @@ export const appRouter = router({
         return { summary: [] };
       }
     }),
+
+    // Funnel stats: 보러가기 클릭 → MVP 접속 → GPS 허용
+    funnelStats: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return { funnel: [] };
+      try {
+        const { sql } = await import("drizzle-orm");
+        // Step 1: 보러가기 버튼 클릭 수
+        const step1 = await db.execute(sql`
+          SELECT COUNT(*) AS cnt FROM eventLogs
+          WHERE eventName LIKE 'click_%보러가기%'
+        `);
+        // Step 2: /mvp 페이지 접속 수
+        const step2 = await db.execute(sql`
+          SELECT COUNT(*) AS cnt FROM accessLogs
+          WHERE pathname = '/mvp'
+        `);
+        // Step 3: GPS 허용 수 (gpsLat이 있는 /mvp 로그)
+        const step3 = await db.execute(sql`
+          SELECT COUNT(*) AS cnt FROM accessLogs
+          WHERE pathname = '/mvp' AND gpsLat IS NOT NULL
+        `);
+        const s1 = Number(((step1[0] as unknown) as any[])[0]?.cnt || 0);
+        const s2 = Number(((step2[0] as unknown) as any[])[0]?.cnt || 0);
+        const s3 = Number(((step3[0] as unknown) as any[])[0]?.cnt || 0);
+        return {
+          funnel: [
+            { step: "보러가기 클릭", count: s1, rate: 100 },
+            { step: "MVP 지도 접속", count: s2, rate: s1 > 0 ? Math.round((s2 / s1) * 100) : 0 },
+            { step: "GPS 허용", count: s3, rate: s2 > 0 ? Math.round((s3 / s2) * 100) : 0 },
+          ],
+        };
+      } catch (error) {
+        console.error("[FunnelStats] Failed:", error);
+        return { funnel: [] };
+      }
+    }),
+
+    // GPS locations for map visualization
+    gpsLocations: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return { locations: [] };
+      try {
+        const { isNotNull } = await import("drizzle-orm");
+        const locations = await db
+          .select({
+            id: accessLogs.id,
+            lat: accessLogs.gpsLat,
+            lng: accessLogs.gpsLng,
+            timestamp: accessLogs.timestamp,
+            ipAddress: accessLogs.ipAddress,
+          })
+          .from(accessLogs)
+          .where(isNotNull(accessLogs.gpsLat))
+          .orderBy(accessLogs.timestamp);
+        return { locations };
+      } catch (error) {
+        console.error("[GpsLocations] Failed:", error);
+        return { locations: [] };
+      }
+    }),
+  }),
+
+  // Email subscription management
+  email: router({
+    // Subscribe with email (called from landing page)
+    subscribe: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email().max(320),
+          source: z.string().max(64).default("landing"),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) return { success: false };
+        try {
+          const ipAddress =
+            (ctx.req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+            (ctx.req.headers["x-real-ip"] as string) ||
+            ctx.req.socket?.remoteAddress ||
+            "unknown";
+          // Upsert: ignore duplicate emails
+          await db.insert(emailSubscriptions).ignore().values({
+            email: input.email,
+            source: input.source,
+            ipAddress,
+          });
+          return { success: true };
+        } catch (error) {
+          console.error("[Email] Failed to subscribe:", error);
+          return { success: false };
+        }
+      }),
+
+    // List all email subscriptions (admin)
+    list: publicProcedure
+      .input(
+        z.object({
+          limit: z.number().min(1).max(200).default(100),
+          offset: z.number().min(0).default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return { emails: [], total: 0 };
+        try {
+          const { desc, count } = await import("drizzle-orm");
+          const totalResult = await db.select({ count: count() }).from(emailSubscriptions);
+          const total = totalResult[0]?.count || 0;
+          const emails = await db
+            .select()
+            .from(emailSubscriptions)
+            .orderBy(desc(emailSubscriptions.agreedAt))
+            .limit(input.limit)
+            .offset(input.offset);
+          return { emails, total };
+        } catch (error) {
+          console.error("[Email] Failed to list:", error);
+          return { emails: [], total: 0 };
+        }
+      }),
   }),
 });
 
