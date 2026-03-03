@@ -190,7 +190,7 @@ export default function MvpMap() {
     setShowConsentPopup(false);
 
     if (!agreed) {
-      window.location.href = "/";
+      // 미동의: 팝업만 닫고 전국 지도 그대로 유지
       return;
     }
 
