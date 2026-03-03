@@ -1,0 +1,230 @@
+{
+  "query": "SELECT * FROM accessLogs ORDER BY id DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute SELECT * FROM accessLogs ORDER BY id DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "1590002",
+      "ipAddress": "118.34.160.133",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 418.2.0.34.75 (iPhone14,2; iOS 26_3; ko_KR; ko; scale=3.00; 1170x2532; IABMV/1; 893787717) Safari/604.1",
+      "referer": "http://spotmbti-unzs4ztv.manus.space/mvp",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-03 03:42:36",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1590001",
+      "ipAddress": "118.34.160.133",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 418.2.0.34.75 (iPhone14,2; iOS 26_3; ko_KR; ko; scale=3.00; 1170x2532; IABMV/1; 893787717) Safari/604.1",
+      "referer": "http://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAZXh0bgNhZW0BMABhZGlkAasurv135QVzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadg15zXWobsQMcFPp_zLP5wQXDAwDrLrJSPL334AvA7tr63ZcvWLIXoHoHyYA_aem_uBuWENvix4DTzaxD_sZVwQ",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:42:34",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560007",
+      "ipAddress": "172.253.192.255",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "referer": "https://f442leocks-ckohe5m57a-uk.a.run.app/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:21:14",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560006",
+      "ipAddress": "173.194.92.181",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "referer": "https://f442leocks-ckohe5m57a-uk.a.run.app/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:21:14",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560005",
+      "ipAddress": "34.224.216.139",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?manus_scraper=1",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:21:04",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560004",
+      "ipAddress": "54.160.203.186",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?manus_scraper=1",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:19:51",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560003",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:19:21",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560002",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:14:11",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1560001",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 03:13:30",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530013",
+      "ipAddress": "172.253.15.237",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "referer": "https://x7klcz4p4d-zhetotnvvq-uk.a.run.app/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:30:08",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530012",
+      "ipAddress": "172.253.15.227",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "referer": "https://x7klcz4p4d-zhetotnvvq-uk.a.run.app/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:30:08",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530011",
+      "ipAddress": "3.94.173.24",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?manus_scraper=1",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:30:01",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530010",
+      "ipAddress": "34.224.216.139",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?manus_scraper=1",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:28:41",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530009",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:28:16",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530008",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:25:29",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530007",
+      "ipAddress": "172.253.234.242",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "referer": "https://equgclaa2z-s6yap66r5q-uk.a.run.app/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:20:18",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530006",
+      "ipAddress": "172.253.15.233",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "referer": "https://equgclaa2z-s6yap66r5q-uk.a.run.app/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:20:18",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530005",
+      "ipAddress": "54.147.17.179",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?manus_scraper=1",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:19:41",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530004",
+      "ipAddress": "3.82.144.86",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?manus_scraper=1",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:19:10",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1530003",
+      "ipAddress": "::ffff:127.0.0.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "referer": "http://127.0.0.1:3000/",
+      "pathname": "/",
+      "timestamp": "2026-03-03 02:17:56",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tipAddress\tuserAgent\treferer\tpathname\ttimestamp\tgpsLat\tgpsLng\tdurationSec\n1590002\t118.34.160.133\tMozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 418.2.0.34.75 (iPhone14,2; iOS 26_3; ko_KR; ko; scale=3.00; 1170x2532; IABMV/1; 893787717) Safari/604.1\thttp://spotmbti-unzs4ztv.manus.space/mvp\t/mvp\t2026-03-03 03:42:36\tNULL\tNULL\tNULL\n1590001\t118.34.160.133\tMozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 418.2.0.34.75 (iPhone14,2; iOS 26_3; ko_KR; ko; scale=3.00; 1170x2532; IABMV/1; 893787717) Safari/604.1\thttp://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAZXh0bgNhZW0BMABhZGlkAasurv135QVzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadg15zXWobsQMcFPp_zLP5wQXDAwDrLrJSPL334AvA7tr63ZcvWLIXoHoHyYA_aem_uBuWENvix4DTzaxD_sZVwQ\t/\t2026-03-03 03:42:34\tNULL\tNULL\tNULL\n1560007\t172.253.192.255\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\thttps://f442leocks-ckohe5m57a-uk.a.run.app/\t/\t2026-03-03 03:21:14\tNULL\tNULL\tNULL\n1560006\t173.194.92.181\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\thttps://f442leocks-ckohe5m57a-uk.a.run.app/\t/\t2026-03-03 03:21:14\tNULL\tNULL\tNULL\n1560005\t34.224.216.139\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?manus_scraper=1\t/\t2026-03-03 03:21:04\tNULL\tNULL\tNULL\n1560004\t54.160.203.186\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?manus_scraper=1\t/\t2026-03-03 03:19:51\tNULL\tNULL\tNULL\n1560003\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-03-03 03:19:21\tNULL\tNULL\tNULL\n1560002\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-03-03 03:14:11\tNULL\tNULL\tNULL\n1560001\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-03-03 03:13:30\tNULL\tNULL\tNULL\n1530013\t172.253.15.237\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\thttps://x7klcz4p4d-zhetotnvvq-uk.a.run.app/\t/\t2026-03-03 02:30:08\tNULL\tNULL\tNULL\n1530012\t172.253.15.227\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\thttps://x7klcz4p4d-zhetotnvvq-uk.a.run.app/\t/\t2026-03-03 02:30:08\tNULL\tNULL\tNULL\n1530011\t3.94.173.24\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?manus_scraper=1\t/\t2026-03-03 02:30:01\tNULL\tNULL\tNULL\n1530010\t34.224.216.139\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?manus_scraper=1\t/\t2026-03-03 02:28:41\tNULL\tNULL\tNULL\n1530009\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-03-03 02:28:16\tNULL\tNULL\tNULL\n1530008\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-03-03 02:25:29\tNULL\tNULL\tNULL\n1530007\t172.253.234.242\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\thttps://equgclaa2z-s6yap66r5q-uk.a.run.app/\t/\t2026-03-03 02:20:18\tNULL\tNULL\tNULL\n1530006\t172.253.15.233\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\thttps://equgclaa2z-s6yap66r5q-uk.a.run.app/\t/\t2026-03-03 02:20:18\tNULL\tNULL\tNULL\n1530005\t54.147.17.179\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?manus_scraper=1\t/\t2026-03-03 02:19:41\tNULL\tNULL\tNULL\n1530004\t3.82.144.86\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?manus_scraper=1\t/\t2026-03-03 02:19:10\tNULL\tNULL\tNULL\n1530003\t::ffff:127.0.0.1\tMozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\thttp://127.0.0.1:3000/\t/\t2026-03-03 02:17:56\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1517
+}

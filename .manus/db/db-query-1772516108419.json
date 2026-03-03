@@ -1,0 +1,37 @@
+{
+  "query": "SELECT column_name FROM information_schema.columns WHERE table_name = 'accessLogs';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute SELECT column_name FROM information_schema.columns WHERE table_name = 'accessLogs';",
+  "rows": [
+    {
+      "column_name": "id"
+    },
+    {
+      "column_name": "ipAddress"
+    },
+    {
+      "column_name": "userAgent"
+    },
+    {
+      "column_name": "referer"
+    },
+    {
+      "column_name": "pathname"
+    },
+    {
+      "column_name": "timestamp"
+    },
+    {
+      "column_name": "gpsLat"
+    },
+    {
+      "column_name": "gpsLng"
+    },
+    {
+      "column_name": "durationSec"
+    }
+  ],
+  "messages": [],
+  "stdout": "column_name\nid\nipAddress\nuserAgent\nreferer\npathname\ntimestamp\ngpsLat\ngpsLng\ndurationSec\n",
+  "stderr": "",
+  "execution_time_ms": 1507
+}

@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, ipAddress, pathname, timestamp FROM accessLogs WHERE pathname LIKE '%mvp%' ORDER BY id DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute SELECT id, ipAddress, pathname, timestamp FROM accessLogs WHERE pathname LIKE '%mvp%' ORDER BY id DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "1590002",
+      "ipAddress": "118.34.160.133",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-03 03:42:36"
+    },
+    {
+      "id": "1410002",
+      "ipAddress": "116.121.234.147",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 16:18:42"
+    },
+    {
+      "id": "1380002",
+      "ipAddress": "39.118.35.106",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 12:12:34"
+    },
+    {
+      "id": "1350008",
+      "ipAddress": "59.13.137.244",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 10:52:18"
+    },
+    {
+      "id": "1350005",
+      "ipAddress": "1.239.54.138",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 10:42:30"
+    },
+    {
+      "id": "1350002",
+      "ipAddress": "1.239.54.138",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 10:42:17"
+    },
+    {
+      "id": "1290002",
+      "ipAddress": "219.251.43.160",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 08:59:49"
+    },
+    {
+      "id": "1200002",
+      "ipAddress": "175.214.115.139",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 07:51:04"
+    },
+    {
+      "id": "1170004",
+      "ipAddress": "2406:5900:1011:e586:283c:7113:67f1:3368",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 07:07:06"
+    },
+    {
+      "id": "1170002",
+      "ipAddress": "2406:5900:1011:e586:283c:7113:67f1:3368",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 07:06:57"
+    },
+    {
+      "id": "1140004",
+      "ipAddress": "2001:2d8:e3f4:d915:1dec:e457:572b:d9d2",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 06:18:55"
+    },
+    {
+      "id": "1140003",
+      "ipAddress": "2001:2d8:e3f4:d915:1dec:e457:572b:d9d2",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 06:16:18"
+    },
+    {
+      "id": "1140002",
+      "ipAddress": "2001:2d8:e3f4:d915:1dec:e457:572b:d9d2",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 06:15:00"
+    },
+    {
+      "id": "1110002",
+      "ipAddress": "211.205.177.125",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 05:35:55"
+    },
+    {
+      "id": "1050004",
+      "ipAddress": "49.161.51.52",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 03:52:32"
+    },
+    {
+      "id": "1050002",
+      "ipAddress": "49.161.51.52",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 03:52:09"
+    },
+    {
+      "id": "1020001",
+      "ipAddress": "1.229.44.66",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 03:30:00"
+    },
+    {
+      "id": "990003",
+      "ipAddress": "2406:5900:1073:e4af:e54c:988f:ae3b:d6a1",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 02:48:05"
+    },
+    {
+      "id": "960005",
+      "ipAddress": "1.229.44.66",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 01:34:33"
+    },
+    {
+      "id": "960002",
+      "ipAddress": "1.229.44.66",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-02 01:25:40"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tipAddress\tpathname\ttimestamp\n1590002\t118.34.160.133\t/mvp\t2026-03-03 03:42:36\n1410002\t116.121.234.147\t/mvp\t2026-03-02 16:18:42\n1380002\t39.118.35.106\t/mvp\t2026-03-02 12:12:34\n1350008\t59.13.137.244\t/mvp\t2026-03-02 10:52:18\n1350005\t1.239.54.138\t/mvp\t2026-03-02 10:42:30\n1350002\t1.239.54.138\t/mvp\t2026-03-02 10:42:17\n1290002\t219.251.43.160\t/mvp\t2026-03-02 08:59:49\n1200002\t175.214.115.139\t/mvp\t2026-03-02 07:51:04\n1170004\t2406:5900:1011:e586:283c:7113:67f1:3368\t/mvp\t2026-03-02 07:07:06\n1170002\t2406:5900:1011:e586:283c:7113:67f1:3368\t/mvp\t2026-03-02 07:06:57\n1140004\t2001:2d8:e3f4:d915:1dec:e457:572b:d9d2\t/mvp\t2026-03-02 06:18:55\n1140003\t2001:2d8:e3f4:d915:1dec:e457:572b:d9d2\t/mvp\t2026-03-02 06:16:18\n1140002\t2001:2d8:e3f4:d915:1dec:e457:572b:d9d2\t/mvp\t2026-03-02 06:15:00\n1110002\t211.205.177.125\t/mvp\t2026-03-02 05:35:55\n1050004\t49.161.51.52\t/mvp\t2026-03-02 03:52:32\n1050002\t49.161.51.52\t/mvp\t2026-03-02 03:52:09\n1020001\t1.229.44.66\t/mvp\t2026-03-02 03:30:00\n990003\t2406:5900:1073:e4af:e54c:988f:ae3b:d6a1\t/mvp\t2026-03-02 02:48:05\n960005\t1.229.44.66\t/mvp\t2026-03-02 01:34:33\n960002\t1.229.44.66\t/mvp\t2026-03-02 01:25:40\n",
+  "stderr": "",
+  "execution_time_ms": 1565
+}

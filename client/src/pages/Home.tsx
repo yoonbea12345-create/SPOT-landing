@@ -56,6 +56,16 @@ export default function Home() {
     trackEvent.mutate({ eventName, page: '/' });
   };
 
+  // 이벤트 기록 후 페이지 이동 (기록이 날아가기 전에 이동하는 문제 방지)
+  const handleTrackAndNavigate = async (eventName: string, url: string) => {
+    try {
+      await trackEvent.mutateAsync({ eventName, page: '/' });
+    } catch (_) {
+      // 실패해도 이동은 진행
+    }
+    window.location.href = url;
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll('section');
@@ -129,7 +139,7 @@ export default function Home() {
           <div className="flex justify-center mb-12">
             <Button 
               className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
-              onClick={() => { handleTrackEvent('click_보러가기_hero'); window.location.href = '/mvp'; }}
+              onClick={() => handleTrackAndNavigate('click_보러가기_hero', '/mvp')}
             >
               보러 가기
             </Button>
@@ -380,7 +390,7 @@ export default function Home() {
           <div className="flex justify-center">
             <Button 
               className="px-16 py-8 text-2xl font-black border-4 border-primary bg-primary/20 hover:bg-primary/30 text-primary glow-cyan transition-all hover:scale-110 shadow-2xl shadow-primary/50 hover:shadow-primary/80"
-              onClick={() => { handleTrackEvent('click_보러가기_cta'); window.location.href = '/mvp'; }}
+              onClick={() => handleTrackAndNavigate('click_보러가기_cta', '/mvp')}
             >
               보러 가기
             </Button>
