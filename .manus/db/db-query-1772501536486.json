@@ -1,0 +1,9 @@
+{
+  "query": "\nDELETE FROM accessLogs WHERE ipAddress IN ('221.141.9.83', '112.221.224.125', '211.235.89.25', '2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f');\nDELETE FROM eventLogs WHERE ipAddress IN ('221.141.9.83', '112.221.224.125', '211.235.89.25', '2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f');\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute \nDELETE FROM accessLogs WHERE ipAddress IN ('221.141.9.83', '112.221.224.125', '211.235.89.25', '2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f');\nDELETE FROM eventLogs WHERE ipAddress IN ('221.141.9.83', '112.221.224.125', '211.235.89.25', '2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f');\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1782
+}

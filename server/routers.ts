@@ -45,6 +45,9 @@ export const appRouter = router({
           // IP whitelist - skip logging for owner's devices
           const IP_WHITELIST = [
             "221.141.9.83",
+            "112.221.224.125",
+            "211.235.89.25",
+            "2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f",
           ];
           if (IP_WHITELIST.includes(ipAddress)) {
             return { success: true, logId: null };
@@ -129,7 +132,12 @@ export const appRouter = router({
             ctx.req.socket?.remoteAddress ||
             "unknown";
 
-          const IP_WHITELIST = ["221.141.9.83"];
+          const IP_WHITELIST = [
+            "221.141.9.83",
+            "112.221.224.125",
+            "211.235.89.25",
+            "2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f",
+          ];
           if (IP_WHITELIST.includes(ipAddress)) return { success: true };
 
           await db.insert(eventLogs).values({
