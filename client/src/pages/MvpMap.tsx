@@ -179,7 +179,7 @@ export default function MvpMap() {
   // 지도 표시 후 2초 뒤 GPS 동의 팝업
   useEffect(() => {
     if (screen === "map") {
-      const timer = setTimeout(() => setShowConsentPopup(true), 2000);
+      const timer = setTimeout(() => setShowConsentPopup(true), 3800);
       return () => clearTimeout(timer);
     }
   }, [screen]);
