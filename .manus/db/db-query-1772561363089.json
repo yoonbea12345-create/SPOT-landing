@@ -1,0 +1,120 @@
+{
+  "query": "SELECT * FROM accessLogs ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute SELECT * FROM accessLogs ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "1890003",
+      "ipAddress": "54.147.17.179",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/%F0%9F%94%A5%F0%9F%94%A5?manus_scraper=1",
+      "pathname": "/🔥🔥",
+      "timestamp": "2026-03-03 17:50:23",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1890002",
+      "ipAddress": "2a03:2880:21ff:47::",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/%F0%9F%94%A5%F0%9F%94%A5?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAEevtD--W9CHxn2_pBOqmoO6hMPRsIoOJTHR4Ex9L4j1Klr6Ei5Yni1Fkj2QNA_aem_tgwydQu7D6iCJJGNLupVAA",
+      "pathname": "/🔥🔥",
+      "timestamp": "2026-03-03 17:50:22",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1890001",
+      "ipAddress": "2a03:2880:30ff:59::",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAEeZciv8ZZYzOd0ms2mb_3SaGZ13D-8iU7Io-ITXPzf2IfjVjEnJ4v-62MO8gU_aem_us7WebpqFpd0fvlX5UaLng",
+      "pathname": "/",
+      "timestamp": "2026-03-03 17:47:43",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1860004",
+      "ipAddress": "125.133.102.94",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/mvp",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-03 15:23:58",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1860003",
+      "ipAddress": "125.133.102.94",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAdGRleAQT3C9leHRuA2FlbQEwAGFkaWQBqy6u_XflBXNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp3-edxcZ7KVqfU44T9uqf27BtY_H9U6cMe-sZxeFk2YRmsK6ges3rwlvs8jU_aem_oP56FkZXJKeKnoE9xmTkkg",
+      "pathname": "/",
+      "timestamp": "2026-03-03 15:23:53",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1860002",
+      "ipAddress": "2a04:4e41:2200:66::a873:4066",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1",
+      "referer": "https://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAdGRleAQT3C9leHRuA2FlbQEwAGFkaWQBqy6u_XflBXNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp3-edxcZ7KVqfU44T9uqf27BtY_H9U6cMe-sZxeFk2YRmsK6ges3rwlvs8jU_aem_oP56FkZXJKeKnoE9xmTkkg",
+      "pathname": "/",
+      "timestamp": "2026-03-03 15:23:13",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1860001",
+      "ipAddress": "2a04:4e41:2200:b2b::168:1b2b",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 418.2.0.34.75 (iPhone18,3; iOS 26_3; ko_KR; ko; scale=3.00; 1206x2622; IABMV/1; 893787717) Safari/604.1",
+      "referer": "http://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAZXh0bgNhZW0BMABhZGlkAasurv135QVzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAad_nncXGeylan1OOE_bqn9uwbWPx_VOnDHvrGcXhZNmEZrCuoHrN68Jb7PI1A_aem_oP56FkZXJKeKnoE9xmTkkg",
+      "pathname": "/",
+      "timestamp": "2026-03-03 15:22:42",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1830002",
+      "ipAddress": "211.36.147.111",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22H31 Instagram 418.2.0.34.75 (iPhone14,4; iOS 18_7_1; ko_KR; ko; scale=3.00; 1125x2436; IABMV/1; 893787717) Safari/604.1",
+      "referer": "http://spotmbti-unzs4ztv.manus.space/mvp",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-03 13:00:17",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1830001",
+      "ipAddress": "211.36.147.111",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22H31 Instagram 418.2.0.34.75 (iPhone14,4; iOS 18_7_1; ko_KR; ko; scale=3.00; 1125x2436; IABMV/1; 893787717) Safari/604.1",
+      "referer": "http://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAZXh0bgNhZW0BMABhZGlkAasurv135QVzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadDA68Ernpky3p6wa8Vo4Y9zZPsFoXGA2ebHooCSRswpNP0n0N8vKhbdTBstw_aem_Tdro-pZEL2VUD7s74Tq2vw",
+      "pathname": "/",
+      "timestamp": "2026-03-03 13:00:16",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    },
+    {
+      "id": "1800002",
+      "ipAddress": "39.115.51.228",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22G100 Instagram 418.2.0.34.75 (iPhone13,3; iOS 18_6_2; ko_KR; ko; scale=3.00; 1170x2532; IABMV/1; 893787717) Safari/604.1",
+      "referer": "http://spotmbti-unzs4ztv.manus.space/mvp",
+      "pathname": "/mvp",
+      "timestamp": "2026-03-03 10:18:58",
+      "gpsLat": "NULL",
+      "gpsLng": "NULL",
+      "durationSec": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tipAddress\tuserAgent\treferer\tpathname\ttimestamp\tgpsLat\tgpsLng\tdurationSec\n1890003\t54.147.17.179\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/%F0%9F%94%A5%F0%9F%94%A5?manus_scraper=1\t/🔥🔥\t2026-03-03 17:50:23\tNULL\tNULL\tNULL\n1890002\t2a03:2880:21ff:47::\tMozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/%F0%9F%94%A5%F0%9F%94%A5?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAEevtD--W9CHxn2_pBOqmoO6hMPRsIoOJTHR4Ex9L4j1Klr6Ei5Yni1Fkj2QNA_aem_tgwydQu7D6iCJJGNLupVAA\t/🔥🔥\t2026-03-03 17:50:22\tNULL\tNULL\tNULL\n1890001\t2a03:2880:30ff:59::\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAEeZciv8ZZYzOd0ms2mb_3SaGZ13D-8iU7Io-ITXPzf2IfjVjEnJ4v-62MO8gU_aem_us7WebpqFpd0fvlX5UaLng\t/\t2026-03-03 17:47:43\tNULL\tNULL\tNULL\n1860004\t125.133.102.94\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/mvp\t/mvp\t2026-03-03 15:23:58\tNULL\tNULL\tNULL\n1860003\t125.133.102.94\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\thttps://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAdGRleAQT3C9leHRuA2FlbQEwAGFkaWQBqy6u_XflBXNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp3-edxcZ7KVqfU44T9uqf27BtY_H9U6cMe-sZxeFk2YRmsK6ges3rwlvs8jU_aem_oP56FkZXJKeKnoE9xmTkkg\t/\t2026-03-03 15:23:53\tNULL\tNULL\tNULL\n1860002\t2a04:4e41:2200:66::a873:4066\tMozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1\thttps://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAdGRleAQT3C9leHRuA2FlbQEwAGFkaWQBqy6u_XflBXNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp3-edxcZ7KVqfU44T9uqf27BtY_H9U6cMe-sZxeFk2YRmsK6ges3rwlvs8jU_aem_oP56FkZXJKeKnoE9xmTkkg\t/\t2026-03-03 15:23:13\tNULL\tNULL\tNULL\n1860001\t2a04:4e41:2200:b2b::168:1b2b\tMozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 418.2.0.34.75 (iPhone18,3; iOS 26_3; ko_KR; ko; scale=3.00; 1206x2622; IABMV/1; 893787717) Safari/604.1\thttp://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAZXh0bgNhZW0BMABhZGlkAasurv135QVzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAad_nncXGeylan1OOE_bqn9uwbWPx_VOnDHvrGcXhZNmEZrCuoHrN68Jb7PI1A_aem_oP56FkZXJKeKnoE9xmTkkg\t/\t2026-03-03 15:22:42\tNULL\tNULL\tNULL\n1830002\t211.36.147.111\tMozilla/5.0 (iPhone; CPU iPhone OS 18_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22H31 Instagram 418.2.0.34.75 (iPhone14,4; iOS 18_7_1; ko_KR; ko; scale=3.00; 1125x2436; IABMV/1; 893787717) Safari/604.1\thttp://spotmbti-unzs4ztv.manus.space/mvp\t/mvp\t2026-03-03 13:00:17\tNULL\tNULL\tNULL\n1830001\t211.36.147.111\tMozilla/5.0 (iPhone; CPU iPhone OS 18_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22H31 Instagram 418.2.0.34.75 (iPhone14,4; iOS 18_7_1; ko_KR; ko; scale=3.00; 1125x2436; IABMV/1; 893787717) Safari/604.1\thttp://spotmbti-unzs4ztv.manus.space/?utm_medium=paid&utm_source=ig&utm_id=120241144158190373&utm_content=120241144159140373&utm_term=120241144158390373&utm_campaign=120241144158190373&fbclid=PAZXh0bgNhZW0BMABhZGlkAasurv135QVzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadDA68Ernpky3p6wa8Vo4Y9zZPsFoXGA2ebHooCSRswpNP0n0N8vKhbdTBstw_aem_Tdro-pZEL2VUD7s74Tq2vw\t/\t2026-03-03 13:00:16\tNULL\tNULL\tNULL\n1800002\t39.115.51.228\tMozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22G100 Instagram 418.2.0.34.75 (iPhone13,3; iOS 18_6_2; ko_KR; ko; scale=3.00; 1170x2532; IABMV/1; 893787717) Safari/604.1\thttp://spotmbti-unzs4ztv.manus.space/mvp\t/mvp\t2026-03-03 10:18:58\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1566
+}

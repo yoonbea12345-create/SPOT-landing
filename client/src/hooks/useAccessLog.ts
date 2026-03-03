@@ -50,7 +50,7 @@ export function useAccessLog() {
 
       // sendBeacon은 Content-Type이 text/plain으로 전송되어 tRPC가 파싱 못 함
       // 대신 fetch keepalive 사용
-      fetch('/api/trpc/log.updateDuration', {
+      fetch('/api/trpc/log.updateDuration?batch=1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ "0": { json: { logId: id, durationSec: sec } } }),

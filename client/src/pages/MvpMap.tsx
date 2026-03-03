@@ -239,10 +239,27 @@ export default function MvpMap() {
         
         setUserLocation(newLocation);
 
-        // GPS 위치를 서버로 전송 (mvpLogIdRef 우선, fallback으로 sessionStorage)
-        const logId = mvpLogIdRef.current || Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId'));
-        if (logId) {
-          trackGps.mutate({ logId, lat: newLocation.lat, lng: newLocation.lng });
+        // GPS 위치를 서버로 전송
+        const saveGps = (id: number) => {
+          trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
+        };
+        const existingLogId = mvpLogIdRef.current || Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
+        if (existingLogId) {
+          saveGps(existingLogId);
+        } else {
+          // logId가 아직 없으면 새로 track 호출
+          fetch('/api/trpc/log.track?batch=1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ "0": { json: { pathname: '/mvp' } } }),
+          }).then(r => r.json()).then(data => {
+            const newLogId = data?.[0]?.result?.data?.json?.logId;
+            if (newLogId) {
+              mvpLogIdRef.current = newLogId;
+              saveGps(newLogId);
+            }
+          }).catch(() => {});
         }
         
         if (mapRef.current) {
