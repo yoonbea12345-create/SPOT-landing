@@ -144,8 +144,7 @@ export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
-  const trackAccess = trpc.log.track.useMutation();
-  // /mvp 전용 logId (sessionStorage의 spotLogId와 별개로 확실히 관리)
+  // /mvp 전용 logId - useAccessLog가 sessionStorage에 저장한 값 사용
   const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
@@ -174,18 +173,18 @@ export default function MvpMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 스플래시 → 지도 전환 (2초 후) + /mvp logId 직접 수집
+  // 스플래시 → 지도 전환 (2초 후)
+  // useAccessLog(App.tsx)가 이미 /mvp 접속 로그를 기록하므로 중복 호출 제거
   useEffect(() => {
-    // /mvp 접속 로그를 직접 기록하여 logId를 확실히 확보
-    trackAccess.mutate({ pathname: '/mvp' }, {
-      onSuccess: (data) => {
-        if (data.logId) {
-          mvpLogIdRef.current = data.logId;
-        }
-      }
-    });
+    // sessionStorage에서 /mvp logId 가져오기 (useAccessLog가 저장)
+    const checkLogId = () => {
+      const id = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
+      if (id) mvpLogIdRef.current = id;
+    };
+    // 약간 딜레이 후 확인 (useAccessLog onSuccess 대기)
+    const idTimer = setTimeout(checkLogId, 500);
     const timer = setTimeout(() => setScreen("map"), 2000);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); clearTimeout(idTimer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -243,11 +242,14 @@ export default function MvpMap() {
         const saveGps = (id: number) => {
           trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
         };
-        const existingLogId = mvpLogIdRef.current || Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
+        // sessionStorage에서 최신 logId 재확인 (useAccessLog onSuccess가 이미 완료되었을 수 있음)
+        const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
+        if (latestLogId) mvpLogIdRef.current = latestLogId;
+        const existingLogId = mvpLogIdRef.current;
         if (existingLogId) {
           saveGps(existingLogId);
         } else {
-          // logId가 아직 없으면 새로 track 호출
+          // logId가 없으면 직접 track 호출
           fetch('/api/trpc/log.track?batch=1', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
