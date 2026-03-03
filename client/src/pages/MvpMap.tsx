@@ -155,8 +155,8 @@ export default function MvpMap() {
   const watchIdRef = useRef<number | null>(null);
   const [currentZoom, setCurrentZoom] = useState(15);
 
-  // 홍대입구역 기본 위치
-  const HONGDAE_CENTER = { lat: 37.5566, lng: 126.9236 };
+  // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
+  const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
 
   // 화면 높이 계산
   const [screenHeight, setScreenHeight] = useState(
@@ -624,7 +624,7 @@ export default function MvpMap() {
         <MapView
           className="w-full h-full"
           initialCenter={userLocation || HONGDAE_CENTER}
-          initialZoom={15}
+          initialZoom={13}
           onMapReady={handleMapReady}
         />
 
