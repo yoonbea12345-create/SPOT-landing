@@ -27,6 +27,9 @@ import {
 
 type Tab = "stats" | "logs" | "events" | "gpsmap" | "funnel" | "emails";
 
+const ADMIN_PASSWORD = "1229";
+const SESSION_KEY = "spot_admin_auth";
+
 // GPS Map Component using Leaflet
 function GpsMapView({ locations }: { locations: Array<{ id: number; lat: number | null; lng: number | null; timestamp: Date; ipAddress: string }> }) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -123,8 +126,60 @@ function FunnelBar({ step, count, rate, maxCount, color }: { step: string; count
   );
 }
 
+function PasswordGate({ onAuth }: { onAuth: () => void }) {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input === ADMIN_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, "1");
+      onAuth();
+    } else {
+      setError(true);
+      setInput("");
+      setTimeout(() => setError(false), 1500);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="w-full max-w-xs space-y-6 px-6">
+        <h1 className="text-4xl font-black text-center text-primary glow-cyan">SPOT</h1>
+        <p className="text-center text-muted-foreground text-sm">관리자 전용 페이지</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="password"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="비밀번호"
+            autoFocus
+            className={`w-full bg-card border-2 rounded-lg px-4 py-3 text-center text-xl font-mono tracking-widest outline-none transition-colors ${
+              error
+                ? "border-red-500 text-red-400"
+                : "border-primary/40 focus:border-primary text-foreground"
+            }`}
+          />
+          {error && (
+            <p className="text-center text-red-400 text-sm font-bold">비밀번호가 틀렸습니다.</p>
+          )}
+          <button
+            type="submit"
+            className="w-full py-3 font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan rounded-lg transition-all"
+          >
+            입장
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Admin() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "1");
   const [tab, setTab] = useState<Tab>("stats");
+
+  if (!authed) return <PasswordGate onAuth={() => setAuthed(true)} />;
   const [page, setPage] = useState(0);
   const [eventPage, setEventPage] = useState(0);
   const [emailPage, setEmailPage] = useState(0);
