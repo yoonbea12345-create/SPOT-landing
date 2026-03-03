@@ -278,15 +278,30 @@ export const appRouter = router({
           SELECT COUNT(*) AS cnt FROM accessLogs
           WHERE pathname = '/mvp' AND gpsLat IS NOT NULL
         `);
+        // Step 4: 평균 체류 시간 (durationSec이 있는 로그 기준)
+        const avgDurLanding = await db.execute(sql`
+          SELECT AVG(durationSec) AS avg, COUNT(*) AS cnt FROM accessLogs
+          WHERE pathname = '/' AND durationSec IS NOT NULL AND durationSec > 0
+        `);
+        const avgDurMvp = await db.execute(sql`
+          SELECT AVG(durationSec) AS avg, COUNT(*) AS cnt FROM accessLogs
+          WHERE pathname = '/mvp' AND durationSec IS NOT NULL AND durationSec > 0
+        `);
         const s1 = Number(((step1[0] as unknown) as any[])[0]?.cnt || 0);
         const s2 = Number(((step2[0] as unknown) as any[])[0]?.cnt || 0);
         const s3 = Number(((step3[0] as unknown) as any[])[0]?.cnt || 0);
+        const avgLanding = Math.round(Number(((avgDurLanding[0] as unknown) as any[])[0]?.avg || 0));
+        const avgMvp = Math.round(Number(((avgDurMvp[0] as unknown) as any[])[0]?.avg || 0));
         return {
           funnel: [
             { step: "보러가기 클릭", count: s1, rate: 100 },
             { step: "MVP 지도 접속", count: s2, rate: s1 > 0 ? Math.round((s2 / s1) * 100) : 0 },
             { step: "GPS 허용", count: s3, rate: s2 > 0 ? Math.round((s3 / s2) * 100) : 0 },
           ],
+          avgDuration: {
+            landing: avgLanding,
+            mvp: avgMvp,
+          },
         };
       } catch (error) {
         console.error("[FunnelStats] Failed:", error);

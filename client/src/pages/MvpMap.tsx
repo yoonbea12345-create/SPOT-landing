@@ -143,6 +143,7 @@ const generateDummyData = () => {
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
   const trackGps = trpc.log.trackGps.useMutation();
+  const trackEvent = trpc.log.trackEvent.useMutation();
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
@@ -187,8 +188,15 @@ export default function MvpMap() {
 
 
   // GPS 동의 처리 - 동의 버튼 클릭 시 즉시 GPS 권한 요청
-  const handleConsent = useCallback((agreed: boolean) => {
+  const handleConsent = useCallback(async (agreed: boolean) => {
     setShowConsentPopup(false);
+
+    // 이벤트 먼저 기록 (페이지 이동 없이 처리되므로 mutateAsync로 확실히 저장)
+    try {
+      await trackEvent.mutateAsync({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
+    } catch (_) {
+      // 실패해도 GPS 처리는 계속 진행
+    }
 
     if (!agreed) {
       // 미동의: 팝업만 닫고 전국 지도 유지
@@ -259,7 +267,7 @@ export default function MvpMap() {
       }
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [trackEvent]);
 
   // 실시간 GPS 추적 시작
   const startWatchingPosition = useCallback(() => {

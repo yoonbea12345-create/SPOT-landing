@@ -417,6 +417,32 @@ function AdminDashboard() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">아직 데이터가 없습니다.</div>
               )}
+
+              {/* 평균 체류 시간 */}
+              {funnelData?.avgDuration !== undefined && (
+                <div className="mt-6 grid grid-cols-2 gap-4">
+                  <div className="p-4 border border-primary/30 rounded-lg bg-card/30 text-center">
+                    <div className="text-xs text-muted-foreground mb-1">랜딩페이지 평균 체류</div>
+                    <div className="text-3xl font-black text-primary">
+                      {funnelData.avgDuration.landing > 0
+                        ? funnelData.avgDuration.landing >= 60
+                          ? `${Math.floor(funnelData.avgDuration.landing / 60)}분 ${funnelData.avgDuration.landing % 60}초`
+                          : `${funnelData.avgDuration.landing}초`
+                        : '-'}
+                    </div>
+                  </div>
+                  <div className="p-4 border border-secondary/30 rounded-lg bg-card/30 text-center">
+                    <div className="text-xs text-muted-foreground mb-1">MVP 지도 평균 체류</div>
+                    <div className="text-3xl font-black text-secondary">
+                      {funnelData.avgDuration.mvp > 0
+                        ? funnelData.avgDuration.mvp >= 60
+                          ? `${Math.floor(funnelData.avgDuration.mvp / 60)}분 ${funnelData.avgDuration.mvp % 60}초`
+                          : `${funnelData.avgDuration.mvp}초`
+                        : '-'}
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
