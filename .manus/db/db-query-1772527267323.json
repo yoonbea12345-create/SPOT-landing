@@ -1,0 +1,16 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_logs,\n  COUNT(gpsLat) as gps_collected,\n  COUNT(durationSec) as duration_collected,\n  MAX(timestamp) as latest_log\nFROM accessLogs;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute \nSELECT \n  COUNT(*) as total_logs,\n  COUNT(gpsLat) as gps_collected,\n  COUNT(durationSec) as duration_collected,\n  MAX(timestamp) as latest_log\nFROM accessLogs;\n",
+  "rows": [
+    {
+      "total_logs": "160",
+      "gps_collected": "0",
+      "duration_collected": "0",
+      "latest_log": "2026-03-03 07:22:31"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_logs\tgps_collected\tduration_collected\tlatest_log\n160\t0\t0\t2026-03-03 07:22:31\n",
+  "stderr": "",
+  "execution_time_ms": 1613
+}

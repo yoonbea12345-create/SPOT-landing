@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_logs,\n  COUNT(latitude) as gps_collected,\n  COUNT(durationSec) as duration_collected,\n  MAX(createdAt) as latest_log\nFROM accessLogs;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute \nSELECT \n  COUNT(*) as total_logs,\n  COUNT(latitude) as gps_collected,\n  COUNT(durationSec) as duration_collected,\n  MAX(createdAt) as latest_log\nFROM accessLogs;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'latitude' in ''"
+  ]
+}

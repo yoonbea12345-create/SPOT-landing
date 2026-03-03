@@ -144,6 +144,9 @@ export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
+  const trackAccess = trpc.log.track.useMutation();
+  // /mvp 전용 logId (sessionStorage의 spotLogId와 별개로 확실히 관리)
+  const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
@@ -171,10 +174,19 @@ export default function MvpMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 스플래시 → 지도 전환 (2초 후)
+  // 스플래시 → 지도 전환 (2초 후) + /mvp logId 직접 수집
   useEffect(() => {
+    // /mvp 접속 로그를 직접 기록하여 logId를 확실히 확보
+    trackAccess.mutate({ pathname: '/mvp' }, {
+      onSuccess: (data) => {
+        if (data.logId) {
+          mvpLogIdRef.current = data.logId;
+        }
+      }
+    });
     const timer = setTimeout(() => setScreen("map"), 2000);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 지도 표시 후 2초 뒤 GPS 동의 팝업
@@ -227,10 +239,10 @@ export default function MvpMap() {
         
         setUserLocation(newLocation);
 
-        // GPS 위치를 서버로 전송 (로그 ID가 있을 경우)
-        const logId = sessionStorage.getItem('spotLogId');
+        // GPS 위치를 서버로 전송 (mvpLogIdRef 우선, fallback으로 sessionStorage)
+        const logId = mvpLogIdRef.current || Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId'));
         if (logId) {
-          trackGps.mutate({ logId: Number(logId), lat: newLocation.lat, lng: newLocation.lng });
+          trackGps.mutate({ logId, lat: newLocation.lat, lng: newLocation.lng });
         }
         
         if (mapRef.current) {
