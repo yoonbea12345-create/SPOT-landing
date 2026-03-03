@@ -17,7 +17,16 @@ export function useAccessLog() {
     
     lastTrackedPath.current = location;
     
-    // Track the page access
-    trackMutation.mutate({ pathname: location });
+    // Track the page access and store logId in sessionStorage
+    trackMutation.mutate(
+      { pathname: location },
+      {
+        onSuccess: (data) => {
+          if (data.logId) {
+            sessionStorage.setItem('spotLogId', String(data.logId));
+          }
+        },
+      }
+    );
   }, [location]);
 }

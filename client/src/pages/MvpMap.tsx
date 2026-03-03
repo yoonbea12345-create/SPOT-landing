@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { trpc } from "@/lib/trpc";
 import { MapView } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
@@ -141,6 +142,7 @@ const generateDummyData = () => {
 
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
+  const trackGps = trpc.log.trackGps.useMutation();
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
@@ -213,6 +215,12 @@ export default function MvpMap() {
         console.log("✅ GPS 위치 수신 성공:", newLocation);
         
         setUserLocation(newLocation);
+
+        // GPS 위치를 서버로 전송 (로그 ID가 있을 경우)
+        const logId = sessionStorage.getItem('spotLogId');
+        if (logId) {
+          trackGps.mutate({ logId: Number(logId), lat: newLocation.lat, lng: newLocation.lng });
+        }
         
         if (mapRef.current) {
           mapRef.current.setCenter(newLocation);

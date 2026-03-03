@@ -123,4 +123,20 @@
 ## MVP 지도 마커 수정
 - [x] 바다에 찍힌 마커 육지로 이동 (제주시 북쪽 바다, 서귀포 남쪽 바다)
 - [x] 너무 겹쳐있는 마커들 자연스럽게 흩어지게 수정
-- [ ] 체크포인트 저장
+- [x] 체크포인트 저장
+
+## 트래킹 기능 추가
+- [x] DB 스키마 확장: accessLogs에 GPS(lat/lng), 체류시간(durationSec) 컬럼 추가
+- [x] DB 스키마 추가: eventLogs 테이블 (이벤트명, 페이지, 타임스탬프)
+- [x] pnpm db:push 실행
+- [x] 서버: GPS 트래킹 API (log.trackGps)
+- [x] 서버: 이벤트 트래킹 API (log.trackEvent)
+- [x] 서버: 체류시간 업데이트 API (log.updateDuration)
+- [x] 서버: 일별 통계 API (log.dailyStats)
+- [x] 프론트: MvpMap 접속 시 GPS 자동 수집 및 전송
+- [x] 프론트: 랜딩페이지 버튼 클릭 이벤트 트래킹
+- [x] 프론트: 체류시간 측정 (페이지 이탈/숨김 시 전송)
+- [x] Admin: 일별 접속자 통계 차트 추가
+- [x] Admin: 이벤트 로그 탭 추가
+- [x] Admin: GPS 위치, 체류시간 컬럼 표시
+- [x] 체크포인트 저장

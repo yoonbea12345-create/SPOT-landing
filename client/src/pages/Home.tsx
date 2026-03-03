@@ -1,8 +1,9 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -15,6 +16,44 @@ export default function Home() {
   const [agreed, setAgreed] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const totalSections = 6;
+
+  // Tracking
+  const trackEvent = trpc.log.trackEvent.useMutation();
+  const logIdRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
+
+  // Session duration tracking
+  useEffect(() => {
+    const stored = sessionStorage.getItem('spotLogId');
+    if (stored) logIdRef.current = Number(stored);
+    startTimeRef.current = Date.now();
+
+    const sendDuration = () => {
+      const id = logIdRef.current;
+      if (!id) return;
+      const sec = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      if (sec < 1) return;
+      navigator.sendBeacon(
+        '/api/trpc/log.updateDuration',
+        JSON.stringify({ json: { logId: id, durationSec: sec } })
+      );
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') sendDuration();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', sendDuration);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', sendDuration);
+    };
+  }, []);
+
+  const handleTrackEvent = (eventName: string) => {
+    trackEvent.mutate({ eventName, page: '/' });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,7 +127,7 @@ export default function Home() {
           <div className="flex justify-center mb-12">
             <Button 
               className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
-              onClick={() => window.location.href = '/mvp'}
+              onClick={() => { handleTrackEvent('click_보러가기_hero'); window.location.href = '/mvp'; }}
             >
               보러 가기
             </Button>
@@ -266,7 +305,7 @@ export default function Home() {
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <button className="text-sm font-medium text-muted-foreground/70 hover:text-primary transition-colors underline underline-offset-4 decoration-dotted">
+              <button className="text-sm font-medium text-muted-foreground/70 hover:text-primary transition-colors underline underline-offset-4 decoration-dotted" onClick={() => handleTrackEvent('click_출시알림')}>
                 출시 알림
               </button>
             </DialogTrigger>
@@ -309,6 +348,7 @@ export default function Home() {
                 <Button 
                   type="submit" 
                   className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  onClick={() => handleTrackEvent('click_알림받기_제출')}
                 >
                   알림 받기
                 </Button>
@@ -338,7 +378,7 @@ export default function Home() {
           <div className="flex justify-center">
             <Button 
               className="px-16 py-8 text-2xl font-black border-4 border-primary bg-primary/20 hover:bg-primary/30 text-primary glow-cyan transition-all hover:scale-110 shadow-2xl shadow-primary/50 hover:shadow-primary/80"
-              onClick={() => window.location.href = '/mvp'}
+              onClick={() => { handleTrackEvent('click_보러가기_cta'); window.location.href = '/mvp'; }}
             >
               보러 가기
             </Button>

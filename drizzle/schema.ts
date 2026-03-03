@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { double, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -33,7 +33,24 @@ export const accessLogs = mysqlTable("accessLogs", {
   referer: text("referer"),
   pathname: varchar("pathname", { length: 512 }).notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
+  // GPS location (collected from /mvp page)
+  gpsLat: double("gpsLat"),
+  gpsLng: double("gpsLng"),
+  // Session duration in seconds
+  durationSec: int("durationSec"),
 });
 
 export type AccessLog = typeof accessLogs.$inferSelect;
 export type InsertAccessLog = typeof accessLogs.$inferInsert;
+
+// Event logs table - button clicks and user interactions
+export const eventLogs = mysqlTable("eventLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  ipAddress: varchar("ipAddress", { length: 45 }).notNull(),
+  eventName: varchar("eventName", { length: 128 }).notNull(), // e.g. "click_보러가기", "click_출시알림"
+  page: varchar("page", { length: 512 }).notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type EventLog = typeof eventLogs.$inferSelect;
+export type InsertEventLog = typeof eventLogs.$inferInsert;

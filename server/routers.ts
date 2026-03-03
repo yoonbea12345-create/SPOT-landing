@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
-import { accessLogs } from "../drizzle/schema";
+import { accessLogs, eventLogs } from "../drizzle/schema";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -32,11 +32,10 @@ export const appRouter = router({
         const db = await getDb();
         if (!db) {
           console.warn("[AccessLog] Database not available");
-          return { success: false };
+          return { success: false, logId: null };
         }
 
         try {
-          // Get IP address from various headers (proxy-aware)
           const ipAddress =
             (ctx.req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
             (ctx.req.headers["x-real-ip"] as string) ||
@@ -48,19 +47,99 @@ export const appRouter = router({
             "221.141.9.83",
           ];
           if (IP_WHITELIST.includes(ipAddress)) {
-            return { success: true };
+            return { success: true, logId: null };
           }
 
-          await db.insert(accessLogs).values({
+          const result = await db.insert(accessLogs).values({
             ipAddress,
             userAgent: ctx.req.headers["user-agent"] || null,
             referer: ctx.req.headers["referer"] || null,
             pathname: input.pathname,
           });
 
-          return { success: true };
+          return { success: true, logId: Number(result[0].insertId) };
         } catch (error) {
           console.error("[AccessLog] Failed to log access:", error);
+          return { success: false, logId: null };
+        }
+      }),
+
+    // Update GPS location for an existing log entry
+    trackGps: publicProcedure
+      .input(
+        z.object({
+          logId: z.number(),
+          lat: z.number(),
+          lng: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return { success: false };
+        try {
+          const { eq } = await import("drizzle-orm");
+          await db.update(accessLogs)
+            .set({ gpsLat: input.lat, gpsLng: input.lng })
+            .where(eq(accessLogs.id, input.logId));
+          return { success: true };
+        } catch (error) {
+          console.error("[AccessLog] Failed to update GPS:", error);
+          return { success: false };
+        }
+      }),
+
+    // Update session duration for an existing log entry
+    updateDuration: publicProcedure
+      .input(
+        z.object({
+          logId: z.number(),
+          durationSec: z.number().min(0).max(86400),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return { success: false };
+        try {
+          const { eq } = await import("drizzle-orm");
+          await db.update(accessLogs)
+            .set({ durationSec: input.durationSec })
+            .where(eq(accessLogs.id, input.logId));
+          return { success: true };
+        } catch (error) {
+          console.error("[AccessLog] Failed to update duration:", error);
+          return { success: false };
+        }
+      }),
+
+    // Track button click / user interaction events
+    trackEvent: publicProcedure
+      .input(
+        z.object({
+          eventName: z.string().max(128),
+          page: z.string().max(512),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) return { success: false };
+        try {
+          const ipAddress =
+            (ctx.req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+            (ctx.req.headers["x-real-ip"] as string) ||
+            ctx.req.socket?.remoteAddress ||
+            "unknown";
+
+          const IP_WHITELIST = ["221.141.9.83"];
+          if (IP_WHITELIST.includes(ipAddress)) return { success: true };
+
+          await db.insert(eventLogs).values({
+            ipAddress,
+            eventName: input.eventName,
+            page: input.page,
+          });
+          return { success: true };
+        } catch (error) {
+          console.error("[EventLog] Failed to track event:", error);
           return { success: false };
         }
       }),
@@ -80,13 +159,11 @@ export const appRouter = router({
         }
 
         try {
-          const { desc, sql, count } = await import("drizzle-orm");
+          const { desc, count } = await import("drizzle-orm");
           
-          // Get total count
           const totalResult = await db.select({ count: count() }).from(accessLogs);
           const total = totalResult[0]?.count || 0;
 
-          // Get paginated logs
           const logs = await db
             .select()
             .from(accessLogs)
@@ -100,6 +177,77 @@ export const appRouter = router({
           return { logs: [], total: 0 };
         }
       }),
+
+    // Get event logs with pagination
+    listEvents: publicProcedure
+      .input(
+        z.object({
+          limit: z.number().min(1).max(100).default(50),
+          offset: z.number().min(0).default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return { logs: [], total: 0 };
+        try {
+          const { desc, count } = await import("drizzle-orm");
+          const totalResult = await db.select({ count: count() }).from(eventLogs);
+          const total = totalResult[0]?.count || 0;
+          const logs = await db
+            .select()
+            .from(eventLogs)
+            .orderBy(desc(eventLogs.timestamp))
+            .limit(input.limit)
+            .offset(input.offset);
+          return { logs, total };
+        } catch (error) {
+          console.error("[EventLog] Failed to fetch logs:", error);
+          return { logs: [], total: 0 };
+        }
+      }),
+
+    // Daily stats for chart (last 14 days, KST)
+    dailyStats: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return { stats: [] };
+      try {
+        const { sql } = await import("drizzle-orm");
+        // KST = UTC+9, use DATE_FORMAT with +9h offset
+        const rows = await db.execute(sql`
+          SELECT
+            DATE_FORMAT(CONVERT_TZ(timestamp, '+00:00', '+09:00'), '%Y-%m-%d') AS day,
+            COUNT(*) AS visits,
+            COUNT(DISTINCT ipAddress) AS unique_visitors
+          FROM accessLogs
+          WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 14 DAY)
+          GROUP BY day
+          ORDER BY day ASC
+        `);
+        return { stats: rows[0] as unknown as Array<{ day: string; visits: number; unique_visitors: number }> };
+      } catch (error) {
+        console.error("[DailyStats] Failed:", error);
+        return { stats: [] };
+      }
+    }),
+
+    // Event summary - count by event name
+    eventSummary: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return { summary: [] };
+      try {
+        const { sql } = await import("drizzle-orm");
+        const rows = await db.execute(sql`
+          SELECT eventName, COUNT(*) AS cnt
+          FROM eventLogs
+          GROUP BY eventName
+          ORDER BY cnt DESC
+        `);
+        return { summary: rows[0] as unknown as Array<{ eventName: string; cnt: number }> };
+      } catch (error) {
+        console.error("[EventSummary] Failed:", error);
+        return { summary: [] };
+      }
+    }),
   }),
 });
 
