@@ -251,7 +251,7 @@ function AdminDashboard() {
   const TABS: { id: Tab; label: string }[] = [
     { id: "stats", label: "📊 일별 통계" },
     { id: "funnel", label: "🔽 퍼널 분석" },
-    { id: "spots", label: "📍 스폿 목록" },
+    { id: "spots", label: "📍 스팟 목록" },
     { id: "gpsmap", label: "🗺️ GPS 지도" },
     { id: "emails", label: "📧 이메일 구독" },
     { id: "logs", label: "📋 접속 로그" },
@@ -613,8 +613,8 @@ function AdminDashboard() {
         {tab === "spots" && (
           <Card className="border-2 border-primary/20 bg-card/50">
             <CardHeader>
-              <CardTitle className="text-xl font-black text-primary">📍 실제 스폿 목록</CardTitle>
-              <CardDescription>사용자들이 제출한 스폿 데이터 총 {spotsData?.spots?.length ?? 0}개</CardDescription>
+              <CardTitle className="text-xl font-black text-primary">📍 실제 스팟 목록</CardTitle>
+              <CardDescription>사용자들이 제출한 스팟 데이터 총 {spotsData?.spots?.length ?? 0}개</CardDescription>
             </CardHeader>
             <CardContent>
               {spotsLoading ? (
@@ -668,7 +668,7 @@ function AdminDashboard() {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">아직 제출된 스폿이 없습니다.</div>
+                <div className="text-center py-8 text-muted-foreground">아직 제출된 스팟이 없습니다.</div>
               )}
             </CardContent>
           </Card>
