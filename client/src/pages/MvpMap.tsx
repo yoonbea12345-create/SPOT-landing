@@ -187,6 +187,8 @@ type PopupData = {
   mode: string;
   sign: string;
   distance: number;
+  screenX: number; // 클릭한 마커의 화면 X 좌표
+  screenY: number; // 클릭한 마커의 화면 Y 좌표
 };
 
 export default function MvpMap() {
@@ -483,7 +485,8 @@ export default function MvpMap() {
       });
 
       // 클릭 시 팝업 표시
-      markerElement.addEventListener("click", () => {
+      markerElement.addEventListener("click", (e: Event) => {
+        const mouseEvent = e as MouseEvent;
         const distance = Math.round(
           google.maps.geometry.spherical.computeDistanceBetween(
             new google.maps.LatLng(center.lat, center.lng),
@@ -497,6 +500,8 @@ export default function MvpMap() {
           mode: item.mode,
           sign: item.sign,
           distance,
+          screenX: mouseEvent.clientX,
+          screenY: mouseEvent.clientY,
         });
       });
 
@@ -762,150 +767,209 @@ export default function MvpMap() {
         </div>
       </div>
 
-      {/* ─── 성향 팝업 ─── */}
-      {popupData && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center pb-8 px-4"
-          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
-          onClick={() => setPopupData(null)}
-        >
-          <div
-            className="w-full max-w-sm rounded-3xl overflow-hidden"
-            style={{
-              background: 'rgba(5, 5, 15, 0.97)',
-              border: `2px solid ${MBTI_COLORS[popupData.mbti]}66`,
-              boxShadow: `0 0 40px ${MBTI_COLORS[popupData.mbti]}44, 0 20px 60px rgba(0,0,0,0.8)`,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* 팝업 헤더 */}
+      {/* ─── 말풍선 팝업 ─── */}
+      {popupData && (() => {
+        // 팝업 크기 (px)
+        const PW = 220;
+        const PH = 200; // 대략적 높이
+        const TAIL = 10; // 말풍선 코 높이
+        const MARGIN = 8;
+
+        // 화면 경계 내에서 팝업 위치 계산
+        let left = popupData.screenX - PW / 2;
+        let top = popupData.screenY - PH - TAIL - 4;
+        let tailBelow = false; // 코가 아래로 향하는 기본
+
+        // 위에 공간이 부족하면 아래로
+        if (top < MARGIN) {
+          top = popupData.screenY + TAIL + 4;
+          tailBelow = true;
+        }
+        // 좌우 경계 보정
+        if (left < MARGIN) left = MARGIN;
+        if (left + PW > window.innerWidth - MARGIN) left = window.innerWidth - PW - MARGIN;
+
+        // 코 X 위치 (0~1 비율)
+        const tailX = Math.min(Math.max(popupData.screenX - left, 16), PW - 16);
+
+        return (
+          <>
+            {/* 외부 클릭 시 닫기 오버레이 (배경 흐림 없음) */}
             <div
-              className="px-6 pt-5 pb-4 flex items-center justify-between"
+              className="fixed inset-0 z-40"
+              onClick={() => setPopupData(null)}
+            />
+            {/* 말풍선 컨테이너 */}
+            <div
+              className="fixed z-50"
               style={{
-                borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                left: `${left}px`,
+                top: `${top}px`,
+                width: `${PW}px`,
+                pointerEvents: 'auto',
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center gap-3">
-                {/* MBTI 뱃지 */}
+              {/* 코 (위에 있을 때 - 아래로 향하는 코) */}
+              {!tailBelow && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: -TAIL,
+                  left: tailX,
+                  transform: 'translateX(-50%)',
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderTop: `${TAIL}px solid ${MBTI_COLORS[popupData.mbti]}99`,
+                  zIndex: 1,
+                }} />
+              )}
+
+              {/* 팝업 본체 */}
+              <div
+                style={{
+                  background: 'rgba(4, 4, 14, 0.97)',
+                  border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}99`,
+                  borderRadius: '14px',
+                  boxShadow: `0 0 24px ${MBTI_COLORS[popupData.mbti]}55, 0 8px 32px rgba(0,0,0,0.9)`,
+                  overflow: 'hidden',
+                }}
+              >
+                {/* 헤더: MBTI + 거리 + X */}
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black"
-                  style={{
-                    background: `${MBTI_COLORS[popupData.mbti]}22`,
-                    border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
-                    color: MBTI_COLORS[popupData.mbti],
-                    boxShadow: `0 0 12px ${MBTI_COLORS[popupData.mbti]}66`,
-                  }}
+                  className="flex items-center justify-between px-3 pt-3 pb-2"
+                  style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
                 >
-                  {popupData.mbti.slice(0, 2)}
-                  <br />
-                  {popupData.mbti.slice(2)}
+                  <div className="flex items-center gap-2">
+                    {/* MBTI 뉡지 - 한 줄 */}
+                    <div
+                      className="px-2 py-0.5 rounded-full text-xs font-black tracking-widest"
+                      style={{
+                        background: `${MBTI_COLORS[popupData.mbti]}22`,
+                        border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}`,
+                        color: MBTI_COLORS[popupData.mbti],
+                        boxShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}66`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {popupData.mbti}
+                    </div>
+                    <div className="text-[10px] text-gray-500">
+                      {popupData.distance < 100 ? '바로 옆' : popupData.distance < 500 ? `${popupData.distance}m` : `${popupData.distance}m`}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setPopupData(null)}
+                    className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-medium">NEARBY USER</div>
-                  <div className="text-sm font-black" style={{ color: MBTI_COLORS[popupData.mbti] }}>
-                    {popupData.distance < 100 ? '바로 옆' : popupData.distance < 500 ? '가까운 거리' : `${popupData.distance}m`}
+
+                {/* 4가지 성향 그리드 */}
+                <div className="grid grid-cols-2 gap-1.5 p-2">
+                  {/* #TYPE */}
+                  <div
+                    className="rounded-xl p-2"
+                    style={{
+                      background: `${MBTI_COLORS[popupData.mbti]}0d`,
+                      border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                    }}
+                  >
+                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#TYPE</div>
+                    <div
+                      className="text-sm font-black tracking-wider"
+                      style={{
+                        color: MBTI_COLORS[popupData.mbti],
+                        textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88`,
+                      }}
+                    >
+                      {popupData.mbti}
+                    </div>
+                  </div>
+
+                  {/* #MOOD */}
+                  <div
+                    className="rounded-xl p-2"
+                    style={{
+                      background: 'rgba(157, 78, 221, 0.08)',
+                      border: '1px solid rgba(157, 78, 221, 0.3)',
+                    }}
+                  >
+                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MOOD</div>
+                    <div
+                      className="text-xs font-black"
+                      style={{
+                        color: '#c77dff',
+                        textShadow: '0 0 8px rgba(199, 125, 255, 0.7)',
+                      }}
+                    >
+                      {popupData.mood}
+                    </div>
+                  </div>
+
+                  {/* #MODE */}
+                  <div
+                    className="rounded-xl p-2"
+                    style={{
+                      background: 'rgba(0, 240, 180, 0.08)',
+                      border: '1px solid rgba(0, 240, 180, 0.3)',
+                    }}
+                  >
+                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MODE</div>
+                    <div
+                      className="text-xs font-black leading-tight"
+                      style={{
+                        color: '#00f0b4',
+                        textShadow: '0 0 8px rgba(0, 240, 180, 0.7)',
+                      }}
+                    >
+                      {popupData.mode}
+                    </div>
+                  </div>
+
+                  {/* #SIGN */}
+                  <div
+                    className="rounded-xl p-2"
+                    style={{
+                      background: 'rgba(255, 200, 0, 0.08)',
+                      border: '1px solid rgba(255, 200, 0, 0.3)',
+                    }}
+                  >
+                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#SIGN</div>
+                    <div
+                      className="text-[10px] font-bold leading-snug"
+                      style={{
+                        color: '#ffc800',
+                        textShadow: '0 0 6px rgba(255, 200, 0, 0.6)',
+                      }}
+                    >
+                      "{popupData.sign}"
+                    </div>
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => setPopupData(null)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors"
-                style={{ background: 'rgba(255,255,255,0.05)' }}
-              >
-                ✕
-              </button>
+
+              {/* 코 (아래에 있을 때 - 위로 향하는 코) */}
+              {tailBelow && (
+                <div style={{
+                  position: 'absolute',
+                  top: -TAIL,
+                  left: tailX,
+                  transform: 'translateX(-50%)',
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: `${TAIL}px solid ${MBTI_COLORS[popupData.mbti]}99`,
+                  zIndex: 1,
+                }} />
+              )}
             </div>
-
-            {/* 4가지 성향 인덱스 */}
-            <div className="px-5 py-4 grid grid-cols-2 gap-3">
-              {/* #TYPE */}
-              <div
-                className="rounded-2xl p-4"
-                style={{
-                  background: `${MBTI_COLORS[popupData.mbti]}0d`,
-                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
-                }}
-              >
-                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#TYPE</div>
-                <div
-                  className="text-lg font-black tracking-wider"
-                  style={{
-                    color: MBTI_COLORS[popupData.mbti],
-                    textShadow: `0 0 12px ${MBTI_COLORS[popupData.mbti]}88`,
-                  }}
-                >
-                  {popupData.mbti}
-                </div>
-              </div>
-
-              {/* #MOOD */}
-              <div
-                className="rounded-2xl p-4"
-                style={{
-                  background: 'rgba(157, 78, 221, 0.08)',
-                  border: '1px solid rgba(157, 78, 221, 0.3)',
-                }}
-              >
-                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#MOOD</div>
-                <div
-                  className="text-base font-black tracking-wider"
-                  style={{
-                    color: '#c77dff',
-                    textShadow: '0 0 10px rgba(199, 125, 255, 0.7)',
-                  }}
-                >
-                  {popupData.mood}
-                </div>
-              </div>
-
-              {/* #MODE */}
-              <div
-                className="rounded-2xl p-4"
-                style={{
-                  background: 'rgba(0, 240, 180, 0.08)',
-                  border: '1px solid rgba(0, 240, 180, 0.3)',
-                }}
-              >
-                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#MODE</div>
-                <div
-                  className="text-sm font-black leading-tight"
-                  style={{
-                    color: '#00f0b4',
-                    textShadow: '0 0 10px rgba(0, 240, 180, 0.7)',
-                  }}
-                >
-                  {popupData.mode}
-                </div>
-              </div>
-
-              {/* #SIGN */}
-              <div
-                className="rounded-2xl p-4"
-                style={{
-                  background: 'rgba(255, 200, 0, 0.08)',
-                  border: '1px solid rgba(255, 200, 0, 0.3)',
-                }}
-              >
-                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#SIGN</div>
-                <div
-                  className="text-xs font-bold leading-snug"
-                  style={{
-                    color: '#ffc800',
-                    textShadow: '0 0 8px rgba(255, 200, 0, 0.6)',
-                  }}
-                >
-                  "{popupData.sign}"
-                </div>
-              </div>
-            </div>
-
-            {/* 하단 닫기 힌트 */}
-            <div className="text-center pb-4 text-[10px] text-gray-600">
-              바깥 영역을 탭하면 닫힙니다
-            </div>
-          </div>
-        </div>
-      )}
+          </>
+        );
+      })()}
 
       {/* GPS 동의 팝업 */}
       {showConsentPopup && (
