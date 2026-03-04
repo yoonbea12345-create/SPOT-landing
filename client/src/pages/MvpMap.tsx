@@ -1095,22 +1095,65 @@ export default function MvpMap() {
               지도 위에 표시해봐요!!
             </p>
 
-            {/* MBTI */}
-            <div className="mb-4">
+            {/* MBTI - 자동완성 드롭다운 */}
+            <div className="mb-4 relative">
               <label className="block text-center text-xs font-bold mb-1" style={{color: '#00f0ff', letterSpacing: '0.15em'}}>#TYPE (MBTI)</label>
               <input
                 type="text"
                 value={spotFormData.mbti}
-                onChange={e => setSpotFormData(p => ({...p, mbti: e.target.value.toUpperCase()}))}
+                onChange={e => {
+                  const val = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+                  setSpotFormData(p => ({...p, mbti: val}));
+                }}
                 placeholder="ex) ENFP"
                 maxLength={4}
+                autoComplete="off"
                 className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
                 style={{
                   background: 'rgba(0, 240, 255, 0.07)',
-                  border: '1.5px solid rgba(0, 240, 255, 0.4)',
+                  border: `1.5px solid ${MBTI_TYPES.includes(spotFormData.mbti) ? '#00f0ff' : spotFormData.mbti.length === 4 ? '#ff4444' : 'rgba(0, 240, 255, 0.4)'}`,
                   color: '#00f0ff',
                 }}
               />
+              {/* 유효성 메시지 */}
+              {spotFormData.mbti.length === 4 && !MBTI_TYPES.includes(spotFormData.mbti) && (
+                <div className="text-center text-[10px] mt-1" style={{color: '#ff4444'}}>올바른 MBTI 유형이 아닙니다</div>
+              )}
+              {spotFormData.mbti.length === 4 && MBTI_TYPES.includes(spotFormData.mbti) && (
+                <div className="text-center text-[10px] mt-1" style={{color: '#00f0ff'}}>✓ {spotFormData.mbti}</div>
+              )}
+              {/* 자동완성 드롭다운 */}
+              {spotFormData.mbti.length > 0 && spotFormData.mbti.length < 4 && (
+                <div
+                  className="absolute left-0 right-0 z-10 rounded-lg overflow-hidden"
+                  style={{
+                    top: '100%',
+                    marginTop: '2px',
+                    background: 'rgba(4, 4, 14, 0.98)',
+                    border: '1px solid rgba(0, 240, 255, 0.4)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.8)',
+                  }}
+                >
+                  {MBTI_TYPES.filter(t => t.startsWith(spotFormData.mbti)).map(t => (
+                    <div
+                      key={t}
+                      className="px-3 py-2 text-sm font-bold text-center cursor-pointer"
+                      style={{ color: '#00f0ff' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,240,255,0.12)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      onMouseDown={e => {
+                        e.preventDefault();
+                        setSpotFormData(p => ({...p, mbti: t}));
+                      }}
+                    >
+                      {t}
+                    </div>
+                  ))}
+                  {MBTI_TYPES.filter(t => t.startsWith(spotFormData.mbti)).length === 0 && (
+                    <div className="px-3 py-2 text-xs text-center" style={{color: '#666'}}>일치하는 MBTI 없음</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* MOOD */}
@@ -1181,6 +1224,10 @@ export default function MvpMap() {
                   const { mbti, mood, mode, sign } = spotFormData;
                   if (!mbti || !mood || !mode || !sign) {
                     toast.error('네 가지를 모두 입력해주세요!');
+                    return;
+                  }
+                  if (!MBTI_TYPES.includes(mbti)) {
+                    toast.error('올바른 MBTI 유형을 입력해주세요! (ex: ENFP)');
                     return;
                   }
                   if (!userLocation) {

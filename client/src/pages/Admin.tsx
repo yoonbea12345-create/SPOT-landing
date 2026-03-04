@@ -25,7 +25,7 @@ import {
   Cell,
 } from "recharts";
 
-type Tab = "stats" | "logs" | "events" | "gpsmap" | "funnel" | "emails";
+type Tab = "stats" | "logs" | "events" | "gpsmap" | "funnel" | "emails" | "spots";
 
 const ADMIN_PASSWORD = "1229";
 const SESSION_KEY = "spot_admin_auth";
@@ -201,6 +201,8 @@ function AdminDashboard() {
     offset: emailPage * limit,
   });
 
+  const { data: spotsData, isLoading: spotsLoading } = trpc.spot.getAll.useQuery();
+
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
   const totalEventPages = eventData ? Math.ceil(eventData.total / limit) : 0;
   const totalEmailPages = emailData ? Math.ceil(emailData.total / limit) : 0;
@@ -249,6 +251,7 @@ function AdminDashboard() {
   const TABS: { id: Tab; label: string }[] = [
     { id: "stats", label: "📊 일별 통계" },
     { id: "funnel", label: "🔽 퍼널 분석" },
+    { id: "spots", label: "📍 스폿 목록" },
     { id: "gpsmap", label: "🗺️ GPS 지도" },
     { id: "emails", label: "📧 이메일 구독" },
     { id: "logs", label: "📋 접속 로그" },
@@ -601,6 +604,71 @@ function AdminDashboard() {
                 </>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">아직 접속 기록이 없습니다.</div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Spots Tab */}
+        {tab === "spots" && (
+          <Card className="border-2 border-primary/20 bg-card/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-black text-primary">📍 실제 스폿 목록</CardTitle>
+              <CardDescription>사용자들이 제출한 스폿 데이터 총 {spotsData?.spots?.length ?? 0}개</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {spotsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">로딩 중...</div>
+              ) : spotsData && spotsData.spots.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-primary/20">
+                        <TableHead className="font-black text-primary">시간</TableHead>
+                        <TableHead className="font-black text-primary">MBTI</TableHead>
+                        <TableHead className="font-black text-primary">MOOD</TableHead>
+                        <TableHead className="font-black text-primary">MODE</TableHead>
+                        <TableHead className="font-black text-primary">SIGN</TableHead>
+                        <TableHead className="font-black text-primary">위치</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {spotsData.spots.map((spot) => (
+                        <TableRow key={spot.id} className="border-primary/10">
+                          <TableCell className="font-mono text-xs">{formatDate(spot.createdAt)}</TableCell>
+                          <TableCell>
+                            <span
+                              className="px-2 py-0.5 rounded-full text-xs font-black"
+                              style={{
+                                background: 'rgba(0,240,255,0.1)',
+                                border: '1px solid rgba(0,240,255,0.5)',
+                                color: '#00f0ff',
+                              }}
+                            >
+                              {spot.mbti}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-xs font-bold" style={{color: '#c77dff'}}>{spot.mood}</TableCell>
+                          <TableCell className="text-xs font-bold" style={{color: '#00f0b4'}}>{spot.mode}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{spot.sign}</TableCell>
+                          <TableCell>
+                            <a
+                              href={`https://maps.google.com/?q=${spot.lat},${spot.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-mono hover:text-primary transition-colors"
+                              style={{color: '#00f0ff88'}}
+                            >
+                              📍 {spot.lat.toFixed(4)}, {spot.lng.toFixed(4)}
+                            </a>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">아직 제출된 스폿이 없습니다.</div>
               )}
             </CardContent>
           </Card>
