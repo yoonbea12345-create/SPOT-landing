@@ -187,6 +187,8 @@ type PopupData = {
   mode: string;
   sign: string;
   distance: number;
+  lat: number;
+  lng: number;
   screenX: number; // 클릭한 마커의 화면 X 좌표
   screenY: number; // 클릭한 마커의 화면 Y 좌표
 };
@@ -216,6 +218,7 @@ export default function MvpMap() {
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
   // 팝업 상태
   const [popupData, setPopupData] = useState<PopupData | null>(null);
+  const [popupAddress, setPopupAddress] = useState<string | null>(null);
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
@@ -525,14 +528,30 @@ export default function MvpMap() {
           )
         );
         setSelectedMarker({ mbti: item.mbti, distance });
+        setPopupAddress(null);
         setPopupData({
           mbti: item.mbti,
           mood: item.mood,
           mode: item.mode,
           sign: item.sign,
           distance,
+          lat: item.lat,
+          lng: item.lng,
           screenX: mouseEvent.clientX,
           screenY: mouseEvent.clientY,
+        });
+        // 역지오코딩으로 주소 가져오기
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: item.lat, lng: item.lng } }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const components = results[0].address_components;
+            const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
+            const si = get('administrative_area_level_1').replace('시', '').replace('도', '').replace('특별시', '').replace('광역시', '').replace('특자시', '') || get('locality');
+            const gu = get('sublocality_level_1') || get('administrative_area_level_2');
+            const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
+            const addr = [si, gu, dong].filter(Boolean).join(' ');
+            setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
+          }
         });
       });
 
@@ -616,14 +635,30 @@ export default function MvpMap() {
         )
       );
       setSelectedMarker({ mbti: spot.mbti.toUpperCase(), distance });
+      setPopupAddress(null);
       setPopupData({
         mbti: spot.mbti.toUpperCase(),
         mood: spot.mood,
         mode: spot.mode,
         sign: spot.sign,
         distance,
+        lat: spot.lat,
+        lng: spot.lng,
         screenX: me.clientX,
         screenY: me.clientY,
+      });
+      // 역지오코딩으로 주소 가져오기
+      const geocoder2 = new google.maps.Geocoder();
+      geocoder2.geocode({ location: { lat: spot.lat, lng: spot.lng } }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          const components = results[0].address_components;
+          const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
+          const si = get('administrative_area_level_1').replace('시', '').replace('도', '').replace('특별시', '').replace('광역시', '').replace('특자시', '') || get('locality');
+          const gu = get('sublocality_level_1') || get('administrative_area_level_2');
+          const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
+          const addr = [si, gu, dong].filter(Boolean).join(' ');
+          setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
+        }
       });
     });
     realSpotMarkersRef.current.push(marker);
@@ -829,31 +864,14 @@ export default function MvpMap() {
           </svg>
         </button>
 
-        {/* 하단 정보 카드 */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl px-6 py-4 shadow-2xl max-w-md">
-          <div className="text-center">
-            {selectedMarker ? (
-              <>
-                <div className="text-2xl font-black mb-2" style={{color: MBTI_COLORS[selectedMarker.mbti]}}>
-                  {selectedMarker.mbti}
-                </div>
-                <div className="text-sm text-gray-400 mb-1">
-                  거리: <span className="font-bold" style={{color: "#00f0ff"}}>{selectedMarker.distance}m</span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {selectedMarker.distance < 100 ? '바로 옆이네요!' : 
-                   selectedMarker.distance < 500 ? '가까운 거리에요' : 
-                   selectedMarker.distance < 1000 ? '조금만 걸어가면 돼요' : 
-                   '꽤 멀리 있어요'}
-                </div>
-              </>
-            ) : (
-              <div className="text-sm text-gray-400 whitespace-nowrap">
-                마커를 클릭하여 MBTI 정보를 확인하세요
-              </div>
-            )}
+        {/* 하단 정보 안내 텍스트 */}
+        {!selectedMarker && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 border border-cyan-500/20 rounded-xl px-4 py-2 shadow-lg">
+            <div className="text-xs text-gray-400 whitespace-nowrap">
+              마커를 클릭하여 MBTI 정보를 확인하세요
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ─── 말풍선 팝업 ─── */}
@@ -925,100 +943,76 @@ export default function MvpMap() {
                   overflow: 'hidden',
                 }}
               >
-                {/* 헤더: MBTI + 거리 + X */}
+                {/* 헤더: 주소 + 거리 + X */}
                 <div
                   className="flex items-center justify-between px-3 pt-3 pb-2"
                   style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
                 >
-                  <div className="flex items-center gap-2">
-                    {/* MBTI 뉡지 - 한 줄 */}
+                  <div className="flex flex-col gap-0.5 min-w-0">
                     <div
-                      className="px-2 py-0.5 rounded-full text-xs font-black tracking-widest"
-                      style={{
-                        background: `${MBTI_COLORS[popupData.mbti]}22`,
-                        border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}`,
-                        color: MBTI_COLORS[popupData.mbti],
-                        boxShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}66`,
-                        whiteSpace: 'nowrap',
-                      }}
+                      className="text-[11px] font-black tracking-wide truncate"
+                      style={{ color: MBTI_COLORS[popupData.mbti], textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88` }}
                     >
-                      {popupData.mbti}
+                      {popupAddress ?? '위치 확인 중...'}
                     </div>
-                    <div className="text-[10px] text-gray-500">
-                      {popupData.distance < 100 ? '바로 옆' : popupData.distance < 500 ? `${popupData.distance}m` : `${popupData.distance}m`}
+                    <div className="text-[10px] font-bold" style={{ color: '#888' }}>
+                      {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`}
                     </div>
                   </div>
                   <button
                     onClick={() => setPopupData(null)}
-                    className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none"
+                    className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none ml-2 flex-shrink-0"
                   >
                     ✕
                   </button>
                 </div>
 
-                {/* 4가지 성향 그리드 */}
-                <div className="grid grid-cols-2 gap-1.5 p-2">
-                  {/* #TYPE */}
-                  <div
-                    className="rounded-xl p-2"
-                    style={{
-                      background: `${MBTI_COLORS[popupData.mbti]}0d`,
-                      border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
-                    }}
-                  >
-                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#TYPE</div>
+                {/* 3가지 성향 그리드 (MOOD/MODE/SIGN) */}
+                <div className="p-2 flex flex-col gap-1.5">
+                  {/* 상단 행: MOOD + MODE */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {/* #MOOD */}
                     <div
-                      className="text-sm font-black tracking-wider"
+                      className="rounded-xl p-2"
                       style={{
-                        color: MBTI_COLORS[popupData.mbti],
-                        textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88`,
+                        background: 'rgba(157, 78, 221, 0.08)',
+                        border: '1px solid rgba(157, 78, 221, 0.3)',
                       }}
                     >
-                      {popupData.mbti}
+                      <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MOOD</div>
+                      <div
+                        className="text-xs font-black"
+                        style={{
+                          color: '#c77dff',
+                          textShadow: '0 0 8px rgba(199, 125, 255, 0.7)',
+                        }}
+                      >
+                        {popupData.mood}
+                      </div>
+                    </div>
+
+                    {/* #MODE */}
+                    <div
+                      className="rounded-xl p-2"
+                      style={{
+                        background: 'rgba(0, 240, 180, 0.08)',
+                        border: '1px solid rgba(0, 240, 180, 0.3)',
+                      }}
+                    >
+                      <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MODE</div>
+                      <div
+                        className="text-xs font-black leading-tight"
+                        style={{
+                          color: '#00f0b4',
+                          textShadow: '0 0 8px rgba(0, 240, 180, 0.7)',
+                        }}
+                      >
+                        {popupData.mode}
+                      </div>
                     </div>
                   </div>
 
-                  {/* #MOOD */}
-                  <div
-                    className="rounded-xl p-2"
-                    style={{
-                      background: 'rgba(157, 78, 221, 0.08)',
-                      border: '1px solid rgba(157, 78, 221, 0.3)',
-                    }}
-                  >
-                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MOOD</div>
-                    <div
-                      className="text-xs font-black"
-                      style={{
-                        color: '#c77dff',
-                        textShadow: '0 0 8px rgba(199, 125, 255, 0.7)',
-                      }}
-                    >
-                      {popupData.mood}
-                    </div>
-                  </div>
-
-                  {/* #MODE */}
-                  <div
-                    className="rounded-xl p-2"
-                    style={{
-                      background: 'rgba(0, 240, 180, 0.08)',
-                      border: '1px solid rgba(0, 240, 180, 0.3)',
-                    }}
-                  >
-                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MODE</div>
-                    <div
-                      className="text-xs font-black leading-tight"
-                      style={{
-                        color: '#00f0b4',
-                        textShadow: '0 0 8px rgba(0, 240, 180, 0.7)',
-                      }}
-                    >
-                      {popupData.mode}
-                    </div>
-                  </div>
-
-                  {/* #SIGN */}
+                  {/* 하단 행: SIGN 전체 너비 */}
                   <div
                     className="rounded-xl p-2"
                     style={{
