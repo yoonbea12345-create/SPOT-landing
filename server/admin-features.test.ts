@@ -133,7 +133,9 @@ describe("log.funnelStats", () => {
       execute: vi.fn()
         .mockResolvedValueOnce([[{ cnt: 100 }]])  // step1: 보러가기 클릭
         .mockResolvedValueOnce([[{ cnt: 60 }]])   // step2: MVP 접속
-        .mockResolvedValueOnce([[{ cnt: 30 }]]),  // step3: GPS 허용
+        .mockResolvedValueOnce([[{ cnt: 30 }]])   // step3: GPS 허용
+        .mockResolvedValueOnce([[{ avg: 45, cnt: 10 }]])  // avgDurLanding
+        .mockResolvedValueOnce([[{ avg: 120, cnt: 8 }]]), // avgDurMvp
     };
     (getDb as any).mockResolvedValue(mockDb);
 
@@ -151,7 +153,9 @@ describe("log.funnelStats", () => {
       execute: vi.fn()
         .mockResolvedValueOnce([[{ cnt: 0 }]])
         .mockResolvedValueOnce([[{ cnt: 5 }]])
-        .mockResolvedValueOnce([[{ cnt: 2 }]]),
+        .mockResolvedValueOnce([[{ cnt: 2 }]])
+        .mockResolvedValueOnce([[{ avg: 0, cnt: 0 }]])
+        .mockResolvedValueOnce([[{ avg: 0, cnt: 0 }]]),
     };
     (getDb as any).mockResolvedValue(mockDb);
 

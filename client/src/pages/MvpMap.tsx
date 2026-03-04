@@ -22,12 +22,56 @@ const MBTI_COLORS: Record<string, string> = {
   ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
 };
 
+// MOOD 목록
+const MOOD_LIST = [
+  "HAPPY", "CHILL", "EXCITED", "LONELY", "BORED",
+  "HYPED", "PEACEFUL", "CURIOUS", "MELANCHOLY", "ENERGETIC",
+  "NOSTALGIC", "FOCUSED", "DREAMY", "RESTLESS", "CONTENT"
+];
+
+// MODE 목록
+const MODE_LIST = [
+  "산책 중", "카페 탐방", "운동 중", "쇼핑 중", "맛집 투어",
+  "혼자만의 시간", "친구 만남", "데이트", "공부 중", "드라이브",
+  "전시 관람", "야경 구경", "음악 감상", "독서 중", "그냥 배회 중"
+];
+
+// SIGN 목록 (랜덤 문구)
+const SIGN_LIST = [
+  "모두 안녕하세요",
+  "오늘 날씨 좋다",
+  "누군가 말 걸어줘요",
+  "같이 커피 마실 사람?",
+  "여기 자주 와요",
+  "오늘 기분 좋음",
+  "지나가는 중",
+  "이 동네 처음이에요",
+  "맛집 추천 받아요",
+  "혼자가 편한 날",
+  "반가워요 :)",
+  "오늘도 열심히",
+  "좋은 하루 되세요",
+  "여기 분위기 좋네요",
+  "우연히 마주치면 반가워요"
+];
+
+// 더미 데이터 타입
+type DummyMarker = {
+  mbti: string;
+  lat: number;
+  lng: number;
+  id: number;
+  mood: string;
+  mode: string;
+  sign: string;
+};
+
 // 더미 데이터 생성 (주요 도시 집약 + 전국 무작위 분포)
-const generateDummyData = () => {
-  const data = [];
+const generateDummyData = (): DummyMarker[] => {
+  const data: DummyMarker[] = [];
   let id = 0;
   
-  // 대한민국 주요 도시 및 지역 (40개)
+  // 대한민국 주요 도시 및 지역 (38개)
   const cities = [
     // 서울 (5개 지역)
     { name: "홍대", lat: 37.5566, lng: 126.9236, count: [50, 100] },
@@ -78,18 +122,12 @@ const generateDummyData = () => {
   ];
   
   // 제주도 육지 경계 체크 함수
-  // 제주도 본섬의 대략적인 육지 폴리곤 (간략화)
   const isJejuLand = (lat: number, lng: number): boolean => {
-    // 제주도 본섬 대략 경계: 위도 33.20~33.56, 경도 126.15~126.97
     if (lat < 33.20 || lat > 33.56 || lng < 126.15 || lng > 126.97) return false;
-    // 북쪽 바다 제외: 제주시 북쪽 해안선은 약 33.52 이하
     if (lat > 33.52) return false;
-    // 남쪽 바다 제외: 서귀포 남쪽 해안선은 약 33.22 이상
     if (lat < 33.22) return false;
-    // 동쪽 끝 (성산 방향) 좁아지는 부분
     if (lng > 126.85 && lat > 33.45) return false;
     if (lng > 126.90 && lat < 33.30) return false;
-    // 서쪽 끝 좁아지는 부분
     if (lng < 126.25 && lat > 33.45) return false;
     if (lng < 126.20 && lat < 33.35) return false;
     return true;
@@ -99,57 +137,69 @@ const generateDummyData = () => {
     const count = Math.floor(Math.random() * (city.count[1] - city.count[0] + 1)) + city.count[0];
     for (let i = 0; i < count; i++) {
       const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
+      const mood = MOOD_LIST[Math.floor(Math.random() * MOOD_LIST.length)];
+      const mode = MODE_LIST[Math.floor(Math.random() * MODE_LIST.length)];
+      const sign = SIGN_LIST[Math.floor(Math.random() * SIGN_LIST.length)];
       
       let lat, lng;
       if (city.name === "제주시" || city.name === "서귀포") {
-        // 제주도: 육지 경계 체크 후 배치 (최대 20번 시도)
         let attempts = 0;
         do {
-          // 무작위 분산 (0.12도 범위, 약 13km)
           const angle = Math.random() * Math.PI * 2;
           const dist = Math.random() * 0.06;
           lat = city.lat + Math.sin(angle) * dist;
           lng = city.lng + Math.cos(angle) * dist;
           attempts++;
         } while (!isJejuLand(lat, lng) && attempts < 20);
-        // 20번 시도 후에도 실패하면 도심 중앙 근처에 배치
         if (!isJejuLand(lat, lng)) {
           lat = city.lat + (Math.random() - 0.5) * 0.02;
           lng = city.lng + (Math.random() - 0.5) * 0.02;
         }
       } else {
-        // 다른 도시: 무작위 방향으로 분산 (겹침 완화)
         const angle = Math.random() * Math.PI * 2;
-        const dist = Math.pow(Math.random(), 0.6) * 0.18; // 제곱근으로 중심 집중 완화
+        const dist = Math.pow(Math.random(), 0.6) * 0.18;
         lat = city.lat + Math.sin(angle) * dist;
         lng = city.lng + Math.cos(angle) * dist;
       }
       
-      data.push({ mbti, lat, lng, id: id++ });
+      data.push({ mbti, lat, lng, id: id++, mood, mode, sign });
     }
-  })
+  });
   
-  // 3. 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
+  // 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
   data.push({ 
     mbti: "ENFP", 
     lat: 37.5566 + 0.000009, 
     lng: 126.9236, 
-    id: id++ 
+    id: id++,
+    mood: "HAPPY",
+    mode: "산책 중",
+    sign: "모두 안녕하세요"
   });
   
   return data;
+};
+
+// 팝업 데이터 타입
+type PopupData = {
+  mbti: string;
+  mood: string;
+  mode: string;
+  sign: string;
+  distance: number;
 };
 
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
-  // /mvp 전용 logId - useAccessLog가 sessionStorage에 저장한 값 사용
   const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
+  // 팝업 상태
+  const [popupData, setPopupData] = useState<PopupData | null>(null);
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
@@ -174,21 +224,18 @@ export default function MvpMap() {
   }, []);
 
   // 스플래시 → 지도 전환 (2초 후)
-  // useAccessLog(App.tsx)가 이미 /mvp 접속 로그를 기록하므로 중복 호출 제거
   useEffect(() => {
-    // sessionStorage에서 /mvp logId 가져오기 (useAccessLog가 저장)
     const checkLogId = () => {
       const id = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
       if (id) mvpLogIdRef.current = id;
     };
-    // 약간 딜레이 후 확인 (useAccessLog onSuccess 대기)
     const idTimer = setTimeout(checkLogId, 500);
     const timer = setTimeout(() => setScreen("map"), 2000);
     return () => { clearTimeout(timer); clearTimeout(idTimer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 지도 표시 후 2초 뒤 GPS 동의 팝업
+  // 지도 표시 후 3.8초 뒤 GPS 동의 팝업
   useEffect(() => {
     if (screen === "map") {
       const timer = setTimeout(() => setShowConsentPopup(true), 3800);
@@ -196,13 +243,10 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-
-
-  // GPS 동의 처리 - 동의 버튼 클릭 시 즉시 GPS 권한 요청
+  // GPS 동의 처리
   const handleConsent = useCallback(async (agreed: boolean) => {
     setShowConsentPopup(false);
 
-    // 이벤트 먼저 기록 (페이지 이동 없이 처리되므로 mutateAsync로 확실히 저장)
     try {
       await trackEvent.mutateAsync({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
     } catch (_) {
@@ -210,23 +254,17 @@ export default function MvpMap() {
     }
 
     if (!agreed) {
-      // 미동의: 팝업만 닫고 전국 지도 유지
-      // 단, GPS 실시간 추적은 시작 → 사용자가 나중에 GPS를 켜면 자동 반영
       startWatchingPositionRef.current();
       return;
     }
 
-    // 브라우저가 Geolocation을 지원하지 않는 경우
     if (!navigator.geolocation) {
       toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
       return;
     }
 
-    // 로딩 토스트 표시
     const loadingToast = toast.loading("📍 위치 정보를 가져오는 중... GPS를 켜주세요");
 
-    // 동의 버튼 클릭 시 즉시 getCurrentPosition 호출
-    // → 안드로이드 시스템 GPS 권한 팝업 자동 표시
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const newLocation = {
@@ -238,18 +276,15 @@ export default function MvpMap() {
         
         setUserLocation(newLocation);
 
-        // GPS 위치를 서버로 전송
         const saveGps = (id: number) => {
           trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
         };
-        // sessionStorage에서 최신 logId 재확인 (useAccessLog onSuccess가 이미 완료되었을 수 있음)
         const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
         if (latestLogId) mvpLogIdRef.current = latestLogId;
         const existingLogId = mvpLogIdRef.current;
         if (existingLogId) {
           saveGps(existingLogId);
         } else {
-          // logId가 없으면 직접 track 호출
           fetch('/api/trpc/log.track?batch=1', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -268,7 +303,6 @@ export default function MvpMap() {
           mapRef.current.setCenter(newLocation);
         }
 
-        // 사용자 마커 업데이트
         if (userMarkerRef.current) {
           userMarkerRef.current.position = newLocation;
         }
@@ -280,7 +314,6 @@ export default function MvpMap() {
         console.log("GPS 에러:", error);
         toast.dismiss(loadingToast);
         
-        // 에러 타입에 따른 메시지
         if (error.code === error.PERMISSION_DENIED) {
           toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
         } else if (error.code === error.POSITION_UNAVAILABLE) {
@@ -302,15 +335,8 @@ export default function MvpMap() {
 
   // 실시간 GPS 추적 시작
   const startWatchingPosition = useCallback(() => {
-    // 이미 추적 중이면 중복 방지
-    if (watchIdRef.current !== null) {
-      return;
-    }
-
-    if (!navigator.geolocation) {
-      console.log("Geolocation not supported");
-      return;
-    }
+    if (watchIdRef.current !== null) return;
+    if (!navigator.geolocation) return;
 
     console.log("📍 실시간 GPS 추적 시작");
 
@@ -320,18 +346,10 @@ export default function MvpMap() {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-
-        console.log("📍 위치 업데이트:", newLocation);
-
-        // 상태 업데이트
         setUserLocation(newLocation);
-
-        // 사용자 마커 업데이트
         if (userMarkerRef.current) {
           userMarkerRef.current.position = newLocation;
         }
-
-        // 지도 중심은 업데이트하지 않음 (사용자가 지도를 보고 있을 수 있으므로)
       },
       (error) => {
         console.log("GPS watch error:", error);
@@ -344,25 +362,19 @@ export default function MvpMap() {
     );
   }, []);
 
-  // ref에 할당하여 handleConsent에서 사용 가능하게
   startWatchingPositionRef.current = startWatchingPosition;
 
-  // 실시간 GPS 추적 중지
   const stopWatchingPosition = useCallback(() => {
     if (watchIdRef.current !== null) {
-      console.log("🚫 실시간 GPS 추적 중지");
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
   }, []);
 
-  // GPS 권한 허용 후 실시간 추적 시작
   useEffect(() => {
     if (userLocation && screen === "map") {
       startWatchingPosition();
     }
-
-    // 컴포넌트 언마운트 시 추적 중지
     return () => {
       stopWatchingPosition();
     };
@@ -470,28 +482,25 @@ export default function MvpMap() {
       title: "내 위치",
     });
 
-    // 더미 데이터 마커
+    // 더미 데이터 마커 (반경원 스타일 - 작고 채워진 원, MBTI 텍스트 없음)
     const dummyData = generateDummyData();
     dummyData.forEach((item) => {
+      const color = MBTI_COLORS[item.mbti];
       const markerElement = document.createElement("div");
       markerElement.className = "custom-marker";
+      // 기존보다 작은 원, 테두리 색 동일, 내부 반투명 채움, 텍스트 없음
       markerElement.style.cssText = `
-        width: 40px;
-        height: 40px;
-        background: ${MBTI_COLORS[item.mbti]}22;
-        border: 2px solid ${MBTI_COLORS[item.mbti]};
+        width: 22px;
+        height: 22px;
+        background: ${color}33;
+        border: 2px solid ${color};
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 10px;
-        color: ${MBTI_COLORS[item.mbti]};
         cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 0 15px ${MBTI_COLORS[item.mbti]}66;
+        transition: all 0.2s;
+        box-shadow: 0 0 8px ${color}55;
       `;
-      markerElement.textContent = item.mbti;
+      // data 속성으로 MBTI 저장 (필터링용)
+      markerElement.dataset.mbti = item.mbti;
 
       const marker = new google.maps.marker.AdvancedMarkerElement({
         map,
@@ -500,6 +509,7 @@ export default function MvpMap() {
         title: item.mbti,
       });
 
+      // 클릭 시 팝업 표시
       markerElement.addEventListener("click", () => {
         const distance = Math.round(
           google.maps.geometry.spherical.computeDistanceBetween(
@@ -508,6 +518,13 @@ export default function MvpMap() {
           )
         );
         setSelectedMarker({ mbti: item.mbti, distance });
+        setPopupData({
+          mbti: item.mbti,
+          mood: item.mood,
+          mode: item.mode,
+          sign: item.sign,
+          distance,
+        });
       });
 
       markersRef.current.push(marker);
@@ -561,14 +578,12 @@ export default function MvpMap() {
   useEffect(() => {
     const isZoomedOut = currentZoom < 12;
 
-    // 반경원 표시/숨김
     markersRef.current.forEach(marker => {
       if (marker.content instanceof HTMLElement) {
         marker.content.style.opacity = isZoomedOut ? '0' : '1';
       }
     });
 
-    // 도시 라벨 표시/숨김
     cityLabelsRef.current.forEach(label => {
       if (label.content instanceof HTMLElement) {
         label.content.style.opacity = isZoomedOut ? '1' : '0';
@@ -589,7 +604,7 @@ export default function MvpMap() {
       setSelectedMBTI(mbti);
       markersRef.current.forEach(marker => {
         if (marker.content instanceof HTMLElement) {
-          const markerMBTI = marker.content.textContent;
+          const markerMBTI = (marker.content as HTMLElement).dataset.mbti;
           marker.content.style.opacity = markerMBTI === mbti ? "1" : "0.15";
         }
       });
@@ -676,7 +691,6 @@ export default function MvpMap() {
 
         {/* 줄 레벨 슬라이더 */}
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-2xl p-3 shadow-2xl" style={{boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"}}>
-          {/* 모드 표시 */}
           <div className="text-center mb-3">
             <div className="text-xs font-black" style={{
               color: currentZoom >= 18 ? '#ff00ff' : currentZoom >= 12 ? '#9d4edd' : '#00f0ff',
@@ -687,7 +701,6 @@ export default function MvpMap() {
             </div>
           </div>
           
-          {/* 세로 슬라이더 */}
           <div className="relative h-32 w-8 flex items-center justify-center">
             <input
               type="range"
@@ -716,7 +729,6 @@ export default function MvpMap() {
             />
           </div>
           
-          {/* 구간 표시 */}
           <div className="flex flex-col items-center gap-1 mt-2 text-[8px] font-bold">
             <div style={{color: '#ff00ff', textShadow: '0 0 5px #ff00ff88'}}>3M</div>
             <div style={{color: '#9d4edd', textShadow: '0 0 5px #9d4edd88'}}>NEAR</div>
@@ -740,17 +752,7 @@ export default function MvpMap() {
             boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"
           }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#00f0ff"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="3" />
             <line x1="12" y1="2" x2="12" y2="4" />
@@ -787,11 +789,155 @@ export default function MvpMap() {
         </div>
       </div>
 
-      {/* GPS 동의 팝업 (중간, 작게) */}
+      {/* ─── 성향 팝업 ─── */}
+      {popupData && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center pb-8 px-4"
+          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setPopupData(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl overflow-hidden"
+            style={{
+              background: 'rgba(5, 5, 15, 0.97)',
+              border: `2px solid ${MBTI_COLORS[popupData.mbti]}66`,
+              boxShadow: `0 0 40px ${MBTI_COLORS[popupData.mbti]}44, 0 20px 60px rgba(0,0,0,0.8)`,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 팝업 헤더 */}
+            <div
+              className="px-6 pt-5 pb-4 flex items-center justify-between"
+              style={{
+                borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+              }}
+            >
+              <div className="flex items-center gap-3">
+                {/* MBTI 뱃지 */}
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black"
+                  style={{
+                    background: `${MBTI_COLORS[popupData.mbti]}22`,
+                    border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
+                    color: MBTI_COLORS[popupData.mbti],
+                    boxShadow: `0 0 12px ${MBTI_COLORS[popupData.mbti]}66`,
+                  }}
+                >
+                  {popupData.mbti.slice(0, 2)}
+                  <br />
+                  {popupData.mbti.slice(2)}
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 font-medium">NEARBY USER</div>
+                  <div className="text-sm font-black" style={{ color: MBTI_COLORS[popupData.mbti] }}>
+                    {popupData.distance < 100 ? '바로 옆' : popupData.distance < 500 ? '가까운 거리' : `${popupData.distance}m`}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setPopupData(null)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors"
+                style={{ background: 'rgba(255,255,255,0.05)' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 4가지 성향 인덱스 */}
+            <div className="px-5 py-4 grid grid-cols-2 gap-3">
+              {/* #TYPE */}
+              <div
+                className="rounded-2xl p-4"
+                style={{
+                  background: `${MBTI_COLORS[popupData.mbti]}0d`,
+                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                }}
+              >
+                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#TYPE</div>
+                <div
+                  className="text-lg font-black tracking-wider"
+                  style={{
+                    color: MBTI_COLORS[popupData.mbti],
+                    textShadow: `0 0 12px ${MBTI_COLORS[popupData.mbti]}88`,
+                  }}
+                >
+                  {popupData.mbti}
+                </div>
+              </div>
+
+              {/* #MOOD */}
+              <div
+                className="rounded-2xl p-4"
+                style={{
+                  background: 'rgba(157, 78, 221, 0.08)',
+                  border: '1px solid rgba(157, 78, 221, 0.3)',
+                }}
+              >
+                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#MOOD</div>
+                <div
+                  className="text-base font-black tracking-wider"
+                  style={{
+                    color: '#c77dff',
+                    textShadow: '0 0 10px rgba(199, 125, 255, 0.7)',
+                  }}
+                >
+                  {popupData.mood}
+                </div>
+              </div>
+
+              {/* #MODE */}
+              <div
+                className="rounded-2xl p-4"
+                style={{
+                  background: 'rgba(0, 240, 180, 0.08)',
+                  border: '1px solid rgba(0, 240, 180, 0.3)',
+                }}
+              >
+                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#MODE</div>
+                <div
+                  className="text-sm font-black leading-tight"
+                  style={{
+                    color: '#00f0b4',
+                    textShadow: '0 0 10px rgba(0, 240, 180, 0.7)',
+                  }}
+                >
+                  {popupData.mode}
+                </div>
+              </div>
+
+              {/* #SIGN */}
+              <div
+                className="rounded-2xl p-4"
+                style={{
+                  background: 'rgba(255, 200, 0, 0.08)',
+                  border: '1px solid rgba(255, 200, 0, 0.3)',
+                }}
+              >
+                <div className="text-[10px] font-bold text-gray-500 mb-1 tracking-widest">#SIGN</div>
+                <div
+                  className="text-xs font-bold leading-snug"
+                  style={{
+                    color: '#ffc800',
+                    textShadow: '0 0 8px rgba(255, 200, 0, 0.6)',
+                  }}
+                >
+                  "{popupData.sign}"
+                </div>
+              </div>
+            </div>
+
+            {/* 하단 닫기 힌트 */}
+            <div className="text-center pb-4 text-[10px] text-gray-600">
+              바깥 영역을 탭하면 닫힙니다
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GPS 동의 팝업 */}
       {showConsentPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6">
           <div className="bg-black border-2 border-cyan-500/50 rounded-2xl p-5 max-w-sm w-full space-y-3">
-            {/* 제목 */}
             <h2
               className="text-lg font-bold text-center"
               style={{
@@ -807,7 +953,6 @@ export default function MvpMap() {
 
             <div className="border-t border-gray-700" />
 
-            {/* 설명 */}
             <div className="space-y-2 text-xs text-gray-300 leading-relaxed">
               <p>
                 위치 정확도는 해당 서비스에 대해
@@ -838,7 +983,6 @@ export default function MvpMap() {
 
             <div className="border-t border-gray-700" />
 
-            {/* 버튼 */}
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => handleConsent(false)}
