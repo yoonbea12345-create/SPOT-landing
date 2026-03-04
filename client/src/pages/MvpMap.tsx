@@ -261,16 +261,7 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // 지도 진입 후 11초 뒤 스팟 입력 팝업 (아직 제출 안 한 경우만)
-  useEffect(() => {
-    if (screen === "map" && !spotSubmitted) {
-      const timer = setTimeout(() => {
-        setShowSpotForm(true);
-      }, 11000);
-      return () => clearTimeout(timer);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen]);
+  // 스팟 폼은 CTA 버튼으로 수동 오픈
 
   // GPS 동의 처리 - 이벤트 트래킹은 비동기로 실행하고 GPS는 즉시 시작
   const handleConsent = useCallback((agreed: boolean) => {
@@ -837,6 +828,24 @@ export default function MvpMap() {
             <div style={{color: '#00f0ff', textShadow: '0 0 5px #00f0ff88'}}>WIDE</div>
           </div>
         </div>
+
+        {/* 스팟 등록 CTA 버튼 - 내 위치보기 바로 위 */}
+        {!spotSubmitted && (
+          <button
+            onClick={() => setShowSpotForm(true)}
+            className="absolute left-4 bg-black/95 backdrop-blur-lg border-2 rounded-full px-4 py-2 shadow-2xl hover:scale-105 transition-transform text-sm font-black"
+            style={{
+              bottom: '7rem',
+              borderColor: '#ff00ff',
+              color: '#ff00ff',
+              boxShadow: '0 0 16px rgba(255, 0, 255, 0.5)',
+              textShadow: '0 0 8px rgba(255, 0, 255, 0.8)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            + 내 스팟 등록
+          </button>
+        )}
 
         {/* 내 위치로 돌아가기 버튼 */}
         <button
