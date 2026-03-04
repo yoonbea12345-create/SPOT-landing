@@ -829,40 +829,41 @@ export default function MvpMap() {
           </div>
         </div>
 
-        {/* 스팟 등록 CTA 버튼 - 내 위치보기 바로 위 */}
-        {!spotSubmitted && (
+        {/* 내 위치로 돌아가기 버튼 + 내 스팟 등록 버튼 (세로 배치) */}
+        <div className="absolute bottom-24 left-4 flex flex-col items-center gap-3">
+          {/* 내 스팟 등록 CTA 버튼 - 내 위치 찾기 버튼 위에 */}
+          {!spotSubmitted && (
+            <button
+              onClick={() => setShowSpotForm(true)}
+              className="bg-black/95 backdrop-blur-lg border-2 rounded-full px-4 py-2 shadow-2xl hover:scale-105 transition-transform text-sm font-black"
+              style={{
+                borderColor: '#ff00ff',
+                color: '#ff00ff',
+                boxShadow: '0 0 16px rgba(255, 0, 255, 0.5)',
+                textShadow: '0 0 8px rgba(255, 0, 255, 0.8)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              + 내 스팟 등록
+            </button>
+          )}
+
+          {/* 내 위치로 돌아가기 버튼 */}
           <button
-            onClick={() => setShowSpotForm(true)}
-            className="absolute left-4 bg-black/95 backdrop-blur-lg border-2 rounded-full px-4 py-2 shadow-2xl hover:scale-105 transition-transform text-sm font-black"
+            onClick={() => {
+              if (mapRef.current && userLocation) {
+                mapRef.current.panTo(userLocation);
+                mapRef.current.setZoom(15);
+                toast.success("내 위치로 이동했습니다");
+              } else {
+                toast.error("GPS 위치를 찾을 수 없습니다");
+              }
+            }}
+            className="bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-3 shadow-2xl hover:scale-110 transition-transform"
             style={{
-              bottom: '7rem',
-              borderColor: '#ff00ff',
-              color: '#ff00ff',
-              boxShadow: '0 0 16px rgba(255, 0, 255, 0.5)',
-              textShadow: '0 0 8px rgba(255, 0, 255, 0.8)',
-              whiteSpace: 'nowrap',
+              boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"
             }}
           >
-            + 내 스팟 등록
-          </button>
-        )}
-
-        {/* 내 위치로 돌아가기 버튼 */}
-        <button
-          onClick={() => {
-            if (mapRef.current && userLocation) {
-              mapRef.current.panTo(userLocation);
-              mapRef.current.setZoom(15);
-              toast.success("내 위치로 이동했습니다");
-            } else {
-              toast.error("GPS 위치를 찾을 수 없습니다");
-            }
-          }}
-          className="absolute bottom-24 left-4 bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-3 shadow-2xl hover:scale-110 transition-transform"
-          style={{
-            boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"
-          }}
-        >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="3" />
@@ -871,7 +872,8 @@ export default function MvpMap() {
             <line x1="2" y1="12" x2="4" y2="12" />
             <line x1="20" y1="12" x2="22" y2="12" />
           </svg>
-        </button>
+          </button>
+        </div>
 
         {/* 하단 정보 안내 텍스트 */}
         {!selectedMarker && (
