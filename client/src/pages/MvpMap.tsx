@@ -244,106 +244,112 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // GPS 동의 처리 - 동의/미동의 모두 watchPosition 즉시 시작
-  const handleConsent = useCallback(async (agreed: boolean) => {
+  // GPS 동의 처리 - 이벤트 트래킹은 비동기로 실행하고 GPS는 즉시 시작
+  const handleConsent = useCallback((agreed: boolean) => {
     setShowConsentPopup(false);
 
-    try {
-      await trackEvent.mutateAsync({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
-    } catch (_) {
-      // 실패해도 GPS 처리는 계속 진행
-    }
+    // 이벤트 트래킹은 GPS와 독립적으로 비동기 실행 (대기 없음)
+    trackEvent.mutate({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
 
     if (!navigator.geolocation) {
       if (agreed) toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
       return;
     }
 
-    // 동의/미동의 모두 watchPosition 즉시 시작
     // 이미 추적 중이면 중복 방지
     if (watchIdRef.current !== null) return;
 
-    if (agreed) {
-      toast.loading("📍 위치 정보를 가져오는 중... GPS를 켜주세요", { id: 'gps-loading', duration: 15000 });
-    }
+    const isFirstRef = { current: true };
 
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
+    const onSuccess = (position: GeolocationPosition) => {
+      const newLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
 
-        console.log("✅ GPS 위치 수신:", newLocation);
+      setUserLocation(newLocation);
 
-        // 첫 위치 수신 시 지도 이동 + 토스트
-        const isFirst = !userLocation;
-        setUserLocation(newLocation);
+      if (userMarkerRef.current) {
+        userMarkerRef.current.position = newLocation;
+      }
 
-        if (mapRef.current && isFirst) {
+      if (isFirstRef.current) {
+        isFirstRef.current = false;
+
+        if (mapRef.current) {
           mapRef.current.setCenter(newLocation);
           mapRef.current.setZoom(15);
         }
-        if (userMarkerRef.current) {
-          userMarkerRef.current.position = newLocation;
-        }
 
-        if (agreed && isFirst) {
-          toast.dismiss('gps-loading');
-          toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
-        }
-
-        // GPS 좌표 서버 저장 (첫 수신 시 1회)
-        if (isFirst) {
-          const saveGps = (id: number) => {
-            trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
-          };
-          const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
-          if (latestLogId) mvpLogIdRef.current = latestLogId;
-          const existingLogId = mvpLogIdRef.current;
-          if (existingLogId) {
-            saveGps(existingLogId);
-          } else {
-            fetch('/api/trpc/log.track?batch=1', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ "0": { json: { pathname: '/mvp' } } }),
-            }).then(r => r.json()).then(data => {
-              const newLogId = data?.[0]?.result?.data?.json?.logId;
-              if (newLogId) {
-                mvpLogIdRef.current = newLogId;
-                saveGps(newLogId);
-              }
-            }).catch(() => {});
-          }
-        }
-      },
-      (error) => {
-        console.log("GPS watch error:", error);
-        toast.dismiss('gps-loading');
         if (agreed) {
-          if (error.code === error.PERMISSION_DENIED) {
-            toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            toast.error("📍 위치 정보를 가져올 수 없습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
-          } else if (error.code === error.TIMEOUT) {
-            toast.error("📍 위치 정보 요청 시간이 초과되었습니다. GPS를 켜주시고 다시 시도해주세요.", { duration: 5000 });
-          } else {
-            toast.error("📍 알 수 없는 오류가 발생했습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
-          }
+          toast.dismiss('gps-loading');
+          toast.success("✅ 내 위치로 이동했어요!", { duration: 2000 });
         }
-        // 에러 시 watchId 초기화하여 재시도 가능하게
-        watchIdRef.current = null;
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0,
+
+        // GPS 좌표 서버 저장 (1회)
+        const saveGps = (id: number) => {
+          trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
+        };
+        const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
+        if (latestLogId) mvpLogIdRef.current = latestLogId;
+        const existingLogId = mvpLogIdRef.current;
+        if (existingLogId) {
+          saveGps(existingLogId);
+        } else {
+          fetch('/api/trpc/log.track?batch=1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ "0": { json: { pathname: '/mvp' } } }),
+          }).then(r => r.json()).then(data => {
+            const newLogId = data?.[0]?.result?.data?.json?.logId;
+            if (newLogId) {
+              mvpLogIdRef.current = newLogId;
+              saveGps(newLogId);
+            }
+          }).catch(() => {});
+        }
       }
+    };
+
+    const onError = (error: GeolocationPositionError) => {
+      console.log("GPS watch error:", error);
+      toast.dismiss('gps-loading');
+      if (agreed) {
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
+        } else {
+          toast.error("📍 GPS를 켜주시고 다시 시도해주세요.", { duration: 5000 });
+        }
+      }
+      watchIdRef.current = null;
+    };
+
+    if (agreed) {
+      toast.loading("📍 GPS 연결 중...", { id: 'gps-loading', duration: 10000 });
+    }
+
+    // 1단계: 저정밀 모드로 즉시 첫 응답 수신 (enableHighAccuracy: false → 빠름)
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      onSuccess,
+      (error) => {
+        // 저정밀 실패 시 고정밀로 폴백
+        if (watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+        // 고정밀 모드로 재시도
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          onSuccess,
+          onError,
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      },
+      // 저정밀: 네트워크/WiFi 기반 위치 즉시 응답 (1~2초)
+      { enableHighAccuracy: false, timeout: 3000, maximumAge: 5000 }
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackEvent, userLocation]);
+  }, [trackEvent]);
 
   // 컴포넌트 언마운트 시 GPS 추적 중지
   useEffect(() => {

@@ -173,4 +173,9 @@
 - [x] MBTI 한 줄 표시 (EN</br>TP → ENTP)
 - [x] 배경 흐림(backdrop-blur) 제거
 - [x] 말풍선 형태 팝업으로 변경 (클릭한 원 위에 표시)
+- [x] 체크포인트 저장
+
+## GPS 조회 속도 개선
+- [x] watchPosition 옵션 최적화 (enableHighAccuracy false → 빠른 첫 응답, timeout 단축)
+- [x] 첫 응답 후 고정밀 watchPosition 병행 시작
 - [ ] 체크포인트 저장
