@@ -90,3 +90,19 @@ export async function getUserByOpenId(openId: string) {
 }
 
 // TODO: add feature queries here as your schema grows.
+
+// ─── User Spots ───
+import { InsertUserSpot, userSpots } from "../drizzle/schema";
+
+export async function insertUserSpot(data: InsertUserSpot) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(userSpots).values(data);
+  return result;
+}
+
+export async function getAllUserSpots() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(userSpots).orderBy(userSpots.createdAt);
+}

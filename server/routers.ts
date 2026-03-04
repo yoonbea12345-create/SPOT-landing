@@ -361,6 +361,83 @@ export const appRouter = router({
     }),
   }),
 
+  // User spots - real user markers on the map
+  spot: router({
+    // Submit a new spot (called from MvpMap after user fills in MBTI/MOOD/MODE/SIGN)
+    submit: publicProcedure
+      .input(
+        z.object({
+          mbti: z.string().min(1).max(8),
+          mood: z.string().min(1).max(64),
+          mode: z.string().min(1).max(64),
+          sign: z.string().min(1).max(128),
+          lat: z.number(),
+          lng: z.number(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) return { success: false };
+        try {
+          const ipAddress =
+            (ctx.req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+            (ctx.req.headers["x-real-ip"] as string) ||
+            ctx.req.socket?.remoteAddress ||
+            "unknown";
+
+          // IP whitelist - skip saving for owner's devices
+          const IP_WHITELIST = [
+            "221.141.9.83",
+            "112.221.224.125",
+            "211.235.89.25",
+            "2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f",
+            "2001:2d8:2183:48bf::6089:339b",
+            "::ffff:127.0.0.1",
+            "127.0.0.1",
+            "::1",
+          ];
+
+          const { insertUserSpot } = await import("./db");
+          await insertUserSpot({
+            mbti: input.mbti.toUpperCase(),
+            mood: input.mood,
+            mode: input.mode,
+            sign: input.sign,
+            lat: input.lat,
+            lng: input.lng,
+            ipAddress: IP_WHITELIST.includes(ipAddress) ? null : ipAddress,
+          });
+
+          // Log the spot submission event
+          try {
+            const { eventLogs } = await import("../drizzle/schema");
+            await db.insert(eventLogs).values({
+              ipAddress: IP_WHITELIST.includes(ipAddress) ? "owner" : ipAddress,
+              eventName: "spot_submitted",
+              page: "/mvp",
+            });
+          } catch (_) {}
+
+          return { success: true };
+        } catch (error) {
+          console.error("[Spot] Failed to submit:", error);
+          return { success: false };
+        }
+      }),
+
+    // Get all spots for map display
+    getAll: publicProcedure.query(async () => {
+      try {
+        const { getAllUserSpots } = await import("./db");
+        const spots = await getAllUserSpots();
+        return { spots };
+      } catch (error) {
+        console.error("[Spot] Failed to get all:", error);
+        return { spots: [] };
+      }
+    }),
+  }),
+
   // Email subscription management
   email: router({
     // Subscribe with email (called from landing page)

@@ -191,12 +191,26 @@ type PopupData = {
   screenY: number; // 클릭한 마커의 화면 Y 좌표
 };
 
+// 실제 스폿 입력 폼 타입
+type SpotFormData = {
+  mbti: string;
+  mood: string;
+  mode: string;
+  sign: string;
+};
+
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
+  const submitSpot = trpc.spot.submit.useMutation();
+  const { data: spotsData, refetch: refetchSpots } = trpc.spot.getAll.useQuery(undefined, { refetchInterval: 30000 });
   const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
+  const [showSpotForm, setShowSpotForm] = useState(false);
+  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "" });
+  const [spotSubmitted, setSpotSubmitted] = useState(false);
+  const realSpotMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
@@ -242,6 +256,17 @@ export default function MvpMap() {
       const timer = setTimeout(() => setShowConsentPopup(true), 3800);
       return () => clearTimeout(timer);
     }
+  }, [screen]);
+
+  // 지도 진입 후 11초 뒤 스폿 입력 팝업 (아직 제출 안 한 경우만)
+  useEffect(() => {
+    if (screen === "map" && !spotSubmitted) {
+      const timer = setTimeout(() => {
+        setShowSpotForm(true);
+      }, 11000);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
   // GPS 동의 처리 - 이벤트 트래킹은 비동기로 실행하고 GPS는 즉시 시작
@@ -558,7 +583,65 @@ export default function MvpMap() {
     });
   }, [userLocation, aggregateCityData]);
 
-  // 줌 레벨에 따른 표시 전환
+  // 실제 스폿 마커를 지도에 추가
+  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number }, map: google.maps.Map) => {
+    const color = MBTI_COLORS[spot.mbti.toUpperCase()] || '#00f0ff';
+    const el = document.createElement('div');
+    el.className = 'custom-marker';
+    el.dataset.mbti = spot.mbti.toUpperCase();
+    // 실제 유저 마커: 더 밝고 리폄 있는 원 (glow 강함)
+    el.style.cssText = `
+      width: 22px;
+      height: 22px;
+      background: ${color}55;
+      border: 2.5px solid ${color};
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 14px ${color}99, 0 0 4px ${color};
+      transition: all 0.2s;
+    `;
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: spot.lat, lng: spot.lng },
+      content: el,
+      title: spot.mbti,
+    });
+    el.addEventListener('click', (e: Event) => {
+      const me = e as MouseEvent;
+      const ref = userLocation || HONGDAE_CENTER;
+      const distance = Math.round(
+        google.maps.geometry.spherical.computeDistanceBetween(
+          new google.maps.LatLng(ref.lat, ref.lng),
+          new google.maps.LatLng(spot.lat, spot.lng)
+        )
+      );
+      setSelectedMarker({ mbti: spot.mbti.toUpperCase(), distance });
+      setPopupData({
+        mbti: spot.mbti.toUpperCase(),
+        mood: spot.mood,
+        mode: spot.mode,
+        sign: spot.sign,
+        distance,
+        screenX: me.clientX,
+        screenY: me.clientY,
+      });
+    });
+    realSpotMarkersRef.current.push(marker);
+  }, [userLocation]);
+
+  // DB에서 스폿 데이터 로드 시 마커 업데이트
+  useEffect(() => {
+    if (!spotsData?.spots || !mapRef.current) return;
+    // 기존 실제 스폿 마커 제거
+    realSpotMarkersRef.current.forEach(m => { m.map = null; });
+    realSpotMarkersRef.current = [];
+    // 새로 추가
+    spotsData.spots.forEach(spot => {
+      if (mapRef.current) addRealSpotMarker(spot, mapRef.current);
+    });
+  }, [spotsData, addRealSpotMarker]);
+
+  // 줄 레벨 슬라이더
   useEffect(() => {
     const isZoomedOut = currentZoom < 12;
 
@@ -976,6 +1059,160 @@ export default function MvpMap() {
           </>
         );
       })()}
+
+      {/* 스폿 입력 팝업 (11초 후) */}
+      {showSpotForm && !spotSubmitted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background: 'rgba(0,0,0,0.7)'}}>
+          <div
+            style={{
+              background: 'rgba(4, 4, 14, 0.98)',
+              border: '2px solid rgba(0, 240, 255, 0.5)',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              width: '320px',
+              maxWidth: '90vw',
+              boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
+            }}
+          >
+            {/* 제목 */}
+            <p
+              className="text-center font-bold mb-6"
+              style={{
+                color: '#00f0ff',
+                textShadow: '0 0 12px rgba(0, 240, 255, 0.7)',
+                fontSize: '15px',
+                lineHeight: '1.6',
+              }}
+            >
+              사용자님의 현재를<br />
+              지도 위에 표시해봐요!!
+            </p>
+
+            {/* MBTI */}
+            <div className="mb-4">
+              <label className="block text-center text-xs font-bold mb-1" style={{color: '#00f0ff', letterSpacing: '0.15em'}}>#TYPE (MBTI)</label>
+              <input
+                type="text"
+                value={spotFormData.mbti}
+                onChange={e => setSpotFormData(p => ({...p, mbti: e.target.value.toUpperCase()}))}
+                placeholder="ex) ENFP"
+                maxLength={4}
+                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(0, 240, 255, 0.07)',
+                  border: '1.5px solid rgba(0, 240, 255, 0.4)',
+                  color: '#00f0ff',
+                }}
+              />
+            </div>
+
+            {/* MOOD */}
+            <div className="mb-4">
+              <label className="block text-center text-xs font-bold mb-1" style={{color: '#c77dff', letterSpacing: '0.15em'}}>#MOOD</label>
+              <input
+                type="text"
+                value={spotFormData.mood}
+                onChange={e => setSpotFormData(p => ({...p, mood: e.target.value}))}
+                placeholder="ex) HAPPY"
+                maxLength={32}
+                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(199, 125, 255, 0.07)',
+                  border: '1.5px solid rgba(199, 125, 255, 0.4)',
+                  color: '#c77dff',
+                }}
+              />
+            </div>
+
+            {/* MODE */}
+            <div className="mb-4">
+              <label className="block text-center text-xs font-bold mb-1" style={{color: '#00f0b4', letterSpacing: '0.15em'}}>#MODE</label>
+              <input
+                type="text"
+                value={spotFormData.mode}
+                onChange={e => setSpotFormData(p => ({...p, mode: e.target.value}))}
+                placeholder="ex) 산책 중"
+                maxLength={32}
+                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(0, 240, 180, 0.07)',
+                  border: '1.5px solid rgba(0, 240, 180, 0.4)',
+                  color: '#00f0b4',
+                }}
+              />
+            </div>
+
+            {/* SIGN */}
+            <div className="mb-6">
+              <label className="block text-center text-xs font-bold mb-1" style={{color: '#ffc800', letterSpacing: '0.15em'}}>#SIGN</label>
+              <input
+                type="text"
+                value={spotFormData.sign}
+                onChange={e => setSpotFormData(p => ({...p, sign: e.target.value}))}
+                placeholder="ex) 모두 안녕하세요"
+                maxLength={64}
+                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(255, 200, 0, 0.07)',
+                  border: '1.5px solid rgba(255, 200, 0, 0.4)',
+                  color: '#ffc800',
+                }}
+              />
+            </div>
+
+            {/* 버튼 */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSpotForm(false)}
+                className="flex-1 py-2 rounded-lg text-sm"
+                style={{ border: '1px solid rgba(255,255,255,0.2)', color: '#888' }}
+              >
+                닫기
+              </button>
+              <button
+                onClick={async () => {
+                  const { mbti, mood, mode, sign } = spotFormData;
+                  if (!mbti || !mood || !mode || !sign) {
+                    toast.error('네 가지를 모두 입력해주세요!');
+                    return;
+                  }
+                  if (!userLocation) {
+                    toast.error('현재 위치를 확인할 수 없어요. GPS를 켜주세요.');
+                    return;
+                  }
+                  const result = await submitSpot.mutateAsync({
+                    mbti,
+                    mood,
+                    mode,
+                    sign,
+                    lat: userLocation.lat,
+                    lng: userLocation.lng,
+                  });
+                  if (result.success) {
+                    setSpotSubmitted(true);
+                    setShowSpotForm(false);
+                    toast.success('📍 내 스폿이 지도에 표시되었어요!');
+                    refetchSpots();
+                  } else {
+                    toast.error('저장에 실패했어요. 다시 시도해주세요.');
+                  }
+                }}
+                disabled={submitSpot.isPending}
+                className="flex-1 py-2 rounded-lg text-sm font-black"
+                style={{
+                  border: '2px solid #00f0ff',
+                  color: '#00f0ff',
+                  background: 'rgba(0, 240, 255, 0.1)',
+                  boxShadow: '0 0 16px rgba(0, 240, 255, 0.4)',
+                  opacity: submitSpot.isPending ? 0.6 : 1,
+                }}
+              >
+                {submitSpot.isPending ? '저장 중...' : '지도에 표시'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GPS 동의 팝업 */}
       {showConsentPopup && (

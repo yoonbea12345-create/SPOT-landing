@@ -178,4 +178,13 @@
 ## GPS 조회 속도 개선
 - [x] watchPosition 옵션 최적화 (enableHighAccuracy false → 빠른 첫 응답, timeout 단축)
 - [x] 첫 응답 후 고정밀 watchPosition 병행 시작
+- [x] 체크포인트 저장
+
+## 실제 사용자 마커 기능 (DB 저장)
+- [x] DB 스키마에 user_spots 테이블 추가 (mbti, mood, mode, sign, lat, lng, createdAt)
+- [x] tRPC spot.submit 프로시저 (저장) 및 spot.getAll 프로시저 (조회) 추가
+- [x] 지도 진입 11초 후 MBTI/MOOD/MODE/SIGN 입력 팝업 표시
+- [x] 제출 시 GPS 위치 기반 실제 마커 지도에 추가
+- [x] 제출 완료 시 Admin 로그 기록
+- [x] 테스트 작성 (6개 통과)
 - [ ] 체크포인트 저장

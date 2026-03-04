@@ -66,3 +66,19 @@ export const emailSubscriptions = mysqlTable("emailSubscriptions", {
 
 export type EmailSubscription = typeof emailSubscriptions.$inferSelect;
 export type InsertEmailSubscription = typeof emailSubscriptions.$inferInsert;
+
+// User spots table - real user markers on the map
+export const userSpots = mysqlTable("userSpots", {
+  id: int("id").autoincrement().primaryKey(),
+  mbti: varchar("mbti", { length: 8 }).notNull(),
+  mood: varchar("mood", { length: 64 }).notNull(),
+  mode: varchar("mode", { length: 64 }).notNull(),
+  sign: varchar("sign", { length: 128 }).notNull(),
+  lat: double("lat").notNull(),
+  lng: double("lng").notNull(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserSpot = typeof userSpots.$inferSelect;
+export type InsertUserSpot = typeof userSpots.$inferInsert;
