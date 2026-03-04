@@ -206,7 +206,6 @@ export default function MvpMap() {
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const watchIdRef = useRef<number | null>(null);
-  const startWatchingPositionRef = useRef<() => void>(() => {});
   const [currentZoom, setCurrentZoom] = useState(15);
 
   // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
@@ -243,7 +242,7 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // GPS 동의 처리
+  // GPS 동의 처리 - 동의/미동의 모두 watchPosition 즉시 시작
   const handleConsent = useCallback(async (agreed: boolean) => {
     setShowConsentPopup(false);
 
@@ -253,92 +252,18 @@ export default function MvpMap() {
       // 실패해도 GPS 처리는 계속 진행
     }
 
-    if (!agreed) {
-      startWatchingPositionRef.current();
-      return;
-    }
-
     if (!navigator.geolocation) {
-      toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
+      if (agreed) toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
       return;
     }
 
-    const loadingToast = toast.loading("📍 위치 정보를 가져오는 중... GPS를 켜주세요");
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        
-        console.log("✅ GPS 위치 수신 성공:", newLocation);
-        
-        setUserLocation(newLocation);
-
-        const saveGps = (id: number) => {
-          trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
-        };
-        const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
-        if (latestLogId) mvpLogIdRef.current = latestLogId;
-        const existingLogId = mvpLogIdRef.current;
-        if (existingLogId) {
-          saveGps(existingLogId);
-        } else {
-          fetch('/api/trpc/log.track?batch=1', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ "0": { json: { pathname: '/mvp' } } }),
-          }).then(r => r.json()).then(data => {
-            const newLogId = data?.[0]?.result?.data?.json?.logId;
-            if (newLogId) {
-              mvpLogIdRef.current = newLogId;
-              saveGps(newLogId);
-            }
-          }).catch(() => {});
-        }
-        
-        if (mapRef.current) {
-          mapRef.current.setCenter(newLocation);
-        }
-
-        if (userMarkerRef.current) {
-          userMarkerRef.current.position = newLocation;
-        }
-
-        toast.dismiss(loadingToast);
-        toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
-      },
-      (error) => {
-        console.log("GPS 에러:", error);
-        toast.dismiss(loadingToast);
-        
-        if (error.code === error.PERMISSION_DENIED) {
-          toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          toast.error("📍 위치 정보를 가져올 수 없습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
-        } else if (error.code === error.TIMEOUT) {
-          toast.error("📍 위치 정보 요청 시간이 초과되었습니다. GPS를 켜주시고 다시 시도해주세요.", { duration: 5000 });
-        } else {
-          toast.error("📍 알 수 없는 오류가 발생했습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
-        }
-      },
-      { 
-        enableHighAccuracy: true, 
-        timeout: 15000, 
-        maximumAge: 0 
-      }
-    );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackEvent]);
-
-  // 실시간 GPS 추적 시작
-  const startWatchingPosition = useCallback(() => {
+    // 동의/미동의 모두 watchPosition 즉시 시작
+    // 이미 추적 중이면 중복 방지
     if (watchIdRef.current !== null) return;
-    if (!navigator.geolocation) return;
 
-    console.log("📍 실시간 GPS 추적 시작");
+    if (agreed) {
+      toast.loading("📍 위치 정보를 가져오는 중... GPS를 켜주세요", { id: 'gps-loading', duration: 15000 });
+    }
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
@@ -346,39 +271,87 @@ export default function MvpMap() {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
+
+        console.log("✅ GPS 위치 수신:", newLocation);
+
+        // 첫 위치 수신 시 지도 이동 + 토스트
+        const isFirst = !userLocation;
         setUserLocation(newLocation);
+
+        if (mapRef.current && isFirst) {
+          mapRef.current.setCenter(newLocation);
+          mapRef.current.setZoom(15);
+        }
         if (userMarkerRef.current) {
           userMarkerRef.current.position = newLocation;
+        }
+
+        if (agreed && isFirst) {
+          toast.dismiss('gps-loading');
+          toast.success("✅ 내 위치로 이동했어요!", { duration: 3000 });
+        }
+
+        // GPS 좌표 서버 저장 (첫 수신 시 1회)
+        if (isFirst) {
+          const saveGps = (id: number) => {
+            trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
+          };
+          const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
+          if (latestLogId) mvpLogIdRef.current = latestLogId;
+          const existingLogId = mvpLogIdRef.current;
+          if (existingLogId) {
+            saveGps(existingLogId);
+          } else {
+            fetch('/api/trpc/log.track?batch=1', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ "0": { json: { pathname: '/mvp' } } }),
+            }).then(r => r.json()).then(data => {
+              const newLogId = data?.[0]?.result?.data?.json?.logId;
+              if (newLogId) {
+                mvpLogIdRef.current = newLogId;
+                saveGps(newLogId);
+              }
+            }).catch(() => {});
+          }
         }
       },
       (error) => {
         console.log("GPS watch error:", error);
+        toast.dismiss('gps-loading');
+        if (agreed) {
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            toast.error("📍 위치 정보를 가져올 수 없습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
+          } else if (error.code === error.TIMEOUT) {
+            toast.error("📍 위치 정보 요청 시간이 초과되었습니다. GPS를 켜주시고 다시 시도해주세요.", { duration: 5000 });
+          } else {
+            toast.error("📍 알 수 없는 오류가 발생했습니다. GPS를 켜주시고 새로고침 해주세요.", { duration: 5000 });
+          }
+        }
+        // 에러 시 watchId 초기화하여 재시도 가능하게
+        watchIdRef.current = null;
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 15000,
         maximumAge: 0,
       }
     );
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackEvent, userLocation]);
 
-  startWatchingPositionRef.current = startWatchingPosition;
-
-  const stopWatchingPosition = useCallback(() => {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-  }, []);
-
+  // 컴포넌트 언마운트 시 GPS 추적 중지
   useEffect(() => {
-    if (userLocation && screen === "map") {
-      startWatchingPosition();
-    }
     return () => {
-      stopWatchingPosition();
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
     };
-  }, [userLocation, screen, startWatchingPosition, stopWatchingPosition]);
+  }, []);
 
   // 도시별 MBTI 개수 집계
   const aggregateCityData = useCallback(() => {
