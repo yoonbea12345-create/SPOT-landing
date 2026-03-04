@@ -546,7 +546,7 @@ export default function MvpMap() {
           if (status === 'OK' && results && results[0]) {
             const components = results[0].address_components;
             const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
-            const si = get('administrative_area_level_1').replace('시', '').replace('도', '').replace('특별시', '').replace('광역시', '').replace('특자시', '') || get('locality');
+            const si = get('administrative_area_level_1') || get('locality');
             const gu = get('sublocality_level_1') || get('administrative_area_level_2');
             const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
             const addr = [si, gu, dong].filter(Boolean).join(' ');
@@ -653,7 +653,7 @@ export default function MvpMap() {
         if (status === 'OK' && results && results[0]) {
           const components = results[0].address_components;
           const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
-          const si = get('administrative_area_level_1').replace('시', '').replace('도', '').replace('특별시', '').replace('광역시', '').replace('특자시', '') || get('locality');
+          const si = get('administrative_area_level_1') || get('locality');
           const gu = get('sublocality_level_1') || get('administrative_area_level_2');
           const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
           const addr = [si, gu, dong].filter(Boolean).join(' ');
@@ -943,20 +943,33 @@ export default function MvpMap() {
                   overflow: 'hidden',
                 }}
               >
-                {/* 헤더: 주소 + 거리 + X */}
+                {/* 헤더: MBTI 뼱지 + 주소 + 거리 + X */}
                 <div
                   className="flex items-center justify-between px-3 pt-3 pb-2"
                   style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
                 >
-                  <div className="flex flex-col gap-0.5 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {/* MBTI 뼱지 */}
                     <div
-                      className="text-[11px] font-black tracking-wide truncate"
-                      style={{ color: MBTI_COLORS[popupData.mbti], textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88` }}
+                      className="px-2 py-0.5 rounded-full text-xs font-black tracking-widest flex-shrink-0"
+                      style={{
+                        background: `${MBTI_COLORS[popupData.mbti]}22`,
+                        border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}`,
+                        color: MBTI_COLORS[popupData.mbti],
+                        boxShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}66`,
+                        whiteSpace: 'nowrap',
+                      }}
                     >
-                      {popupAddress ?? '위치 확인 중...'}
+                      {popupData.mbti}
                     </div>
-                    <div className="text-[10px] font-bold" style={{ color: '#888' }}>
-                      {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`}
+                    {/* 주소 + 거리 */}
+                    <div className="flex flex-col gap-0 min-w-0">
+                      <div className="text-[10px] font-bold text-gray-300 truncate">
+                        {popupAddress ?? '위치 확인 중...'}
+                      </div>
+                      <div className="text-[9px]" style={{ color: '#888' }}>
+                        {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`}
+                      </div>
                     </div>
                   </div>
                   <button
