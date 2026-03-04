@@ -1091,7 +1091,7 @@ export default function MvpMap() {
                 lineHeight: '1.6',
               }}
             >
-              사용자님의 현재를<br />
+              사용자님의 MBTI를<br />
               지도 위에 표시해봐요!!
             </p>
 
