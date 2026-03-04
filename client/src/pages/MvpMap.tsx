@@ -193,7 +193,7 @@ type PopupData = {
   screenY: number; // 클릭한 마커의 화면 Y 좌표
 };
 
-// 실제 스폿 입력 폼 타입
+// 실제 스팟 입력 폼 타입
 type SpotFormData = {
   mbti: string;
   mood: string;
@@ -261,7 +261,7 @@ export default function MvpMap() {
     }
   }, [screen]);
 
-  // 지도 진입 후 11초 뒤 스폿 입력 팝업 (아직 제출 안 한 경우만)
+  // 지도 진입 후 11초 뒤 스팟 입력 팝업 (아직 제출 안 한 경우만)
   useEffect(() => {
     if (screen === "map" && !spotSubmitted) {
       const timer = setTimeout(() => {
@@ -602,7 +602,7 @@ export default function MvpMap() {
     });
   }, [userLocation, aggregateCityData]);
 
-  // 실제 스폿 마커를 지도에 추가
+  // 실제 스팟 마커를 지도에 추가
   const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number }, map: google.maps.Map) => {
     const color = MBTI_COLORS[spot.mbti.toUpperCase()] || '#00f0ff';
     const el = document.createElement('div');
@@ -664,10 +664,10 @@ export default function MvpMap() {
     realSpotMarkersRef.current.push(marker);
   }, [userLocation]);
 
-  // DB에서 스폿 데이터 로드 시 마커 업데이트
+  // DB에서 스팟 데이터 로드 시 마커 업데이트
   useEffect(() => {
     if (!spotsData?.spots || !mapRef.current) return;
-    // 기존 실제 스폿 마커 제거
+    // 기존 실제 스팟 마커 제거
     realSpotMarkersRef.current.forEach(m => { m.map = null; });
     realSpotMarkersRef.current = [];
     // 새로 추가
@@ -1067,7 +1067,7 @@ export default function MvpMap() {
         );
       })()}
 
-      {/* 스폿 입력 팝업 (11초 후) */}
+      {/* 스팟 입력 팝업 (11초 후) */}
       {showSpotForm && !spotSubmitted && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background: 'rgba(0,0,0,0.7)'}}>
           <div
@@ -1198,7 +1198,7 @@ export default function MvpMap() {
                   if (result.success) {
                     setSpotSubmitted(true);
                     setShowSpotForm(false);
-                    toast.success('📍 내 스폿이 지도에 표시되었어요!');
+                    toast.success('📍 내 SPOT이 지도에 표시되었어요!');
                     refetchSpots();
                   } else {
                     toast.error('저장에 실패했어요. 다시 시도해주세요.');
