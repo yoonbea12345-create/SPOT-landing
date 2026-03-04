@@ -189,7 +189,6 @@ type PopupData = {
   distance: number;
   lat: number;
   lng: number;
-  color: string; // MBTI 색상
   screenX: number; // 클릭한 마커의 화면 X 좌표
   screenY: number; // 클릭한 마커의 화면 Y 좌표
 };
@@ -538,7 +537,6 @@ export default function MvpMap() {
           distance,
           lat: item.lat,
           lng: item.lng,
-          color: MBTI_COLORS[item.mbti] || '#00f0ff',
           screenX: mouseEvent.clientX,
           screenY: mouseEvent.clientY,
         });
@@ -646,7 +644,6 @@ export default function MvpMap() {
         distance,
         lat: spot.lat,
         lng: spot.lng,
-        color: MBTI_COLORS[spot.mbti.toUpperCase()] || '#00f0ff',
         screenX: me.clientX,
         screenY: me.clientY,
       });
@@ -983,29 +980,9 @@ export default function MvpMap() {
                   </button>
                 </div>
 
-                {/* 4가지 성향 그리드 (TYPE/MOOD/MODE/SIGN) */}
+                {/* 3가지 성향 그리드 (MOOD/MODE/SIGN) */}
                 <div className="p-2 flex flex-col gap-1.5">
-                  {/* 최상단 행: TYPE 전체 너비 */}
-                  <div
-                    className="rounded-xl p-2"
-                    style={{
-                      background: 'rgba(0, 240, 255, 0.08)',
-                      border: '1px solid rgba(0, 240, 255, 0.3)',
-                    }}
-                  >
-                    <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#TYPE</div>
-                    <div
-                      className="text-xs font-black"
-                      style={{
-                        color: popupData.color || '#00f0ff',
-                        textShadow: `0 0 8px ${popupData.color || '#00f0ff'}99`,
-                      }}
-                    >
-                      {popupData.mbti}
-                    </div>
-                  </div>
-
-                  {/* 중간 행: MOOD + MODE */}
+                  {/* 상단 행: MOOD + MODE */}
                   <div className="grid grid-cols-2 gap-1.5">
                     {/* #MOOD */}
                     <div
