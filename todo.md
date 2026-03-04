@@ -153,3 +153,8 @@
 - [x] Admin: 이메일 구독 목록 탭 추가
 - [x] 테스트 작성 및 통과 (16 tests passed)
 - [x] 체크포인트 저장
+
+## IP 화이트리스트 추가 (2001:2d8:2183:48bf::6089:339b)
+- [x] server/routers/log.ts 또는 routers.ts에 새 IPv6 추가
+- [x] 해당 IP의 기존 DB 기록 삭제
+- [ ] 체크포인트 저장
