@@ -36,7 +36,32 @@ const MODE_LIST = [
   "전시 관람", "야경 구경", "음악 감상", "독서 중", "그냥 배회 중"
 ];
 
-// SIGN 목록 (랜덤 문구)
+// SIGN 시그널 목록 (등록 폼 선택지)
+const SIGN_SIGNALS = [
+  { emoji: "✏️", text: "직접 입력" },
+  { emoji: "👋", text: "말 걸어도 돼요" },
+  { emoji: "🎧", text: "혼자 있고 싶어요" },
+  { emoji: "☕", text: "같이 앉아도 돼요" },
+  { emoji: "👀", text: "구경 중이에요" },
+  { emoji: "🚶", text: "지나가는 중이에요" },
+  { emoji: "📸", text: "사진 찍는 중이에요" },
+  { emoji: "🍽️", text: "맛집 찾는 중이에요" },
+  { emoji: "🎵", text: "공연 보러 왔어요" },
+  { emoji: "🛍️", text: "쇼핑 중이에요" },
+  { emoji: "🤝", text: "누군가 기다리는 중이에요" },
+  { emoji: "💻", text: "작업 중이에요" },
+  { emoji: "📖", text: "책 읽는 중이에요" },
+  { emoji: "🌙", text: "야경 보러 왔어요" },
+  { emoji: "🐾", text: "산책 중이에요" },
+  { emoji: "🍺", text: "한잔하러 왔어요" },
+  { emoji: "🎮", text: "게임하러 왔어요" },
+  { emoji: "🏃", text: "운동 중이에요" },
+  { emoji: "😴", text: "쉬는 중이에요" },
+  { emoji: "🗺️", text: "동네 탐험 중이에요" },
+  { emoji: "💬", text: "대화 상대 찾아요" },
+];
+
+// SIGN 목록 (더미 데이터용 랜덤 문구)
 const SIGN_LIST = [
   "모두 안녕하세요",
   "오늘 날씨 좋다",
@@ -1386,20 +1411,82 @@ export default function MvpMap() {
 
             {/* SIGN */}
             <div className="mb-6">
-              <label className="block text-center text-xs font-bold mb-1" style={{color: '#ffc800', letterSpacing: '0.15em'}}>#SIGN</label>
-              <input
-                type="text"
-                value={spotFormData.sign}
-                onChange={e => setSpotFormData(p => ({...p, sign: e.target.value}))}
-                placeholder="ex) 모두 안녕하세요"
-                maxLength={64}
-                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(255, 200, 0, 0.07)',
-                  border: '1.5px solid rgba(255, 200, 0, 0.4)',
-                  color: '#ffc800',
-                }}
-              />
+              <label className="block text-center text-xs font-bold mb-2" style={{color: '#ffc800', letterSpacing: '0.15em'}}>#SIGN</label>
+              {/* 시그널 선택 그리드 */}
+              <div className="grid grid-cols-3 gap-1.5 mb-2">
+                {SIGN_SIGNALS.map((sig) => {
+                  const isDirectInput = sig.text === '직접 입력';
+                  const isSelected = isDirectInput
+                    ? !SIGN_SIGNALS.slice(1).some(s => s.text === spotFormData.sign) && spotFormData.sign !== ''
+                    : spotFormData.sign === sig.text;
+                  const isDirectInputMode = spotFormData.sign === '__direct__' || (!SIGN_SIGNALS.slice(1).some(s => s.text === spotFormData.sign) && spotFormData.sign !== '' && spotFormData.sign !== '__direct__');
+                  return (
+                    <button
+                      key={sig.text}
+                      type="button"
+                      onClick={() => {
+                        if (isDirectInput) {
+                          setSpotFormData(p => ({...p, sign: '__direct__'}));
+                        } else {
+                          setSpotFormData(p => ({...p, sign: sig.text}));
+                        }
+                      }}
+                      className="rounded-lg px-1 py-2 text-center transition-all"
+                      style={{
+                        background: isDirectInput
+                          ? (isDirectInputMode ? 'rgba(255,200,0,0.2)' : 'rgba(255,200,0,0.05)')
+                          : (isSelected ? 'rgba(255,200,0,0.2)' : 'rgba(255,200,0,0.05)'),
+                        border: isDirectInput
+                          ? (isDirectInputMode ? '1.5px solid rgba(255,200,0,0.8)' : '1.5px solid rgba(255,200,0,0.25)')
+                          : (isSelected ? '1.5px solid rgba(255,200,0,0.8)' : '1.5px solid rgba(255,200,0,0.25)'),
+                        color: isDirectInput
+                          ? (isDirectInputMode ? '#ffc800' : 'rgba(255,200,0,0.5)')
+                          : (isSelected ? '#ffc800' : 'rgba(255,200,0,0.5)'),
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      <div style={{ fontSize: '16px', marginBottom: '2px' }}>{sig.emoji}</div>
+                      <div style={{ fontSize: '9px' }}>{sig.text}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              {/* 직접 입력 모드일 때 텍스트 입력창 표시 */}
+              {spotFormData.sign === '__direct__' && (
+                <input
+                  type="text"
+                  value=""
+                  onChange={e => setSpotFormData(p => ({...p, sign: e.target.value || '__direct__'}))}
+                  placeholder="직접 입력해주세요"
+                  maxLength={64}
+                  autoFocus
+                  className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
+                  style={{
+                    background: 'rgba(255, 200, 0, 0.07)',
+                    border: '1.5px solid rgba(255, 200, 0, 0.6)',
+                    color: '#ffc800',
+                  }}
+                />
+              )}
+              {/* 직접 입력 후 텍스트가 있을 때 (프리셋이 아닌 값) */}
+              {spotFormData.sign !== '' && spotFormData.sign !== '__direct__' && !SIGN_SIGNALS.slice(1).some(s => s.text === spotFormData.sign) && (
+                <input
+                  type="text"
+                  value={spotFormData.sign}
+                  onChange={e => setSpotFormData(p => ({...p, sign: e.target.value || '__direct__'}))}
+                  placeholder="직접 입력해주세요"
+                  maxLength={64}
+                  autoFocus
+                  className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
+                  style={{
+                    background: 'rgba(255, 200, 0, 0.07)',
+                    border: '1.5px solid rgba(255, 200, 0, 0.6)',
+                    color: '#ffc800',
+                  }}
+                />
+              )}
             </div>
 
             {/* 버튼 */}
@@ -1413,7 +1500,9 @@ export default function MvpMap() {
               </button>
               <button
                 onClick={async () => {
-                  const { mbti, mood, mode, sign } = spotFormData;
+                  const { mbti, mood, mode } = spotFormData;
+                  // __direct__ 상태(직접 입력 선택했지만 아직 입력 안 한 경우) 처리
+                  const sign = spotFormData.sign === '__direct__' ? '' : spotFormData.sign;
                   if (!mbti || !mood || !mode || !sign) {
                     toast.error('네 가지를 모두 입력해주세요!');
                     return;
