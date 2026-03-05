@@ -64,6 +64,172 @@ const SIGN_SIGNALS = [
 // SIGN 목록 (더미 데이터용 - SIGN_SIGNALS와 동일한 이모지+텍스트 형식)
 const SIGN_LIST = SIGN_SIGNALS.slice(1).map(s => `${s.emoji} ${s.text}`);
 
+// 핫플레이스 도시별 큐레이션 데이터
+type HotplaceVenue = {
+  name: string;
+  category: string;
+  address: string;
+  description: string;
+  stats: { icon: string; text: string }[];
+};
+
+const HOTPLACE_DATA: Record<string, HotplaceVenue> = {
+  홍대: {
+    name: "핵인싸 클럽 FF",
+    category: "🍺 클럽 · 바",
+    address: "서울 마포구 와우산로 홍대입구역 3번 출구",
+    description: "홍대 골목 숨은 루프탑 바. 인스타 성지로 떠오른 네온 인테리어.",
+    stats: [
+      { icon: "💬", text: "지금 이 공간 반경 50m — ENFP 7명, ENTP 5명 감지 중. 대화 시작 확률 높은 구역" },
+      { icon: "💘", text: "이 장소 방문자 중 37%가 처음 만난 사람과 연락처를 교환했어요 (SPOT 집계)" },
+      { icon: "🕐", text: "금요일 밤 11시, 지금 이 시간대가 역대 SPOT 밀도 최고 기록 시간대예요" },
+    ],
+  },
+  강남: {
+    name: "카페 그레이 가든",
+    category: "☕ 감성 카페",
+    address: "서울 강남구 선릉로 압구정로데오역 인근",
+    description: "압구정 골목 속 유럽풍 정원 카페. 인스타 릴스 촬영 명소.",
+    stats: [
+      { icon: "🧠", text: "이 카페 방문자 MBTI 1위 INFJ, 2위 ISFP — 감성 충전 목적 방문 비율 61%" },
+      { icon: "🤝", text: "혼자 방문한 사람 중 28%가 옆 테이블과 대화를 시작했어요 (SPOT 기록 기준)" },
+      { icon: "📍", text: "반경 100m 내 지금 SPOT 활성 유저 12명 — 강남 전체 카페 중 밀도 3위" },
+    ],
+  },
+  여의도: {
+    name: "한강 피크닉 스팟 B구역",
+    category: "🌿 야외 · 피크닉",
+    address: "서울 영등포구 여의도 한강공원 B구역",
+    description: "여의도 한강공원 숨은 피크닉 명당. 석양 뷰 최고.",
+    stats: [
+      { icon: "🌅", text: "일몰 직전 30분, 이 구역 SPOT 밀도가 하루 중 최고치 — 지금 ISFP 9명, INFP 6명 감지" },
+      { icon: "💬", text: "피크닉 매트 펼친 사람끼리 말 걸 확률 — 이 구역이 한강공원 전체 중 1위 (SPOT 집계)" },
+      { icon: "🎯", text: "오늘 이 시간대 같은 MBTI를 만날 확률 추정 68% — 지금 당장 가볼 만한 이유" },
+    ],
+  },
+  성수: {
+    name: "성수 어반 브루어리",
+    category: "🍺 크래프트 비어",
+    address: "서울 성동구 성수이로 뚝섬역 2번 출구",
+    description: "공장 개조 크래프트 비어 펍. 성수 힙스터들의 성지.",
+    stats: [
+      { icon: "🔥", text: "지금 이 펍 반경 30m — ENTJ 8명, ENTP 6명 집중. 성수 전체 SPOT 밀도 1위 구역" },
+      { icon: "🗣️", text: "이 공간 방문자 중 44%가 모르는 사람과 대화를 나눴어요 — 서울 바 중 대화 지수 최상위" },
+      { icon: "⚡", text: "퇴근 후 7~9시, ENTJ·ENTP 유형 급증 타임 — 지금이 SPOT 황금 시간대" },
+    ],
+  },
+  명동: {
+    name: "명동 이색 라멘 골목",
+    category: "🍜 맛집 · 라멘",
+    address: "서울 중구 명동8나길 명동역 8번 출구",
+    description: "외국인도 줄 서는 명동 골목 라멘집. 진한 돈코츠 국물.",
+    stats: [
+      { icon: "🌏", text: "대기줄 MBTI 분포 — ESTJ 31%, ISTJ 24%, ENTJ 18% (SPOT 대기 유저 집계 기준)" },
+      { icon: "💬", text: "평균 대기 22분 — 이 줄에서 옆 사람과 대화 시작한 비율 52%. 대기줄이 곧 만남의 광장" },
+      { icon: "🎯", text: "같은 MBTI끼리 자연스럽게 합석 성사율 — 명동 전체 맛집 중 1위 (SPOT 기록)" },
+    ],
+  },
+  부산: {
+    name: "해운대 루프탑 바 WAVE",
+    category: "🌊 루프탑 바",
+    address: "부산 해운대구 해운대해변로 해운대역 인근",
+    description: "해운대 바다 뷰 루프탑 바. 부산 여행 필수 코스.",
+    stats: [
+      { icon: "✈️", text: "여행 중 방문자 비율 78% — ENFP·ESFP 유형이 '부산 왔으면 여기'로 SPOT에 등록한 장소 1위" },
+      { icon: "💘", text: "이 루프탑에서 처음 만난 사람과 연락처 교환 성공률 41% — 부산 전체 바 중 최고" },
+      { icon: "🌊", text: "저녁 8시 이후 SPOT 밀도 3배 급증 — 지금 이 시간 반경 50m에 23명 감지 중" },
+    ],
+  },
+  대구: {
+    name: "동성로 빈티지 카페 거리",
+    category: "☕ 빈티지 카페",
+    address: "대구 중구 동성로 중앙로역 인근",
+    description: "대구 동성로 골목 빈티지 감성 카페 밀집 구역.",
+    stats: [
+      { icon: "🎨", text: "이 골목 SPOT 유저 MBTI 1위 INFP (34%), 2위 ISFP (27%) — 감성 유형 집중 구역" },
+      { icon: "📸", text: "오전 11시~오후 1시 자연광 타임, 이 시간대 SPOT 사진 공유 수 하루 중 최다" },
+      { icon: "🤫", text: "혼자 온 사람끼리 말 없이 같은 공간 공유하는 비율 — 대구 카페 중 1위. 조용한 연대감" },
+    ],
+  },
+  인천: {
+    name: "개항로 이색 포차",
+    category: "🍢 이색 포차",
+    address: "인천 중구 개항로 인천역 1번 출구",
+    description: "개항장 골목 옛 창고를 개조한 이색 포차. 인천 로컬 감성.",
+    stats: [
+      { icon: "🎸", text: "버스킹 시작 후 30분 내 SPOT 신규 등록 평균 +14명 — 음악이 사람을 불러모으는 공간" },
+      { icon: "🍻", text: "이 포차 방문자 중 ISTP·ESTP 비율 합산 49% — '말보다 분위기로 통하는' 유형 집중" },
+      { icon: "💬", text: "처음 온 사람이 단골처럼 어울리게 된 비율 63% — 인천 전체 포차 중 '낯선 사람 친해지기' 1위" },
+    ],
+  },
+  광주: {
+    name: "동명동 감성 카페 골목",
+    category: "☕ 감성 카페",
+    address: "광주 동구 동명동 충장로 인근",
+    description: "광주 예술의 거리 옆 감성 카페 골목. 로컬 아티스트 공간.",
+    stats: [
+      { icon: "🎨", text: "플리마켓 당일 SPOT 활성 유저 평소 대비 4.2배 급증 — INFJ·ENFJ 유형 집중 유입" },
+      { icon: "💡", text: "이 골목 방문자 중 '새로운 사람을 만나러 왔다'고 SPOT에 등록한 비율 — 광주 1위 (38%)" },
+      { icon: "🤝", text: "아티스트와 방문객이 자연스럽게 대화 시작한 비율 55% — 광주에서 가장 열린 공간" },
+    ],
+  },
+  대전: {
+    name: "성심당 옆 골목 디저트 투어",
+    category: "🍰 디저트 카페",
+    address: "대전 중구 은행동 성심당 인근",
+    description: "성심당 줄 서다 발견한 골목 디저트 카페들. 대전 여행 필수.",
+    stats: [
+      { icon: "🍞", text: "성심당 오픈런 대기줄 SPOT 등록자 중 ESFJ 35%, ENFJ 22% — '같이 기다리면 친해지는' 유형 집중" },
+      { icon: "💬", text: "대기 중 옆 사람과 디저트 추천 대화 시작 비율 67% — 대전 전체 맛집 대기줄 중 1위" },
+      { icon: "📍", text: "이 골목 반경 200m, 지금 SPOT 활성 유저 18명 — 대전 전체 핫플 중 밀도 압도적 1위" },
+    ],
+  },
+  울산: {
+    name: "태화강 국가정원 카페",
+    category: "🌿 자연 카페",
+    address: "울산 중구 태화동 태화강 국가정원 내",
+    description: "태화강 국가정원 안 힐링 카페. 대나무숲 뷰 인생샷 명소.",
+    stats: [
+      { icon: "🌿", text: "이 카페 SPOT 유저 MBTI 1위 ISFJ (31%), 2위 INFJ (26%) — 조용히 힐링하러 온 사람들의 공간" },
+      { icon: "🎋", text: "저녁 7시 이후 대나무숲 조명 점등 — 이 시간 SPOT 신규 등록 하루 중 최다, 지금 11명 감지" },
+      { icon: "💌", text: "혼자 왔다가 같은 MBTI를 만나 연락처를 교환한 비율 — 울산 전체 카페 중 1위 (29%)" },
+    ],
+  },
+  수원: {
+    name: "행리단길 이색 맛집",
+    category: "🍽️ 이색 맛집",
+    address: "수원 팔달구 행궁동 수원화성 인근",
+    description: "수원화성 옆 행리단길 골목 이색 퓨전 맛집. 수원 로컬 핫플.",
+    stats: [
+      { icon: "🏰", text: "수원화성 야경 감상 후 이 골목 유입 비율 72% — ENTP·ENFP 유형이 '다음 코스'로 가장 많이 등록" },
+      { icon: "🍽️", text: "이 골목 합석 문화 정착 — 처음 온 솔로 방문자 중 합석 성사율 48%, 수원 1위" },
+      { icon: "💬", text: "메뉴 추천 대화로 시작해 연락처 교환까지 간 비율 33% — '음식이 대화를 만드는' 공간" },
+    ],
+  },
+  고양: {
+    name: "일산 호수공원 피크닉 카페",
+    category: "🌿 호수뷰 카페",
+    address: "경기 고양시 일산동구 호수공원 인근",
+    description: "일산 호수공원 뷰 카페. 주말 피크닉 성지.",
+    stats: [
+      { icon: "🌊", text: "분수 쇼 시간(오후 2·4·6시) 전후 30분 — SPOT 밀도 평소 대비 2.8배 급증, 지금 ISFP 8명 감지" },
+      { icon: "🎯", text: "피크닉 매트 펼친 솔로 방문자 중 같은 MBTI와 자연스럽게 어울린 비율 — 경기도 1위 (41%)" },
+      { icon: "💬", text: "'강아지 때문에 대화 시작됐다'는 SPOT 후기 비율 — 이 공원이 경기도 전체 중 압도적 1위" },
+    ],
+  },
+  제주시: {
+    name: "제주 협재 해변 이색 카페",
+    category: "🌊 오션뷰 카페",
+    address: "제주 제주시 한림읍 협재리 협재해수욕장 인근",
+    description: "협재 해변 바로 앞 오션뷰 카페. 에메랄드빛 바다 뷰 인생샷.",
+    stats: [
+      { icon: "✈️", text: "제주 여행 중 SPOT 등록자 중 이 카페 방문 비율 — ENFP 1위, ESFP 2위. '제주 왔으면 여기'" },
+      { icon: "🌅", text: "일몰 1시간 전 SPOT 밀도 최고치 — 지금 이 시간 반경 100m에 ENFP 11명, ESFP 8명 감지" },
+      { icon: "💘", text: "혼자 여행 중 이 카페에서 새로운 사람과 동행이 된 비율 — 제주 전체 카페 중 1위 (22%)" },
+    ],
+  },
+};
+
 // 더미 데이터 타입
 type DummyMarker = {
   mbti: string;
@@ -236,6 +402,8 @@ export default function MvpMap() {
   const watchIdRef = useRef<number | null>(null);
   const [currentZoom, setCurrentZoom] = useState(15);
   const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
+  const [showHotplacePopup, setShowHotplacePopup] = useState(false);
+  const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
 
   // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
   const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
@@ -896,69 +1064,130 @@ export default function MvpMap() {
         </div>
       </div>
 
-      {/* 핫플레이스 TOP3 배너 */}
-      {hotspotCityNames.length > 0 && (
+      {/* 핫플레이스 팝업 모달 */}
+      {showHotplacePopup && hotspotCityNames.length > 0 && (
         <div
-          className="hotspot-banner bg-black/90 backdrop-blur-sm border-b z-10 flex items-center justify-center gap-0"
-          style={{
-            borderColor: 'rgba(255, 69, 0, 0.35)',
-            padding: '5px 10px',
-          }}
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowHotplacePopup(false)}
         >
-          {/* 불꽃 아이콘 + 타이틀 */}
-          <span
+          <div
+            className="hotspot-banner w-full max-w-md rounded-t-2xl overflow-hidden"
             style={{
-              fontSize: '9px',
-              fontWeight: 900,
-              color: '#ff6a00',
-              textShadow: '0 0 8px #ff450099',
-              letterSpacing: '0.5px',
-              marginRight: '6px',
-              whiteSpace: 'nowrap',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '3px',
+              background: 'rgba(4,4,14,0.98)',
+              border: '1.5px solid rgba(255,69,0,0.5)',
+              borderBottom: 'none',
+              boxShadow: '0 -8px 40px rgba(255,69,0,0.25)',
+              maxHeight: '80vh',
+              overflowY: 'auto',
             }}
+            onClick={e => e.stopPropagation()}
           >
-            <span className="hotspot-fire" style={{ fontSize: '11px' }}>🔥</span>
-            <span>핫플레이스</span>
-          </span>
-          {/* 구분선 */}
-          <span style={{ color: 'rgba(255,69,0,0.5)', fontSize: '10px', marginRight: '7px', fontWeight: 300 }}>|</span>
-          {/* 랭킹 아이템들 */}
-          <div className="flex items-center gap-2">
-            {hotspotCityNames.map((city, idx) => (
-              <div key={city} className="flex items-center gap-1">
-                <span
-                  className="hotspot-rank-num"
-                  style={{
-                    fontSize: '8px',
-                    fontWeight: 900,
-                    color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32',
-                    textShadow: idx === 0 ? '0 0 8px #ffd700aa' : idx === 1 ? '0 0 6px #c0c0c088' : '0 0 6px #cd7f3288',
-                    lineHeight: 1,
-                  }}
-                >
-                  {idx + 1}
-                </span>
-                <span
-                  className={idx === 0 ? 'hotspot-rank-1-city' : ''}
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    color: idx === 0 ? '#ffd700' : '#fff',
-                    letterSpacing: '-0.2px',
-                    lineHeight: 1,
-                    textShadow: idx === 0 ? undefined : idx === 1 ? '0 0 4px rgba(255,255,255,0.3)' : undefined,
-                  }}
-                >
-                  {city}
-                </span>
-                {idx < hotspotCityNames.length - 1 && (
-                  <span style={{ color: 'rgba(255,100,0,0.35)', fontSize: '9px', marginLeft: '2px' }}>·</span>
-                )}
+            {/* 팝업 헤더 */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(255,69,0,0.2)' }}>
+              <div className="flex items-center gap-2">
+                <span className="hotspot-fire" style={{ fontSize: '20px' }}>🔥</span>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#ff6a00', textShadow: '0 0 10px #ff450099', letterSpacing: '1px' }}>핫플레이스 TOP3</div>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,150,80,0.7)', marginTop: '1px' }}>지금 가장 핫한 골목 큐레이션</div>
+                </div>
               </div>
-            ))}
+              <button
+                onClick={() => setShowHotplacePopup(false)}
+                style={{ color: 'rgba(255,255,255,0.4)', fontSize: '20px', lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer' }}
+              >✕</button>
+            </div>
+
+            {/* 탭 */}
+            <div className="flex" style={{ borderBottom: '1px solid rgba(255,69,0,0.15)' }}>
+              {hotspotCityNames.map((city, idx) => (
+                <button
+                  key={city}
+                  onClick={() => setSelectedHotplaceTab(idx)}
+                  className="flex-1 py-3 text-center transition-all"
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    color: selectedHotplaceTab === idx
+                      ? (idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32')
+                      : 'rgba(255,255,255,0.35)',
+                    borderBottom: selectedHotplaceTab === idx
+                      ? `2px solid ${idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32'}`
+                      : '2px solid transparent',
+                    background: 'none',
+                    cursor: 'pointer',
+                    textShadow: selectedHotplaceTab === idx
+                      ? `0 0 8px ${idx === 0 ? '#ffd700aa' : idx === 1 ? '#c0c0c088' : '#cd7f3288'}`
+                      : 'none',
+                  }}
+                >
+                  <span className={selectedHotplaceTab === idx && idx === 0 ? 'hotspot-rank-1-city' : ''}>
+                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {city}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* 탭 콘텐츠 */}
+            {(() => {
+              const city = hotspotCityNames[selectedHotplaceTab];
+              const venue = HOTPLACE_DATA[city] || {
+                name: `${city} 추천 핫플`,
+                category: '📍 로컬 명소',
+                address: `${city} 중심부`,
+                description: `${city}에서 지금 가장 주목받는 공간입니다.`,
+                stats: [
+                  { icon: '🧠', text: `${city}에서 다양한 MBTI 유형이 모여요` },
+                  { icon: '🔥', text: '주말 저녁 방문 추천' },
+                  { icon: '📅', text: '최근 SNS에서 급부상 중인 장소' },
+                ],
+              };
+              const rankColor = selectedHotplaceTab === 0 ? '#ffd700' : selectedHotplaceTab === 1 ? '#c0c0c0' : '#cd7f32';
+              return (
+                <div className="px-5 py-4">
+                  {/* 장소 헤더 */}
+                  <div className="mb-4">
+                    <div style={{ fontSize: '11px', color: rankColor, fontWeight: 700, marginBottom: '4px', letterSpacing: '0.5px' }}>
+                      {venue.category}
+                    </div>
+                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '4px', textShadow: `0 0 12px ${rankColor}55` }}>
+                      {venue.name}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginBottom: '8px' }}>
+                      📍 {venue.address}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'rgba(255,180,100,0.85)', lineHeight: 1.6, padding: '10px 12px', background: 'rgba(255,69,0,0.08)', borderRadius: '8px', border: '1px solid rgba(255,69,0,0.15)' }}>
+                      {venue.description}
+                    </div>
+                  </div>
+
+                  {/* SPOT 통계 */}
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,150,80,0.8)', marginBottom: '10px', letterSpacing: '0.5px' }}>
+                    ✦ SPOT 통계
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {venue.stats.map((stat, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start gap-3"
+                        style={{
+                          padding: '10px 12px',
+                          background: 'rgba(255,255,255,0.03)',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(255,69,0,0.12)',
+                        }}
+                      >
+                        <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>{stat.icon}</span>
+                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{stat.text}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 하단 여백 */}
+                  <div style={{ height: '16px' }} />
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -1021,6 +1250,41 @@ export default function MvpMap() {
 
         {/* 내 위치로 돌아가기 버튼 + 내 스팟 등록 버튼 (세로 배치) */}
         <div className="absolute bottom-24 left-4 flex flex-col items-center gap-3">
+          {/* 핫플레이스 CTA 버튼 - 내 스팟 등록 버튼 위에 */}
+          {hotspotCityNames.length > 0 && (
+            <button
+              onClick={() => { setSelectedHotplaceTab(0); setShowHotplacePopup(true); }}
+              className="hotspot-banner bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-105 transition-transform"
+              style={{
+                borderColor: 'rgba(255,69,0,0.7)',
+                boxShadow: '0 0 16px rgba(255,69,0,0.45)',
+                padding: '7px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span className="hotspot-fire" style={{ fontSize: '14px' }}>🔥</span>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: '#ff6a00', textShadow: '0 0 8px #ff450099', letterSpacing: '0.5px' }}>핫플레이스</span>
+              <div className="flex items-center gap-1">
+                {hotspotCityNames.map((city, idx) => (
+                  <span
+                    key={city}
+                    className={idx === 0 ? 'hotspot-rank-1-city' : ''}
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32',
+                    }}
+                  >
+                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}{city}{idx < hotspotCityNames.length - 1 ? '' : ''}
+                  </span>
+                ))}
+              </div>
+            </button>
+          )}
+
           {/* 내 스팟 등록 CTA 버튼 - 내 위치 찾기 버튼 위에 */}
           {!spotSubmitted && (
             <button
