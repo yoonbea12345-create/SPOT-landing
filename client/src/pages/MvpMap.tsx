@@ -380,6 +380,21 @@ export default function MvpMap() {
     };
   }, []);
 
+  // HOTSPOT 도시 (랜덤 3곳, 컴포넌트 마운트 시 1회 결정)
+  const hotspotCitiesRef = useRef<string[] | null>(null);
+  const getHotspotCities = useCallback((cityNames: string[]) => {
+    if (hotspotCitiesRef.current) return hotspotCitiesRef.current;
+    // 주요 도시 중에서만 선정 (서울 5곳 + 광역시 + 수원/성남/고양 등 인지도 높은 곳)
+    const candidateCities = [
+      "홍대", "강남", "여의도", "성수", "명동",
+      "부산", "대구", "인천", "광주", "대전", "울산",
+      "수원", "고양", "제주시"
+    ].filter(c => cityNames.includes(c));
+    const shuffled = [...candidateCities].sort(() => Math.random() - 0.5);
+    hotspotCitiesRef.current = shuffled.slice(0, 3);
+    return hotspotCitiesRef.current;
+  }, []);
+
   // 도시별 MBTI 개수 집계
   const aggregateCityData = useCallback(() => {
     const dummyData = generateDummyData();
@@ -551,37 +566,95 @@ export default function MvpMap() {
 
     // 도시별 텍스트 라벨 생성
     const { cities, cityStats } = aggregateCityData();
+    const cityNames = cities.map(c => c.name);
+    const hotspots = getHotspotCities(cityNames);
+
+    // HOTSPOT 폄스 애니메이션 CSS 주입 (중복 방지)
+    if (!document.getElementById('hotspot-style')) {
+      const style = document.createElement('style');
+      style.id = 'hotspot-style';
+      style.textContent = `
+        @keyframes hotspot-pulse {
+          0%, 100% { box-shadow: 0 0 20px #ff4500cc, 0 0 40px #ff4500aa, 0 0 60px #ff450066; transform: scale(1); }
+          50% { box-shadow: 0 0 30px #ff6a00ff, 0 0 60px #ff4500cc, 0 0 90px #ff450099; transform: scale(1.04); }
+        }
+        @keyframes hotspot-badge-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.85; transform: scale(1.1); }
+        }
+        .hotspot-label {
+          animation: hotspot-pulse 2s ease-in-out infinite;
+        }
+        .hotspot-badge {
+          animation: hotspot-badge-pulse 1.5s ease-in-out infinite;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     cities.forEach(city => {
       const stats = cityStats[city.name];
       if (!stats || Object.keys(stats).length === 0) return;
 
+      const isHotspot = hotspots.includes(city.name);
       const labelElement = document.createElement('div');
-      labelElement.style.cssText = `
-        background: rgba(0, 0, 0, 0.95);
-        border: 2px solid rgba(0, 240, 255, 0.5);
-        border-radius: 12px;
-        padding: 8px 12px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #00f0ff;
-        text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s;
-      `;
 
-      const sortedStats = Object.entries(stats)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
-      labelElement.innerHTML = `
-        <div style="font-size: 12px; margin-bottom: 4px; color: #00f0ff;">${city.name}</div>
-        ${sortedStats.map(([mbti, count]) => 
-          `<div style="color: ${MBTI_COLORS[mbti]}; text-shadow: 0 0 8px ${MBTI_COLORS[mbti]}88;">${mbti} × ${count}</div>`
-        ).join('')}
-      `;
+      if (isHotspot) {
+        labelElement.className = 'hotspot-label';
+        labelElement.style.cssText = `
+          background: rgba(0, 0, 0, 0.97);
+          border: 2.5px solid #ff4500;
+          border-radius: 12px;
+          padding: 8px 12px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #ff6a00;
+          text-shadow: 0 0 10px rgba(255, 69, 0, 0.9);
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s;
+          position: relative;
+        `;
+        const sortedStats = Object.entries(stats)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+        labelElement.innerHTML = `
+          <div style="display:flex; align-items:center; gap:4px; margin-bottom: 5px;">
+            <span class="hotspot-badge" style="font-size:13px;">&#x1F525;</span>
+            <span style="font-size: 13px; font-weight: 900; color: #ff6a00; text-shadow: 0 0 12px #ff4500cc; letter-spacing: 0.5px;">HOTSPOT</span>
+          </div>
+          <div style="font-size: 12px; margin-bottom: 4px; color: #ffaa44; font-weight: 800;">${city.name}</div>
+          ${sortedStats.map(([mbti, count]) =>
+            `<div style="color: ${MBTI_COLORS[mbti]}; text-shadow: 0 0 8px ${MBTI_COLORS[mbti]}88;">${mbti} × ${count}</div>`
+          ).join('')}
+        `;
+      } else {
+        labelElement.style.cssText = `
+          background: rgba(0, 0, 0, 0.95);
+          border: 2px solid rgba(0, 240, 255, 0.5);
+          border-radius: 12px;
+          padding: 8px 12px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #00f0ff;
+          text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+          box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s;
+        `;
+        const sortedStats = Object.entries(stats)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+        labelElement.innerHTML = `
+          <div style="font-size: 12px; margin-bottom: 4px; color: #00f0ff;">${city.name}</div>
+          ${sortedStats.map(([mbti, count]) =>
+            `<div style="color: ${MBTI_COLORS[mbti]}; text-shadow: 0 0 8px ${MBTI_COLORS[mbti]}88;">${mbti} × ${count}</div>`
+          ).join('')}
+        `;
+      }
 
       const cityLabel = new google.maps.marker.AdvancedMarkerElement({
         map,
@@ -591,7 +664,7 @@ export default function MvpMap() {
 
       cityLabelsRef.current.push(cityLabel);
     });
-  }, [userLocation, aggregateCityData]);
+  }, [userLocation, aggregateCityData, getHotspotCities]);
 
   // 실제 스팟 마커를 지도에 추가
   const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number }, map: google.maps.Map) => {
