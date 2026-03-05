@@ -154,7 +154,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
-            같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">시야</span>
+            같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">정보</span>
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -167,7 +167,7 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-primary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-primary">멀리서 보면</h3>
+              <h3 className="text-2xl font-black mb-3 text-primary">#ZOOM:WIDE</h3>
               <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
                오늘의 흐름이 보입니다.<br /> 
                <span className="text-primary">어디로 모였는지.</span>
@@ -183,10 +183,10 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-secondary">가까워질수록</h3>
+              <h3 className="text-2xl font-black mb-3 text-secondary">#ZOOM:NEAR </h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-               나와 비슷한 유형이 먼저 보입니다.<br />
-               <span className="text-secondary">더 가까이. 더 선명하게.</span>
+               나와 같은 MBTI들은.<br />
+               <span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
               </p>
             </div>
 
@@ -199,11 +199,10 @@ export default function Home() {
                   className="w-full h-auto rounded-lg border border-accent/30"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-accent">아주 가까워지면</h3>
+              <h3 className="text-2xl font-black mb-3 text-accent">#ZOOM:3M</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                3m 안.
-                이 골목 어딘가에.<br />
-                <span className="text-primary glow-cyan">지금,  마주칠 수도 있습니다. </span>
+                지도에 내 위치를 원으로 표시해보세요.
+                <span className="text-primary glow-cyan">MBTI, 기분, 느낌, 원하는 것 무엇이든. </span>
               </p>
             </div>
           </div>
@@ -242,10 +241,10 @@ export default function Home() {
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">2️⃣</div>
               <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
-                점이 아닌 범위
+                개인정보 보호
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                정확한 자리는 보이지 않습니다.
+                GPS정보는 어디에도 유포하지 않습니.
               </p>
             </div>
 
@@ -256,7 +255,7 @@ export default function Home() {
                 선택은 당신의 몫
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                지나칠지. 다가갈지.
+                GPS를 키지 않고도 전국을 탐험해보세요.
               </p>
             </div>
           </div>
@@ -281,7 +280,7 @@ export default function Home() {
               지금은 베타.
             </p>
             <p className="text-3xl md:text-5xl font-black leading-tight text-muted-foreground" style={{color: 'oklch(0.98 0 0)'}}>
-              곧, 더 가까이.
+              곧, 정식 앱으로.
             </p>
           </div>
 
