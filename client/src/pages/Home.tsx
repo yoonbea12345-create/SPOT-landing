@@ -162,7 +162,7 @@ export default function Home() {
             <div className="p-6 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="mb-6">
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/qRFtSuyCLnpoEuOw.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/dKsIoyiYfTuxmtvq.webp"
                   alt="Wide View"
                   className="w-full h-auto rounded-lg border border-primary/30"
                 />
@@ -178,7 +178,7 @@ export default function Home() {
             <div className="p-6 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="mb-6">
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/nVrlgMLPvmcuoXBo.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/DJQiNRxPuqRJaMUS.webp"
                   alt="Near View"
                   className="w-full h-auto rounded-lg border border-secondary/30"
                 />
