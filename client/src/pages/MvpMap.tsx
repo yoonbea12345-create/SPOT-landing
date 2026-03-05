@@ -404,6 +404,10 @@ export default function MvpMap() {
   const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
   const [showHotplacePopup, setShowHotplacePopup] = useState(false);
   const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const swipeTouchStartY = useRef<number | null>(null);
+  const swipeTranslateY = useRef(0);
+  const [sheetTranslateY, setSheetTranslateY] = useState(0);
 
   // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
   const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
@@ -1072,6 +1076,7 @@ export default function MvpMap() {
           style={{ pointerEvents: 'none' }}
         >
           <div
+            ref={sheetRef}
             className="hotspot-banner w-full max-w-md rounded-t-2xl overflow-hidden"
             style={{
               background: 'rgba(4,4,18,0.96)',
@@ -1083,8 +1088,50 @@ export default function MvpMap() {
               maxHeight: '70vh',
               overflowY: 'auto',
               pointerEvents: 'auto',
+              transform: `translateY(${sheetTranslateY}px)`,
+              transition: swipeTouchStartY.current !== null ? 'none' : 'transform 0.3s cubic-bezier(0.32,0.72,0,1)',
+            }}
+            onTouchStart={(e) => {
+              swipeTouchStartY.current = e.touches[0].clientY;
+              swipeTranslateY.current = 0;
+            }}
+            onTouchMove={(e) => {
+              if (swipeTouchStartY.current === null) return;
+              const delta = e.touches[0].clientY - swipeTouchStartY.current;
+              if (delta > 0) {
+                swipeTranslateY.current = delta;
+                setSheetTranslateY(delta);
+              }
+            }}
+            onTouchEnd={() => {
+              if (swipeTranslateY.current > 80) {
+                setSheetTranslateY(600);
+                setTimeout(() => {
+                  setShowHotplacePopup(false);
+                  setSheetTranslateY(0);
+                }, 280);
+              } else {
+                setSheetTranslateY(0);
+              }
+              swipeTouchStartY.current = null;
+              swipeTranslateY.current = 0;
             }}
           >
+            {/* 드래그 핸들 */}
+            <div
+              style={{ display: 'flex', justifyContent: 'center', paddingTop: '10px', paddingBottom: '4px', cursor: 'grab' }}
+              onTouchStart={(e) => {
+                swipeTouchStartY.current = e.touches[0].clientY;
+                swipeTranslateY.current = 0;
+              }}
+            >
+              <div style={{
+                width: '36px',
+                height: '4px',
+                borderRadius: '2px',
+                background: 'rgba(255,255,255,0.2)',
+              }} />
+            </div>
             {/* 팝업 헤더 */}
             <div className="flex items-center justify-between px-5 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(255,69,0,0.2)' }}>
               <div className="flex items-center gap-2">
@@ -1105,7 +1152,31 @@ export default function MvpMap() {
               {hotspotCityNames.map((city, idx) => (
                 <button
                   key={city}
-                  onClick={() => setSelectedHotplaceTab(idx)}
+                  onClick={() => {
+                    setSelectedHotplaceTab(idx);
+                    // 탭 전환 시 지도를 해당 도시 좌표로 자동 이동
+                    const cityCoords: Record<string, { lat: number; lng: number }> = {
+                      '홍대': { lat: 37.5563, lng: 126.9236 },
+                      '강남': { lat: 37.5172, lng: 127.0473 },
+                      '여의도': { lat: 37.5219, lng: 126.9245 },
+                      '성수': { lat: 37.5445, lng: 127.0557 },
+                      '명동': { lat: 37.5636, lng: 126.9827 },
+                      '부산': { lat: 35.1587, lng: 129.1603 },
+                      '대구': { lat: 35.8714, lng: 128.6014 },
+                      '인천': { lat: 37.4563, lng: 126.7052 },
+                      '광주': { lat: 35.1595, lng: 126.8526 },
+                      '대전': { lat: 36.3504, lng: 127.3845 },
+                      '울산': { lat: 35.5384, lng: 129.3114 },
+                      '수원': { lat: 37.2636, lng: 127.0286 },
+                      '고양': { lat: 37.6584, lng: 126.8320 },
+                      '제주시': { lat: 33.4890, lng: 126.4983 },
+                    };
+                    const coords = cityCoords[hotspotCityNames[idx]];
+                    if (coords && mapRef.current) {
+                      mapRef.current.panTo(coords);
+                      mapRef.current.setZoom(14);
+                    }
+                  }}
                   className="flex-1 py-3 text-center transition-all"
                   style={{
                     fontSize: '12px',
