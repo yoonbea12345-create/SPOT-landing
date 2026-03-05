@@ -226,6 +226,7 @@ export default function MvpMap() {
   const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const watchIdRef = useRef<number | null>(null);
   const [currentZoom, setCurrentZoom] = useState(15);
+  const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
 
   // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
   const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
@@ -568,6 +569,7 @@ export default function MvpMap() {
     const { cities, cityStats } = aggregateCityData();
     const cityNames = cities.map(c => c.name);
     const hotspots = getHotspotCities(cityNames);
+    setHotspotCityNames(hotspots);
 
     // HOTSPOT 폄스 애니메이션 CSS 주입 (중복 방지)
     if (!document.getElementById('hotspot-style')) {
@@ -845,6 +847,66 @@ export default function MvpMap() {
           ))}
         </div>
       </div>
+
+      {/* 핫플레이스 TOP3 배너 */}
+      {hotspotCityNames.length > 0 && (
+        <div
+          className="bg-black/90 backdrop-blur-sm border-b z-10 flex items-center justify-center gap-0"
+          style={{
+            borderColor: 'rgba(255, 69, 0, 0.35)',
+            padding: '4px 8px',
+          }}
+        >
+          {/* 타이틀 */}
+          <span
+            style={{
+              fontSize: '9px',
+              fontWeight: 900,
+              color: '#ff6a00',
+              textShadow: '0 0 8px #ff450099',
+              letterSpacing: '0.5px',
+              marginRight: '6px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            🔥 핫플레이스
+          </span>
+          {/* 구분선 */}
+          <span style={{ color: 'rgba(255,69,0,0.4)', fontSize: '9px', marginRight: '6px' }}>|</span>
+          {/* 랭킹 아이템들 */}
+          <div className="flex items-center gap-2">
+            {hotspotCityNames.map((city, idx) => (
+              <div key={city} className="flex items-center gap-1">
+                <span
+                  style={{
+                    fontSize: '8px',
+                    fontWeight: 900,
+                    color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32',
+                    textShadow: idx === 0 ? '0 0 6px #ffd70088' : idx === 1 ? '0 0 6px #c0c0c088' : '0 0 6px #cd7f3288',
+                    lineHeight: 1,
+                  }}
+                >
+                  {idx + 1}
+                </span>
+                <span
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    color: '#fff',
+                    letterSpacing: '-0.2px',
+                    lineHeight: 1,
+                  }}
+                >
+                  {city}
+                </span>
+                {idx < hotspotCityNames.length - 1 && (
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '9px', marginLeft: '2px' }}>·</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 지도 */}
       <div className="flex-1 relative">
