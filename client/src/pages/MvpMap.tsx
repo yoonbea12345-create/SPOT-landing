@@ -61,24 +61,8 @@ const SIGN_SIGNALS = [
   { emoji: "💬", text: "대화 상대 찾아요" },
 ];
 
-// SIGN 목록 (더미 데이터용 랜덤 문구)
-const SIGN_LIST = [
-  "모두 안녕하세요",
-  "오늘 날씨 좋다",
-  "누군가 말 걸어줘요",
-  "같이 커피 마실 사람?",
-  "여기 자주 와요",
-  "오늘 기분 좋음",
-  "지나가는 중",
-  "이 동네 처음이에요",
-  "맛집 추천 받아요",
-  "혼자가 편한 날",
-  "반가워요 :)",
-  "오늘도 열심히",
-  "좋은 하루 되세요",
-  "여기 분위기 좋네요",
-  "우연히 마주치면 반가워요"
-];
+// SIGN 목록 (더미 데이터용 - SIGN_SIGNALS와 동일한 이모지+텍스트 형식)
+const SIGN_LIST = SIGN_SIGNALS.slice(1).map(s => `${s.emoji} ${s.text}`);
 
 // 더미 데이터 타입
 type DummyMarker = {
@@ -1258,7 +1242,7 @@ export default function MvpMap() {
                         textShadow: '0 0 6px rgba(255, 200, 0, 0.6)',
                       }}
                     >
-                      "{popupData.sign}"
+                      {popupData.sign}
                     </div>
                   </div>
                 </div>
@@ -1416,10 +1400,11 @@ export default function MvpMap() {
               <div className="grid grid-cols-3 gap-1.5 mb-2">
                 {SIGN_SIGNALS.map((sig) => {
                   const isDirectInput = sig.text === '직접 입력';
+                  const signedValue = `${sig.emoji} ${sig.text}`;
                   const isSelected = isDirectInput
-                    ? !SIGN_SIGNALS.slice(1).some(s => s.text === spotFormData.sign) && spotFormData.sign !== ''
-                    : spotFormData.sign === sig.text;
-                  const isDirectInputMode = spotFormData.sign === '__direct__' || (!SIGN_SIGNALS.slice(1).some(s => s.text === spotFormData.sign) && spotFormData.sign !== '' && spotFormData.sign !== '__direct__');
+                    ? !SIGN_SIGNALS.slice(1).some(s => `${s.emoji} ${s.text}` === spotFormData.sign) && spotFormData.sign !== '' && spotFormData.sign !== '__direct__'
+                    : spotFormData.sign === signedValue;
+                  const isDirectInputMode = spotFormData.sign === '__direct__' || (!SIGN_SIGNALS.slice(1).some(s => `${s.emoji} ${s.text}` === spotFormData.sign) && spotFormData.sign !== '' && spotFormData.sign !== '__direct__');
                   return (
                     <button
                       key={sig.text}
@@ -1428,7 +1413,8 @@ export default function MvpMap() {
                         if (isDirectInput) {
                           setSpotFormData(p => ({...p, sign: '__direct__'}));
                         } else {
-                          setSpotFormData(p => ({...p, sign: sig.text}));
+                          // 이모지+텍스트 형식으로 저장 (더미 데이터와 동일)
+                          setSpotFormData(p => ({...p, sign: `${sig.emoji} ${sig.text}`}));
                         }
                       }}
                       className="rounded-lg px-1 py-2 text-center transition-all"
@@ -1471,7 +1457,7 @@ export default function MvpMap() {
                 />
               )}
               {/* 직접 입력 후 텍스트가 있을 때 (프리셋이 아닌 값) */}
-              {spotFormData.sign !== '' && spotFormData.sign !== '__direct__' && !SIGN_SIGNALS.slice(1).some(s => s.text === spotFormData.sign) && (
+              {spotFormData.sign !== '' && spotFormData.sign !== '__direct__' && !SIGN_SIGNALS.slice(1).some(s => `${s.emoji} ${s.text}` === spotFormData.sign) && (
                 <input
                   type="text"
                   value={spotFormData.sign}
