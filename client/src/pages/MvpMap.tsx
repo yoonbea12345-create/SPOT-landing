@@ -1602,9 +1602,11 @@ export default function MvpMap() {
               background: 'rgba(4, 4, 14, 0.98)',
               border: '2px solid rgba(0, 240, 255, 0.5)',
               borderRadius: '20px',
-              padding: '28px 24px',
+              padding: '20px 20px',
               width: '320px',
               maxWidth: '90vw',
+              maxHeight: '88vh',
+              overflowY: 'auto',
               boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
             }}
           >
@@ -1685,45 +1687,54 @@ export default function MvpMap() {
 
             {/* MOOD */}
             <div className="mb-4">
-              <label className="block text-center text-xs font-bold mb-1" style={{color: '#c77dff', letterSpacing: '0.15em'}}>#MOOD</label>
-              <input
-                type="text"
-                value={spotFormData.mood}
-                onChange={e => setSpotFormData(p => ({...p, mood: e.target.value}))}
-                placeholder="ex) HAPPY"
-                maxLength={32}
-                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(199, 125, 255, 0.07)',
-                  border: '1.5px solid rgba(199, 125, 255, 0.4)',
-                  color: '#c77dff',
-                }}
-              />
+              <label className="block text-center text-xs font-bold mb-2" style={{color: '#c77dff', letterSpacing: '0.15em'}}>#MOOD</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {['HAPPY', 'CHILL', 'EXCITED', 'LONELY', 'HYPED', 'PEACEFUL', 'CURIOUS', 'ENERGETIC'].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setSpotFormData(p => ({...p, mood: p.mood === m ? '' : m}))}
+                    className="rounded-lg py-2 text-center transition-all"
+                    style={{
+                      background: spotFormData.mood === m ? 'rgba(199,125,255,0.22)' : 'rgba(199,125,255,0.05)',
+                      border: spotFormData.mood === m ? '1.5px solid rgba(199,125,255,0.9)' : '1.5px solid rgba(199,125,255,0.25)',
+                      color: spotFormData.mood === m ? '#c77dff' : 'rgba(199,125,255,0.5)',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      letterSpacing: '0.05em',
+                    }}
+                  >{m}</button>
+                ))}
+              </div>
             </div>
 
             {/* MODE */}
             <div className="mb-4">
-              <label className="block text-center text-xs font-bold mb-1" style={{color: '#00f0b4', letterSpacing: '0.15em'}}>#MODE</label>
-              <input
-                type="text"
-                value={spotFormData.mode}
-                onChange={e => setSpotFormData(p => ({...p, mode: e.target.value}))}
-                placeholder="ex) 산책 중"
-                maxLength={32}
-                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(0, 240, 180, 0.07)',
-                  border: '1.5px solid rgba(0, 240, 180, 0.4)',
-                  color: '#00f0b4',
-                }}
-              />
+              <label className="block text-center text-xs font-bold mb-2" style={{color: '#00f0b4', letterSpacing: '0.15em'}}>#MODE</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {['산책 중', '카페 탐방', '쇼핑 중', '맛집 투어', '혼자만의 시간', '친구 만남', '데이트', '야경 구경'].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setSpotFormData(p => ({...p, mode: p.mode === m ? '' : m}))}
+                    className="rounded-lg py-2 text-center transition-all"
+                    style={{
+                      background: spotFormData.mode === m ? 'rgba(0,240,180,0.18)' : 'rgba(0,240,180,0.05)',
+                      border: spotFormData.mode === m ? '1.5px solid rgba(0,240,180,0.9)' : '1.5px solid rgba(0,240,180,0.25)',
+                      color: spotFormData.mode === m ? '#00f0b4' : 'rgba(0,240,180,0.5)',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                    }}
+                  >{m}</button>
+                ))}
+              </div>
             </div>
 
             {/* SIGN */}
             <div className="mb-6">
               <label className="block text-center text-xs font-bold mb-2" style={{color: '#ffc800', letterSpacing: '0.15em'}}>#SIGN</label>
               {/* 시그널 선택 그리드 */}
-              <div className="grid grid-cols-3 gap-1.5 mb-2">
+              <div className="grid grid-cols-2 gap-1.5 mb-2">
                 {SIGN_SIGNALS.map((sig) => {
                   const isDirectInput = sig.text === '직접 입력';
                   const signedValue = `${sig.emoji} ${sig.text}`;
@@ -1743,7 +1754,7 @@ export default function MvpMap() {
                           setSpotFormData(p => ({...p, sign: `${sig.emoji} ${sig.text}`}));
                         }
                       }}
-                      className="rounded-lg px-1 py-2 text-center transition-all"
+                      className="rounded-lg px-2 py-2 text-center transition-all flex items-center justify-center gap-1.5"
                       style={{
                         background: isDirectInput
                           ? (isDirectInputMode ? 'rgba(255,200,0,0.2)' : 'rgba(255,200,0,0.05)')
@@ -1759,8 +1770,8 @@ export default function MvpMap() {
                         lineHeight: 1.3,
                       }}
                     >
-                      <div style={{ fontSize: '16px', marginBottom: '2px' }}>{sig.emoji}</div>
-                      <div style={{ fontSize: '9px' }}>{sig.text}</div>
+                      <span style={{ fontSize: '14px', flexShrink: 0 }}>{sig.emoji}</span>
+                      <span style={{ fontSize: '10px' }}>{sig.text}</span>
                     </button>
                   );
                 })}
