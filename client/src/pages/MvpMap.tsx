@@ -745,7 +745,7 @@ export default function MvpMap() {
         >
           SPOT
         </h1>
-        <p className="text-sm text-gray-400">내 주변 같은 MBTI 찾기</p>
+        <p className="text-sm text-gray-400">사람으로 공간을 읽는 지도기반 SNS</p>
       </div>
 
       {/* MBTI 필터 바 */}
