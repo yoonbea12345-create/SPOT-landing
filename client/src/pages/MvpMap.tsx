@@ -46,18 +46,12 @@ const SIGN_SIGNALS = [
   { emoji: "🚶", text: "지나가는 중이에요" },
   { emoji: "📸", text: "사진 찍는 중이에요" },
   { emoji: "🍽️", text: "맛집 찾는 중이에요" },
-  { emoji: "🎵", text: "공연 보러 왔어요" },
   { emoji: "🛍️", text: "쇼핑 중이에요" },
-  { emoji: "🤝", text: "누군가 기다리는 중이에요" },
   { emoji: "💻", text: "작업 중이에요" },
   { emoji: "📖", text: "책 읽는 중이에요" },
   { emoji: "🌙", text: "야경 보러 왔어요" },
   { emoji: "🐾", text: "산책 중이에요" },
   { emoji: "🍺", text: "한잔하러 왔어요" },
-  { emoji: "🎮", text: "게임하러 왔어요" },
-  { emoji: "🏃", text: "운동 중이에요" },
-  { emoji: "😴", text: "쉬는 중이에요" },
-  { emoji: "🗺️", text: "동네 탐험 중이에요" },
   { emoji: "💬", text: "대화 상대 찾아요" },
 ];
 
