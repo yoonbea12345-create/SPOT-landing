@@ -1065,160 +1065,26 @@ export default function MvpMap() {
       </div>
 
       {/* 핫플레이스 팝업 모달 */}
+      {/* 핫플레이스 bottom sheet - 배경 오버레이 없이 지도 위에 뜨우는 구조 */}
       {showHotplacePopup && hotspotCityNames.length > 0 && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(2px)' }}
-          onClick={() => setShowHotplacePopup(false)}
+          className="fixed bottom-0 left-0 right-0 z-50 flex justify-center"
+          style={{ pointerEvents: 'none' }}
         >
           <div
             className="hotspot-banner w-full max-w-md rounded-t-2xl overflow-hidden"
             style={{
-              background: 'rgba(4,4,18,0.82)',
-              backdropFilter: 'blur(20px) saturate(1.4)',
-              WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
-              border: '1.5px solid rgba(255,69,0,0.45)',
+              background: 'rgba(4,4,18,0.96)',
+              backdropFilter: 'blur(24px) saturate(1.5)',
+              WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
+              border: '1.5px solid rgba(255,69,0,0.5)',
               borderBottom: 'none',
-              boxShadow: '0 -8px 40px rgba(255,69,0,0.3), 0 -2px 0 rgba(255,69,0,0.15) inset',
-              maxHeight: '78vh',
+              boxShadow: '0 -8px 40px rgba(255,69,0,0.35)',
+              maxHeight: '70vh',
               overflowY: 'auto',
+              pointerEvents: 'auto',
             }}
-            onClick={e => e.stopPropagation()}
           >
-            {/* 지도 미니뷰 영역 - 팝업 안에서 지도가 비치는 효과 */}
-            {(() => {
-              const city = hotspotCityNames[selectedHotplaceTab];
-              const cityCoords: Record<string, { lat: number; lng: number }> = {
-                '홍대': { lat: 37.5563, lng: 126.9236 },
-                '강남': { lat: 37.5172, lng: 127.0473 },
-                '여의도': { lat: 37.5219, lng: 126.9245 },
-                '성수': { lat: 37.5445, lng: 127.0557 },
-                '명동': { lat: 37.5636, lng: 126.9827 },
-                '부산': { lat: 35.1587, lng: 129.1603 },
-                '대구': { lat: 35.8714, lng: 128.6014 },
-                '인천': { lat: 37.4563, lng: 126.7052 },
-                '광주': { lat: 35.1595, lng: 126.8526 },
-                '대전': { lat: 36.3504, lng: 127.3845 },
-                '울산': { lat: 35.5384, lng: 129.3114 },
-                '수원': { lat: 37.2636, lng: 127.0286 },
-                '고양': { lat: 37.6584, lng: 126.8320 },
-                '제주시': { lat: 33.4890, lng: 126.4983 },
-              };
-              const coords = cityCoords[city] || { lat: 37.5665, lng: 126.9780 };
-              const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${coords.lat},${coords.lng}&zoom=15&size=400x120&scale=2&style=element:geometry|color:0x0a0a1a&style=element:labels.text.fill|color:0xff6a00&style=element:labels.text.stroke|color:0x0a0a1a&style=feature:road|element:geometry|color:0x1a1a2e&style=feature:road.arterial|element:geometry|color:0x16213e&style=feature:poi|visibility:off&style=feature:transit|visibility:off&style=feature:water|element:geometry|color:0x0d1b2a&key=`;
-              return (
-                <div
-                  style={{
-                    position: 'relative',
-                    height: '110px',
-                    overflow: 'hidden',
-                    background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 50%, #0a0a1a 100%)',
-                  }}
-                >
-                  {/* 지도 배경 - SVG 그리드 패턴으로 지도 느낌 표현 */}
-                  <svg
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.25 }}
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <defs>
-                      <pattern id="mapGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,106,0,0.6)" strokeWidth="0.5"/>
-                      </pattern>
-                      <pattern id="mapGridLarge" width="120" height="120" patternUnits="userSpaceOnUse">
-                        <rect width="120" height="120" fill="url(#mapGrid)"/>
-                        <path d="M 120 0 L 0 0 0 120" fill="none" stroke="rgba(255,106,0,0.9)" strokeWidth="1"/>
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#mapGridLarge)"/>
-                    {/* 도로 라인들 */}
-                    <line x1="0" y1="55" x2="100%" y2="55" stroke="rgba(255,106,0,0.4)" strokeWidth="2"/>
-                    <line x1="0" y1="35" x2="100%" y2="35" stroke="rgba(255,106,0,0.2)" strokeWidth="1"/>
-                    <line x1="0" y1="75" x2="100%" y2="75" stroke="rgba(255,106,0,0.2)" strokeWidth="1"/>
-                    <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(255,106,0,0.4)" strokeWidth="2"/>
-                    <line x1="25%" y1="0" x2="25%" y2="100%" stroke="rgba(255,106,0,0.2)" strokeWidth="1"/>
-                    <line x1="75%" y1="0" x2="75%" y2="100%" stroke="rgba(255,106,0,0.2)" strokeWidth="1"/>
-                    {/* 주변 마커 도트 */}
-                    <circle cx="30%" cy="40" r="3" fill="rgba(255,106,0,0.5)"/>
-                    <circle cx="70%" cy="70" r="3" fill="rgba(255,106,0,0.5)"/>
-                    <circle cx="20%" cy="75" r="2" fill="rgba(255,106,0,0.3)"/>
-                    <circle cx="80%" cy="35" r="2" fill="rgba(255,106,0,0.3)"/>
-                    <circle cx="60%" cy="45" r="2" fill="rgba(0,240,255,0.4)"/>
-                    <circle cx="40%" cy="65" r="2" fill="rgba(0,240,255,0.4)"/>
-                  </svg>
-                  {/* 중앙 핀 마커 */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '4px',
-                  }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50% 50% 50% 0',
-                      transform: 'rotate(-45deg)',
-                      background: 'linear-gradient(135deg, #ff6a00, #ff4500)',
-                      boxShadow: '0 0 16px rgba(255,69,0,0.8), 0 0 32px rgba(255,69,0,0.4)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <span style={{ transform: 'rotate(45deg)', fontSize: '14px' }}>🔥</span>
-                    </div>
-                    <div style={{
-                      fontSize: '11px',
-                      fontWeight: 900,
-                      color: '#ff6a00',
-                      textShadow: '0 0 8px rgba(255,69,0,0.9)',
-                      letterSpacing: '1px',
-                      marginTop: '2px',
-                    }}>{city}</div>
-                  </div>
-                  {/* 상단 오버레이 그라디언트 */}
-                  <div style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0,
-                    height: '30px',
-                    background: 'linear-gradient(to bottom, rgba(4,4,18,0.6), transparent)',
-                    pointerEvents: 'none',
-                  }}/>
-                  {/* 하단 페이드아웃 */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0, left: 0, right: 0,
-                    height: '40px',
-                    background: 'linear-gradient(to top, rgba(4,4,18,0.95), transparent)',
-                    pointerEvents: 'none',
-                  }}/>
-                  {/* 닫기 버튼 */}
-                  <button
-                    onClick={() => setShowHotplacePopup(false)}
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '14px',
-                      color: 'rgba(255,255,255,0.5)',
-                      fontSize: '18px',
-                      lineHeight: 1,
-                      background: 'rgba(0,0,0,0.4)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '50%',
-                      width: '28px',
-                      height: '28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                    }}
-                  >✕</button>
-                </div>
-              );
-            })()}
-
             {/* 팝업 헤더 */}
             <div className="flex items-center justify-between px-5 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(255,69,0,0.2)' }}>
               <div className="flex items-center gap-2">
@@ -1228,6 +1094,10 @@ export default function MvpMap() {
                   <div style={{ fontSize: '10px', color: 'rgba(255,150,80,0.7)', marginTop: '1px' }}>지금 가장 핫한 골목 큐레이션</div>
                 </div>
               </div>
+              <button
+                onClick={() => setShowHotplacePopup(false)}
+                style={{ color: 'rgba(255,255,255,0.4)', fontSize: '20px', lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >✕</button>
             </div>
 
             {/* 탭 */}
