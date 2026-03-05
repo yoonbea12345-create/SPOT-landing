@@ -201,7 +201,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-black mb-3 text-accent">#ZOOM:3M</h3>
               <p className="text-base leading-relaxed text-muted-foreground">
-                지도에 내 위치를 원으로 표시해보세요.
+                지도에 내 위치를 원으로 표시해보세요.<br />
                 <span className="text-primary glow-cyan">MBTI, 기분, 느낌, 원하는 것 무엇이든. </span>
               </p>
             </div>
