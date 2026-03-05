@@ -590,6 +590,45 @@ export default function MvpMap() {
         .hotspot-badge {
           animation: hotspot-badge-pulse 1.5s ease-in-out infinite;
         }
+        @keyframes banner-border-glow {
+          0%, 100% { border-color: rgba(255,69,0,0.35); box-shadow: 0 1px 8px rgba(255,69,0,0.15); }
+          50% { border-color: rgba(255,106,0,0.7); box-shadow: 0 1px 16px rgba(255,69,0,0.45); }
+        }
+        @keyframes fire-shake {
+          0%, 100% { transform: rotate(-8deg) scale(1); }
+          25% { transform: rotate(8deg) scale(1.15); }
+          50% { transform: rotate(-5deg) scale(1.05); }
+          75% { transform: rotate(6deg) scale(1.1); }
+        }
+        @keyframes rank-1-glow {
+          0%, 100% { text-shadow: 0 0 6px #ffd70066, 0 0 12px #ffd70033; color: #ffd700; }
+          50% { text-shadow: 0 0 14px #ffd700cc, 0 0 28px #ffd70088; color: #ffe84d; }
+        }
+        @keyframes banner-shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .hotspot-banner {
+          animation: banner-border-glow 2.5s ease-in-out infinite;
+        }
+        .hotspot-fire {
+          display: inline-block;
+          animation: fire-shake 1.2s ease-in-out infinite;
+          transform-origin: bottom center;
+        }
+        .hotspot-rank-1-city {
+          animation: rank-1-glow 2s ease-in-out infinite;
+          background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: rank-1-glow 2s ease-in-out infinite, banner-shimmer 3s linear infinite;
+        }
+        .hotspot-rank-num {
+          display: inline-block;
+          animation: hotspot-badge-pulse 1.8s ease-in-out infinite;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -851,13 +890,13 @@ export default function MvpMap() {
       {/* 핫플레이스 TOP3 배너 */}
       {hotspotCityNames.length > 0 && (
         <div
-          className="bg-black/90 backdrop-blur-sm border-b z-10 flex items-center justify-center gap-0"
+          className="hotspot-banner bg-black/90 backdrop-blur-sm border-b z-10 flex items-center justify-center gap-0"
           style={{
             borderColor: 'rgba(255, 69, 0, 0.35)',
-            padding: '4px 8px',
+            padding: '5px 10px',
           }}
         >
-          {/* 타이틀 */}
+          {/* 불꽃 아이콘 + 타이틀 */}
           <span
             style={{
               fontSize: '9px',
@@ -867,40 +906,47 @@ export default function MvpMap() {
               letterSpacing: '0.5px',
               marginRight: '6px',
               whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '3px',
             }}
           >
-            🔥 핫플레이스
+            <span className="hotspot-fire" style={{ fontSize: '11px' }}>🔥</span>
+            <span>핫플레이스</span>
           </span>
           {/* 구분선 */}
-          <span style={{ color: 'rgba(255,69,0,0.4)', fontSize: '9px', marginRight: '6px' }}>|</span>
+          <span style={{ color: 'rgba(255,69,0,0.5)', fontSize: '10px', marginRight: '7px', fontWeight: 300 }}>|</span>
           {/* 랭킹 아이템들 */}
           <div className="flex items-center gap-2">
             {hotspotCityNames.map((city, idx) => (
               <div key={city} className="flex items-center gap-1">
                 <span
+                  className="hotspot-rank-num"
                   style={{
                     fontSize: '8px',
                     fontWeight: 900,
                     color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32',
-                    textShadow: idx === 0 ? '0 0 6px #ffd70088' : idx === 1 ? '0 0 6px #c0c0c088' : '0 0 6px #cd7f3288',
+                    textShadow: idx === 0 ? '0 0 8px #ffd700aa' : idx === 1 ? '0 0 6px #c0c0c088' : '0 0 6px #cd7f3288',
                     lineHeight: 1,
                   }}
                 >
                   {idx + 1}
                 </span>
                 <span
+                  className={idx === 0 ? 'hotspot-rank-1-city' : ''}
                   style={{
-                    fontSize: '10px',
+                    fontSize: '11px',
                     fontWeight: 800,
-                    color: '#fff',
+                    color: idx === 0 ? '#ffd700' : '#fff',
                     letterSpacing: '-0.2px',
                     lineHeight: 1,
+                    textShadow: idx === 0 ? undefined : idx === 1 ? '0 0 4px rgba(255,255,255,0.3)' : undefined,
                   }}
                 >
                   {city}
                 </span>
                 {idx < hotspotCityNames.length - 1 && (
-                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '9px', marginLeft: '2px' }}>·</span>
+                  <span style={{ color: 'rgba(255,100,0,0.35)', fontSize: '9px', marginLeft: '2px' }}>·</span>
                 )}
               </div>
             ))}
