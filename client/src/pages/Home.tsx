@@ -244,7 +244,7 @@ export default function Home() {
                 개인정보 보호
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                GPS정보는 어디에도 유포하지 않습니.
+                GPS정보는 어디에도 유포하지 않습니다.
               </p>
             </div>
 
