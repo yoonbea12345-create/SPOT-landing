@@ -83,7 +83,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative flex items-center justify-center px-4 md:px-8 py-20 overflow-hidden" style={{minHeight: '85vh'}}>
+      <section className="relative flex items-center justify-center px-4 md:px-8 py-12 overflow-hidden" style={{minHeight: '70vh'}}>
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
@@ -118,14 +118,14 @@ export default function Home() {
       </section>
 
       {/* Problem Recognition Section */}
-      <section className="relative py-32 md:py-40 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
+      <section className="relative py-16 md:py-20 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="space-y-12 text-center">
+          <div className="space-y-8 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '48px'}}>
               핫플은 압니다. <br /> <span className="text-secondary glow-magenta">누가</span> 있는진 모릅니다.
             </p>
@@ -135,7 +135,7 @@ export default function Home() {
               <span className="text-secondary glow-magenta">누가</span> 있을지도 모릅니다.
             </p>
 
-            <div className="pt-8">
+            <div className="pt-4">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '49px'}}>
                 그래서   <span className="text-primary glow-cyan">SPOT.</span>       
               </p>
@@ -145,18 +145,18 @@ export default function Home() {
       </section>
 
       {/* 2-View System Section */}
-      <section className="relative py-32 md:py-40 px-4 md:px-8 overflow-hidden">
+      <section className="relative py-16 md:py-20 px-4 md:px-8 overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-16 text-center" style={{fontSize: '33px'}}>
+          <h2 className="text-4xl md:text-5xl font-black mb-10 text-center" style={{fontSize: '33px'}}>
             같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">정보</span>
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="grid md:grid-cols-3 gap-8 mb-6">
             {/* Card 1 - Wide View */}
             <div className="p-6 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
               <div className="mb-6">
@@ -211,7 +211,7 @@ export default function Home() {
 
 
       {/* Trust & Privacy Section */}
-      <section className="relative py-24 md:py-32 px-4 md:px-8 overflow-hidden">
+      <section className="relative py-16 md:py-20 px-4 md:px-8 overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
@@ -221,10 +221,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-black mb-4 text-center">
            걱정하지 마세요
           </h2>
-          <p className="text-lg text-muted-foreground text-center mb-16">
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 mt-8">
             {/* Principle 1 */}
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">1️⃣</div>
@@ -267,14 +264,14 @@ export default function Home() {
 
 
       {/* Beta Announcement Section */}
-      <section className="relative py-32 md:py-40 px-4 md:px-8 border-t border-border overflow-hidden">
+      <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <div className="space-y-8 mb-16">
+          <div className="space-y-6 mb-10">
             <p className="text-4xl md:text-6xl font-black leading-tight">
               지금은 베타.
             </p>
@@ -339,14 +336,14 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="relative py-28 md:py-36 px-4 md:px-8 border-t border-border overflow-hidden">
+      <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <div className="space-y-8 mb-16">
+          <div className="space-y-6 mb-10">
             <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '35px'}}>
               지금, 이 골목에 누가
             </p>
