@@ -657,6 +657,7 @@ export default function MvpMap() {
       fullscreenControl: true,
       keyboardShortcuts: false,
       rotateControl: false,
+      panControl: false,
       tilt: 0,
       gestureHandling: 'greedy',
     });
