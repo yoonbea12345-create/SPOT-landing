@@ -649,6 +649,15 @@ export default function MvpMap() {
     mapRef.current = map;
     const center = userLocation || HONGDAE_CENTER;
 
+    // 구글 맵 기본 UI 컨트롤 제거 (전체화면 버튼만 유지)
+    map.setOptions({
+      zoomControl: false,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      keyboardShortcuts: false,
+    });
+
     // 줌 레벨 변경 감지
     map.addListener('zoom_changed', () => {
       const zoom = map.getZoom() || 15;
