@@ -656,6 +656,9 @@ export default function MvpMap() {
       streetViewControl: false,
       fullscreenControl: true,
       keyboardShortcuts: false,
+      rotateControl: false,
+      tilt: 0,
+      gestureHandling: 'greedy',
     });
 
     // 줌 레벨 변경 감지
