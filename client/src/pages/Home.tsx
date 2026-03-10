@@ -168,7 +168,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-black mb-2 text-primary">#ZOOM:WIDE</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-               오늘의 흐름이 보입니다. <span className="text-primary">어디로 모였는지.</span>
+               오늘의 흐름이 보입니다. <span className="text-primary"><br />어디로 모였는지.</span>
               </p>
             </div>
 
@@ -183,7 +183,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-black mb-2 text-secondary">#ZOOM:NEAR</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-               나와 같은 MBTI들은. <span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
+               나와 같은 MBTI들은. <span className="text-secondary"><br /></span>어디서, 무엇을 하고 있을까.</span>
               </p>
             </div>
 
@@ -198,7 +198,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                지도에 내 위치를 표시해보세요. <span className="text-primary glow-cyan">MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                지도에 내 위치를 표시해보세요. <span className="text-primary glow-cyan"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
               </p>
             </div>
           </div>
