@@ -165,11 +165,11 @@ export default function Home() {
           <div className="hidden md:grid md:grid-cols-3 gap-6 mb-6">
             {/* Card 1 - Wide View */}
             <div className="p-4 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 rounded-md">
+              <div className="mb-4 rounded-md flex items-center justify-center">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/jejsdBJgIKarYQRp.png"
                   alt="Wide View"
-                  className="w-full h-auto border border-primary/30 rounded-md"
+                  className="w-full h-auto max-h-64 object-contain border border-primary/30 rounded-md"
                   loading="lazy"
                 />
               </div>
@@ -180,11 +180,11 @@ export default function Home() {
             </div>
             {/* Card 2 - Near View */}
             <div className="p-4 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 rounded-md">
+              <div className="mb-4 rounded-md flex items-center justify-center">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/FbSOHHCIytgRidsM.png"
                   alt="Near View"
-                  className="w-full h-auto border border-secondary/30 rounded-md"
+                  className="w-full h-auto max-h-64 object-contain border border-secondary/30 rounded-md"
                   loading="lazy"
                 />
               </div>
@@ -195,11 +195,11 @@ export default function Home() {
             </div>
             {/* Card 3 - Ultra Near */}
             <div className="p-4 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 rounded-md">
+              <div className="mb-4 rounded-md flex items-center justify-center">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/YakrPBGTkUyXeEIk.png"
                   alt="Register View"
-                  className="w-full h-auto border border-accent/30 rounded-md"
+                  className="w-full h-auto max-h-64 object-contain border border-accent/30 rounded-md"
                   loading="lazy"
                 />
               </div>
@@ -238,7 +238,7 @@ export default function Home() {
                     <img
                       src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/jejsdBJgIKarYQRp.png"
                       alt="Wide View"
-                      className="w-full h-auto border border-primary/30 rounded-md"
+                      className="w-full h-auto max-h-64 object-contain border border-primary/30 rounded-md"
                       loading="lazy"
                     />
                   </div>
@@ -253,7 +253,7 @@ export default function Home() {
                     <img
                       src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/FbSOHHCIytgRidsM.png"
                       alt="Near View"
-                      className="w-full h-auto border border-secondary/30 rounded-md"
+                      className="w-full h-auto max-h-64 object-contain border border-secondary/30 rounded-md"
                       loading="lazy"
                     />
                   </div>
@@ -268,7 +268,7 @@ export default function Home() {
                     <img
                       src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/YakrPBGTkUyXeEIk.png"
                       alt="Register View"
-                      className="w-full h-auto border border-accent/30 rounded-md"
+                      className="w-full h-auto max-h-64 object-contain border border-accent/30 rounded-md"
                       loading="lazy"
                     />
                   </div>
