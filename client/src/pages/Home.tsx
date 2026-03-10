@@ -183,7 +183,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-black mb-2 text-secondary">#ZOOM:NEAR</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-               나와 같은 MBTI들은. <span className="text-secondary"><br /></span>어디서, 무엇을 하고 있을까.</span>
+               나와 같은 MBTI들은. <br /><span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
               </p>
             </div>
 
