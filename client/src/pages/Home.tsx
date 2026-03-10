@@ -97,8 +97,28 @@ export default function Home() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h1 className="font-black text-6xl md:text-8xl mb-8 tracking-tighter">
-            <span className="text-primary glow-cyan" style={{fontSize: '300px'}}>SPOT</span>
-           </h1>
+            <span className="text-primary glow-cyan">SPOT</span>
+          </h1>
+
+          <div className="space-y-6 mb-12">
+            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
+              지도 위에 나를 새겨보세요. <br />
+              
+            </h2>
+
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+              그리고 다양한 사람들을 발견해보세요.
+            </p>
+          </div>
+
+          <div className="flex justify-center mb-12">
+            <Button 
+              className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
+              onClick={() => handleTrackAndNavigate('click_보러가기_hero', '/mvp')}
+            >
+              보러 가기
+            </Button>
+          </div>
         </div>
       </section>
 
