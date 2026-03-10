@@ -97,12 +97,12 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
-              지금 이 골목에 나랑 <br />
-              같은 MBTI가 몇명일까?
+              지도 위에 나를 새겨보세요. <br />
+              
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금 바로 지도에서 확인
+              그리고 다양한 사람들과 소통해보세요.
             </p>
           </div>
 
@@ -128,12 +128,12 @@ export default function Home() {
           <div className="space-y-12 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '30px'}}>
               핫플은 압니다. <br /> <span className="text-secondary glow-magenta">누가</span>
-                있는지는 모릅니다.
+                 있는진 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight">
-              어디로 갈지는 정합니다.<br />
-              <span className="text-secondary glow-magenta">누가</span> 있을지는 모릅니다.
+              어디로 갈지도<br />
+              <span className="text-secondary glow-magenta">누가</span> 있을지도 모릅니다.
             </p>
 
             <div className="pt-8">
