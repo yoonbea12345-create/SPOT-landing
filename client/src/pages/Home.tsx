@@ -102,7 +102,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              그리고 다양한 사람들과 소통해보세요.
+              그리고 다양한 사람들을 발견해보세요.
             </p>
           </div>
 
