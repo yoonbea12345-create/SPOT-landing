@@ -654,7 +654,7 @@ export default function MvpMap() {
       zoomControl: false,
       mapTypeControl: false,
       streetViewControl: false,
-      fullscreenControl: true,
+      fullscreenControl: false,
       keyboardShortcuts: false,
       rotateControl: false,
       panControl: false,

@@ -135,7 +135,7 @@ export function MapView({
       zoom: initialZoom,
       center: initialCenter,
       mapTypeControl: false,
-      fullscreenControl: true,
+      fullscreenControl: false,
       zoomControl: false,
       streetViewControl: false,
       rotateControl: false,
