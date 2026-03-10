@@ -130,7 +130,7 @@ export default function Home() {
               핫플은 압니다. <br /> <span className="text-secondary glow-magenta">누가</span> 있는진 모릅니다.
             </p>
 
-            <p className="text-3xl md:text-5xl font-black leading-tight">
+            <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
               어디로 갈지도<br />
               <span className="text-secondary glow-magenta">누가</span> 있을지도 모릅니다.
             </p>
