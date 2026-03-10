@@ -167,7 +167,7 @@ export default function Home() {
             <div className="p-4 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
               <div className="mb-4 rounded-md">
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/kXFhUGtJtbVJKiBJ.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/DazNoZgyHJolnQWl.png"
                   alt="Wide View"
                   className="w-full h-auto border border-primary/30 rounded-md"
                   loading="lazy"
@@ -182,7 +182,7 @@ export default function Home() {
             <div className="p-4 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
               <div className="mb-4 rounded-md">
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/hbfHUjskWDPgWoqc.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/UQuuRUoToCYOTloP.png"
                   alt="Near View"
                   className="w-full h-auto border border-secondary/30 rounded-md"
                   loading="lazy"
@@ -197,7 +197,7 @@ export default function Home() {
             <div className="p-4 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
               <div className="mb-4 rounded-md">
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/tTIIpBqXdnobUHHl.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/TlAYYOANMSYJasmT.png"
                   alt="Register View"
                   className="w-full h-auto border border-accent/30 rounded-md"
                   loading="lazy"
@@ -236,7 +236,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-4 border-2 border-primary bg-background/50 rounded-lg">
                   <div className="mb-4 rounded-md">
                     <img
-                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/kXFhUGtJtbVJKiBJ.webp"
+                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/DazNoZgyHJolnQWl.png"
                       alt="Wide View"
                       className="w-full h-auto border border-primary/30 rounded-md"
                       loading="lazy"
@@ -251,7 +251,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-4 border-2 border-secondary bg-background/50 rounded-lg">
                   <div className="mb-4 rounded-md">
                     <img
-                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/hbfHUjskWDPgWoqc.webp"
+                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/UQuuRUoToCYOTloP.png"
                       alt="Near View"
                       className="w-full h-auto border border-secondary/30 rounded-md"
                       loading="lazy"
@@ -266,7 +266,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-4 border-2 border-accent bg-background/50 rounded-lg">
                   <div className="mb-4 rounded-md">
                     <img
-                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/tTIIpBqXdnobUHHl.webp"
+                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/TlAYYOANMSYJasmT.png"
                       alt="Register View"
                       className="w-full h-auto border border-accent/30 rounded-md"
                       loading="lazy"
