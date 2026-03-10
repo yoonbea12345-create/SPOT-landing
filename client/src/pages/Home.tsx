@@ -159,11 +159,11 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6 mb-6">
             {/* Card 1 - Wide View */}
             <div className="p-4 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 overflow-hidden rounded-md" style={{height: '220px'}}>
+              <div className="mb-4 rounded-md">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/kXFhUGtJtbVJKiBJ.webp"
                   alt="Wide View"
-                  className="w-full h-full object-cover object-top border border-primary/30 rounded-md"
+                  className="w-full h-auto border border-primary/30 rounded-md"
                 />
               </div>
               <h3 className="text-xl font-black mb-2 text-primary">#ZOOM:WIDE</h3>
@@ -174,11 +174,11 @@ export default function Home() {
 
             {/* Card 2 - Near View */}
             <div className="p-4 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 overflow-hidden rounded-md" style={{height: '220px'}}>
+              <div className="mb-4 rounded-md">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/hbfHUjskWDPgWoqc.webp"
                   alt="Near View"
-                  className="w-full h-full object-cover object-top border border-secondary/30 rounded-md"
+                  className="w-full h-auto border border-secondary/30 rounded-md"
                 />
               </div>
               <h3 className="text-xl font-black mb-2 text-secondary">#ZOOM:NEAR</h3>
@@ -189,11 +189,11 @@ export default function Home() {
 
             {/* Card 3 - Ultra Near */}
             <div className="p-4 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 overflow-hidden rounded-md" style={{height: '220px'}}>
+              <div className="mb-4 rounded-md">
                 <img 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/tTIIpBqXdnobUHHl.webp"
                   alt="Register View"
-                  className="w-full h-full object-cover object-top border border-accent/30 rounded-md"
+                  className="w-full h-auto border border-accent/30 rounded-md"
                 />
               </div>
               <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
