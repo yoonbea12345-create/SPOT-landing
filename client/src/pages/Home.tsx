@@ -156,52 +156,49 @@ export default function Home() {
             같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">정보</span>
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-6">
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
             {/* Card 1 - Wide View */}
-            <div className="p-6 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors">
-              <div className="mb-6">
+            <div className="p-4 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
+              <div className="mb-4 overflow-hidden rounded-md" style={{height: '220px'}}>
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/dKsIoyiYfTuxmtvq.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/kXFhUGtJtbVJKiBJ.webp"
                   alt="Wide View"
-                  className="w-full h-auto rounded-lg border border-primary/30"
+                  className="w-full h-full object-cover object-top border border-primary/30 rounded-md"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-primary">#ZOOM:WIDE</h3>
-              <p className="text-base leading-relaxed text-muted-foreground" style={{fontSize: '15px'}}>
-               오늘의 흐름이 보입니다.<br /> 
-               <span className="text-primary">어디로 모였는지.</span>
+              <h3 className="text-xl font-black mb-2 text-primary">#ZOOM:WIDE</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+               오늘의 흐름이 보입니다. <span className="text-primary">어디로 모였는지.</span>
               </p>
             </div>
 
             {/* Card 2 - Near View */}
-            <div className="p-6 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors">
-              <div className="mb-6">
+            <div className="p-4 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
+              <div className="mb-4 overflow-hidden rounded-md" style={{height: '220px'}}>
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/DJQiNRxPuqRJaMUS.webp"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/hbfHUjskWDPgWoqc.webp"
                   alt="Near View"
-                  className="w-full h-auto rounded-lg border border-secondary/30"
+                  className="w-full h-full object-cover object-top border border-secondary/30 rounded-md"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-secondary">#ZOOM:NEAR </h3>
-              <p className="text-base leading-relaxed text-muted-foreground">
-               나와 같은 MBTI들은.<br />
-               <span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
+              <h3 className="text-xl font-black mb-2 text-secondary">#ZOOM:NEAR</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+               나와 같은 MBTI들은. <span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
               </p>
             </div>
 
             {/* Card 3 - Ultra Near */}
-            <div className="p-6 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors">
-              <div className="mb-6">
+            <div className="p-4 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
+              <div className="mb-4 overflow-hidden rounded-md" style={{height: '220px'}}>
                 <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/sWPnlsFliidmGday.webp"
-                  alt="Ultra Near"
-                  className="w-full h-auto rounded-lg border border-accent/30"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/tTIIpBqXdnobUHHl.webp"
+                  alt="Register View"
+                  className="w-full h-full object-cover object-top border border-accent/30 rounded-md"
                 />
               </div>
-              <h3 className="text-2xl font-black mb-3 text-accent">#ZOOM:3M</h3>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                지도에 내 위치를 원으로 표시해보세요.<br />
-                <span className="text-primary glow-cyan">MBTI, 기분, 느낌, 원하는 것 무엇이든. </span>
+              <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                지도에 내 위치를 표시해보세요. <span className="text-primary glow-cyan">MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
               </p>
             </div>
           </div>
