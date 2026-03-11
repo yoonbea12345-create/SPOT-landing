@@ -441,7 +441,7 @@ export default function MvpMap() {
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const watchIdRef = useRef<number | null>(null);
-  const [currentZoom, setCurrentZoom] = useState(15);
+  const [currentZoom, setCurrentZoom] = useState(15.0);
   const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
   const [showHotplacePopup, setShowHotplacePopup] = useState(false);
   const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
@@ -713,7 +713,7 @@ export default function MvpMap() {
     // 줌 레벨 변경 감지
     map.addListener('zoom_changed', () => {
       const zoom = map.getZoom() || 15;
-      setCurrentZoom(zoom);
+      setCurrentZoom(Math.round(zoom * 2) / 2); // 0.5 단위로 반올림
     });
 
     // 사용자 위치 마커
@@ -1596,9 +1596,10 @@ export default function MvpMap() {
               type="range"
               min="8"
               max="20"
+              step="0.5"
               value={currentZoom}
               onChange={(e) => {
-                const newZoom = parseInt(e.target.value);
+                const newZoom = parseFloat(e.target.value);
                 setCurrentZoom(newZoom);
                 if (mapRef.current) {
                   mapRef.current.setZoom(newZoom);
