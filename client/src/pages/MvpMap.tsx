@@ -759,8 +759,7 @@ export default function MvpMap() {
       const dx = Math.abs(tapX - lastTapX);
       const dy = Math.abs(tapY - lastTapY);
       if (dt < 300 && dx < 40 && dy < 40) {
-        // 더블탭 감지 - 탭 위치 기준으로 줌인
-        // passive:true이므로 preventDefault 호출 불가 - 제거
+        // 더블탭 감지 - 탭 위치 기준으로 줌인 (부드러운 애니메이션)
         const rect = mapDiv.getBoundingClientRect();
         const tapPxX = tapX - rect.left;
         const tapPxY = tapY - rect.top;
@@ -768,13 +767,17 @@ export default function MvpMap() {
         const curCenter = map.getCenter();
         if (curCenter) {
           const tapLatLng = pixelToLatLng(tapPxX, tapPxY, curZoom, curCenter);
-          // 탭 위치를 중심으로 줌인
           const newZoom = Math.min(21, curZoom + 1);
-          const scaleFactor = Math.pow(2, 1); // +1 줌
+          const scaleFactor = Math.pow(2, 1);
           const newCenterLat = tapLatLng.lat - (tapLatLng.lat - curCenter.lat()) / scaleFactor;
           const newCenterLng = tapLatLng.lng - (tapLatLng.lng - curCenter.lng()) / scaleFactor;
+          // panTo + setZoom 대신 moveCamera로 한번에 부드럽게 전환
+          // moveCamera는 즉각 반영이지만 panTo 애니메이션과 함께 쓰면 자연스러움
           map.panTo({ lat: newCenterLat, lng: newCenterLng });
-          map.setZoom(newZoom);
+          // 짧은 딜레이 후 줌 적용 → panTo 애니메이션과 겹쳐 부드럽게 보임
+          setTimeout(() => {
+            map.setZoom(newZoom);
+          }, 80);
         }
         lastTapTime = 0;
       } else {
@@ -821,10 +824,9 @@ export default function MvpMap() {
       const dist = getPinchDist(e.touches);
       if (pinchStartDist === 0) return;
       const ratio = dist / pinchStartDist;
-      // 소수점 2자리 정밀도: Math.round(x * 100) / 100
-      // 예) 14.00 → 14.01 → 14.02... 100단계 세밀하게 동작
+      // 반올림 없이 완전 연속 소수점 줌 → 구글맵 내부에서 정수 스냅 없이 연속 렌더링
       const rawZoom = pinchStartZoom + Math.log2(ratio);
-      const newZoom = Math.max(3, Math.min(21, Math.round(rawZoom * 100) / 100));
+      const newZoom = Math.max(3, Math.min(21, rawZoom));
       // 두 손가락 중간점 기준으로 지도 중심 보정
       const rect = mapDiv.getBoundingClientRect();
       const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
@@ -839,8 +841,11 @@ export default function MvpMap() {
       const zoomFactor = Math.pow(2, newZoom - pinchStartZoom);
       const newCenterLat = pinchStartCenterLat + (dyStart / zoomFactor - dyCur) * metersPerPx / 111320;
       const newCenterLng = pinchStartCenterLng - (dxStart / zoomFactor - dxCur) * metersPerPx / (111320 * cosLat);
-      map.setZoom(newZoom);
-      map.setCenter({ lat: newCenterLat, lng: newCenterLng });
+      // setZoom/setCenter 대신 moveCamera로 한번에 적용 → 소수점 줌 연속 렌더링 보장
+      (map as any).moveCamera({
+        zoom: newZoom,
+        center: { lat: newCenterLat, lng: newCenterLng },
+      });
     };
 
     const onPinchEnd = (e: TouchEvent) => {
