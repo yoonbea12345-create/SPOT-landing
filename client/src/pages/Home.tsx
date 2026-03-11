@@ -20,7 +20,7 @@ export default function Home() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
-  const CAROUSEL_TOTAL = 3;
+  const CAROUSEL_TOTAL = 4;
 
   // Tracking
   const trackEvent = trpc.log.trackEvent.useMutation();
@@ -216,87 +216,126 @@ export default function Home() {
           </h2>
 
           {/* PC/모바일 통합 캐러셀 */}
-          <div className="mb-4 max-w-lg mx-auto">
-            <div
-              ref={carouselRef}
-              className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
-              onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
-              onTouchMove={(e) => { touchEndX.current = e.touches[0].clientX; }}
-              onTouchEnd={() => {
-                if (touchStartX.current === null || touchEndX.current === null) return;
-                const diff = touchStartX.current - touchEndX.current;
-                if (Math.abs(diff) > 40) {
-                  if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
-                  else setCarouselIndex(i => Math.max(i - 1, 0));
-                }
-                touchStartX.current = null;
-                touchEndX.current = null;
-              }}
-              onMouseDown={(e) => { touchStartX.current = e.clientX; }}
-              onMouseMove={(e) => { if (touchStartX.current !== null) touchEndX.current = e.clientX; }}
-              onMouseUp={() => {
-                if (touchStartX.current === null || touchEndX.current === null) return;
-                const diff = touchStartX.current - touchEndX.current;
-                if (Math.abs(diff) > 40) {
-                  if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
-                  else setCarouselIndex(i => Math.max(i - 1, 0));
-                }
-                touchStartX.current = null;
-                touchEndX.current = null;
-              }}
-              onMouseLeave={() => { touchStartX.current = null; touchEndX.current = null; }}
-            >
-              <div
-                className="flex transition-transform duration-300 ease-out"
-                style={{ transform: `translateX(-${carouselIndex * 100}%)` }}
+          <div className="mb-4 max-w-sm mx-auto">
+            {/* 화살표 + 캐러셀 래퍼 */}
+            <div className="flex items-center gap-2">
+              {/* 왼쪽 화살표 */}
+              <button
+                onClick={() => setCarouselIndex(i => Math.max(i - 1, 0))}
+                disabled={carouselIndex === 0}
+                className="flex-shrink-0 w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                aria-label="이전 카드"
               >
-                {/* Mobile Card 1 */}
-                <div className="w-full flex-shrink-0 p-4 border-2 border-primary bg-background/50 rounded-lg">
-                  <div className="mb-4 rounded-md">
-                    <img
-                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/jejsdBJgIKarYQRp.png"
-                      alt="Wide View"
-                      className="w-full h-auto border border-primary/30 rounded-md"
-                      loading="lazy"
-                    />
+                ‹
+              </button>
+
+              <div
+                ref={carouselRef}
+                className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+                onTouchMove={(e) => { touchEndX.current = e.touches[0].clientX; }}
+                onTouchEnd={() => {
+                  if (touchStartX.current === null || touchEndX.current === null) return;
+                  const diff = touchStartX.current - touchEndX.current;
+                  if (Math.abs(diff) > 40) {
+                    if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
+                    else setCarouselIndex(i => Math.max(i - 1, 0));
+                  }
+                  touchStartX.current = null;
+                  touchEndX.current = null;
+                }}
+                onMouseDown={(e) => { touchStartX.current = e.clientX; }}
+                onMouseMove={(e) => { if (touchStartX.current !== null) touchEndX.current = e.clientX; }}
+                onMouseUp={() => {
+                  if (touchStartX.current === null || touchEndX.current === null) return;
+                  const diff = touchStartX.current - touchEndX.current;
+                  if (Math.abs(diff) > 40) {
+                    if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
+                    else setCarouselIndex(i => Math.max(i - 1, 0));
+                  }
+                  touchStartX.current = null;
+                  touchEndX.current = null;
+                }}
+                onMouseLeave={() => { touchStartX.current = null; touchEndX.current = null; }}
+              >
+                <div
+                  className="flex transition-transform duration-300 ease-out"
+                  style={{ transform: `translateX(-${carouselIndex * 100}%)` }}
+                >
+                  {/* Card 0 - ZOOM:Reality (새 카드) */}
+                  <div className="w-full flex-shrink-0 p-4 border-2 border-primary bg-background/50 rounded-lg">
+                    <div className="mb-3 rounded-md overflow-hidden">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(3)_0a7d4ede.png"
+                        alt="Reality View"
+                        className="w-full h-64 object-contain object-top border border-primary/30 rounded-md bg-black/20"
+                        loading="lazy"
+                      />
+                    </div>
+                    <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:Reality</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      과거, 연출보단.<br /><span className="text-primary">실시간의 모습을.</span>
+                    </p>
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-primary">#ZOOM:WIDE</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    오늘의 흐름이 보입니다. <span className="text-primary"><br />어디로 모였는지.</span>
-                  </p>
-                </div>
-                {/* Mobile Card 2 */}
-                <div className="w-full flex-shrink-0 p-4 border-2 border-secondary bg-background/50 rounded-lg">
-                  <div className="mb-4 rounded-md">
-                    <img
-                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/FbSOHHCIytgRidsM.png"
-                      alt="Near View"
-                      className="w-full h-auto border border-secondary/30 rounded-md"
-                      loading="lazy"
-                    />
+                  {/* Card 1 - ZOOM:WIDE */}
+                  <div className="w-full flex-shrink-0 p-4 border-2 border-secondary bg-background/50 rounded-lg">
+                    <div className="mb-3 rounded-md overflow-hidden">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(5)_03939046.png"
+                        alt="Wide View"
+                        className="w-full h-64 object-contain object-top border border-secondary/30 rounded-md bg-black/20"
+                        loading="lazy"
+                      />
+                    </div>
+                    <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM:WIDE</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      오늘의 흐름이 보입니다. <span className="text-secondary"><br />어디로 모였는지.</span>
+                    </p>
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-secondary">#ZOOM:NEAR</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    나와 같은 MBTI들은. <br /><span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
-                  </p>
-                </div>
-                {/* Mobile Card 3 */}
-                <div className="w-full flex-shrink-0 p-4 border-2 border-accent bg-background/50 rounded-lg">
-                  <div className="mb-4 rounded-md">
-                    <img
-                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/YakrPBGTkUyXeEIk.png"
-                      alt="Register View"
-                      className="w-full h-auto border border-accent/30 rounded-md"
-                      loading="lazy"
-                    />
+                  {/* Card 2 - ZOOM:NEAR */}
+                  <div className="w-full flex-shrink-0 p-4 border-2 border-accent bg-background/50 rounded-lg">
+                    <div className="mb-3 rounded-md overflow-hidden">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(4)_b3e41202.png"
+                        alt="Near View"
+                        className="w-full h-64 object-contain object-top border border-accent/30 rounded-md bg-black/20"
+                        loading="lazy"
+                      />
+                    </div>
+                    <h3 className="text-xl font-black mb-1 text-accent">#ZOOM:NEAR</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      나와 같은 MBTI들은. <br /><span className="text-accent">어디서, 무엇을 하고 있을까.</span>
+                    </p>
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
-                  </p>
+                  {/* Card 3 - ZOOM:3M */}
+                  <div className="w-full flex-shrink-0 p-4 border-2 border-primary bg-background/50 rounded-lg">
+                    <div className="mb-3 rounded-md overflow-hidden">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(6)_3aad8ccb.png"
+                        alt="Register View"
+                        className="w-full h-64 object-contain object-top border border-primary/30 rounded-md bg-black/20"
+                        loading="lazy"
+                      />
+                    </div>
+                    <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:3M</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              {/* 오른쪽 화살표 */}
+              <button
+                onClick={() => setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1))}
+                disabled={carouselIndex === CAROUSEL_TOTAL - 1}
+                className="flex-shrink-0 w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                aria-label="다음 카드"
+              >
+                ›
+              </button>
             </div>
+
             {/* Carousel dots */}
             <div className="flex justify-center gap-2 mt-4">
               {Array.from({ length: CAROUSEL_TOTAL }).map((_, i) => (
