@@ -401,7 +401,7 @@ export default function Home() {
                 color: 'text-accent',
                 border: 'border-accent/40',
                 title: '선택은 당신의 몫',
-                desc: 'GPS를 켜지 않아도 서비스 이용이 가능.\n여부는 언제든지 선택 가능.'
+                desc: 'GPS를 키지 않아도 이용이 가능합니다.\n동의 여부는 언제든지 바꾸실 수 있습니다.'
               }
             ].map((item) => (
               <div
