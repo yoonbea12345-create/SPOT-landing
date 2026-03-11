@@ -101,14 +101,13 @@ export default function Home() {
           </h1>
 
           <div className="space-y-6 mb-12">
-            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
-              지금, 이 도시의 <br /> 
-              분위기를 보세요. <br />
+            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '29px'}}>
+              지금, 사람으로 도시를 비춰봐요.
               
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지도 위에 나타나는 사람들의 실존 데이터.
+              지도에서 발견하는 도시의 진짜 분위기.
             </p>
           </div>
 
