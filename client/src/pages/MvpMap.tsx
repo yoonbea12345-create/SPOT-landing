@@ -306,8 +306,16 @@ const generateDummyData = (): DummyMarker[] => {
     return true;
   };
 
+  // 해당 도시의 고정 장소 필터링 함수
+  const getFixedPlacesNearCity = (cityLat: number, cityLng: number, radiusDeg = 0.25) =>
+    FIXED_PLACES.filter(p =>
+      Math.abs(p.lat - cityLat) < radiusDeg && Math.abs(p.lng - cityLng) < radiusDeg
+    );
+
   cities.forEach((city) => {
     const count = Math.floor(Math.random() * (city.count[1] - city.count[0] + 1)) + city.count[0];
+    const nearbyFixed = getFixedPlacesNearCity(city.lat, city.lng);
+
     for (let i = 0; i < count; i++) {
       const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
       const mood = MOOD_LIST[Math.floor(Math.random() * MOOD_LIST.length)];
@@ -315,7 +323,16 @@ const generateDummyData = (): DummyMarker[] => {
       const sign = SIGN_LIST[Math.floor(Math.random() * SIGN_LIST.length)];
       
       let lat, lng;
-      if (city.name === "제주시" || city.name === "서귀포") {
+
+      // 75% 확률로 고정 장소 좌표에 정확히 배치 (1m 이내 미세 오프셋)
+      if (nearbyFixed.length > 0 && Math.random() < 0.75) {
+        const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
+        // 1m 이내 미세 오프셋 (1m ≈ 0.000009도)
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 0.000009;
+        lat = anchor.lat + Math.sin(angle) * dist;
+        lng = anchor.lng + Math.cos(angle) * dist;
+      } else if (city.name === "제주si" || city.name === "서귀포") {
         let attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
