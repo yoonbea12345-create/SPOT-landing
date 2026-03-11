@@ -387,14 +387,14 @@ export default function Home() {
                 color: 'text-primary',
                 border: 'border-primary/40',
                 title: '누구인지 보이지 않습니다.',
-                desc: '상대방에게는 MBTI만 보입니다. 이름, 나이, 얼굴 어떤 것도 노출되지 않습니다.'
+                desc: '상대에게는 아바타로 표시됩니다.'
               },
               {
                 num: 2,
                 color: 'text-secondary',
                 border: 'border-secondary/40',
                 title: '개인정보 보호',
-                desc: 'GPS 정보는 서버에만 저장되며, 제3자에게 유포되지 않습니다.'
+                desc: 'GPS 정보는 서버에만 저장되며,\n제3자에게 유포되지 않습니다.'
               },
               {
                 num: 3,
@@ -418,7 +418,7 @@ export default function Home() {
                 </div>
                 {openAccordion === item.num && (
                   <div className="px-5 pb-4 pl-14">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{item.desc}</p>
                   </div>
                 )}
               </div>
