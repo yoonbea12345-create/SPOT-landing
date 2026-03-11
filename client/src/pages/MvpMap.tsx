@@ -869,10 +869,9 @@ export default function MvpMap() {
       markersRef.current.push(marker);
     });
 
-    // 고정 장소별 마커 수 카운트 계산 → 8개 이상이면 HOTSPOT 오버레이 마커 추가
+    // 고정 장소별 마커 수 카운트 계산 → 15개 이상이면 반짝이 이펙트
     const locationCount: Record<string, { lat: number; lng: number; count: number; name: string }> = {};
     dummyData.forEach(item => {
-      // 1m 이내는 같은 지점으로 간주 (0.00005도 ≈ 5m)
       const key = `${Math.round(item.lat / 0.00005) * 0.00005},${Math.round(item.lng / 0.00005) * 0.00005}`;
       if (!locationCount[key]) {
         locationCount[key] = { lat: item.lat, lng: item.lng, count: 0, name: item.placeName || '' };
@@ -880,49 +879,63 @@ export default function MvpMap() {
       locationCount[key].count++;
     });
 
+    // 반짝이 CSS 주입 (중복 방지)
+    if (!document.getElementById('sparkle-style')) {
+      const sparkleStyle = document.createElement('style');
+      sparkleStyle.id = 'sparkle-style';
+      sparkleStyle.textContent = `
+        @keyframes sparkle-rotate { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(90deg) scale(1.2); } 50% { transform: rotate(180deg) scale(0.9); } 75% { transform: rotate(270deg) scale(1.15); } 100% { transform: rotate(360deg) scale(1); } }
+        @keyframes sparkle-fade { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.4; } }
+        @keyframes sparkle-orbit { 0% { transform: rotate(0deg) translateX(7px) rotate(0deg); opacity: 1; } 100% { transform: rotate(360deg) translateX(7px) rotate(-360deg); opacity: 0.6; } }
+        .sparkle-core { animation: sparkle-rotate 2s ease-in-out infinite, sparkle-fade 1.5s ease-in-out infinite; }
+        .sparkle-dot { animation: sparkle-orbit 2.5s linear infinite; }
+        .sparkle-dot:nth-child(2) { animation-delay: -0.83s; }
+        .sparkle-dot:nth-child(3) { animation-delay: -1.66s; }
+      `;
+      document.head.appendChild(sparkleStyle);
+    }
+
     Object.values(locationCount).forEach(loc => {
-      if (loc.count < 8) return;
-      const hotspotEl = document.createElement('div');
-      hotspotEl.style.cssText = `
+      if (loc.count < 15) return;
+      const sparkleEl = document.createElement('div');
+      sparkleEl.style.cssText = `
+        width: 20px;
+        height: 20px;
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         pointer-events: none;
       `;
-      hotspotEl.innerHTML = `
-        <div style="
-          background: rgba(255,60,0,0.92);
-          border: 1.5px solid rgba(255,120,0,0.9);
-          border-radius: 6px;
-          padding: 2px 6px;
-          display: flex;
-          align-items: center;
-          gap: 3px;
-          box-shadow: 0 0 10px rgba(255,60,0,0.7), 0 0 20px rgba(255,60,0,0.4);
-          animation: hotspot-badge-pulse 1.5s ease-in-out infinite;
-          white-space: nowrap;
-        ">
-          <span style="font-size:9px;">🔥</span>
-          <span style="
-            font-size: 8px;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 0.08em;
-            text-shadow: 0 0 6px rgba(255,200,0,0.8);
-          ">HOTSPOT</span>
-          <span style="
-            font-size: 8px;
-            font-weight: 700;
-            color: rgba(255,220,180,0.9);
-          ">${loc.count}</span>
-        </div>
+      sparkleEl.innerHTML = `
+        <div class="sparkle-core" style="
+          position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+          font-size: 14px; line-height: 1;
+          filter: drop-shadow(0 0 4px rgba(255,220,80,0.9)) drop-shadow(0 0 8px rgba(255,180,0,0.6));
+        ">✨</div>
+        <div class="sparkle-dot" style="
+          position: absolute; top: 50%; left: 50%; margin: -2px;
+          width: 4px; height: 4px; border-radius: 50%;
+          background: rgba(255,220,80,0.9);
+          box-shadow: 0 0 4px rgba(255,220,80,0.8);
+        "></div>
+        <div class="sparkle-dot" style="
+          position: absolute; top: 50%; left: 50%; margin: -1.5px;
+          width: 3px; height: 3px; border-radius: 50%;
+          background: rgba(255,160,0,0.8);
+          box-shadow: 0 0 3px rgba(255,160,0,0.7);
+          animation-delay: -0.83s;
+        "></div>
+        <div class="sparkle-dot" style="
+          position: absolute; top: 50%; left: 50%; margin: -1.5px;
+          width: 3px; height: 3px; border-radius: 50%;
+          background: rgba(255,255,160,0.9);
+          box-shadow: 0 0 3px rgba(255,255,160,0.8);
+          animation-delay: -1.66s;
+        "></div>
       `;
       new google.maps.marker.AdvancedMarkerElement({
         map,
         position: { lat: loc.lat, lng: loc.lng },
-        content: hotspotEl,
-        zIndex: 999,
+        content: sparkleEl,
+        zIndex: 998,
       });
     });
 
@@ -1001,17 +1014,19 @@ export default function MvpMap() {
       const isHotspot = hotspots.includes(city.name);
       const labelElement = document.createElement('div');
 
+      // 실제 마커 수 계산 (dummyData에서 해당 도시 반경 내 마커 수)
+      const cityRadius = 0.25;
+      const actualMarkerCount = dummyData.filter(m =>
+        Math.abs(m.lat - city.lat) < cityRadius && Math.abs(m.lng - city.lng) < cityRadius
+      ).length;
+
       if (isHotspot) {
         labelElement.className = 'hotspot-label';
         labelElement.style.cssText = `
-          background: rgba(0, 0, 0, 0.97);
-          border: 2.5px solid #ff4500;
-          border-radius: 12px;
-          padding: 8px 12px;
-          font-size: 11px;
-          font-weight: 700;
-          color: #ff6a00;
-          text-shadow: 0 0 10px rgba(255, 69, 0, 0.9);
+          background: rgba(0,0,0,0.95);
+          border: 1.5px solid #ff4500;
+          border-radius: 8px;
+          padding: 4px 7px;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
@@ -1020,28 +1035,24 @@ export default function MvpMap() {
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 5);
+          .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="display:flex; align-items:center; gap:4px; margin-bottom: 5px;">
-            <span class="hotspot-badge" style="font-size:13px;">&#x1F525;</span>
-            <span style="font-size: 13px; font-weight: 900; color: #ff6a00; text-shadow: 0 0 12px #ff4500cc; letter-spacing: 0.5px;">HOTSPOT</span>
+          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
+            <span style="font-size:9px;">&#x1F525;</span>
+            <span style="font-size:9px;font-weight:900;color:#ff6a00;letter-spacing:0.5px;">HOTSPOT</span>
+            <span style="font-size:8px;color:#ffaa44;font-weight:700;">${city.name}</span>
+            <span style="font-size:8px;color:rgba(255,180,100,0.7);">·${actualMarkerCount}</span>
           </div>
-          <div style="font-size: 12px; margin-bottom: 4px; color: #ffaa44; font-weight: 800;">${city.name}</div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="color: ${MBTI_COLORS[mbti]}; text-shadow: 0 0 8px ${MBTI_COLORS[mbti]}88;">${mbti} × ${count}</div>`
+            `<div style="font-size:8px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti}·${count}</div>`
           ).join('')}
         `;
       } else {
         labelElement.style.cssText = `
-          background: rgba(0, 0, 0, 0.95);
-          border: 2px solid rgba(0, 240, 255, 0.5);
-          border-radius: 12px;
-          padding: 8px 12px;
-          font-size: 11px;
-          font-weight: 700;
-          color: #00f0ff;
-          text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
-          box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+          background: rgba(0,0,0,0.9);
+          border: 1px solid rgba(0,240,255,0.4);
+          border-radius: 8px;
+          padding: 4px 7px;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
@@ -1049,11 +1060,14 @@ export default function MvpMap() {
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 5);
+          .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="font-size: 12px; margin-bottom: 4px; color: #00f0ff;">${city.name}</div>
+          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
+            <span style="font-size:9px;font-weight:800;color:#00f0ff;">${city.name}</span>
+            <span style="font-size:8px;color:rgba(0,240,255,0.5);">·${actualMarkerCount}</span>
+          </div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="color: ${MBTI_COLORS[mbti]}; text-shadow: 0 0 8px ${MBTI_COLORS[mbti]}88;">${mbti} × ${count}</div>`
+            `<div style="font-size:8px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti}·${count}</div>`
           ).join('')}
         `;
       }
