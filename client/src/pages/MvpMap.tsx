@@ -2281,23 +2281,13 @@ export default function MvpMap() {
         // 좌우: 중앙 정렬, 화면 바깥으로 나가도 짜림 (MARGIN 없음)
         let left = avatarX - PW / 2;
 
-        // 위아래: 지도 앱 바운더리 내에서만 클램핑
-        // 상단: MBTI 필터바 아래 (48px 가정)
-        // 하단: 하단 버튼 영역 위 (100px 가정)
+        // 항상 아바타 위로만 고정 - 공간 부족해도 절대 아래로 뒤집지 않음
+        // 짤려도 OK - 사용자가 지도 시점 이동해서 볼 것
+        // 단, 상단 MBTI 필터바(48px) 아래에서만 overflow:hidden으로 클리핑됨
         const TOP_BOUNDARY = 48;
-        const BOTTOM_BOUNDARY = window.innerHeight - 100;
+        const tailBelow = false; // 항상 false - 무조건 위로만
 
         let top = avatarY - AVATAR_R - PH - TAIL - 4;
-        let tailBelow = false;
-
-        // 위에 공간 부족하면 아바타 아래로
-        if (top < TOP_BOUNDARY) {
-          top = avatarY + AVATAR_R + TAIL + 4;
-          tailBelow = true;
-        }
-        // 위아래 바운더리 클램핑
-        if (top < TOP_BOUNDARY) top = TOP_BOUNDARY;
-        if (top + PH > BOTTOM_BOUNDARY) top = BOTTOM_BOUNDARY - PH;
 
         // 코 X 위치 - 아바타 중심에 맞춰
         const tailX = Math.min(Math.max(avatarX - left, 16), PW - 16);
