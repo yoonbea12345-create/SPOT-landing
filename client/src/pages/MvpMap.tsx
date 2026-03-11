@@ -2713,9 +2713,7 @@ export default function MvpMap() {
                 textShadow: "0 0 15px rgba(0, 240, 255, 0.6)",
               }}
             >
-              지금, 이 골목을 보기위해
-              <br />
-              GPS를 수동으로 켜주세요.
+              GPS를 켜주세요!
             </h2>
 
             <div className="border-t border-gray-700" />
@@ -2731,11 +2729,8 @@ export default function MvpMap() {
               <p>
                 해당 웹사이트에서는 현재 위치를
                 <br />
-                기준으로 주변의 분포를 가상계산합니다.
-                <br />
                 정확한 좌표는 어디에도 공개하지 않습니다.
                 <br />
-                점이 아닌, 범위로 표시합니다.
               </p>
             </div>
 
