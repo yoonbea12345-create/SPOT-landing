@@ -452,6 +452,10 @@ export default function MvpMap() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false); // 검색창 페이드용
   const [hotplaceVisible, setHotplaceVisible] = useState(false); // 핵플 바텀시트 페이드용
+  const [spotFormVisible, setSpotFormVisible] = useState(false); // 스팟 폼 페이드용
+  const [consentVisible, setConsentVisible] = useState(false); // GPS 동의 팝업 페이드용
+  const spotFormCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const consentCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{name: string; lat: number; lng: number}[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -502,6 +506,26 @@ export default function MvpMap() {
       setHotplaceVisible(false);
     }
   }, [showHotplacePopup]);
+
+  // 스팟 폼 페이드인/아웃
+  useEffect(() => {
+    if (showSpotForm) {
+      if (spotFormCloseTimerRef.current) clearTimeout(spotFormCloseTimerRef.current);
+      requestAnimationFrame(() => setSpotFormVisible(true));
+    } else {
+      setSpotFormVisible(false);
+    }
+  }, [showSpotForm]);
+
+  // GPS 동의 팝업 페이드인/아웃
+  useEffect(() => {
+    if (showConsentPopup) {
+      if (consentCloseTimerRef.current) clearTimeout(consentCloseTimerRef.current);
+      requestAnimationFrame(() => setConsentVisible(true));
+    } else {
+      setConsentVisible(false);
+    }
+  }, [showConsentPopup]);
 
   // 스플래시 → 지도 전환 (2초 후)
   useEffect(() => {
@@ -2713,7 +2737,11 @@ export default function MvpMap() {
 
       {/* 스팝 입력 팝업 (11초 후) */}
       {showSpotForm && !spotSubmitted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background: 'rgba(0,0,0,0.7)'}}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{
+          background: 'rgba(0,0,0,0.7)',
+          opacity: spotFormVisible ? 1 : 0,
+          transition: 'opacity 0.22s ease',
+        }}>
           <div
             style={{
               background: 'rgba(4, 4, 14, 0.98)',
@@ -2725,6 +2753,8 @@ export default function MvpMap() {
               maxHeight: '88vh',
               overflowY: 'auto',
               boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
+              transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
+              transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
             }}
           >
             {/* 제목 */}
@@ -2967,8 +2997,15 @@ export default function MvpMap() {
 
       {/* GPS 동의 팝업 */}
       {showConsentPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6">
-          <div className="bg-black border-2 border-cyan-500/50 rounded-2xl p-5 max-w-sm w-full space-y-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-6" style={{
+          background: 'rgba(0,0,0,0.5)',
+          opacity: consentVisible ? 1 : 0,
+          transition: 'opacity 0.22s ease',
+        }}>
+          <div className="bg-black border-2 border-cyan-500/50 rounded-2xl p-5 max-w-sm w-full space-y-3" style={{
+            transform: consentVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
+            transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+          }}>
             <h2
               className="text-lg font-bold text-center"
               style={{
