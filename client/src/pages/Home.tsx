@@ -211,10 +211,6 @@ export default function Home() {
           <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-10 text-center" style={{fontSize: '33px'}}>
-            같은 <span className="text-secondary">지도</span>,  다른 <span className="text-primary">정보</span>
-          </h2>
-
           {/* PC/모바일 통합 캐러셀 */}
           <div className="mb-4 max-w-sm mx-auto">
             {/* 화살표 + 캐러셀 래퍼 */}
@@ -263,67 +259,75 @@ export default function Home() {
                   style={{ transform: `translateX(-${carouselIndex * 100}%)` }}
                 >
                   {/* Card 0 - ZOOM:Reality */}
-                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
-                    <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(3)_0a7d4ede.png"
-                      alt="Reality View"
-                      className="w-full object-cover object-top"
-                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
-                      loading="lazy"
-                    />
-                    <div className="px-4 py-3">
-                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:Reality</h3>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        과거, 연출보단.<br /><span className="text-primary">실시간의 모습을.</span>
-                      </p>
+                  <div className="w-full flex-shrink-0 p-2">
+                    <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(3)_0a7d4ede.png"
+                        alt="Reality View"
+                        className="w-full object-cover object-top"
+                        style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                        loading="lazy"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
+                        <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:Reality</h3>
+                        <p className="text-sm leading-relaxed text-white/80">
+                          과거, 연출보단.<br /><span className="text-primary">실시간의 모습을.</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                   {/* Card 1 - ZOOM:WIDE */}
-                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
-                    <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(5)_03939046.png"
-                      alt="Wide View"
-                      className="w-full object-cover object-top"
-                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
-                      loading="lazy"
-                    />
-                    <div className="px-4 py-3">
-                      <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM:WIDE</h3>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        오늘의 흐름이 보입니다. <span className="text-secondary"><br />어디로 모였는지.</span>
-                      </p>
+                  <div className="w-full flex-shrink-0 p-2">
+                    <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(5)_03939046.png"
+                        alt="Wide View"
+                        className="w-full object-cover object-top"
+                        style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                        loading="lazy"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
+                        <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM:WIDE</h3>
+                        <p className="text-sm leading-relaxed text-white/80">
+                          오늘의 흐름이 보입니다.<br /><span className="text-secondary">어디로 모였는지.</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                   {/* Card 2 - ZOOM:NEAR */}
-                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
-                    <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(4)_b3e41202.png"
-                      alt="Near View"
-                      className="w-full object-cover object-top"
-                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
-                      loading="lazy"
-                    />
-                    <div className="px-4 py-3">
-                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM:NEAR</h3>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        나와 같은 MBTI들은. <br /><span className="text-accent">어디서, 무엇을 하고 있을까.</span>
-                      </p>
+                  <div className="w-full flex-shrink-0 p-2">
+                    <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(4)_b3e41202.png"
+                        alt="Near View"
+                        className="w-full object-cover object-top"
+                        style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                        loading="lazy"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
+                        <h3 className="text-xl font-black mb-1 text-accent">#ZOOM:NEAR</h3>
+                        <p className="text-sm leading-relaxed text-white/80">
+                          나와 같은 MBTI들은.<br /><span className="text-accent">어디서, 무엇을 하고 있을까.</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                   {/* Card 3 - ZOOM:3M */}
-                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
-                    <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(6)_3aad8ccb.png"
-                      alt="Register View"
-                      className="w-full object-cover object-top"
-                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
-                      loading="lazy"
-                    />
-                    <div className="px-4 py-3">
-                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:3M</h3>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
-                      </p>
+                  <div className="w-full flex-shrink-0 p-2">
+                    <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
+                      <img
+                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(6)_3aad8ccb.png"
+                        alt="Register View"
+                        className="w-full object-cover object-top"
+                        style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                        loading="lazy"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
+                        <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:3M</h3>
+                        <p className="text-sm leading-relaxed text-white/80">
+                          지도에 내 위치를 표시해보세요.<br /><span className="text-primary">MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
