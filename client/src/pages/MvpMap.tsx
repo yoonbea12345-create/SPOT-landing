@@ -324,15 +324,23 @@ const generateDummyData = (): DummyMarker[] => {
       
       let lat, lng;
 
-      // 75% 확률로 고정 장소 좌표에 정확히 배치 (1m 이내 미세 오프셋)
+      // 75% 확률로 고정 장소 좌표에 정확히 배치, 그 중 30%는 외부 랜덤 재배치
       if (nearbyFixed.length > 0 && Math.random() < 0.75) {
-        const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
-        // 1m 이내 미세 오프셋 (1m ≈ 0.000009도)
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.random() * 0.000009;
-        lat = anchor.lat + Math.sin(angle) * dist;
-        lng = anchor.lng + Math.cos(angle) * dist;
-      } else if (city.name === "제주si" || city.name === "서귀포") {
+        if (Math.random() < 0.30) {
+          // 30%는 도시 전체 랜덤 배치 (골목/시골 등)
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.pow(Math.random(), 0.6) * 0.18;
+          lat = city.lat + Math.sin(angle) * dist;
+          lng = city.lng + Math.cos(angle) * dist;
+        } else {
+          // 70%는 고정 장소 좌표에 1m 이내 정확히 배치
+          const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 0.000009;
+          lat = anchor.lat + Math.sin(angle) * dist;
+          lng = anchor.lng + Math.cos(angle) * dist;
+        }
+      } else if (city.name === "제주시" || city.name === "서귀포") {
         let attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
@@ -859,6 +867,63 @@ export default function MvpMap() {
       });
 
       markersRef.current.push(marker);
+    });
+
+    // 고정 장소별 마커 수 카운트 계산 → 8개 이상이면 HOTSPOT 오버레이 마커 추가
+    const locationCount: Record<string, { lat: number; lng: number; count: number; name: string }> = {};
+    dummyData.forEach(item => {
+      // 1m 이내는 같은 지점으로 간주 (0.00005도 ≈ 5m)
+      const key = `${Math.round(item.lat / 0.00005) * 0.00005},${Math.round(item.lng / 0.00005) * 0.00005}`;
+      if (!locationCount[key]) {
+        locationCount[key] = { lat: item.lat, lng: item.lng, count: 0, name: item.placeName || '' };
+      }
+      locationCount[key].count++;
+    });
+
+    Object.values(locationCount).forEach(loc => {
+      if (loc.count < 8) return;
+      const hotspotEl = document.createElement('div');
+      hotspotEl.style.cssText = `
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        pointer-events: none;
+      `;
+      hotspotEl.innerHTML = `
+        <div style="
+          background: rgba(255,60,0,0.92);
+          border: 1.5px solid rgba(255,120,0,0.9);
+          border-radius: 6px;
+          padding: 2px 6px;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          box-shadow: 0 0 10px rgba(255,60,0,0.7), 0 0 20px rgba(255,60,0,0.4);
+          animation: hotspot-badge-pulse 1.5s ease-in-out infinite;
+          white-space: nowrap;
+        ">
+          <span style="font-size:9px;">🔥</span>
+          <span style="
+            font-size: 8px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 6px rgba(255,200,0,0.8);
+          ">HOTSPOT</span>
+          <span style="
+            font-size: 8px;
+            font-weight: 700;
+            color: rgba(255,220,180,0.9);
+          ">${loc.count}</span>
+        </div>
+      `;
+      new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: loc.lat, lng: loc.lng },
+        content: hotspotEl,
+        zIndex: 999,
+      });
     });
 
     // 도시별 텍스트 라벨 생성
