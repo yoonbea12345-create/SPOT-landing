@@ -718,10 +718,15 @@ export default function MvpMap() {
       gestureHandling: 'greedy',
     });
 
-    // 줌 레벨 변경 감지
+    // 줄 레벨 변경 감지 - 정수 단위로만 업데이트해 핀치 중 과도한 리렌더링 방지
+    let lastZoomInt = -1;
     map.addListener('zoom_changed', () => {
       const zoom = map.getZoom() || 15;
-      setCurrentZoom(Math.round(zoom * 2) / 2); // 0.5 단위로 반올림
+      const zoomInt = Math.floor(zoom);
+      if (zoomInt !== lastZoomInt) {
+        lastZoomInt = zoomInt;
+        setCurrentZoom(zoomInt);
+      }
     });
 
     // ===== 더블탭 줌인 (구글맵 기본 핀치줌은 그대로 사용) =====
@@ -755,7 +760,7 @@ export default function MvpMap() {
       const dy = Math.abs(tapY - lastTapY);
       if (dt < 300 && dx < 40 && dy < 40) {
         // 더블탭 감지 - 탭 위치 기준으로 줌인
-        e.preventDefault();
+        // passive:true이므로 preventDefault 호출 불가 - 제거
         const rect = mapDiv.getBoundingClientRect();
         const tapPxX = tapX - rect.left;
         const tapPxY = tapY - rect.top;
@@ -778,7 +783,8 @@ export default function MvpMap() {
         lastTapY = tapY;
       }
     };
-    mapDiv.addEventListener('touchstart', onDoubleTap, { passive: false, capture: false });
+    // passive:true로 등록해야 구글맵 기본 핀치줌을 방해하지 않음
+    mapDiv.addEventListener('touchstart', onDoubleTap, { passive: true, capture: false });
 
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
