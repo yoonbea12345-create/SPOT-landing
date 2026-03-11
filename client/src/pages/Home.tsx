@@ -102,7 +102,8 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
-              지금, 이 도시의 분위기를 보세요. <br />
+              지금, 이 도시의 <br /> 
+              분위기를 보세요. <br />
               
             </h2>
 
@@ -132,16 +133,16 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-8 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
-              블로그는 말합니다. <br /> 여기가<span className="text-secondary">핫플이라고.</span>
+              블로그는 말합니다. <br /> 여기가<span className="text-secondary"> 핫플이라고.</span>
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
               인스타는 보여줍니다.<br />
-              여기가<span className="text-secondary">예쁘다고</span>
+              여기가<span className="text-secondary"> 예쁘다고</span>
             </p>
 
             <div className="pt-4">
-              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '49px'}}>
+              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '34px'}}>
                 과연, <span className="text-primary">실제</span>로도 그럴까요?       
               </p>
             </div>
