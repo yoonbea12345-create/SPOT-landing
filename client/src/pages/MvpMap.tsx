@@ -494,8 +494,9 @@ export default function MvpMap() {
     const bounds = map.getBounds();
     if (!projection || !bounds) return null;
     const mapDiv = map.getDiv();
-    const mapWidth = mapDiv.offsetWidth;
-    const mapHeight = mapDiv.offsetHeight;
+    const mapRect = mapDiv.getBoundingClientRect(); // 지도 div의 븷포트 기준 오프셋
+    const mapWidth = mapRect.width;
+    const mapHeight = mapRect.height;
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
     const nePoint = projection.fromLatLngToPoint(ne)!;
@@ -503,8 +504,12 @@ export default function MvpMap() {
     const worldWidth = nePoint.x - swPoint.x;
     const worldHeight = swPoint.y - nePoint.y;
     const point = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng))!;
-    const x = ((point.x - swPoint.x) / worldWidth) * mapWidth;
-    const y = ((point.y - nePoint.y) / worldHeight) * mapHeight;
+    // 지도 div 내 상대 좌표
+    const relX = ((point.x - swPoint.x) / worldWidth) * mapWidth;
+    const relY = ((point.y - nePoint.y) / worldHeight) * mapHeight;
+    // 븷포트 기준 절대 좌표 (fixed 포지셔닝에 사용)
+    const x = mapRect.left + relX;
+    const y = mapRect.top + relY;
     return { x, y };
   }, []);
 
