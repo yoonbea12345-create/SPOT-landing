@@ -142,7 +142,7 @@ export default function Home() {
             </p>
 
             <div className="pt-4">
-              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '34px'}}>
+              <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '30px'}}>
                 과연, <span className="text-primary">실제</span>로도 그럴까요?       
               </p>
             </div>
