@@ -432,6 +432,8 @@ export default function MvpMap() {
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
   // 팝업 상태
   const [popupData, setPopupData] = useState<PopupData | null>(null);
+  const [popupVisible, setPopupVisible] = useState(false); // 팝업 페이드 애니메이션용
+  const popupCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [popupAddress, setPopupAddress] = useState<string | null>(null);
   const [placePhotos, setPlacePhotos] = useState<PlacePhoto[]>([]);
   const [photoLoading, setPhotoLoading] = useState(false);
@@ -448,6 +450,8 @@ export default function MvpMap() {
   const [showHotplacePopup, setShowHotplacePopup] = useState(false);
   const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(false); // 검색창 페이드용
+  const [hotplaceVisible, setHotplaceVisible] = useState(false); // 핵플 바텀시트 페이드용
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{name: string; lat: number; lng: number}[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -473,6 +477,32 @@ export default function MvpMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 팝업 페이드인/아웃 애니메이션
+  useEffect(() => {
+    if (popupData) {
+      if (popupCloseTimerRef.current) clearTimeout(popupCloseTimerRef.current);
+      requestAnimationFrame(() => setPopupVisible(true));
+    }
+  }, [popupData]);
+
+  // 검색창 페이드인/아웃
+  useEffect(() => {
+    if (showSearch) {
+      requestAnimationFrame(() => setSearchVisible(true));
+    } else {
+      setSearchVisible(false);
+    }
+  }, [showSearch]);
+
+  // 핵플 바텀시트 페이드인/아웃
+  useEffect(() => {
+    if (showHotplacePopup) {
+      requestAnimationFrame(() => setHotplaceVisible(true));
+    } else {
+      setHotplaceVisible(false);
+    }
+  }, [showHotplacePopup]);
+
   // 스플래시 → 지도 전환 (2초 후)
   useEffect(() => {
     const checkLogId = () => {
@@ -494,6 +524,14 @@ export default function MvpMap() {
   }, [screen]);
 
   // 스팟 폼은 CTA 버튼으로 수동 오픈
+
+  // 팝업 닫기 - 페이드아웃 후 데이터 제거
+  const closePopup = useCallback(() => {
+    setPopupVisible(false);
+    popupCloseTimerRef.current = setTimeout(() => {
+      setPopupData(null);
+    }, 180); // 페이드아웃 duration과 맞춤
+  }, []);
 
   // GPS 동의 처리 - 이벤트 트래킹은 비동기로 실행하고 GPS는 즉시 시작
   const handleConsent = useCallback((agreed: boolean) => {
@@ -1645,11 +1683,16 @@ export default function MvpMap() {
       </div>
 
       {/* 핫플레이스 팝업 모달 */}
-      {/* 핫플레이스 bottom sheet - 배경 오버레이 없이 지도 위에 뜨우는 구조 */}
+      {/* 핵플레이스 bottom sheet - 배경 오버레이 없이 지도 위에 뜨우는 구조 */}
       {showHotplacePopup && hotspotCityNames.length > 0 && (
         <div
           className="fixed bottom-0 left-0 right-0 z-50 flex justify-center"
-          style={{ pointerEvents: 'none' }}
+          style={{
+            pointerEvents: 'none',
+            opacity: hotplaceVisible ? 1 : 0,
+            transform: hotplaceVisible ? 'translateY(0)' : 'translateY(24px)',
+            transition: 'opacity 0.22s ease, transform 0.22s ease',
+          }}
         >
           <div
             ref={sheetRef}
@@ -1977,6 +2020,10 @@ export default function MvpMap() {
               bottom: '140px', // bottom-24(96px) + 버튼높이(38px) + 여백(6px)
               right: '4px',
               width: '240px',
+              opacity: searchVisible ? 1 : 0,
+              transform: searchVisible ? 'scale(1) translateY(0)' : 'scale(0.93) translateY(8px)',
+              transition: 'opacity 0.18s ease, transform 0.18s ease',
+              transformOrigin: 'bottom right',
             }}
           >
             {/* 말풍선 꼬리 - 우측 하단 */}
@@ -2160,7 +2207,7 @@ export default function MvpMap() {
             {/* 외부 클릭 시 닫기 오버레이 (배경 흐림 없음) */}
             <div
               className="fixed inset-0 z-40"
-              onClick={() => setPopupData(null)}
+              onClick={() => closePopup()}
             />
             {/* 말풍선 컨테이너 */}
             <div
@@ -2170,6 +2217,10 @@ export default function MvpMap() {
                 top: `${top}px`,
                 width: `${PW}px`,
                 pointerEvents: 'auto',
+                opacity: popupVisible ? 1 : 0,
+                transform: popupVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(6px)',
+                transition: 'opacity 0.18s ease, transform 0.18s ease',
+                transformOrigin: tailBelow ? 'top center' : 'bottom center',
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -2229,7 +2280,7 @@ export default function MvpMap() {
                     </div>
                   </div>
                   <button
-                    onClick={() => setPopupData(null)}
+                    onClick={() => closePopup()}
                     className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none ml-2 flex-shrink-0"
                   >
                     ✕
