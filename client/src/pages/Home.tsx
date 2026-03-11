@@ -159,7 +159,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-10 text-center">
             <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
-              더이상 <span className="text-secondary">속지</span> 마세요.
+              더이상 <span style={{color: '#f1f2f1'}}>속지</span> 마세요.
             </h2>
             <div className="space-y-6">
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px'}}>
@@ -499,7 +499,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '35px'}}>
-              더이상 <span className="text-secondary">속지</span> 마세요.
+              더이상 <span style={{color: '#f1f2f1'}}>속지</span> 마세요.
             </p>
           </div>
 
