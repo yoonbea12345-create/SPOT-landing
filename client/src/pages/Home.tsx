@@ -173,13 +173,15 @@ export default function Home() {
               그래서 <span className="text-primary">SPOT</span>
             </h2>
             <div className="space-y-6">
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f3f3f3'}}>
-                SPOT은 사람의 실존데이터를 통해 공간의<br />분위기를 보여주는
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f3f3f3'}}>
+                SPOT은 사람의 실존 데이터를 통해
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '26px', color: '#f7f7f7'}}>
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f3f3f3'}}>
+                공간의 분위기를 보여주는
+              </p>
+              <p className="text-3xl md:text-4xl font-black leading-tight" style={{fontSize: '26px', color: '#f7f7f7'}}>
                 <span className="text-primary font-black">지도 기반 소셜 플랫폼.</span>
               </p>
-
             </div>
           </div>
         </div>
