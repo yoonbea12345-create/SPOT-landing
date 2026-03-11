@@ -215,60 +215,11 @@ export default function Home() {
             같은 <span className="text-secondary">지도</span>,  다른 <span className="text-primary">정보</span>
           </h2>
 
-          {/* Desktop: 3-column grid / Mobile: swipe carousel */}
-          <div className="hidden md:grid md:grid-cols-3 gap-6 mb-6">
-            {/* Card 1 - Wide View */}
-            <div className="p-4 border-2 border-primary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 rounded-md">
-                <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/jejsdBJgIKarYQRp.png"
-                  alt="Wide View"
-                  className="w-full h-auto border border-primary/30 rounded-md"
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="text-xl font-black mb-2 text-primary">#ZOOM:WIDE</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-               오늘의 흐름이 보입니다. <span className="text-primary"><br />어디로 모였는지.</span>
-              </p>
-            </div>
-            {/* Card 2 - Near View */}
-            <div className="p-4 border-2 border-secondary bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 rounded-md">
-                <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/FbSOHHCIytgRidsM.png"
-                  alt="Near View"
-                  className="w-full h-auto border border-secondary/30 rounded-md"
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="text-xl font-black mb-2 text-secondary">#ZOOM:NEAR</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-               나와 같은 MBTI들은. <br /><span className="text-secondary">어디서, 무엇을 하고 있을까.</span>
-              </p>
-            </div>
-            {/* Card 3 - Ultra Near */}
-            <div className="p-4 border-2 border-accent bg-background/50 hover:bg-background/80 transition-colors rounded-lg">
-              <div className="mb-4 rounded-md">
-                <img 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663349269149/YakrPBGTkUyXeEIk.png"
-                  alt="Register View"
-                  className="w-full h-auto border border-accent/30 rounded-md"
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Mobile carousel */}
-          <div className="md:hidden mb-4">
+          {/* PC/모바일 통합 캐러셀 */}
+          <div className="mb-4 max-w-lg mx-auto">
             <div
               ref={carouselRef}
-              className="overflow-hidden"
+              className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
               onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
               onTouchMove={(e) => { touchEndX.current = e.touches[0].clientX; }}
               onTouchEnd={() => {
@@ -281,6 +232,19 @@ export default function Home() {
                 touchStartX.current = null;
                 touchEndX.current = null;
               }}
+              onMouseDown={(e) => { touchStartX.current = e.clientX; }}
+              onMouseMove={(e) => { if (touchStartX.current !== null) touchEndX.current = e.clientX; }}
+              onMouseUp={() => {
+                if (touchStartX.current === null || touchEndX.current === null) return;
+                const diff = touchStartX.current - touchEndX.current;
+                if (Math.abs(diff) > 40) {
+                  if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
+                  else setCarouselIndex(i => Math.max(i - 1, 0));
+                }
+                touchStartX.current = null;
+                touchEndX.current = null;
+              }}
+              onMouseLeave={() => { touchStartX.current = null; touchEndX.current = null; }}
             >
               <div
                 className="flex transition-transform duration-300 ease-out"
