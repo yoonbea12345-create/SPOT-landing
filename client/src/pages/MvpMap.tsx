@@ -728,8 +728,10 @@ export default function MvpMap() {
     let pinchStartDist = 0;
     let pinchStartZoom = 15;
     let isPinching = false;
-    // 최적 민감도: 기본 대비 3배 (손가락 조금만 벌려도 빠르게 줌)
-    const ZOOM_SENSITIVITY = 3.0;
+    let currentZoomTarget = 15;
+    let rafId = 0;
+    // 민감도 1.5 - 기본보다 약간 빠르지만 과하지 않은 수준
+    const ZOOM_SENSITIVITY = 1.5;
 
     const getTouchDist = (touches: TouchList) => {
       const dx = touches[0].clientX - touches[1].clientX;
@@ -741,7 +743,9 @@ export default function MvpMap() {
       if (e.touches.length === 2) {
         pinchStartDist = getTouchDist(e.touches);
         pinchStartZoom = map.getZoom() ?? 15;
+        currentZoomTarget = pinchStartZoom;
         isPinching = true;
+        if (rafId) cancelAnimationFrame(rafId);
       } else {
         isPinching = false;
       }
@@ -749,19 +753,31 @@ export default function MvpMap() {
 
     const onPinchMove = (e: TouchEvent) => {
       if (!isPinching || e.touches.length !== 2) return;
-      e.preventDefault(); // 구글맵 기본 핀치줌 차단
+      e.preventDefault();
       const dist = getTouchDist(e.touches);
       if (pinchStartDist === 0) return;
-      // 시작 거리 대비 현재 거리 비율로 줌 계산 (절대값 방식 - 더 안정적)
       const scale = dist / pinchStartDist;
       const zoomDelta = Math.log2(scale) * ZOOM_SENSITIVITY;
-      const newZoom = Math.max(5, Math.min(21, pinchStartZoom + zoomDelta));
-      map.setZoom(newZoom);
+      currentZoomTarget = Math.max(5, Math.min(21, pinchStartZoom + zoomDelta));
+      // rAF으로 스무딩 - 현재 줌과 목표 줌 사이를 0.3 lerp
+      if (rafId) cancelAnimationFrame(rafId);
+      const smoothStep = () => {
+        const cur = map.getZoom() ?? currentZoomTarget;
+        const next = cur + (currentZoomTarget - cur) * 0.3;
+        if (Math.abs(next - currentZoomTarget) > 0.01) {
+          map.setZoom(next);
+          rafId = requestAnimationFrame(smoothStep);
+        } else {
+          map.setZoom(currentZoomTarget);
+        }
+      };
+      smoothStep();
     };
 
     const onPinchEnd = () => {
       isPinching = false;
       pinchStartDist = 0;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
     };
 
     // passive: false 로 등록해야 preventDefault() 가 동작함
@@ -1207,6 +1223,25 @@ export default function MvpMap() {
           animation: search-icon-bounce 1.8s ease-in-out infinite;
           transform-origin: center center;
         }
+        @keyframes spot-border-glow {
+          0%, 100% { border-color: rgba(255,0,255,0.45); box-shadow: 0 0 10px rgba(255,0,255,0.2); }
+          50% { border-color: rgba(255,0,255,0.9); box-shadow: 0 0 22px rgba(255,0,255,0.6), 0 0 40px rgba(255,0,255,0.2); }
+        }
+        @keyframes spot-icon-bounce {
+          0%, 100% { transform: translateY(0) scale(1); }
+          20% { transform: translateY(-3px) scale(1.15); }
+          40% { transform: translateY(1px) scale(0.95); }
+          60% { transform: translateY(-2px) scale(1.1); }
+          80% { transform: translateY(0.5px) scale(0.98); }
+        }
+        .spot-btn-glow {
+          animation: spot-border-glow 2s ease-in-out infinite;
+        }
+        .spot-icon-anim {
+          display: inline-block;
+          animation: spot-icon-bounce 2s ease-in-out infinite;
+          transform-origin: center bottom;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -1283,10 +1318,38 @@ export default function MvpMap() {
         content: labelElement,
       });
 
-      // 클러스터 클릭 시 해당 도시로 줌인
+      // 클러스터 클릭 시 부드러운 줌인 애니메이션
       labelElement.addEventListener('click', () => {
-        map.panTo({ lat: city.lat, lng: city.lng });
-        map.setZoom(14);
+        const targetZoom = 14;
+        const startZoom = map.getZoom() ?? 10;
+        const startCenter = map.getCenter()!;
+        const targetLat = city.lat;
+        const targetLng = city.lng;
+        const duration = 600; // ms
+        const startTime = performance.now();
+        // easeInOutCubic
+        const ease = (t: number) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+        const animate = (now: number) => {
+          const t = Math.min((now - startTime) / duration, 1);
+          const e = ease(t);
+          const curZoom = startZoom + (targetZoom - startZoom) * e;
+          const curLat = startCenter.lat() + (targetLat - startCenter.lat()) * e;
+          const curLng = startCenter.lng() + (targetLng - startCenter.lng()) * e;
+          map.setZoom(curZoom);
+          map.setCenter({ lat: curLat, lng: curLng });
+          if (t < 1) requestAnimationFrame(animate);
+          else {
+            // 줌인 완료 후 핫플 도시면 팝업 자동 오픈
+            if (isHotspot) {
+              const hotIdx = hotspots.indexOf(city.name);
+              if (hotIdx >= 0) {
+                setSelectedHotplaceTab(hotIdx);
+                setShowHotplacePopup(true);
+              }
+            }
+          }
+        };
+        requestAnimationFrame(animate);
       });
       labelElement.addEventListener('mouseenter', () => {
         labelElement.style.transform = 'scale(1.06)';
@@ -1719,7 +1782,7 @@ export default function MvpMap() {
           {!spotSubmitted && (
             <button
               onClick={() => setShowSpotForm(true)}
-              className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+              className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform spot-btn-glow"
               style={{
                 borderColor: 'rgba(255,0,255,0.7)',
                 boxShadow: '0 0 14px rgba(255,0,255,0.45)',
@@ -1732,6 +1795,7 @@ export default function MvpMap() {
               }}
             >
               {/* 아바타 핀 아이콘: 사람 실루얣 + 위치 핀 조합 */}
+              <span className="spot-icon-anim" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* 머리 */}
                 <circle cx="12" cy="6" r="3" fill="#ff00ff" opacity="0.9"/>
@@ -1744,6 +1808,7 @@ export default function MvpMap() {
                 {/* 발광 효과용 외곽 */}
                 <circle cx="12" cy="6" r="3" stroke="#ff00ff" strokeWidth="0.5" opacity="0.4"/>
               </svg>
+              </span>
             </button>
           )}
 
