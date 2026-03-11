@@ -162,10 +162,10 @@ export default function Home() {
               더이상 <span style={{color: '#f1f2f1'}}>속지</span> 마세요.
             </h2>
             <div className="space-y-6">
-              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px'}}>
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f1f2f2'}}>
                 리뷰는 <span className="text-foreground font-black">광고</span>, 사진은 <span className="text-foreground font-black">연출</span>입니다.
               </p>
-              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px'}}>
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f2f1f2'}}>
                 그래서 실제로 가보면
               </p>
               <p className="text-3xl md:text-4xl font-black leading-tight" style={{fontSize: '28px'}}>
@@ -189,13 +189,13 @@ export default function Home() {
               <span className="text-primary">SPOT</span>만 믿으세요.
             </h2>
             <div className="space-y-6">
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px'}}>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f3f3f3'}}>
                 SPOT은 해당공간에 <span className="text-foreground font-black">위치한 사람의 존재</span>를 통해 공간을 비추는
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px'}}>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f7f7f7'}}>
                 <span className="text-primary font-black">지도 기반 소셜 플랫폼</span>입니다.
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '18px'}}>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '18px', color: '#f6f7f7'}}>
                 이젠, 사람들의 <span className="text-foreground font-black">실제 분포</span>와 <span className="text-foreground font-black">분위기</span>를 통해<br />
                 공간을 파악하세요.
               </p>
