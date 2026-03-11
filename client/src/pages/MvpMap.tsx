@@ -458,6 +458,9 @@ export default function MvpMap() {
   const [consentVisible, setConsentVisible] = useState(false); // GPS 동의 팝업 페이드용
   const spotFormCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const consentCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 팝업 화면 좌표 (지도 이동 시 실시간 업데이트)
+  const [popupScreenPos, setPopupScreenPos] = useState<{x: number, y: number} | null>(null);
+  const popupBoundsListenerRef = useRef<google.maps.MapsEventListener | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{name: string; lat: number; lng: number}[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -483,13 +486,50 @@ export default function MvpMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 팝업 페이드인/아웃 애니메이션
+  // lat/lng → 화면 픽셀 변환 함수
+  const latLngToScreenPos = useCallback((lat: number, lng: number): {x: number, y: number} | null => {
+    const map = mapRef.current;
+    if (!map) return null;
+    const projection = map.getProjection();
+    const bounds = map.getBounds();
+    if (!projection || !bounds) return null;
+    const mapDiv = map.getDiv();
+    const mapWidth = mapDiv.offsetWidth;
+    const mapHeight = mapDiv.offsetHeight;
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    const nePoint = projection.fromLatLngToPoint(ne)!;
+    const swPoint = projection.fromLatLngToPoint(sw)!;
+    const worldWidth = nePoint.x - swPoint.x;
+    const worldHeight = swPoint.y - nePoint.y;
+    const point = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng))!;
+    const x = ((point.x - swPoint.x) / worldWidth) * mapWidth;
+    const y = ((point.y - nePoint.y) / worldHeight) * mapHeight;
+    return { x, y };
+  }, []);
+
+  // 팝업 페이드인/아웃 애니메이션 + bounds 리스너 등록
   useEffect(() => {
     if (popupData) {
       if (popupCloseTimerRef.current) clearTimeout(popupCloseTimerRef.current);
+      // 기존 listener 정리
+      if (popupBoundsListenerRef.current) {
+        google.maps.event.removeListener(popupBoundsListenerRef.current);
+        popupBoundsListenerRef.current = null;
+      }
+      // 초기 위치 설정
+      const pos = latLngToScreenPos(popupData.lat, popupData.lng);
+      if (pos) setPopupScreenPos(pos);
+      // 지도 이동/줄 시마다 위치 업데이트
+      if (mapRef.current) {
+        popupBoundsListenerRef.current = mapRef.current.addListener('bounds_changed', () => {
+          const newPos = latLngToScreenPos(popupData.lat, popupData.lng);
+          if (newPos) setPopupScreenPos(newPos);
+        });
+      }
       requestAnimationFrame(() => setPopupVisible(true));
     }
-  }, [popupData]);
+  }, [popupData, latLngToScreenPos]);
 
   // 검색창 페이드인/아웃
   useEffect(() => {
@@ -558,9 +598,15 @@ export default function MvpMap() {
   // 팝업 닫기 - 페이드아웃 후 데이터 제거
   const closePopup = useCallback(() => {
     setPopupVisible(false);
+    // bounds listener 정리
+    if (popupBoundsListenerRef.current) {
+      google.maps.event.removeListener(popupBoundsListenerRef.current);
+      popupBoundsListenerRef.current = null;
+    }
+    setPopupScreenPos(null);
     popupCloseTimerRef.current = setTimeout(() => {
       setPopupData(null);
-    }, 180); // 페이드아웃 duration과 맞춤
+    }, 180); // 페이드아웃 duration과 맞춰
   }, []);
 
   // GPS 동의 처리 - 이벤트 트래킹은 비동기로 실행하고 GPS는 즉시 시작
@@ -2216,29 +2262,40 @@ export default function MvpMap() {
       </div>
 
       {/* ─── 말풍선 팝업 ─── */}
-      {popupData && (() => {
+      {popupData && popupScreenPos && (() => {
         // 팝업 크기 (px)
         const PW = 260;
-        const PH = 420; // 실제 팝업 높이에 맞게 (아바타 위에 뜨도록)
+        const PH = 420; // 실제 팝업 높이에 맞게
         const TAIL = 10; // 말풍선 코 높이
-        const MARGIN = 8;
+        const AVATAR_R = 11; // 아바타 원 반지름
 
-        // 화면 경계 내에서 팝업 위치 계산
-        let left = popupData.screenX - PW / 2;
-        let top = popupData.screenY - PH - TAIL - 4;
-        let tailBelow = false; // 코가 아래로 향하는 기본
+        // 아바타 위경도 좌표 기반 화면 좌표
+        const avatarX = popupScreenPos.x;
+        const avatarY = popupScreenPos.y;
 
-        // 위에 공간이 부족하면 아래로
-        if (top < MARGIN) {
-          top = popupData.screenY + TAIL + 4;
+        // 좌우: 중앙 정렬, 화면 바깥으로 나가도 짜림 (MARGIN 없음)
+        let left = avatarX - PW / 2;
+
+        // 위아래: 지도 앱 바운더리 내에서만 클램핑
+        // 상단: MBTI 필터바 아래 (48px 가정)
+        // 하단: 하단 버튼 영역 위 (100px 가정)
+        const TOP_BOUNDARY = 48;
+        const BOTTOM_BOUNDARY = window.innerHeight - 100;
+
+        let top = avatarY - AVATAR_R - PH - TAIL - 4;
+        let tailBelow = false;
+
+        // 위에 공간 부족하면 아바타 아래로
+        if (top < TOP_BOUNDARY) {
+          top = avatarY + AVATAR_R + TAIL + 4;
           tailBelow = true;
         }
-        // 좌우 경계 보정
-        if (left < MARGIN) left = MARGIN;
-        if (left + PW > window.innerWidth - MARGIN) left = window.innerWidth - PW - MARGIN;
+        // 위아래 바운더리 클램핑
+        if (top < TOP_BOUNDARY) top = TOP_BOUNDARY;
+        if (top + PH > BOTTOM_BOUNDARY) top = BOTTOM_BOUNDARY - PH;
 
-        // 코 X 위치 (0~1 비율)
-        const tailX = Math.min(Math.max(popupData.screenX - left, 16), PW - 16);
+        // 코 X 위치 - 아바타 중심에 맞춰
+        const tailX = Math.min(Math.max(avatarX - left, 16), PW - 16);
 
         return (
           <>
