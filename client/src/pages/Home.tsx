@@ -11,7 +11,7 @@ export default function Home() {
   // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
   let { user, loading, error, isAuthenticated, logout } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");위
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
@@ -190,7 +190,7 @@ export default function Home() {
             </h2>
             <div className="space-y-6">
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px'}}>
-                SPOT은 해당공간에<span className="text-foreground font-black">위치한 사람의 존재</span>를 통해
+                SPOT은 해당공간에<span className="text-foreground font-black"> 위치한 사람의 <br /> 존재</span>를 통해
                 공간을 비추는 <span className="text-primary font-black"><br />지도 기반 소셜 플랫폼</span>입니다.
               </p>
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '18px'}}>
