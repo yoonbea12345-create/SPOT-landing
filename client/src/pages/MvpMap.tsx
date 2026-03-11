@@ -418,6 +418,7 @@ type SpotFormData = {
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
   const [splashFading, setSplashFading] = useState(false); // 스플래시 페이드아웃용
+  const [mapVisible, setMapVisible] = useState(false); // 지도 화면 페이드인용
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
   const submitSpot = trpc.spot.submit.useMutation();
@@ -545,6 +546,8 @@ export default function MvpMap() {
   // 지도 표시 후 3.8초 뒤 GPS 동의 팝업
   useEffect(() => {
     if (screen === "map") {
+      // 지도 화면 페이드인 - 다음 프레임에서 트리거
+      requestAnimationFrame(() => setMapVisible(true));
       const timer = setTimeout(() => setShowConsentPopup(true), 3800);
       return () => clearTimeout(timer);
     }
@@ -1669,7 +1672,11 @@ export default function MvpMap() {
   return (
     <div
       className="fixed inset-0 bg-black flex flex-col"
-      style={{ height: `${screenHeight}px` }}
+      style={{
+        height: `${screenHeight}px`,
+        opacity: mapVisible ? 1 : 0,
+        transition: 'opacity 0.35s ease',
+      }}
     >
       <Toaster position="top-right" />
       
