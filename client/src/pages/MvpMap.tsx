@@ -1151,14 +1151,14 @@ export default function MvpMap() {
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
-            <span style="font-size:9px;">&#x1F525;</span>
-            <span style="font-size:9px;font-weight:900;color:#ff6a00;letter-spacing:0.5px;">HOTSPOT</span>
-            <span style="font-size:8px;color:#ffaa44;font-weight:700;">${city.name}</span>
-            <span style="font-size:8px;color:rgba(255,180,100,0.7);">·${actualMarkerCount}</span>
+          <div style="display:flex;align-items:center;gap:2px;margin-bottom:2px;">
+            <span style="font-size:8px;">&#x1F525;</span>
+            <span style="font-size:8px;font-weight:900;color:#ff6a00;">핫플</span>
+            <span style="font-size:7px;color:rgba(255,180,100,0.7);">·${actualMarkerCount}</span>
           </div>
+          <div style="font-size:7px;color:#ffaa44;font-weight:700;margin-bottom:1px;">${city.name}</div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:8px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti}·${count}</div>`
+            `<div style="font-size:7px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti}·${count}</div>`
           ).join('')}
         `;
       } else {
