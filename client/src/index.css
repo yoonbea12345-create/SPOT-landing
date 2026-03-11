@@ -212,12 +212,5 @@
     box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.9);
   }
   
-  /* Neon glow effects */
-  .glow-cyan {
-    text-shadow: 0 0 10px oklch(0.7 0.25 195), 0 0 20px oklch(0.7 0.25 195 / 0.5);
-  }
-  
-  .glow-magenta {
-    text-shadow: 0 0 10px oklch(0.6 0.28 340), 0 0 20px oklch(0.6 0.28 340 / 0.5);
-  }
+
 }

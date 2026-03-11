@@ -97,7 +97,7 @@ export default function Home() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h1 className="font-black text-6xl md:text-8xl mb-8 tracking-tighter">
-            <span className="text-primary glow-cyan">SPOT</span>
+            <span className="text-primary">SPOT</span>
           </h1>
 
           <div className="space-y-6 mb-12">
@@ -113,7 +113,7 @@ export default function Home() {
 
           <div className="flex justify-center mb-12">
             <Button 
-              className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary glow-cyan transition-all hover:scale-105"
+              className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
               onClick={() => handleTrackAndNavigate('click_보러가기_hero', '/mvp')}
             >
               보러 가기
@@ -132,17 +132,17 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-8 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
-              핫플은 압니다. <br /> <span className="text-secondary glow-magenta">누가</span> 있는진 모릅니다.
+              핫플은 압니다. <br /> <span className="text-secondary">누가</span> 있는진 모릅니다.
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
               어디로 갈지도<br />
-              <span className="text-secondary glow-magenta">누가</span> 있을지도 모릅니다.
+              <span className="text-secondary">누가</span> 있을지도 모릅니다.
             </p>
 
             <div className="pt-4">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '49px'}}>
-                그래서   <span className="text-primary glow-cyan">SPOT.</span>       
+                그래서   <span className="text-primary">SPOT.</span>       
               </p>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-10 text-center" style={{fontSize: '33px'}}>
-            같은 <span className="text-secondary glow-magenta">지도</span>,  다른 <span className="text-primary glow-cyan">정보</span>
+            같은 <span className="text-secondary">지도</span>,  다른 <span className="text-primary">정보</span>
           </h2>
 
           {/* Desktop: 3-column grid / Mobile: swipe carousel */}
@@ -205,7 +205,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                지도에 내 위치를 표시해보세요. <span className="text-primary glow-cyan"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
               </p>
             </div>
           </div>
@@ -274,7 +274,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-black mb-2 text-accent">#ZOOM:3M</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    지도에 내 위치를 표시해보세요. <span className="text-primary glow-cyan"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                    지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
                   </p>
                 </div>
               </div>
@@ -322,7 +322,7 @@ export default function Home() {
             {/* Principle 1 */}
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">1️⃣</div>
-              <h4 className="text-xl font-black mb-3 text-primary glow-cyan">
+              <h4 className="text-xl font-black mb-3 text-primary">
                 누구인지 보이지 않습니다.
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground" style={{fontSize: '14px'}}>
@@ -333,7 +333,7 @@ export default function Home() {
             {/* Principle 2 */}
             <div className="p-8 border-2 border-primary/40 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg text-center hover:border-primary/70 transition-all">
               <div className="text-5xl mb-4">2️⃣</div>
-              <h4 className="text-xl font-black mb-3 text-secondary glow-magenta">
+              <h4 className="text-xl font-black mb-3 text-secondary">
                 개인정보 보호
               </h4>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -421,7 +421,7 @@ export default function Home() {
                 
                 <Button 
                   type="submit" 
-                  className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary glow-cyan"
+                  className="w-full py-6 text-lg font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary"
                   onClick={() => handleTrackEvent('click_알림받기_제출')}
                 >
                   알림 받기
@@ -451,7 +451,7 @@ export default function Home() {
 
           <div className="flex justify-center">
             <Button 
-              className="px-16 py-8 text-2xl font-black border-4 border-primary bg-primary/20 hover:bg-primary/30 text-primary glow-cyan transition-all hover:scale-110 shadow-2xl shadow-primary/50 hover:shadow-primary/80"
+              className="px-16 py-8 text-2xl font-black border-4 border-primary bg-primary/20 hover:bg-primary/30 text-primary transition-all hover:scale-110 shadow-2xl shadow-primary/50 hover:shadow-primary/80"
               onClick={() => handleTrackAndNavigate('click_보러가기_cta', '/mvp')}
             >
               보러 가기
