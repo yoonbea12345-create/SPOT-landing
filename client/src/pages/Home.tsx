@@ -101,7 +101,7 @@ export default function Home() {
           </h1>
 
           <div className="space-y-6 mb-12">
-            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '29px'}}>
+            <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '26px'}}>
               지금, 사람으로 도시를 비춰봐요.
               
             </h2>
