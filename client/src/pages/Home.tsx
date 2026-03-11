@@ -204,30 +204,15 @@ export default function Home() {
       </section>
 
       {/* 2-View System Section */}
-      <section className="relative py-16 md:py-20 px-4 md:px-8 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
-        </div>
-        <div className="relative z-10 max-w-6xl mx-auto">
+      <section className="relative py-0 overflow-hidden">
+        <div className="relative z-10 max-w-sm mx-auto">
           {/* PC/모바일 통합 캐러셀 */}
-          <div className="mb-4 max-w-sm mx-auto">
-            {/* 화살표 + 캐러셀 래퍼 */}
-            <div className="flex items-center gap-2">
-              {/* 왼쪽 화살표 */}
-              <button
-                onClick={() => setCarouselIndex(i => Math.max(i - 1, 0))}
-                disabled={carouselIndex === 0}
-                className="flex-shrink-0 w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-                aria-label="이전 카드"
-              >
-                ‹
-              </button>
-
+          <div className="mb-0">
+            {/* 캐러셀 + 화살표 오버레이 래퍼 */}
+            <div className="relative">
               <div
                 ref={carouselRef}
-                className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
                 onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
                 onTouchMove={(e) => { touchEndX.current = e.touches[0].clientX; }}
                 onTouchEnd={() => {
@@ -333,11 +318,22 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 오른쪽 화살표 */}
+              {/* 왼쪽 화살표 오버레이 */}
+              <button
+                onClick={() => setCarouselIndex(i => Math.max(i - 1, 0))}
+                disabled={carouselIndex === 0}
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white text-2xl font-bold transition-all disabled:opacity-0"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
+                aria-label="이전 카드"
+              >
+                ‹
+              </button>
+              {/* 오른쪽 화살표 오버레이 */}
               <button
                 onClick={() => setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1))}
                 disabled={carouselIndex === CAROUSEL_TOTAL - 1}
-                className="flex-shrink-0 w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center text-white text-2xl font-bold transition-all disabled:opacity-0"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
                 aria-label="다음 카드"
               >
                 ›
@@ -345,7 +341,7 @@ export default function Home() {
             </div>
 
             {/* Carousel dots */}
-            <div className="flex justify-center gap-2 mt-4">
+            <div className="flex justify-center gap-2 py-4">
               {Array.from({ length: CAROUSEL_TOTAL }).map((_, i) => (
                 <button
                   key={i}
