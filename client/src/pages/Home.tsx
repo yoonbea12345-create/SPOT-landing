@@ -89,7 +89,11 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
       <section className="relative flex items-center justify-center px-4 md:px-8 py-12 overflow-hidden" style={{minHeight: '70vh'}}>
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <h1 className="font-black text-6xl md:text-8xl mb-8 tracking-tighter">
@@ -120,7 +124,11 @@ export default function Home() {
 
       {/* Problem Recognition Section */}
       <section className="relative py-16 md:py-20 px-4 md:px-8 bg-card/50 border-t border-border overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-8 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
@@ -143,7 +151,11 @@ export default function Home() {
 
       {/* Insight Section */}
       <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-10 text-center">
             <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
@@ -166,7 +178,11 @@ export default function Home() {
 
       {/* Solution Section */}
       <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-10 text-center">
             <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
@@ -354,7 +370,11 @@ export default function Home() {
 
       {/* Trust & Privacy Section */}
       <section className="relative py-16 md:py-20 px-4 md:px-8 overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
         <div className="relative z-10 max-w-5xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-4 text-center">
            걱정하지 마세요
@@ -403,7 +423,11 @@ export default function Home() {
 
       {/* Beta Announcement Section */}
       <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-4xl md:text-6xl font-black leading-tight">
@@ -474,7 +498,11 @@ export default function Home() {
 
       {/* Final CTA Section */}
       <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
