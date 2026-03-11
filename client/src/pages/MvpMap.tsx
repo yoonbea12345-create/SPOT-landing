@@ -725,15 +725,30 @@ export default function MvpMap() {
 
     // 핀치줌 완전 재구현 - 구글맵 기본 핀치줌 차단 후 직접 제어
     // ===== 핀치줌 재구현 (네이버지도 수준) =====
-    // 전략: 구글맵 기본 핀치줌을 완전히 차단하고,
-    // 손가락 거리 비율을 직접 계산해 즉각 반응하도록 구현.
-    // lerp 스무딩 제거 → 즉각 반응, 민감도 2.0으로 설정.
     const mapDiv = map.getDiv();
     let pinchStartDist = 0;
     let pinchStartZoom = 15;
+    let pinchStartCenter: google.maps.LatLng | null = null;
+    let pinchMidX = 0; // 핀치 시작 시 중심점 X (px)
+    let pinchMidY = 0; // 핀치 시작 시 중심점 Y (px)
     let isPinching = false;
-    // 민감도 2.0: 네이버지도 수준 (기본 구글맵의 약 2배)
     const PINCH_SENSITIVITY = 2.0;
+
+    // 화면 px 좌표를 지도 LatLng로 변환
+    const pixelToLatLng = (px: number, py: number, zoom: number, center: google.maps.LatLng) => {
+      const scale = Math.pow(2, zoom);
+      const rect = mapDiv.getBoundingClientRect();
+      const mapW = rect.width;
+      const mapH = rect.height;
+      const centerX = mapW / 2;
+      const centerY = mapH / 2;
+      const dxPx = px - centerX;
+      const dyPx = py - centerY;
+      const metersPerPx = 156543.03392 / scale;
+      const dLng = (dxPx * metersPerPx) / (111320 * Math.cos(center.lat() * Math.PI / 180));
+      const dLat = -(dyPx * metersPerPx) / 111320;
+      return { lat: center.lat() + dLat, lng: center.lng() + dLng };
+    };
 
     const getPinchDist = (touches: TouchList) => {
       const dx = touches[0].clientX - touches[1].clientX;
@@ -746,33 +761,86 @@ export default function MvpMap() {
         e.preventDefault();
         pinchStartDist = getPinchDist(e.touches);
         pinchStartZoom = map.getZoom() ?? 15;
+        pinchStartCenter = map.getCenter() ?? null;
+        // 두 손가락 중간점 (px)
+        const rect = mapDiv.getBoundingClientRect();
+        pinchMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+        pinchMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
         isPinching = true;
       }
     };
 
     const onPinchMove = (e: TouchEvent) => {
-      if (!isPinching || e.touches.length < 2) return;
+      if (!isPinching || e.touches.length < 2 || !pinchStartCenter) return;
       e.preventDefault();
       const dist = getPinchDist(e.touches);
-      if (pinchStartDist < 10) return; // 너무 작은 거리 무시
+      if (pinchStartDist < 10) return;
       const ratio = dist / pinchStartDist;
-      // log2(ratio) * sensitivity: ratio=2이면 +sensitivity 줌
       const zoomDelta = Math.log2(ratio) * PINCH_SENSITIVITY;
       const newZoom = Math.max(5, Math.min(21, pinchStartZoom + zoomDelta));
-      map.setZoom(newZoom); // 즉각 반응 (lerp 없음)
+
+      // 핀치 중심점을 기준으로 지도 중심 보정
+      // 중심점이 핀치 시작 위치에 고정되도록 코드
+      const pinchLatLng = pixelToLatLng(pinchMidX, pinchMidY, pinchStartZoom, pinchStartCenter);
+      const mapCenterLatLng = pixelToLatLng(mapDiv.getBoundingClientRect().width / 2, mapDiv.getBoundingClientRect().height / 2, pinchStartZoom, pinchStartCenter);
+      const scaleFactor = Math.pow(2, newZoom - pinchStartZoom);
+      const newCenterLat = pinchLatLng.lat - (pinchLatLng.lat - mapCenterLatLng.lat) / scaleFactor;
+      const newCenterLng = pinchLatLng.lng - (pinchLatLng.lng - mapCenterLatLng.lng) / scaleFactor;
+
+      map.setZoom(newZoom);
+      map.setCenter({ lat: newCenterLat, lng: newCenterLng });
     };
 
     const onPinchEnd = (e: TouchEvent) => {
       if (e.touches.length < 2) {
         isPinching = false;
         pinchStartDist = 0;
+        pinchStartCenter = null;
       }
     };
 
-    // passive:false 필수 - 그래야 preventDefault()로 구글맵 기본 핀치줌 차단 가능
     mapDiv.addEventListener('touchstart', onPinchStart, { passive: false, capture: true });
     mapDiv.addEventListener('touchmove', onPinchMove, { passive: false, capture: true });
     mapDiv.addEventListener('touchend', onPinchEnd, { passive: true, capture: true });
+
+    // ===== 더블탭 줌인 =====
+    let lastTapTime = 0;
+    let lastTapX = 0;
+    let lastTapY = 0;
+    const onDoubleTap = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const now = Date.now();
+      const tapX = e.touches[0].clientX;
+      const tapY = e.touches[0].clientY;
+      const dt = now - lastTapTime;
+      const dx = Math.abs(tapX - lastTapX);
+      const dy = Math.abs(tapY - lastTapY);
+      if (dt < 300 && dx < 40 && dy < 40) {
+        // 더블탭 감지 - 탭 위치 기준으로 줌인
+        e.preventDefault();
+        const rect = mapDiv.getBoundingClientRect();
+        const tapPxX = tapX - rect.left;
+        const tapPxY = tapY - rect.top;
+        const curZoom = map.getZoom() ?? 15;
+        const curCenter = map.getCenter();
+        if (curCenter) {
+          const tapLatLng = pixelToLatLng(tapPxX, tapPxY, curZoom, curCenter);
+          // 탭 위치를 중심으로 줌인
+          const newZoom = Math.min(21, curZoom + 1);
+          const scaleFactor = Math.pow(2, 1); // +1 줌
+          const newCenterLat = tapLatLng.lat - (tapLatLng.lat - curCenter.lat()) / scaleFactor;
+          const newCenterLng = tapLatLng.lng - (tapLatLng.lng - curCenter.lng()) / scaleFactor;
+          map.panTo({ lat: newCenterLat, lng: newCenterLng });
+          map.setZoom(newZoom);
+        }
+        lastTapTime = 0;
+      } else {
+        lastTapTime = now;
+        lastTapX = tapX;
+        lastTapY = tapY;
+      }
+    };
+    mapDiv.addEventListener('touchstart', onDoubleTap, { passive: false, capture: false });
 
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
@@ -1863,18 +1931,46 @@ export default function MvpMap() {
           </button>
         </div>
 
-        {/* 검색 패널 */}
+        {/* 검색 패널 - 말풍선 모양 */}
         {showSearch && (
           <div
-            className="absolute bottom-24 right-16 z-50"
-            style={{ width: '220px' }}
+            className="absolute z-50"
+            style={{
+              bottom: '72px', // 돋보기 버튼 바로 위
+              right: '4px',
+              width: '240px',
+            }}
           >
+            {/* 말풍선 꼬리 - 우측 하단 */}
+            <div style={{
+              position: 'absolute',
+              bottom: '-9px',
+              right: '14px',
+              width: 0,
+              height: 0,
+              borderLeft: '9px solid transparent',
+              borderRight: '9px solid transparent',
+              borderTop: '10px solid rgba(0,240,255,0.6)',
+              zIndex: 2,
+            }} />
+            {/* 꼬리 내부 (배경색 채우기) */}
+            <div style={{
+              position: 'absolute',
+              bottom: '-7px',
+              right: '15px',
+              width: 0,
+              height: 0,
+              borderLeft: '8px solid transparent',
+              borderRight: '8px solid transparent',
+              borderTop: '9px solid rgba(4,4,14,0.97)',
+              zIndex: 3,
+            }} />
             <div
               style={{
                 background: 'rgba(4,4,14,0.97)',
                 border: '1.5px solid rgba(0,240,255,0.6)',
                 borderRadius: '14px',
-                boxShadow: '0 0 24px rgba(0,240,255,0.25)',
+                boxShadow: '0 0 28px rgba(0,240,255,0.3), 0 4px 20px rgba(0,0,0,0.6)',
                 overflow: 'hidden',
               }}
             >
