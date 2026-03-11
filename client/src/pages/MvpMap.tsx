@@ -452,6 +452,7 @@ export default function MvpMap() {
   const [searchResults, setSearchResults] = useState<{name: string; lat: number; lng: number}[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const searchPanelRef = useRef<HTMLDivElement | null>(null);
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const dummyDataRef = useRef<ReturnType<typeof generateDummyData>>([]);
   const swipeTouchStartY = useRef<number | null>(null);
@@ -1518,6 +1519,28 @@ export default function MvpMap() {
     });
   }, [currentZoom]);
 
+  // 검색 패널 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!showSearch) return;
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (searchPanelRef.current && !searchPanelRef.current.contains(e.target as Node)) {
+        setShowSearch(false);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
+    };
+    // 약간의 딥레이 후 등록 (버튼 클릭 이벤트와 충돌 방지)
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('touchstart', handleOutsideClick);
+    }, 50);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [showSearch]);
+
   // MBTI 필터링
   const filterByMBTI = (mbti: string) => {
     if (selectedMBTI === mbti) {
@@ -1934,9 +1957,10 @@ export default function MvpMap() {
         {/* 검색 패널 - 말풍선 모양 */}
         {showSearch && (
           <div
+            ref={searchPanelRef}
             className="absolute z-50"
             style={{
-              bottom: '72px', // 돋보기 버튼 바로 위
+              bottom: '80px', // 돋보기 버튼(38px) + 간격(4px) + 여백(38px) 위
               right: '4px',
               width: '240px',
             }}
@@ -2014,10 +2038,21 @@ export default function MvpMap() {
                   className="flex-1 outline-none text-xs bg-transparent"
                   style={{ color: '#00f0ff' }}
                 />
-                {searchQuery && (
+                {searchQuery ? (
                   <button
-                    onClick={() => { setSearchQuery(''); setSearchResults([]); }}
-                    className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none flex-shrink-0"
+                    onClick={() => { setSearchQuery(''); setSearchResults([]); searchInputRef.current?.focus(); }}
+                    className="hover:text-white transition-colors text-xs leading-none flex-shrink-0"
+                    style={{ color: 'rgba(0,240,255,0.5)', padding: '2px' }}
+                    title="입력 지우기"
+                  >
+                    ✕
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
+                    className="hover:text-white transition-colors leading-none flex-shrink-0"
+                    style={{ color: 'rgba(255,255,255,0.35)', padding: '2px', fontSize: '13px' }}
+                    title="닫기"
                   >
                     ✕
                   </button>

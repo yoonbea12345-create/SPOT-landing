@@ -92,21 +92,40 @@ const FORGE_BASE_URL =
   "https://forge.butterfly-effect.dev";
 const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
 
-function loadMapScript() {
-  return new Promise(resolve => {
-    const script = document.createElement("script");
+// 싱글턴 Promise - 중복 로드 완전 방지
+let _mapsLoadPromise: Promise<void> | null = null;
+
+function loadMapScript(): Promise<void> {
+  // 이미 로드 완료된 경우
+  if (typeof window !== 'undefined' && window.google?.maps) {
+    return Promise.resolve();
+  }
+  // 이미 로딩 중인 경우 같은 Promise 재사용
+  if (_mapsLoadPromise) {
+    return _mapsLoadPromise;
+  }
+  // 이미 스크립트 태그가 DOM에 있는 경우
+  const existing = document.querySelector('script[src*="maps/api/js"]') as HTMLScriptElement | null;
+  if (existing) {
+    _mapsLoadPromise = new Promise<void>(resolve => {
+      if (window.google?.maps) { resolve(); return; }
+      existing.addEventListener('load', () => resolve(), { once: true });
+    });
+    return _mapsLoadPromise;
+  }
+  _mapsLoadPromise = new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
     script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
     script.async = true;
-    script.crossOrigin = "anonymous";
-    script.onload = () => {
-      resolve(null);
-      script.remove(); // Clean up immediately
-    };
+    script.crossOrigin = 'anonymous';
+    script.onload = () => resolve();
     script.onerror = () => {
-      console.error("Failed to load Google Maps script");
+      _mapsLoadPromise = null;
+      reject(new Error('Failed to load Google Maps script'));
     };
     document.head.appendChild(script);
   });
+  return _mapsLoadPromise;
 }
 
 interface MapViewProps {
