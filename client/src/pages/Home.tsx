@@ -17,6 +17,7 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState(0);
   const totalSections = 8;
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [openAccordion, setOpenAccordion] = useState<number | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -107,7 +108,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지도에서 발견하는 도시의 진짜 분위기
+              지금, 이 골목에 누가 있는지 알고 싶다면.
             </p>
           </div>
 
@@ -379,28 +380,49 @@ export default function Home() {
           <h2 className="text-3xl font-black mb-6 text-center">
             걱정하지 마세요
           </h2>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-4 px-5 py-4 border border-primary/40 bg-card/50 backdrop-blur-sm rounded-2xl">
-              <span className="text-primary font-black text-lg w-6 shrink-0">1</span>
-              <div>
-                <p className="font-black text-base text-primary">누구인지 보이지 않습니다.</p>
-                <p className="text-xs text-muted-foreground mt-0.5">오직 MBTI만.</p>
+          <div className="flex flex-col gap-2">
+            {[
+              {
+                num: 1,
+                color: 'text-primary',
+                border: 'border-primary/40',
+                title: '누구인지 보이지 않습니다.',
+                desc: '상대방에게는 MBTI만 보입니다. 이름, 나이, 얼굴 어떤 것도 노출되지 않습니다.'
+              },
+              {
+                num: 2,
+                color: 'text-secondary',
+                border: 'border-secondary/40',
+                title: '개인정보 보호',
+                desc: 'GPS 정보는 서버에만 저장되며, 제3자에게 유포되지 않습니다.'
+              },
+              {
+                num: 3,
+                color: 'text-accent',
+                border: 'border-accent/40',
+                title: '선택은 당신의 몫',
+                desc: 'GPS를 켜지 않아도 전국을 탐험할 수 있습니다. 노출 여부는 언제든지 선택 가능합니다.'
+              }
+            ].map((item) => (
+              <div
+                key={item.num}
+                className={`border ${item.border} bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer`}
+                onClick={() => setOpenAccordion(openAccordion === item.num ? null : item.num)}
+              >
+                <div className="flex items-center justify-between px-5 py-4">
+                  <div className="flex items-center gap-4">
+                    <span className={`${item.color} font-black text-lg w-6 shrink-0`}>{item.num}</span>
+                    <p className={`font-black text-base ${item.color}`}>{item.title}</p>
+                  </div>
+                  <span className={`text-muted-foreground text-sm transition-transform duration-300 ${openAccordion === item.num ? 'rotate-180' : ''}`}>▼</span>
+                </div>
+                {openAccordion === item.num && (
+                  <div className="px-5 pb-4 pl-14">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="flex items-center gap-4 px-5 py-4 border border-secondary/40 bg-card/50 backdrop-blur-sm rounded-2xl">
-              <span className="text-secondary font-black text-lg w-6 shrink-0">2</span>
-              <div>
-                <p className="font-black text-base text-secondary">개인정보 보호</p>
-                <p className="text-xs text-muted-foreground mt-0.5">GPS 정보는 어디에도 유포하지 않습니다.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 px-5 py-4 border border-accent/40 bg-card/50 backdrop-blur-sm rounded-2xl">
-              <span className="text-accent font-black text-lg w-6 shrink-0">3</span>
-              <div>
-                <p className="font-black text-base text-accent">선택은 당신의 몫</p>
-                <p className="text-xs text-muted-foreground mt-0.5">GPS를 키지 않고도 전국을 탐험해보세요.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
