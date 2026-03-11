@@ -477,8 +477,11 @@ export default function Home() {
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, oklch(0.22 0.12 195 / 0.7) 0%, transparent 50%, oklch(0.22 0.12 330 / 0.7) 100%)' }}></div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
-            <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '35px'}}>
-              지금, 실제 분위기를<br />확인해보세요.
+            <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
+              지금, 실제 분위기를
+            </p>
+            <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
+              확인해보세요.
             </p>
           </div>
 
