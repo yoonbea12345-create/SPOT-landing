@@ -723,11 +723,13 @@ export default function MvpMap() {
       setCurrentZoom(Math.round(zoom * 2) / 2); // 0.5 단위로 반올림
     });
 
-    // 핀치줌 민감도 2.5배 향상 - 터치 이벤트 인터셉터
+    // 핀치줌 완전 재구현 - 구글맵 기본 핀치줌 차단 후 직접 제어
     const mapDiv = map.getDiv();
-    let lastTouchDistance = 0;
-    let pinchActive = false;
-    const PINCH_SENSITIVITY = 2.5;
+    let pinchStartDist = 0;
+    let pinchStartZoom = 15;
+    let isPinching = false;
+    // 최적 민감도: 기본 대비 3배 (손가락 조금만 벌려도 빠르게 줌)
+    const ZOOM_SENSITIVITY = 3.0;
 
     const getTouchDist = (touches: TouchList) => {
       const dx = touches[0].clientX - touches[1].clientX;
@@ -737,31 +739,34 @@ export default function MvpMap() {
 
     const onPinchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        lastTouchDistance = getTouchDist(e.touches);
-        pinchActive = true;
+        pinchStartDist = getTouchDist(e.touches);
+        pinchStartZoom = map.getZoom() ?? 15;
+        isPinching = true;
       } else {
-        pinchActive = false;
+        isPinching = false;
       }
     };
 
     const onPinchMove = (e: TouchEvent) => {
-      if (!pinchActive || e.touches.length !== 2) return;
+      if (!isPinching || e.touches.length !== 2) return;
+      e.preventDefault(); // 구글맵 기본 핀치줌 차단
       const dist = getTouchDist(e.touches);
-      if (lastTouchDistance === 0) { lastTouchDistance = dist; return; }
-      const ratio = dist / lastTouchDistance;
-      // 기본 핀치줌에 추가 줌 적용 (민감도 배수 - 1 만큼 추가)
-      const extraDelta = Math.log2(ratio) * (PINCH_SENSITIVITY - 1);
-      if (Math.abs(extraDelta) > 0.005) {
-        const cur = map.getZoom() || 15;
-        map.setZoom(Math.max(8, Math.min(20, cur + extraDelta)));
-      }
-      lastTouchDistance = dist;
+      if (pinchStartDist === 0) return;
+      // 시작 거리 대비 현재 거리 비율로 줌 계산 (절대값 방식 - 더 안정적)
+      const scale = dist / pinchStartDist;
+      const zoomDelta = Math.log2(scale) * ZOOM_SENSITIVITY;
+      const newZoom = Math.max(5, Math.min(21, pinchStartZoom + zoomDelta));
+      map.setZoom(newZoom);
     };
 
-    const onPinchEnd = () => { pinchActive = false; lastTouchDistance = 0; };
+    const onPinchEnd = () => {
+      isPinching = false;
+      pinchStartDist = 0;
+    };
 
-    mapDiv.addEventListener('touchstart', onPinchStart, { passive: true });
-    mapDiv.addEventListener('touchmove', onPinchMove, { passive: true });
+    // passive: false 로 등록해야 preventDefault() 가 동작함
+    mapDiv.addEventListener('touchstart', onPinchStart, { passive: false });
+    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false });
     mapDiv.addEventListener('touchend', onPinchEnd, { passive: true });
 
     // 사용자 위치 마커
