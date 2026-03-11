@@ -933,7 +933,7 @@ export default function MvpMap() {
           lat: item.lat,
           lng: item.lng,
           screenX: mouseEvent.clientX,
-          screenY: mouseEvent.clientY,
+          screenY: mouseEvent.clientY - 15, // 아바타 원 반지름(11px) + 여백(4px) → 팝업이 원 위에 뜨도록
           placeName: item.placeName,
           category: item.category,
           nearbyCount: nearbyAllM.length,
@@ -1136,7 +1136,7 @@ export default function MvpMap() {
           lat: target.lat,
           lng: target.lng,
           screenX: mouseEvent.clientX,
-          screenY: mouseEvent.clientY,
+          screenY: mouseEvent.clientY - 15, // 아바타 원 반지름(11px) + 여백(4px) → 팝업이 원 위에 뜨도록
           placeName: target.placeName,
           category: target.category,
           nearbyCount: nearbyAllS.length,
@@ -1483,7 +1483,7 @@ export default function MvpMap() {
         lat: spot.lat,
         lng: spot.lng,
         screenX: me.clientX,
-        screenY: me.clientY,
+        screenY: me.clientY - 15, // 아바타 원 반지름(11px) + 여백(4px) → 팝업이 원 위에 뜨도록
         nearbyCount: nearbyAllR.length,
         nearbyMbtiDist: nearbyMbtiDistR,
       });
