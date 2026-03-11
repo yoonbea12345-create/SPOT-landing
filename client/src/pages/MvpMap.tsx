@@ -333,10 +333,11 @@ const generateDummyData = (): DummyMarker[] => {
           lat = city.lat + Math.sin(angle) * dist;
           lng = city.lng + Math.cos(angle) * dist;
         } else {
-          // 70%는 고정 장소 좌표에 1m 이내 정확히 배치
+          // 70%는 고정 장소 좌표에 4m 이내 무작위 분산 배치 (1도 ≈ 111,000m, 4m ÷ 111,000 ≈ 0.000036)
           const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
           const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * 0.000009;
+          // 반경 4m 이내에서 무작위 분산 (제곱근 적용으로 중심부 과집중 방지)
+          const dist = Math.sqrt(Math.random()) * 0.000036;
           lat = anchor.lat + Math.sin(angle) * dist;
           lng = anchor.lng + Math.cos(angle) * dist;
         }
