@@ -417,6 +417,7 @@ type SpotFormData = {
 
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
+  const [splashFading, setSplashFading] = useState(false); // 스플래시 페이드아웃용
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
   const submitSpot = trpc.spot.submit.useMutation();
@@ -534,8 +535,10 @@ export default function MvpMap() {
       if (id) mvpLogIdRef.current = id;
     };
     const idTimer = setTimeout(checkLogId, 500);
+    // 1.7초 후 페이드아웃 시작, 2초 후 실제 화면 전환
+    const fadeTimer = setTimeout(() => setSplashFading(true), 1700);
     const timer = setTimeout(() => setScreen("map"), 2000);
-    return () => { clearTimeout(timer); clearTimeout(idTimer); };
+    return () => { clearTimeout(timer); clearTimeout(idTimer); clearTimeout(fadeTimer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1642,7 +1645,11 @@ export default function MvpMap() {
     return (
       <div
         className="fixed inset-0 bg-black flex flex-col items-center justify-center"
-        style={{ height: `${screenHeight}px` }}
+        style={{
+          height: `${screenHeight}px`,
+          opacity: splashFading ? 0 : 1,
+          transition: 'opacity 0.3s ease',
+        }}
       >
         <h1
           className="text-6xl font-bold"
@@ -2755,8 +2762,33 @@ export default function MvpMap() {
               boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
               transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
               transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+              position: 'relative',
             }}
           >
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setShowSpotForm(false)}
+              style={{
+                position: 'absolute',
+                top: '14px',
+                right: '14px',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '50%',
+                width: '28px',
+                height: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '14px',
+                cursor: 'pointer',
+                lineHeight: 1,
+              }}
+            >
+              ✕
+            </button>
+
             {/* 제목 */}
             <p
               className="text-center font-bold mb-6"
