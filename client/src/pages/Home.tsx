@@ -416,17 +416,12 @@ export default function Home() {
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <button
-                className="mt-2 px-12 py-5 text-xl font-black rounded-lg transition-all hover:scale-105 active:scale-95 hover:opacity-90"
-                style={{
-                  background: 'oklch(0.55 0.28 330)',
-                  color: '#fff',
-                  letterSpacing: '0.04em',
-                }}
+              <Button
+                className="mt-2 px-12 py-7 text-xl font-black border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary transition-all hover:scale-105"
                 onClick={() => handleTrackEvent('click_출시알림')}
               >
-                출시 알림 받기 →
-              </button>
+                출시 알림 받기
+              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[360px] bg-background border-2 border-primary">
               <DialogHeader>
