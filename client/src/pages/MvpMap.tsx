@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { MapView } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
+import { FIXED_PLACES } from "@/data/fixedPlaces";
 
 type Screen = "splash" | "map";
 
@@ -233,6 +234,9 @@ type DummyMarker = {
   mood: string;
   mode: string;
   sign: string;
+  placeName?: string;   // 실제 장소명 (고정 마커)
+  placeId?: string;     // Google Place ID (고정 마커)
+  category?: string;    // 장소 카테고리 (폴백 이미지용)
 };
 
 // 더미 데이터 생성 (주요 도시 집약 + 전국 무작위 분포)
@@ -345,6 +349,11 @@ const generateDummyData = (): DummyMarker[] => {
     mode: "산책 중",
     sign: "모두 안녕하세요"
   });
+
+  // 실제 장소 고정 마커 추가
+  FIXED_PLACES.forEach(place => {
+    data.push({ ...place, id: id++ });
+  });
   
   return data;
 };
@@ -360,6 +369,8 @@ type PopupData = {
   lng: number;
   screenX: number; // 클릭한 마커의 화면 X 좌표
   screenY: number; // 클릭한 마커의 화면 Y 좌표
+  placeName?: string;  // 실제 장소명 (고정 마커)
+  category?: string;   // 장소 카테고리 (폴백용)
 };
 
 // 장소 사진 타입
@@ -397,6 +408,7 @@ export default function MvpMap() {
   const [placePhotos, setPlacePhotos] = useState<PlacePhoto[]>([]);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [popupPlaceName, setPopupPlaceName] = useState<string | null>(null);
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
@@ -735,6 +747,7 @@ export default function MvpMap() {
         setPopupAddress(null);
         setPlacePhotos([]);
         setLightboxIndex(null);
+        setPopupPlaceName(null);
         setPopupData({
           mbti: item.mbti,
           mood: item.mood,
@@ -745,7 +758,11 @@ export default function MvpMap() {
           lng: item.lng,
           screenX: mouseEvent.clientX,
           screenY: mouseEvent.clientY,
+          placeName: item.placeName,
+          category: item.category,
         });
+        // 고정 장소명 있으면 즉시 설정
+        if (item.placeName) setPopupPlaceName(item.placeName);
         // 역지오코딩으로 주소 가져오기
         const geocoder = new google.maps.Geocoder();
         geocoder.geocode({ location: { lat: item.lat, lng: item.lng } }, (results, status) => {
@@ -759,45 +776,69 @@ export default function MvpMap() {
             setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
           }
         });
-        // Google Places API로 주변 장소 사진 가져오기
+        // Google Places API로 장소 사진 가져오기
         setPhotoLoading(true);
         const placesService = new google.maps.places.PlacesService(mapRef.current!);
-        placesService.nearbySearch(
-          {
-            location: { lat: item.lat, lng: item.lng },
-            radius: 100,
-            type: 'establishment',
-          },
-          (placeResults, placeStatus) => {
-            if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
-              // 사진이 있는 장소를 우선 선택
-              const withPhotos = placeResults.filter(p => p.photos && p.photos.length > 0);
-              const target = withPhotos.length > 0 ? withPhotos[0] : placeResults[0];
-              if (target.place_id) {
-                placesService.getDetails(
-                  {
-                    placeId: target.place_id,
-                    fields: ['photos', 'name'],
-                  },
-                  (detail, detailStatus) => {
-                    if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos) {
-                      const photos: PlacePhoto[] = detail.photos.slice(0, 6).map(photo => ({
-                        url: photo.getUrl({ maxWidth: 800, maxHeight: 600 }),
-                        attribution: photo.html_attributions?.[0] ?? '',
-                      }));
-                      setPlacePhotos(photos);
-                    }
-                    setPhotoLoading(false);
-                  }
-                );
-              } else {
-                setPhotoLoading(false);
+
+        const fetchPhotosByPlaceId = (placeId: string) => {
+          placesService.getDetails(
+            { placeId, fields: ['photos', 'name'] },
+            (detail, detailStatus) => {
+              if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos) {
+                const photos: PlacePhoto[] = detail.photos.slice(0, 6).map(photo => ({
+                  url: photo.getUrl({ maxWidth: 800, maxHeight: 600 }),
+                  attribution: photo.html_attributions?.[0] ?? '',
+                }));
+                setPlacePhotos(photos);
+                // Places API에서 장소명 가져오기 (고정명 없을 때)
+                if (!item.placeName && detail.name) setPopupPlaceName(detail.name);
               }
-            } else {
               setPhotoLoading(false);
             }
-          }
-        );
+          );
+        };
+
+        if (item.placeName) {
+          // 고정 장소명이 있으면 텍스트 검색으로 Place ID 조회
+          placesService.findPlaceFromQuery(
+            {
+              query: item.placeName,
+              fields: ['place_id', 'name'],
+              locationBias: new google.maps.LatLng(item.lat, item.lng),
+            },
+            (results, status) => {
+              if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]?.place_id) {
+                fetchPhotosByPlaceId(results[0].place_id);
+              } else {
+                // 텍스트 검색 실패 시 nearbySearch 폴백
+                placesService.nearbySearch(
+                  { location: { lat: item.lat, lng: item.lng }, radius: 150, type: 'establishment' },
+                  (placeResults, placeStatus) => {
+                    if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
+                      const withPhotos = placeResults.filter(p => p.photos && p.photos.length > 0);
+                      const target = withPhotos.length > 0 ? withPhotos[0] : placeResults[0];
+                      if (target.place_id) fetchPhotosByPlaceId(target.place_id);
+                      else setPhotoLoading(false);
+                    } else { setPhotoLoading(false); }
+                  }
+                );
+              }
+            }
+          );
+        } else {
+          // 고정명 없으면 nearbySearch
+          placesService.nearbySearch(
+            { location: { lat: item.lat, lng: item.lng }, radius: 150, type: 'establishment' },
+            (placeResults, placeStatus) => {
+              if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
+                const withPhotos = placeResults.filter(p => p.photos && p.photos.length > 0);
+                const target = withPhotos.length > 0 ? withPhotos[0] : placeResults[0];
+                if (target.place_id) fetchPhotosByPlaceId(target.place_id);
+                else setPhotoLoading(false);
+              } else { setPhotoLoading(false); }
+            }
+          );
+        }
       });
 
       markersRef.current.push(marker);
@@ -1643,18 +1684,45 @@ export default function MvpMap() {
                       border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
                     }}
                   >
-                    {/* 헤더 */}
+                    {/* 헤더 - 장소명 + 사진 수 */}
                     <div className="flex items-center justify-between px-2 py-1.5"
                       style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
                     >
-                      <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
-                        📸 이 장소의 사진
-                      </div>
-                      {placePhotos.length > 0 && (
-                        <div className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                          {placePhotos.length}장
+                      <div className="flex flex-col gap-0 min-w-0 flex-1">
+                        <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
+                          📸 이 장소의 사진
                         </div>
-                      )}
+                        {popupPlaceName && (
+                          <div className="text-[9px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.55)', marginTop: '1px' }}>
+                            {popupPlaceName}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {placePhotos.length > 0 && (
+                          <div className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                            {placePhotos.length}장
+                          </div>
+                        )}
+                        {/* 더보기 - Google Maps 딥링크 */}
+                        {popupPlaceName && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(popupPlaceName)}&query_place_id=${encodeURIComponent(popupData.lat + ',' + popupData.lng)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+                            style={{
+                              background: `${MBTI_COLORS[popupData.mbti]}22`,
+                              border: `1px solid ${MBTI_COLORS[popupData.mbti]}55`,
+                              color: MBTI_COLORS[popupData.mbti],
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            지도 보기 →
+                          </a>
+                        )}
+                      </div>
                     </div>
 
                     {/* 사진 콘텐츠 */}
@@ -1719,13 +1787,76 @@ export default function MvpMap() {
                         ))}
                       </div>
                     ) : (
-                      // 사진 없음
-                      <div
-                        className="flex items-center justify-center py-4"
-                        style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px' }}
-                      >
-                        등록된 사진이 없어요
-                      </div>
+                      // 사진 없음 - 카테고리별 폴백 이미지
+                      (() => {
+                        const cat = popupData.category ?? 'landmark';
+                        const fallbackImages: Record<string, string[]> = {
+                          cafe: [
+                            'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
+                          ],
+                          restaurant: [
+                            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=300&fit=crop',
+                          ],
+                          park: [
+                            'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                          ],
+                          beach: [
+                            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1473116763249-2faaef81ccda?w=400&h=300&fit=crop',
+                          ],
+                          nature: [
+                            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
+                          ],
+                          market: [
+                            'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
+                          ],
+                          bar: [
+                            'https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=300&fit=crop',
+                          ],
+                          landmark: [
+                            'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop',
+                          ],
+                        };
+                        const imgs = fallbackImages[cat] ?? fallbackImages['landmark'];
+                        return (
+                          <div>
+                            <div className="flex gap-1.5 p-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                              {imgs.map((src, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer relative"
+                                  style={{
+                                    width: '72px', height: '72px',
+                                    border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                                    opacity: 0.7,
+                                  }}
+                                  onClick={e => { e.stopPropagation(); setLightboxIndex(idx); setPlacePhotos(imgs.map(u => ({ url: u, attribution: '' }))); }}
+                                >
+                                  <img src={src} alt={`참고 사진 ${idx+1}`} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-center pb-1.5" style={{ color: 'rgba(255,255,255,0.2)', fontSize: '8px' }}>
+                              참고 이미지 · 실제 장소와 다를 수 있어요
+                            </div>
+                          </div>
+                        );
+                      })()
                     )}
                   </div>
                 </div>
