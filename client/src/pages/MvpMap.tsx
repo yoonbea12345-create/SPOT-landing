@@ -2219,7 +2219,7 @@ export default function MvpMap() {
       {popupData && (() => {
         // 팝업 크기 (px)
         const PW = 260;
-        const PH = 220; // 대략적 높이
+        const PH = 420; // 실제 팝업 높이에 맞게 (아바타 위에 뜨도록)
         const TAIL = 10; // 말풍선 코 높이
         const MARGIN = 8;
 
@@ -2242,25 +2242,20 @@ export default function MvpMap() {
 
         return (
           <>
-            {/* 외부 클릭 시 닫기 오버레이 (배경 흐림 없음) */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => closePopup()}
-            />
-            {/* 말풍선 컨테이너 */}
+            {/* 외부 클릭 시 닫기: 팝업 외부 터치는 지도로 통과시키고, 마커 재클릭 시 닫힘 */}
+            {/* 말풍선 컨테이너 - pointer-events:none으로 지도 터치/드래그 통과 */}
             <div
               className="fixed z-50"
               style={{
                 left: `${left}px`,
                 top: `${top}px`,
                 width: `${PW}px`,
-                pointerEvents: 'auto',
+                pointerEvents: 'none',
                 opacity: popupVisible ? 1 : 0,
                 transform: popupVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(6px)',
                 transition: 'opacity 0.18s ease, transform 0.18s ease',
                 transformOrigin: tailBelow ? 'top center' : 'bottom center',
               }}
-              onClick={(e) => e.stopPropagation()}
             >
               {/* 코 (위에 있을 때 - 아래로 향하는 코) */}
               {!tailBelow && (
@@ -2278,7 +2273,7 @@ export default function MvpMap() {
                 }} />
               )}
 
-              {/* 팝업 본체 */}
+              {/* 팝업 본체 - 카드 내부만 pointer-events:auto */}
               <div
                 style={{
                   background: 'rgba(4, 4, 14, 0.97)',
@@ -2286,6 +2281,7 @@ export default function MvpMap() {
                   borderRadius: '14px',
                   boxShadow: `0 0 24px ${MBTI_COLORS[popupData.mbti]}55, 0 8px 32px rgba(0,0,0,0.9)`,
                   overflow: 'hidden',
+                  pointerEvents: 'auto',
                 }}
               >
                 {/* 헤더: MBTI 뼱지 + 주소 + 거리 + X */}
@@ -2319,7 +2315,21 @@ export default function MvpMap() {
                   </div>
                   <button
                     onClick={() => closePopup()}
-                    className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none ml-2 flex-shrink-0"
+                    style={{
+                      background: 'rgba(255,255,255,0.15)',
+                      border: '1.5px solid rgba(255,255,255,0.4)',
+                      borderRadius: '50%',
+                      width: '22px',
+                      height: '22px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'rgba(255,255,255,0.9)',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      marginLeft: '8px',
+                    }}
                   >
                     ✕
                   </button>
