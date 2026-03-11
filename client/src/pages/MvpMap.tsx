@@ -724,66 +724,55 @@ export default function MvpMap() {
     });
 
     // 핀치줌 완전 재구현 - 구글맵 기본 핀치줌 차단 후 직접 제어
+    // ===== 핀치줌 재구현 (네이버지도 수준) =====
+    // 전략: 구글맵 기본 핀치줌을 완전히 차단하고,
+    // 손가락 거리 비율을 직접 계산해 즉각 반응하도록 구현.
+    // lerp 스무딩 제거 → 즉각 반응, 민감도 2.0으로 설정.
     const mapDiv = map.getDiv();
     let pinchStartDist = 0;
     let pinchStartZoom = 15;
     let isPinching = false;
-    let currentZoomTarget = 15;
-    let rafId = 0;
-    // 민감도 1.5 - 기본보다 약간 빠르지만 과하지 않은 수준
-    const ZOOM_SENSITIVITY = 1.5;
+    // 민감도 2.0: 네이버지도 수준 (기본 구글맵의 약 2배)
+    const PINCH_SENSITIVITY = 2.0;
 
-    const getTouchDist = (touches: TouchList) => {
+    const getPinchDist = (touches: TouchList) => {
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
       return Math.sqrt(dx * dx + dy * dy);
     };
 
     const onPinchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        pinchStartDist = getTouchDist(e.touches);
+      if (e.touches.length >= 2) {
+        e.preventDefault();
+        pinchStartDist = getPinchDist(e.touches);
         pinchStartZoom = map.getZoom() ?? 15;
-        currentZoomTarget = pinchStartZoom;
         isPinching = true;
-        if (rafId) cancelAnimationFrame(rafId);
-      } else {
-        isPinching = false;
       }
     };
 
     const onPinchMove = (e: TouchEvent) => {
-      if (!isPinching || e.touches.length !== 2) return;
+      if (!isPinching || e.touches.length < 2) return;
       e.preventDefault();
-      const dist = getTouchDist(e.touches);
-      if (pinchStartDist === 0) return;
-      const scale = dist / pinchStartDist;
-      const zoomDelta = Math.log2(scale) * ZOOM_SENSITIVITY;
-      currentZoomTarget = Math.max(5, Math.min(21, pinchStartZoom + zoomDelta));
-      // rAF으로 스무딩 - 현재 줌과 목표 줌 사이를 0.3 lerp
-      if (rafId) cancelAnimationFrame(rafId);
-      const smoothStep = () => {
-        const cur = map.getZoom() ?? currentZoomTarget;
-        const next = cur + (currentZoomTarget - cur) * 0.3;
-        if (Math.abs(next - currentZoomTarget) > 0.01) {
-          map.setZoom(next);
-          rafId = requestAnimationFrame(smoothStep);
-        } else {
-          map.setZoom(currentZoomTarget);
-        }
-      };
-      smoothStep();
+      const dist = getPinchDist(e.touches);
+      if (pinchStartDist < 10) return; // 너무 작은 거리 무시
+      const ratio = dist / pinchStartDist;
+      // log2(ratio) * sensitivity: ratio=2이면 +sensitivity 줌
+      const zoomDelta = Math.log2(ratio) * PINCH_SENSITIVITY;
+      const newZoom = Math.max(5, Math.min(21, pinchStartZoom + zoomDelta));
+      map.setZoom(newZoom); // 즉각 반응 (lerp 없음)
     };
 
-    const onPinchEnd = () => {
-      isPinching = false;
-      pinchStartDist = 0;
-      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+    const onPinchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        isPinching = false;
+        pinchStartDist = 0;
+      }
     };
 
-    // passive: false 로 등록해야 preventDefault() 가 동작함
-    mapDiv.addEventListener('touchstart', onPinchStart, { passive: false });
-    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false });
-    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true });
+    // passive:false 필수 - 그래야 preventDefault()로 구글맵 기본 핀치줌 차단 가능
+    mapDiv.addEventListener('touchstart', onPinchStart, { passive: false, capture: true });
+    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false, capture: true });
+    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true, capture: true });
 
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
