@@ -1690,7 +1690,7 @@ export default function MvpMap() {
                     >
                       <div className="flex flex-col gap-0 min-w-0 flex-1">
                         <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
-                          📸 이 장소의 사진
+                          ✨ SPOTLIGHT
                         </div>
                         {popupPlaceName && (
                           <div className="text-[9px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.55)', marginTop: '1px' }}>
@@ -1704,24 +1704,7 @@ export default function MvpMap() {
                             {placePhotos.length}장
                           </div>
                         )}
-                        {/* 더보기 - Google Maps 딥링크 */}
-                        {popupPlaceName && (
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(popupPlaceName)}&query_place_id=${encodeURIComponent(popupData.lat + ',' + popupData.lng)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-                            style={{
-                              background: `${MBTI_COLORS[popupData.mbti]}22`,
-                              border: `1px solid ${MBTI_COLORS[popupData.mbti]}55`,
-                              color: MBTI_COLORS[popupData.mbti],
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            지도 보기 →
-                          </a>
-                        )}
+
                       </div>
                     </div>
 
