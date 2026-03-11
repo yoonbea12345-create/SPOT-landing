@@ -1960,7 +1960,7 @@ export default function MvpMap() {
             ref={searchPanelRef}
             className="absolute z-50"
             style={{
-              bottom: '80px', // 돋보기 버튼(38px) + 간격(4px) + 여백(38px) 위
+              bottom: '140px', // bottom-24(96px) + 버튼높이(38px) + 여백(6px)
               right: '4px',
               width: '240px',
             }}
