@@ -15,7 +15,7 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
-  const totalSections = 6;
+  const totalSections = 8;
   const [carouselIndex, setCarouselIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
@@ -144,6 +144,60 @@ export default function Home() {
             <div className="pt-4">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '30px'}}>
                 과연, <span className="text-primary">실제</span>로도 그럴까요?       
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Insight Section */}
+      <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="space-y-10 text-center">
+            <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
+              더이상 <span className="text-secondary">속지</span> 마세요.
+            </h2>
+            <div className="space-y-6">
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px'}}>
+                리뷰는 <span className="text-foreground font-black">광고</span>, 사진은 <span className="text-foreground font-black">연출</span>입니다.
+              </p>
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px'}}>
+                그래서 실제로 가보면
+              </p>
+              <p className="text-3xl md:text-4xl font-black leading-tight" style={{fontSize: '28px'}}>
+                <span className="text-secondary">"생각보다 별론데?"</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solution Section */}
+      <section className="relative py-16 md:py-20 px-4 md:px-8 border-t border-border overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="space-y-10 text-center">
+            <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
+              <span className="text-primary">SPOT</span>만 믿으세요.
+            </h2>
+            <div className="space-y-6">
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px'}}>
+                SPOT은 <span className="text-foreground font-black">사람의 존재</span>를 통해<br />
+                공간을 비추는<br />
+                <span className="text-primary font-black">지도 기반 소셜 플랫폼</span>입니다.
+              </p>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '18px'}}>
+                사람들의 <span className="text-foreground font-black">실제 분포</span>와 <span className="text-foreground font-black">분위기</span>를 통해<br />
+                공간을 탐험하세요.
               </p>
             </div>
           </div>
@@ -381,7 +435,7 @@ export default function Home() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <button
-                className="mt-2 px-10 py-5 text-lg font-black border-2 border-primary text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-all hover:scale-105 active:scale-95"
+                className="mt-2 px-10 py-5 text-lg font-black border-2 border-border text-foreground bg-card/50 hover:bg-card rounded-lg transition-all hover:scale-105 active:scale-95"
                 onClick={() => handleTrackEvent('click_출시알림')}
               >
                 출시 알림 받기
@@ -446,10 +500,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '35px'}}>
-              지금, 이 골목에 누가
-            </p>
-            <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '35px'}}>
-              모였는지 확인해보세요.
+              더이상 <span className="text-secondary">속지</span> 마세요.
             </p>
           </div>
 
