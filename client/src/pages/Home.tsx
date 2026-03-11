@@ -262,65 +262,69 @@ export default function Home() {
                   className="flex transition-transform duration-300 ease-out"
                   style={{ transform: `translateX(-${carouselIndex * 100}%)` }}
                 >
-                  {/* Card 0 - ZOOM:Reality (새 카드) */}
-                  <div className="w-full flex-shrink-0 p-4 border-2 border-primary bg-background/50 rounded-lg">
-                    <div className="mb-3 rounded-md overflow-hidden">
-                      <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(3)_0a7d4ede.png"
-                        alt="Reality View"
-                        className="w-full h-64 object-contain object-top border border-primary/30 rounded-md bg-black/20"
-                        loading="lazy"
-                      />
+                  {/* Card 0 - ZOOM:Reality */}
+                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
+                    <img
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(3)_0a7d4ede.png"
+                      alt="Reality View"
+                      className="w-full object-cover object-top"
+                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                      loading="lazy"
+                    />
+                    <div className="px-4 py-3">
+                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:Reality</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        과거, 연출보단.<br /><span className="text-primary">실시간의 모습을.</span>
+                      </p>
                     </div>
-                    <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:Reality</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      과거, 연출보단.<br /><span className="text-primary">실시간의 모습을.</span>
-                    </p>
                   </div>
                   {/* Card 1 - ZOOM:WIDE */}
-                  <div className="w-full flex-shrink-0 p-4 border-2 border-secondary bg-background/50 rounded-lg">
-                    <div className="mb-3 rounded-md overflow-hidden">
-                      <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(5)_03939046.png"
-                        alt="Wide View"
-                        className="w-full h-64 object-contain object-top border border-secondary/30 rounded-md bg-black/20"
-                        loading="lazy"
-                      />
+                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
+                    <img
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(5)_03939046.png"
+                      alt="Wide View"
+                      className="w-full object-cover object-top"
+                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                      loading="lazy"
+                    />
+                    <div className="px-4 py-3">
+                      <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM:WIDE</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        오늘의 흐름이 보입니다. <span className="text-secondary"><br />어디로 모였는지.</span>
+                      </p>
                     </div>
-                    <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM:WIDE</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      오늘의 흐름이 보입니다. <span className="text-secondary"><br />어디로 모였는지.</span>
-                    </p>
                   </div>
                   {/* Card 2 - ZOOM:NEAR */}
-                  <div className="w-full flex-shrink-0 p-4 border-2 border-accent bg-background/50 rounded-lg">
-                    <div className="mb-3 rounded-md overflow-hidden">
-                      <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(4)_b3e41202.png"
-                        alt="Near View"
-                        className="w-full h-64 object-contain object-top border border-accent/30 rounded-md bg-black/20"
-                        loading="lazy"
-                      />
+                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
+                    <img
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(4)_b3e41202.png"
+                      alt="Near View"
+                      className="w-full object-cover object-top"
+                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                      loading="lazy"
+                    />
+                    <div className="px-4 py-3">
+                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM:NEAR</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        나와 같은 MBTI들은. <br /><span className="text-accent">어디서, 무엇을 하고 있을까.</span>
+                      </p>
                     </div>
-                    <h3 className="text-xl font-black mb-1 text-accent">#ZOOM:NEAR</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      나와 같은 MBTI들은. <br /><span className="text-accent">어디서, 무엇을 하고 있을까.</span>
-                    </p>
                   </div>
                   {/* Card 3 - ZOOM:3M */}
-                  <div className="w-full flex-shrink-0 p-4 border-2 border-primary bg-background/50 rounded-lg">
-                    <div className="mb-3 rounded-md overflow-hidden">
-                      <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(6)_3aad8ccb.png"
-                        alt="Register View"
-                        className="w-full h-64 object-contain object-top border border-primary/30 rounded-md bg-black/20"
-                        loading="lazy"
-                      />
+                  <div className="w-full flex-shrink-0 overflow-hidden rounded-lg bg-black">
+                    <img
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/spotmbti-unzs4ztv.manus.space_mvp(6)_3aad8ccb.png"
+                      alt="Register View"
+                      className="w-full object-cover object-top"
+                      style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
+                      loading="lazy"
+                    />
+                    <div className="px-4 py-3">
+                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:3M</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                      </p>
                     </div>
-                    <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:3M</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      지도에 내 위치를 표시해보세요. <span className="text-primary"><br />MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
-                    </p>
                   </div>
                 </div>
               </div>
