@@ -2332,6 +2332,8 @@ export default function MvpMap() {
 
               {/* 팝업 본체 - 카드 내부만 pointer-events:auto */}
               <div
+                onTouchMove={(e) => e.stopPropagation()}
+                onWheel={(e) => e.stopPropagation()}
                 style={{
                   background: 'rgba(4, 4, 14, 0.97)',
                   border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}99`,
