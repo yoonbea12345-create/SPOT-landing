@@ -190,13 +190,13 @@ export default function Home() {
             </h2>
             <div className="space-y-6">
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px'}}>
-                SPOT은 <span className="text-foreground font-black">사람의 존재</span>를 통해<br />
+                SPOT은 <span className="text-foreground font-black">사람의 존재</span>를 통해<br /><br />
                 공간을 비추는<br />
                 <span className="text-primary font-black">지도 기반 소셜 플랫폼</span>입니다.
               </p>
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '18px'}}>
-                사람들의 <span className="text-foreground font-black">실제 분포</span>와 <span className="text-foreground font-black">분위기</span>를 통해<br />
-                공간을 탐험하세요.
+                이젠, 사람들의 <span className="text-foreground font-black">실제 분포</span>와 <span className="text-foreground font-black">분위기</span>를 통해<br />
+                공간을 파악하세요.
               </p>
             </div>
           </div>
