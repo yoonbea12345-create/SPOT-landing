@@ -1188,6 +1188,25 @@ export default function MvpMap() {
           display: inline-block;
           animation: hotspot-badge-pulse 1.8s ease-in-out infinite;
         }
+        @keyframes search-border-glow {
+          0%, 100% { border-color: rgba(0,240,255,0.4); box-shadow: 0 0 10px rgba(0,240,255,0.2); }
+          50% { border-color: rgba(0,240,255,0.85); box-shadow: 0 0 20px rgba(0,240,255,0.55), 0 0 36px rgba(0,240,255,0.2); }
+        }
+        @keyframes search-icon-bounce {
+          0%, 100% { transform: rotate(-12deg) scale(1); }
+          20% { transform: rotate(10deg) scale(1.18); }
+          40% { transform: rotate(-8deg) scale(1.08); }
+          60% { transform: rotate(7deg) scale(1.14); }
+          80% { transform: rotate(-4deg) scale(1.04); }
+        }
+        .search-btn-glow {
+          animation: search-border-glow 2.2s ease-in-out infinite;
+        }
+        .search-icon-anim {
+          display: inline-block;
+          animation: search-icon-bounce 1.8s ease-in-out infinite;
+          transform-origin: center center;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -1755,10 +1774,10 @@ export default function MvpMap() {
               setSearchResults([]);
               setTimeout(() => searchInputRef.current?.focus(), 100);
             }}
-            className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+            className={`bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform ${!showSearch ? 'search-btn-glow' : ''}`}
             style={{
-              borderColor: showSearch ? 'rgba(0,240,255,0.9)' : 'rgba(0,240,255,0.5)',
-              boxShadow: showSearch ? '0 0 18px rgba(0,240,255,0.7)' : '0 0 14px rgba(0,240,255,0.35)',
+              borderColor: showSearch ? 'rgba(0,240,255,0.95)' : undefined,
+              boxShadow: showSearch ? '0 0 22px rgba(0,240,255,0.75)' : undefined,
               width: '38px',
               height: '38px',
               display: 'flex',
@@ -1767,10 +1786,12 @@ export default function MvpMap() {
               padding: 0,
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+            <span className={!showSearch ? 'search-icon-anim' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
           </button>
         </div>
 
