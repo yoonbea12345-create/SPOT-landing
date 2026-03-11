@@ -821,9 +821,10 @@ export default function MvpMap() {
       const dist = getPinchDist(e.touches);
       if (pinchStartDist === 0) return;
       const ratio = dist / pinchStartDist;
-      // Math.log2(ratio): 구글맵과 동일한 배율의 소수점 줌
-      // 예) 손가락 거리 2배 다 다리면 줌 +1, 1.5배면 +0.58
-      const newZoom = Math.max(3, Math.min(21, pinchStartZoom + Math.log2(ratio)));
+      // 소수점 2자리 정밀도: Math.round(x * 100) / 100
+      // 예) 14.00 → 14.01 → 14.02... 100단계 세밀하게 동작
+      const rawZoom = pinchStartZoom + Math.log2(ratio);
+      const newZoom = Math.max(3, Math.min(21, Math.round(rawZoom * 100) / 100));
       // 두 손가락 중간점 기준으로 지도 중심 보정
       const rect = mapDiv.getBoundingClientRect();
       const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
