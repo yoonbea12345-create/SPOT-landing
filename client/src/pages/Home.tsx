@@ -163,7 +163,7 @@ export default function Home() {
             </h2>
             <div className="space-y-6">
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f1f2f2'}}>
-                리뷰는 <span className="text-foreground font-black">광고</span>, 사진은 <span className="text-foreground font-black">연출</span>입니다.
+                리뷰는 <span className="text-foreground font-black">과거</span>, 사진은 <span className="text-foreground font-black">연출</span>입니다.
               </p>
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f2f1f2'}}>
                 그래서 실제로 가보면
@@ -186,7 +186,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-10 text-center">
             <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
-              <span className="text-primary">SPOT</span>만 믿으세요.
+              그래서 <span className="text-primary">SPOT.</span>
             </h2>
             <div className="space-y-6">
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f3f3f3'}}>
