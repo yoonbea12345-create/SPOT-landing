@@ -900,9 +900,10 @@ export default function MvpMap() {
     Object.values(locationCount).forEach(loc => {
       if (loc.count < 15) return;
       const sparkleEl = document.createElement('div');
+      // 작은 크기로 마커 옆에 붙어있는 느낌
       sparkleEl.style.cssText = `
-        width: 20px;
-        height: 20px;
+        width: 12px;
+        height: 12px;
         position: relative;
         pointer-events: auto;
         cursor: pointer;
@@ -911,33 +912,36 @@ export default function MvpMap() {
       sparkleEl.innerHTML = `
         <div class="sparkle-core" style="
           position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-          font-size: 14px; line-height: 1;
-          filter: drop-shadow(0 0 4px rgba(255,220,80,0.9)) drop-shadow(0 0 8px rgba(255,180,0,0.6));
+          font-size: 9px; line-height: 1;
+          filter: drop-shadow(0 0 3px rgba(255,220,80,1)) drop-shadow(0 0 6px rgba(255,180,0,0.8));
         ">✨</div>
-        <div class="sparkle-dot" style="
-          position: absolute; top: 50%; left: 50%; margin: -2px;
-          width: 4px; height: 4px; border-radius: 50%;
-          background: rgba(255,220,80,0.9);
-          box-shadow: 0 0 4px rgba(255,220,80,0.8);
-        "></div>
         <div class="sparkle-dot" style="
           position: absolute; top: 50%; left: 50%; margin: -1.5px;
           width: 3px; height: 3px; border-radius: 50%;
+          background: rgba(255,220,80,0.9);
+          box-shadow: 0 0 3px rgba(255,220,80,0.8);
+        "></div>
+        <div class="sparkle-dot" style="
+          position: absolute; top: 50%; left: 50%; margin: -1px;
+          width: 2px; height: 2px; border-radius: 50%;
           background: rgba(255,160,0,0.8);
-          box-shadow: 0 0 3px rgba(255,160,0,0.7);
+          box-shadow: 0 0 2px rgba(255,160,0,0.7);
           animation-delay: -0.83s;
         "></div>
         <div class="sparkle-dot" style="
-          position: absolute; top: 50%; left: 50%; margin: -1.5px;
-          width: 3px; height: 3px; border-radius: 50%;
+          position: absolute; top: 50%; left: 50%; margin: -1px;
+          width: 2px; height: 2px; border-radius: 50%;
           background: rgba(255,255,160,0.9);
-          box-shadow: 0 0 3px rgba(255,255,160,0.8);
+          box-shadow: 0 0 2px rgba(255,255,160,0.8);
           animation-delay: -1.66s;
         "></div>
       `;
+      // 마커 좌표에서 약간 오프셋 (lng +0.00003 정도 오른쪽 위로)
+      const offsetLat = loc.lat + 0.000025;
+      const offsetLng = loc.lng + 0.000030;
       const sparkleMarker = new google.maps.marker.AdvancedMarkerElement({
         map,
-        position: { lat: loc.lat, lng: loc.lng },
+        position: { lat: offsetLat, lng: offsetLng },
         content: sparkleEl,
         zIndex: 998,
       });
@@ -1630,23 +1634,19 @@ export default function MvpMap() {
           {hotspotCityNames.length > 0 && (
             <button
               onClick={() => { setSelectedHotplaceTab(0); setShowHotplacePopup(true); }}
-              className="hotspot-banner bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-105 transition-transform text-sm font-black"
+              className="hotspot-banner bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
               style={{
                 borderColor: 'rgba(255,69,0,0.7)',
-                boxShadow: '0 0 16px rgba(255,69,0,0.45)',
-                color: '#ff6a00',
-                textShadow: '0 0 8px #ff450099',
-                whiteSpace: 'nowrap',
-                width: '100%',
-                padding: '8px 16px',
+                boxShadow: '0 0 18px rgba(255,69,0,0.55)',
+                width: '48px',
+                height: '48px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px',
+                padding: 0,
               }}
             >
-              <span className="hotspot-fire" style={{ fontSize: '14px' }}>🔥</span>
-              <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.5px' }}>핫플레이스</span>
+              <span className="hotspot-fire" style={{ fontSize: '22px', lineHeight: 1 }}>🔥</span>
             </button>
           )}
 
@@ -1654,22 +1654,31 @@ export default function MvpMap() {
           {!spotSubmitted && (
             <button
               onClick={() => setShowSpotForm(true)}
-              className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-105 transition-transform text-sm font-black"
+              className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
               style={{
-                borderColor: '#ff00ff',
-                color: '#ff00ff',
-                boxShadow: '0 0 16px rgba(255, 0, 255, 0.5)',
-                textShadow: '0 0 8px rgba(255, 0, 255, 0.8)',
-                whiteSpace: 'nowrap',
-                width: '100%',
-                padding: '8px 16px',
+                borderColor: 'rgba(255,0,255,0.7)',
+                boxShadow: '0 0 18px rgba(255,0,255,0.45)',
+                width: '48px',
+                height: '48px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '4px',
+                padding: 0,
               }}
             >
-              + 내 스팟 등록
+              {/* 아바타 핀 아이콘: 사람 실루엣 + 위치 핀 조합 */}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* 머리 */}
+                <circle cx="12" cy="6" r="3" fill="#ff00ff" opacity="0.9"/>
+                {/* 몸통 */}
+                <path d="M7 14c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="#ff00ff" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9"/>
+                {/* 핀 꼬리 */}
+                <path d="M12 19 L12 22" stroke="#ff00ff" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
+                {/* 핀 원 */}
+                <circle cx="12" cy="19" r="1.5" fill="#ff00ff" opacity="0.85"/>
+                {/* 발광 효과용 외곽 */}
+                <circle cx="12" cy="6" r="3" stroke="#ff00ff" strokeWidth="0.5" opacity="0.4"/>
+              </svg>
             </button>
           )}
 
@@ -1979,45 +1988,65 @@ export default function MvpMap() {
                       (() => {
                         const cat = popupData.category ?? 'landmark';
                         const fallbackImages: Record<string, string[]> = {
+                          // 카페 - 한국 스타일 카페 느낌의 이미지
                           cafe: [
-                            'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&h=300&fit=crop',
                           ],
+                          // 식당 - 한국 식당/포장마사 느낌
                           restaurant: [
-                            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop',
                           ],
+                          // 공원 - 한국 공원/한강 느낌
                           park: [
-                            'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&h=300&fit=crop',
                           ],
+                          // 해변 - 한국 해수웕/해변 느낌
                           beach: [
-                            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1473116763249-2faaef81ccda?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop&q=80',
+                            'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=300&fit=crop&q=80',
+                            'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400&h=300&fit=crop&q=80',
                           ],
+                          // 자연 - 산/자연경관 (한라산/설악산 느낌)
                           nature: [
-                            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=400&h=300&fit=crop',
                             'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop',
                           ],
+                          // 시장 - 재래시장/야시장 느낌
                           market: [
                             'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
                             'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
                           ],
+                          // 술집 - 네온 간판 한국 술집 골목 느낌
                           bar: [
-                            'https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&h=300&fit=crop',
                             'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop',
                             'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&h=300&fit=crop',
                           ],
+                          // 랜드마크 - 한국 구도시/거리 느낌
                           landmark: [
                             'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=400&h=300&fit=crop',
                             'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop',
                             'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop',
+                          ],
+                          // 문화 - 갔러리/문화공간 느낌
+                          culture: [
+                            'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=400&h=300&fit=crop',
+                          ],
+                          // 스포츠 - 피트니스/스포츠시설 느낌
+                          sports: [
+                            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop',
                           ],
                         };
                         const imgs = fallbackImages[cat] ?? fallbackImages['landmark'];
