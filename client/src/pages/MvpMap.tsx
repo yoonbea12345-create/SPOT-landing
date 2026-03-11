@@ -397,6 +397,8 @@ type PopupData = {
   screenY: number; // 클릭한 마커의 화면 Y 좌표
   placeName?: string;  // 실제 장소명 (고정 마커)
   category?: string;   // 장소 카테고리 (폴백용)
+  nearbyCount?: number; // 이 장소 반경 내 인원 수
+  nearbyMbtiDist?: Record<string, number>; // 반경 내 MBTI 분포
 };
 
 // 장소 사진 타입
@@ -445,6 +447,11 @@ export default function MvpMap() {
   const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
   const [showHotplacePopup, setShowHotplacePopup] = useState(false);
   const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{name: string; lat: number; lng: number}[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const dummyDataRef = useRef<ReturnType<typeof generateDummyData>>([]);
   const swipeTouchStartY = useRef<number | null>(null);
@@ -812,6 +819,13 @@ export default function MvpMap() {
             new google.maps.LatLng(item.lat, item.lng)
           )
         );
+        // 반경 50m 내 마커 수 및 MBTI 분포 계산
+        const NEARBY_R = 0.0005;
+        const nearbyAllM = dummyDataRef.current.filter(d =>
+          Math.abs(d.lat - item.lat) < NEARBY_R && Math.abs(d.lng - item.lng) < NEARBY_R
+        );
+        const nearbyMbtiDistM: Record<string, number> = {};
+        nearbyAllM.forEach(d => { nearbyMbtiDistM[d.mbti] = (nearbyMbtiDistM[d.mbti] || 0) + 1; });
         setSelectedMarker({ mbti: item.mbti, distance });
         setPopupAddress(null);
         setPlacePhotos([]);
@@ -829,6 +843,8 @@ export default function MvpMap() {
           screenY: mouseEvent.clientY,
           placeName: item.placeName,
           category: item.category,
+          nearbyCount: nearbyAllM.length,
+          nearbyMbtiDist: nearbyMbtiDistM,
         });
         // 고정 장소명 있으면 즉시 설정
         if (item.placeName) setPopupPlaceName(item.placeName);
@@ -1006,6 +1022,13 @@ export default function MvpMap() {
             new google.maps.LatLng(target.lat, target.lng)
           )
         );
+        // 반경 50m 내 마커 수 및 MBTI 분포 계산
+        const NEARBY_RS = 0.0005;
+        const nearbyAllS = dummyDataRef.current.filter(d =>
+          Math.abs(d.lat - loc.lat) < NEARBY_RS && Math.abs(d.lng - loc.lng) < NEARBY_RS
+        );
+        const nearbyMbtiDistS: Record<string, number> = {};
+        nearbyAllS.forEach(d => { nearbyMbtiDistS[d.mbti] = (nearbyMbtiDistS[d.mbti] || 0) + 1; });
         setSelectedMarker({ mbti: target.mbti, distance });
         setPopupAddress(null);
         setPlacePhotos([]);
@@ -1023,6 +1046,8 @@ export default function MvpMap() {
           screenY: mouseEvent.clientY,
           placeName: target.placeName,
           category: target.category,
+          nearbyCount: nearbyAllS.length,
+          nearbyMbtiDist: nearbyMbtiDistS,
         });
         // 역지오코딩
         const geocoder = new google.maps.Geocoder();
@@ -1268,6 +1293,12 @@ export default function MvpMap() {
           new google.maps.LatLng(spot.lat, spot.lng)
         )
       );
+      const NEARBY_RR = 0.0005;
+      const nearbyAllR = dummyDataRef.current.filter(d =>
+        Math.abs(d.lat - spot.lat) < NEARBY_RR && Math.abs(d.lng - spot.lng) < NEARBY_RR
+      );
+      const nearbyMbtiDistR: Record<string, number> = {};
+      nearbyAllR.forEach(d => { nearbyMbtiDistR[d.mbti] = (nearbyMbtiDistR[d.mbti] || 0) + 1; });
       setSelectedMarker({ mbti: spot.mbti.toUpperCase(), distance });
       setPopupAddress(null);
       setPopupData({
@@ -1280,6 +1311,8 @@ export default function MvpMap() {
         lng: spot.lng,
         screenX: me.clientX,
         screenY: me.clientY,
+        nearbyCount: nearbyAllR.length,
+        nearbyMbtiDist: nearbyMbtiDistR,
       });
       // 역지오코딩으로 주소 가져오기
       const geocoder2 = new google.maps.Geocoder();
@@ -1708,6 +1741,146 @@ export default function MvpMap() {
           </button>
         </div>
 
+        {/* 우측 하단 돋보기 검색 버튼 */}
+        <div className="absolute bottom-24 right-4 flex flex-col items-center gap-3">
+          <button
+            onClick={() => {
+              setShowSearch(prev => !prev);
+              setSearchQuery('');
+              setSearchResults([]);
+              setTimeout(() => searchInputRef.current?.focus(), 100);
+            }}
+            className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+            style={{
+              borderColor: showSearch ? 'rgba(0,240,255,0.9)' : 'rgba(0,240,255,0.5)',
+              boxShadow: showSearch ? '0 0 18px rgba(0,240,255,0.7)' : '0 0 14px rgba(0,240,255,0.35)',
+              width: '38px',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+        </div>
+
+        {/* 검색 패널 */}
+        {showSearch && (
+          <div
+            className="absolute bottom-24 right-16 z-50"
+            style={{ width: '220px' }}
+          >
+            <div
+              style={{
+                background: 'rgba(4,4,14,0.97)',
+                border: '1.5px solid rgba(0,240,255,0.6)',
+                borderRadius: '14px',
+                boxShadow: '0 0 24px rgba(0,240,255,0.25)',
+                overflow: 'hidden',
+              }}
+            >
+              <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: '1px solid rgba(0,240,255,0.15)' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.6)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const q = e.target.value;
+                    setSearchQuery(q);
+                    if (!q.trim() || q.trim().length < 2) {
+                      setSearchResults([]);
+                      return;
+                    }
+                    if (!mapRef.current) return;
+                    setSearchLoading(true);
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode(
+                      { address: q + ' 한국', region: 'KR' },
+                      (results, status) => {
+                        setSearchLoading(false);
+                        if (status === 'OK' && results && results.length > 0) {
+                          const items = results.slice(0, 5).map(r => ({
+                            name: r.formatted_address.replace(', 대한민국', '').replace('대한민국 ', ''),
+                            lat: r.geometry.location.lat(),
+                            lng: r.geometry.location.lng(),
+                          }));
+                          setSearchResults(items);
+                        } else {
+                          setSearchResults([]);
+                        }
+                      }
+                    );
+                  }}
+                  placeholder="지역 검색 (예: 홍대, 강남)"
+                  className="flex-1 outline-none text-xs bg-transparent"
+                  style={{ color: '#00f0ff' }}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(''); setSearchResults([]); }}
+                    className="text-gray-600 hover:text-gray-300 transition-colors text-xs leading-none flex-shrink-0"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              {searchLoading && (
+                <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(0,240,255,0.5)' }}>검색 중...</div>
+              )}
+              {!searchLoading && searchResults.length > 0 && (
+                <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                  {searchResults.map((result, idx) => (
+                    <button
+                      key={idx}
+                      className="w-full text-left px-3 py-2.5 text-xs transition-all"
+                      style={{
+                        color: 'rgba(255,255,255,0.8)',
+                        borderBottom: idx < searchResults.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                        background: 'transparent',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,240,255,0.08)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      onClick={() => {
+                        if (mapRef.current) {
+                          mapRef.current.panTo({ lat: result.lat, lng: result.lng });
+                          mapRef.current.setZoom(14);
+                          toast.success(`📍 ${result.name}`, { duration: 2000 });
+                          setShowSearch(false);
+                          setSearchQuery('');
+                          setSearchResults([]);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span className="truncate">{result.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!searchLoading && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>검색 결과가 없습니다</div>
+              )}
+              {!searchQuery && (
+                <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.25)' }}>지역명을 입력하세요</div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* 하단 정보 안내 텍스트 */}
         {!selectedMarker && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 border border-cyan-500/20 rounded-xl px-4 py-2 shadow-lg">
@@ -1888,6 +2061,59 @@ export default function MvpMap() {
                       {popupData.sign}
                     </div>
                   </div>
+
+                  {/* 이 장소 인원 & MBTI 분포 */}
+                  {popupData.nearbyCount !== undefined && popupData.nearbyCount > 0 && (
+                    <div
+                      className="rounded-xl p-2"
+                      style={{
+                        background: `${MBTI_COLORS[popupData.mbti]}0d`,
+                        border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>👥 이 장소</div>
+                        <div
+                          className="text-[11px] font-black"
+                          style={{
+                            color: MBTI_COLORS[popupData.mbti],
+                            textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88`,
+                          }}
+                        >
+                          {popupData.nearbyCount}명
+                        </div>
+                      </div>
+                      {popupData.nearbyMbtiDist && (
+                        <div className="flex flex-col gap-1">
+                          {Object.entries(popupData.nearbyMbtiDist)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 4)
+                            .map(([mbti, count]) => {
+                              const pct = Math.round((count / popupData.nearbyCount!) * 100);
+                              const color = MBTI_COLORS[mbti] || '#00f0ff';
+                              return (
+                                <div key={mbti} className="flex items-center gap-1.5">
+                                  <div className="text-[9px] font-bold flex-shrink-0" style={{ color, width: '30px' }}>{mbti}</div>
+                                  <div className="flex-1 rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(255,255,255,0.08)' }}>
+                                    <div
+                                      style={{
+                                        width: `${pct}%`,
+                                        height: '100%',
+                                        background: color,
+                                        borderRadius: '9999px',
+                                        boxShadow: `0 0 4px ${color}88`,
+                                        transition: 'width 0.5s ease',
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)', width: '22px', textAlign: 'right' }}>{pct}%</div>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* 사진 갤러리 */}
                   <div
@@ -2226,62 +2452,38 @@ export default function MvpMap() {
             </p>
 
             {/* MBTI - 자동완성 드롭다운 */}
-            <div className="mb-4 relative">
-              <label className="block text-center text-xs font-bold mb-1" style={{color: '#00f0ff', letterSpacing: '0.15em'}}>#TYPE (MBTI)</label>
-              <input
-                type="text"
-                value={spotFormData.mbti}
-                onChange={e => {
-                  const val = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
-                  setSpotFormData(p => ({...p, mbti: val}));
-                }}
-                placeholder="ex) ENFP"
-                maxLength={4}
-                autoComplete="off"
-                className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(0, 240, 255, 0.07)',
-                  border: `1.5px solid ${MBTI_TYPES.includes(spotFormData.mbti) ? '#00f0ff' : spotFormData.mbti.length === 4 ? '#ff4444' : 'rgba(0, 240, 255, 0.4)'}`,
-                  color: '#00f0ff',
-                }}
-              />
-              {/* 유효성 메시지 */}
-              {spotFormData.mbti.length === 4 && !MBTI_TYPES.includes(spotFormData.mbti) && (
-                <div className="text-center text-[10px] mt-1" style={{color: '#ff4444'}}>올바른 MBTI 유형이 아닙니다</div>
-              )}
-              {spotFormData.mbti.length === 4 && MBTI_TYPES.includes(spotFormData.mbti) && (
-                <div className="text-center text-[10px] mt-1" style={{color: '#00f0ff'}}>✓ {spotFormData.mbti}</div>
-              )}
-              {/* 자동완성 드롭다운 */}
-              {spotFormData.mbti.length > 0 && spotFormData.mbti.length < 4 && (
-                <div
-                  className="absolute left-0 right-0 z-10 rounded-lg overflow-hidden"
-                  style={{
-                    top: '100%',
-                    marginTop: '2px',
-                    background: 'rgba(4, 4, 14, 0.98)',
-                    border: '1px solid rgba(0, 240, 255, 0.4)',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.8)',
-                  }}
-                >
-                  {MBTI_TYPES.filter(t => t.startsWith(spotFormData.mbti)).map(t => (
-                    <div
-                      key={t}
-                      className="px-3 py-2 text-sm font-bold text-center cursor-pointer"
-                      style={{ color: '#00f0ff' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,240,255,0.12)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onMouseDown={e => {
-                        e.preventDefault();
-                        setSpotFormData(p => ({...p, mbti: t}));
+            {/* MBTI - 16개 카드 그리드 선택 UI */}
+            <div className="mb-4">
+              <label className="block text-center text-xs font-bold mb-2" style={{color: '#00f0ff', letterSpacing: '0.15em'}}>#TYPE (MBTI)</label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {MBTI_TYPES.map((type) => {
+                  const isSelected = spotFormData.mbti === type;
+                  const color = MBTI_COLORS[type] || '#00f0ff';
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setSpotFormData(p => ({...p, mbti: p.mbti === type ? '' : type}))}
+                      className="rounded-lg py-2.5 text-center transition-all"
+                      style={{
+                        background: isSelected ? `${color}22` : 'rgba(255,255,255,0.04)',
+                        border: isSelected ? `2px solid ${color}` : '1.5px solid rgba(255,255,255,0.12)',
+                        color: isSelected ? color : 'rgba(255,255,255,0.45)',
+                        fontSize: '11px',
+                        fontWeight: isSelected ? 900 : 600,
+                        letterSpacing: '0.03em',
+                        boxShadow: isSelected ? `0 0 8px ${color}55` : 'none',
+                        transform: isSelected ? 'scale(1.05)' : 'scale(1)',
                       }}
                     >
-                      {t}
-                    </div>
-                  ))}
-                  {MBTI_TYPES.filter(t => t.startsWith(spotFormData.mbti)).length === 0 && (
-                    <div className="px-3 py-2 text-xs text-center" style={{color: '#666'}}>일치하는 MBTI 없음</div>
-                  )}
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+              {spotFormData.mbti && (
+                <div className="text-center text-[11px] mt-2 font-bold" style={{color: MBTI_COLORS[spotFormData.mbti] || '#00f0ff'}}>
+                  ✓ {spotFormData.mbti} 선택됨
                 </div>
               )}
             </div>
