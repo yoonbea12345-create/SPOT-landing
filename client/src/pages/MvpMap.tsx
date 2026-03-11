@@ -732,7 +732,7 @@ export default function MvpMap() {
     let pinchMidX = 0; // 핀치 시작 시 중심점 X (px)
     let pinchMidY = 0; // 핀치 시작 시 중심점 Y (px)
     let isPinching = false;
-    const PINCH_SENSITIVITY = 2.0;
+    const PINCH_SENSITIVITY = 2.8;
 
     // 화면 px 좌표를 지도 LatLng로 변환
     const pixelToLatLng = (px: number, py: number, zoom: number, center: google.maps.LatLng) => {
