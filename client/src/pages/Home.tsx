@@ -195,9 +195,8 @@ export default function Home() {
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f7f7f7'}}>
                 <span className="text-primary font-black">지도 기반 소셜 플랫폼</span>입니다.
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '18px', color: '#f6f7f7'}}>
-                이젠, 사람들의 <span className="text-foreground font-black">실제 분포</span>와 <span className="text-foreground font-black">분위기</span>를 통해<br />
-                공간을 파악하세요.
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '33px', color: '#f6f7f7'}}>
+                리뷰 말고, 지금.
               </p>
             </div>
           </div>
