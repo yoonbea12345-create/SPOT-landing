@@ -147,7 +147,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-10 text-center">
             <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
-              더이상 <span style={{color: '#f1f2f1'}}>속지</span> 마세요.
+              뻔한 리뷰와 사진
             </h2>
             <div className="space-y-6">
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f1f2f2'}}>
@@ -173,15 +173,13 @@ export default function Home() {
               그래서 <span className="text-primary">SPOT</span>
             </h2>
             <div className="space-y-6">
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f3f3f3'}}>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f3f3f3'}}>
                 SPOT은 해당공간에 <span className="text-foreground font-black">위치한 사람</span>들을 <br />통해 공간을 보여주는
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f7f7f7'}}>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '28px', color: '#f7f7f7'}}>
                 <span className="text-primary font-black">지도 기반 소셜 플랫폼</span>입니다.
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-relaxed" style={{fontSize: '20px', color: '#f6f7f7'}}>
-                리뷰 말고, 지금.
-              </p>
+
             </div>
           </div>
         </div>
