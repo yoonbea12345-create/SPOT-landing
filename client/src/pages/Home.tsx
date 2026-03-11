@@ -138,7 +138,7 @@ export default function Home() {
 
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
               인스타는 보여줍니다.<br />
-              여기가<span className="text-secondary"> 예쁘다고</span>
+              여기가<span className="text-secondary"> 예쁘다고.</span>
             </p>
 
             <div className="pt-4">
