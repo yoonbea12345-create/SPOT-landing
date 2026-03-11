@@ -108,7 +108,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지금, 이 골목에 누가 있는지 알고 싶다면.
+              지도에서 발견하는 도시의 진짜 분위기
             </p>
           </div>
 
