@@ -1579,54 +1579,6 @@ export default function MvpMap() {
           onMapReady={handleMapReady}
         />
 
-        {/* 줄 레벨 슬라이더 */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-2xl p-3 shadow-2xl" style={{boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"}}>
-          <div className="text-center mb-3">
-            <div className="text-xs font-black" style={{
-              color: currentZoom >= 18 ? '#ff00ff' : currentZoom >= 12 ? '#9d4edd' : '#00f0ff',
-              textShadow: `0 0 10px ${currentZoom >= 18 ? '#ff00ff88' : currentZoom >= 12 ? '#9d4edd88' : '#00f0ff88'}`,
-              transition: 'all 0.3s'
-            }}>
-              {currentZoom >= 18 ? '3M' : currentZoom >= 12 ? 'NEAR' : 'WIDE'}
-            </div>
-          </div>
-          
-          <div className="relative h-32 w-8 flex items-center justify-center">
-            <input
-              type="range"
-              min="8"
-              max="20"
-              step="0.5"
-              value={currentZoom}
-              onChange={(e) => {
-                const newZoom = parseFloat(e.target.value);
-                setCurrentZoom(newZoom);
-                if (mapRef.current) {
-                  mapRef.current.setZoom(newZoom);
-                }
-              }}
-              className="absolute"
-              style={{
-                width: '128px',
-                height: '8px',
-                transform: 'rotate(-90deg)',
-                transformOrigin: 'center',
-                appearance: 'none',
-                background: `linear-gradient(to right, #00f0ff 0%, #00f0ff ${((12-8)/(20-8)*100)}%, #9d4edd ${((12-8)/(20-8)*100)}%, #9d4edd ${((18-8)/(20-8)*100)}%, #ff00ff ${((18-8)/(20-8)*100)}%, #ff00ff 100%)`,
-                borderRadius: '4px',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            />
-          </div>
-          
-          <div className="flex flex-col items-center gap-1 mt-2 text-[8px] font-bold">
-            <div style={{color: '#ff00ff', textShadow: '0 0 5px #ff00ff88'}}>3M</div>
-            <div style={{color: '#9d4edd', textShadow: '0 0 5px #9d4edd88'}}>NEAR</div>
-            <div style={{color: '#00f0ff', textShadow: '0 0 5px #00f0ff88'}}>WIDE</div>
-          </div>
-        </div>
-
         {/* 내 위치로 돌아가기 버튼 + 내 스팟 등록 버튼 (세로 배치) */}
         <div className="absolute bottom-24 left-4 flex flex-col items-center gap-3">
           {/* 핫플레이스 CTA 버튼 - 내 스팟 등록 버튼 위에 */}
@@ -1637,15 +1589,15 @@ export default function MvpMap() {
               style={{
                 borderColor: 'rgba(255,69,0,0.7)',
                 boxShadow: '0 0 18px rgba(255,69,0,0.55)',
-                width: '48px',
-                height: '48px',
+                width: '38px',
+                height: '38px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 0,
               }}
             >
-              <span className="hotspot-fire" style={{ fontSize: '22px', lineHeight: 1 }}>🔥</span>
+              <span className="hotspot-fire" style={{ fontSize: '18px', lineHeight: 1 }}>🔥</span>
             </button>
           )}
 
@@ -1656,17 +1608,17 @@ export default function MvpMap() {
               className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
               style={{
                 borderColor: 'rgba(255,0,255,0.7)',
-                boxShadow: '0 0 18px rgba(255,0,255,0.45)',
-                width: '48px',
-                height: '48px',
+                boxShadow: '0 0 14px rgba(255,0,255,0.45)',
+                width: '38px',
+                height: '38px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 0,
               }}
             >
-              {/* 아바타 핀 아이콘: 사람 실루엣 + 위치 핀 조합 */}
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* 아바타 핀 아이콘: 사람 실루얣 + 위치 핀 조합 */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* 머리 */}
                 <circle cx="12" cy="6" r="3" fill="#ff00ff" opacity="0.9"/>
                 {/* 몸통 */}
@@ -1692,12 +1644,17 @@ export default function MvpMap() {
                 toast.error("GPS 위치를 찾을 수 없습니다");
               }
             }}
-            className="bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-3 shadow-2xl hover:scale-110 transition-transform"
+            className="bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-2 shadow-2xl hover:scale-110 transition-transform"
             style={{
-              boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)"
+              boxShadow: "0 0 14px rgba(0, 240, 255, 0.5)",
+              width: '38px',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="3" />
             <line x1="12" y1="2" x2="12" y2="4" />
