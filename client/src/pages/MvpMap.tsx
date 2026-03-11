@@ -362,6 +362,12 @@ type PopupData = {
   screenY: number; // 클릭한 마커의 화면 Y 좌표
 };
 
+// 장소 사진 타입
+type PlacePhoto = {
+  url: string;
+  attribution: string;
+};
+
 // 실제 스팟 입력 폼 타입
 type SpotFormData = {
   mbti: string;
@@ -388,6 +394,9 @@ export default function MvpMap() {
   // 팝업 상태
   const [popupData, setPopupData] = useState<PopupData | null>(null);
   const [popupAddress, setPopupAddress] = useState<string | null>(null);
+  const [placePhotos, setPlacePhotos] = useState<PlacePhoto[]>([]);
+  const [photoLoading, setPhotoLoading] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
@@ -724,6 +733,8 @@ export default function MvpMap() {
         );
         setSelectedMarker({ mbti: item.mbti, distance });
         setPopupAddress(null);
+        setPlacePhotos([]);
+        setLightboxIndex(null);
         setPopupData({
           mbti: item.mbti,
           mood: item.mood,
@@ -748,6 +759,45 @@ export default function MvpMap() {
             setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
           }
         });
+        // Google Places API로 주변 장소 사진 가져오기
+        setPhotoLoading(true);
+        const placesService = new google.maps.places.PlacesService(mapRef.current!);
+        placesService.nearbySearch(
+          {
+            location: { lat: item.lat, lng: item.lng },
+            radius: 100,
+            type: 'establishment',
+          },
+          (placeResults, placeStatus) => {
+            if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
+              // 사진이 있는 장소를 우선 선택
+              const withPhotos = placeResults.filter(p => p.photos && p.photos.length > 0);
+              const target = withPhotos.length > 0 ? withPhotos[0] : placeResults[0];
+              if (target.place_id) {
+                placesService.getDetails(
+                  {
+                    placeId: target.place_id,
+                    fields: ['photos', 'name'],
+                  },
+                  (detail, detailStatus) => {
+                    if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos) {
+                      const photos: PlacePhoto[] = detail.photos.slice(0, 6).map(photo => ({
+                        url: photo.getUrl({ maxWidth: 800, maxHeight: 600 }),
+                        attribution: photo.html_attributions?.[0] ?? '',
+                      }));
+                      setPlacePhotos(photos);
+                    }
+                    setPhotoLoading(false);
+                  }
+                );
+              } else {
+                setPhotoLoading(false);
+              }
+            } else {
+              setPhotoLoading(false);
+            }
+          }
+        );
       });
 
       markersRef.current.push(marker);
@@ -1417,8 +1467,8 @@ export default function MvpMap() {
       {/* ─── 말풍선 팝업 ─── */}
       {popupData && (() => {
         // 팝업 크기 (px)
-        const PW = 220;
-        const PH = 200; // 대략적 높이
+        const PW = 260;
+        const PH = 220; // 대략적 높이
         const TAIL = 10; // 말풍선 코 높이
         const MARGIN = 8;
 
@@ -1584,6 +1634,100 @@ export default function MvpMap() {
                       {popupData.sign}
                     </div>
                   </div>
+
+                  {/* 사진 갤러리 */}
+                  <div
+                    className="rounded-xl overflow-hidden"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                    }}
+                  >
+                    {/* 헤더 */}
+                    <div className="flex items-center justify-between px-2 py-1.5"
+                      style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
+                    >
+                      <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
+                        📸 이 장소의 사진
+                      </div>
+                      {placePhotos.length > 0 && (
+                        <div className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                          {placePhotos.length}장
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 사진 콘텐츠 */}
+                    {photoLoading ? (
+                      // 로딩 스켈레톤
+                      <div className="flex gap-1.5 p-2 overflow-x-auto">
+                        {[0,1,2].map(i => (
+                          <div
+                            key={i}
+                            className="flex-shrink-0 rounded-lg"
+                            style={{
+                              width: '72px',
+                              height: '72px',
+                              background: `linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%)`,
+                              backgroundSize: '200% 100%',
+                              animation: 'shimmer 1.5s infinite',
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : placePhotos.length > 0 ? (
+                      // 사진 스트립
+                      <div
+                        className="flex gap-1.5 p-2 overflow-x-auto"
+                        style={{ scrollbarWidth: 'none' }}
+                      >
+                        {placePhotos.map((photo, idx) => (
+                          <div
+                            key={idx}
+                            className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer"
+                            style={{
+                              width: '72px',
+                              height: '72px',
+                              border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}44`,
+                              transition: 'all 0.2s',
+                              boxShadow: `0 2px 8px rgba(0,0,0,0.5)`,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLightboxIndex(idx);
+                            }}
+                            onMouseEnter={e => {
+                              (e.currentTarget as HTMLElement).style.border = `1.5px solid ${MBTI_COLORS[popupData.mbti]}cc`;
+                              (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={e => {
+                              (e.currentTarget as HTMLElement).style.border = `1.5px solid ${MBTI_COLORS[popupData.mbti]}44`;
+                              (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                            }}
+                          >
+                            <img
+                              src={photo.url}
+                              alt={`장소 사진 ${idx + 1}`}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block',
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      // 사진 없음
+                      <div
+                        className="flex items-center justify-center py-4"
+                        style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px' }}
+                      >
+                        등록된 사진이 없어요
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1607,7 +1751,104 @@ export default function MvpMap() {
         );
       })()}
 
-      {/* 스팟 입력 팝업 (11초 후) */}
+      {/* 라이트박스 모달 */}
+      {lightboxIndex !== null && placePhotos.length > 0 && popupData && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}
+          onClick={() => setLightboxIndex(null)}
+        >
+          {/* 이전 버튼 */}
+          {lightboxIndex > 0 && (
+            <button
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
+              style={{
+                width: '40px', height: '40px',
+                background: 'rgba(255,255,255,0.12)',
+                border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}66`,
+                borderRadius: '50%',
+                color: '#fff',
+                fontSize: '18px',
+                cursor: 'pointer',
+              }}
+              onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? Math.max(0, i - 1) : 0); }}
+            >‹</button>
+          )}
+
+          {/* 메인 이미지 */}
+          <div
+            className="relative flex flex-col items-center"
+            onClick={e => e.stopPropagation()}
+            style={{ maxWidth: '90vw', maxHeight: '80vh' }}
+          >
+            <img
+              src={placePhotos[lightboxIndex].url}
+              alt="장소 사진"
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '70vh',
+                objectFit: 'contain',
+                borderRadius: '12px',
+                border: `2px solid ${MBTI_COLORS[popupData.mbti]}88`,
+                boxShadow: `0 0 40px ${MBTI_COLORS[popupData.mbti]}44`,
+              }}
+            />
+            {/* 뎷 인디케이터 */}
+            <div className="flex gap-2 mt-4">
+              {placePhotos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightboxIndex(i)}
+                  style={{
+                    width: i === lightboxIndex ? '20px' : '6px',
+                    height: '6px',
+                    borderRadius: '3px',
+                    background: i === lightboxIndex ? MBTI_COLORS[popupData.mbti] : 'rgba(255,255,255,0.3)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    boxShadow: i === lightboxIndex ? `0 0 8px ${MBTI_COLORS[popupData.mbti]}` : 'none',
+                  }}
+                />
+              ))}
+            </div>
+            {/* 닫기 버튼 */}
+            <button
+              className="absolute top-2 right-2"
+              style={{
+                width: '28px', height: '28px',
+                background: 'rgba(0,0,0,0.6)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '50%',
+                color: 'rgba(255,255,255,0.7)',
+                fontSize: '14px',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+              onClick={() => setLightboxIndex(null)}
+            >✕</button>
+          </div>
+
+          {/* 다음 버튼 */}
+          {lightboxIndex < placePhotos.length - 1 && (
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
+              style={{
+                width: '40px', height: '40px',
+                background: 'rgba(255,255,255,0.12)',
+                border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}66`,
+                borderRadius: '50%',
+                color: '#fff',
+                fontSize: '18px',
+                cursor: 'pointer',
+              }}
+              onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? Math.min(placePhotos.length - 1, i + 1) : 0); }}
+            >›</button>
+          )}
+        </div>
+      )}
+
+      {/* 스팝 입력 팝업 (11초 후) */}
       {showSpotForm && !spotSubmitted && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background: 'rgba(0,0,0,0.7)'}}>
           <div

@@ -208,9 +208,14 @@
     box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.8);
   }
   
-  .shadow-brutal-lg {
+   .shadow-brutal-lg {
     box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.9);
   }
-  
 
+  /* Shimmer loading animation */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
 }
