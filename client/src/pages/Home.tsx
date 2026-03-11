@@ -195,7 +195,7 @@ export default function Home() {
               <p className="text-xl md:text-2xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '20px', color: '#f7f7f7'}}>
                 <span className="text-primary font-black">지도 기반 소셜 플랫폼</span>입니다.
               </p>
-              <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px', color: '#f6f7f7'}}>
+              <p className="text-xl md:text-2xl font-bold leading-relaxed" style={{fontSize: '20px', color: '#f6f7f7'}}>
                 리뷰 말고, 지금.
               </p>
             </div>
@@ -441,17 +441,15 @@ export default function Home() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <button
-                className="mt-2 group relative px-12 py-5 text-xl font-black rounded-lg transition-all hover:scale-105 active:scale-95 overflow-hidden"
+                className="mt-2 px-12 py-5 text-xl font-black rounded-lg transition-all hover:scale-105 active:scale-95 hover:opacity-90"
                 style={{
-                  background: 'linear-gradient(135deg, oklch(0.55 0.22 195) 0%, oklch(0.5 0.25 290) 100%)',
-                  boxShadow: '0 0 24px oklch(0.7 0.2 195 / 0.5), 0 0 48px oklch(0.6 0.2 290 / 0.3)',
+                  background: 'oklch(0.55 0.28 330)',
                   color: '#fff',
                   letterSpacing: '0.04em',
                 }}
                 onClick={() => handleTrackEvent('click_출시알림')}
               >
-                <span className="relative z-10">출시 알림 받기 →</span>
-                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, oklch(0.62 0.22 195) 0%, oklch(0.57 0.25 290) 100%)' }} />
+                출시 알림 받기 →
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[360px] bg-background border-2 border-primary">
@@ -513,13 +511,13 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '35px'}}>
-              지금, 실제 분위기를 확인해보세요.
+              지금, 실제 분위기를<br />확인해보세요.
             </p>
           </div>
 
           <div className="flex justify-center">
             <Button 
-              className="px-16 py-8 text-2xl font-black border-2 border-white/20 bg-white/10 hover:bg-white/15 text-white transition-all hover:scale-105"
+              className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
               onClick={() => handleTrackAndNavigate('click_보러가기_cta', '/mvp')}
             >
               보러 가기
