@@ -729,10 +729,12 @@ export default function MvpMap() {
       }
     });
 
-    // ===== 더블탭 줌인 (구글맵 기본 핀치줌은 그대로 사용) =====
+    // ===== 커스텀 핀치줌 + 더블탭 줌인 =====
+    // 구글맵 기본 핀치줌은 정수 단위로만 스냅되어 조금만 핀치하면 손 땸을 때 원래 줌으로 돌아감
+    // 커스텀 핀치줌으로 소수점 줌을 직접 제어하면 이 문제를 해결할 수 있음
     const mapDiv = map.getDiv();
 
-    // 화면 px 좌표를 지도 LatLng로 변환 (더블탭 줌인에서 사용)
+    // 화면 px 좌표를 지도 LatLng로 변환
     const pixelToLatLng = (px: number, py: number, zoom: number, center: google.maps.LatLng) => {
       const scale = Math.pow(2, zoom);
       const rect = mapDiv.getBoundingClientRect();
@@ -783,8 +785,74 @@ export default function MvpMap() {
         lastTapY = tapY;
       }
     };
-    // passive:true로 등록해야 구글맵 기본 핀치줌을 방해하지 않음
+    // 더블탭: passive:true로 등록 (핀치줌 방해 안 함)
     mapDiv.addEventListener('touchstart', onDoubleTap, { passive: true, capture: false });
+
+    // ===== 소수점 줌 지원 커스텀 핀치줌 =====
+    // 구글맵 기본 핀치줌은 정수 스냅이라 조금만 핀치해도 손 떼면 원래 줌으로 돌아감
+    // passive:false + preventDefault로 구글맵 핀치를 막고 소수점 줌을 직접 적용
+    let pinchStartDist = 0;
+    let pinchStartZoom = 0;
+    let pinchStartCenterLat = 0;
+    let pinchStartCenterLng = 0;
+    let pinchStartMidX = 0;
+    let pinchStartMidY = 0;
+    let isPinching = false;
+
+    const getPinchDist = (touches: TouchList) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onPinchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return;
+      isPinching = true;
+      pinchStartDist = getPinchDist(e.touches);
+      pinchStartZoom = map.getZoom() ?? 15;
+      const center = map.getCenter();
+      pinchStartCenterLat = center ? center.lat() : 0;
+      pinchStartCenterLng = center ? center.lng() : 0;
+      // 두 손가락 중간점
+      pinchStartMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      pinchStartMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    };
+
+    const onPinchMove = (e: TouchEvent) => {
+      if (!isPinching || e.touches.length !== 2) return;
+      e.preventDefault(); // 구글맵 기본 핀치줌 차단
+      const dist = getPinchDist(e.touches);
+      if (pinchStartDist === 0) return;
+      const ratio = dist / pinchStartDist;
+      // 소수점 줌 직접 적용 (민감도 1.0 = 구글맵과 동일)
+      const newZoom = Math.max(3, Math.min(21, pinchStartZoom + Math.log2(ratio)));
+      // 두 손가락 중간점 기준으로 지도 중심 보정
+      const rect = mapDiv.getBoundingClientRect();
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const scale = Math.pow(2, pinchStartZoom);
+      const metersPerPx = 156543.03392 / scale;
+      const cosLat = Math.cos(pinchStartCenterLat * Math.PI / 180);
+      // 핀치 시작 중간점 기준 오프셋
+      const dxStart = pinchStartMidX - (rect.left + rect.width / 2);
+      const dyStart = pinchStartMidY - (rect.top + rect.height / 2);
+      const dxCur = midX - (rect.left + rect.width / 2);
+      const dyCur = midY - (rect.top + rect.height / 2);
+      // 중간점이 고정되도록 중심 보정
+      const zoomFactor = Math.pow(2, newZoom - pinchStartZoom);
+      const newCenterLat = pinchStartCenterLat + (dyStart / zoomFactor - dyCur) * metersPerPx / 111320;
+      const newCenterLng = pinchStartCenterLng - (dxStart / zoomFactor - dxCur) * metersPerPx / (111320 * cosLat);
+      map.setZoom(newZoom);
+      map.setCenter({ lat: newCenterLat, lng: newCenterLng });
+    };
+
+    const onPinchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) isPinching = false;
+    };
+
+    mapDiv.addEventListener('touchstart', onPinchStart, { passive: true });
+    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false });
+    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true });
 
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
