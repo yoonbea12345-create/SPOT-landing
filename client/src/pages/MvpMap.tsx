@@ -445,6 +445,7 @@ export default function MvpMap() {
   const [showHotplacePopup, setShowHotplacePopup] = useState(false);
   const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
   const sheetRef = useRef<HTMLDivElement | null>(null);
+  const dummyDataRef = useRef<ReturnType<typeof generateDummyData>>([]);
   const swipeTouchStartY = useRef<number | null>(null);
   const swipeTranslateY = useRef(0);
   const [sheetTranslateY, setSheetTranslateY] = useState(0);
@@ -734,6 +735,7 @@ export default function MvpMap() {
 
     // 더미 데이터 마커 (반경원 스타일 - 작고 채워진 원, MBTI 텍스트 없음)
     const dummyData = generateDummyData();
+    dummyDataRef.current = dummyData;
     dummyData.forEach((item) => {
       const color = MBTI_COLORS[item.mbti];
       const markerElement = document.createElement("div");
@@ -902,8 +904,10 @@ export default function MvpMap() {
         width: 20px;
         height: 20px;
         position: relative;
-        pointer-events: none;
+        pointer-events: auto;
+        cursor: pointer;
       `;
+      sparkleEl.title = loc.name || '핫스팟';
       sparkleEl.innerHTML = `
         <div class="sparkle-core" style="
           position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
@@ -931,11 +935,116 @@ export default function MvpMap() {
           animation-delay: -1.66s;
         "></div>
       `;
-      new google.maps.marker.AdvancedMarkerElement({
+      const sparkleMarker = new google.maps.marker.AdvancedMarkerElement({
         map,
         position: { lat: loc.lat, lng: loc.lng },
         content: sparkleEl,
         zIndex: 998,
+      });
+
+      // 반짝이 클릭 시 해당 좌표의 더미 마커 데이터로 스포리 팝업 열기
+      sparkleEl.addEventListener('click', (e: Event) => {
+        const mouseEvent = e as MouseEvent;
+        // 해당 좌표에 있는 더미 마커 중 고정 장소명 있는 것 우선 선택
+        const nearby = dummyDataRef.current.filter(item => {
+          const dLat = Math.abs(item.lat - loc.lat);
+          const dLng = Math.abs(item.lng - loc.lng);
+          return dLat < 0.0002 && dLng < 0.0002;
+        });
+        const target = nearby.find(item => item.placeName) || nearby[0];
+        if (!target) return;
+        const center = userLocation || HONGDAE_CENTER;
+        const distance = Math.round(
+          google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(center.lat, center.lng),
+            new google.maps.LatLng(target.lat, target.lng)
+          )
+        );
+        setSelectedMarker({ mbti: target.mbti, distance });
+        setPopupAddress(null);
+        setPlacePhotos([]);
+        setLightboxIndex(null);
+        setPopupPlaceName(target.placeName || null);
+        setPopupData({
+          mbti: target.mbti,
+          mood: target.mood,
+          mode: target.mode,
+          sign: target.sign,
+          distance,
+          lat: target.lat,
+          lng: target.lng,
+          screenX: mouseEvent.clientX,
+          screenY: mouseEvent.clientY,
+          placeName: target.placeName,
+          category: target.category,
+        });
+        // 역지오코딩
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: target.lat, lng: target.lng } }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const components = results[0].address_components;
+            const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
+            const si = get('administrative_area_level_1') || get('locality');
+            const gu = get('sublocality_level_1') || get('administrative_area_level_2');
+            const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
+            const addr = [si, gu, dong].filter(Boolean).join(' ');
+            setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
+          }
+        });
+        // Places API 사진 로딩
+        setPhotoLoading(true);
+        const placesService = new google.maps.places.PlacesService(mapRef.current!);
+        const fetchPhotosByPlaceId = (placeId: string) => {
+          placesService.getDetails(
+            { placeId, fields: ['photos', 'name'] },
+            (detail, detailStatus) => {
+              if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos) {
+                const photos: PlacePhoto[] = detail.photos.slice(0, 6).map(photo => ({
+                  url: photo.getUrl({ maxWidth: 800, maxHeight: 600 }),
+                  attribution: photo.html_attributions?.[0] ?? '',
+                }));
+                setPlacePhotos(photos);
+                if (!target.placeName && detail.name) setPopupPlaceName(detail.name);
+              }
+              setPhotoLoading(false);
+            }
+          );
+        };
+        if (target.placeName) {
+          placesService.findPlaceFromQuery(
+            { query: target.placeName, fields: ['place_id'], locationBias: new google.maps.LatLng(target.lat, target.lng) },
+            (results, status) => {
+              if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]?.place_id) {
+                fetchPhotosByPlaceId(results[0].place_id!);
+              } else {
+                placesService.nearbySearch(
+                  { location: { lat: target.lat, lng: target.lng }, radius: 150, type: 'establishment' },
+                  (placeResults, placeStatus) => {
+                    if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults?.length) {
+                      const withPhotos = placeResults.filter(p => p.photos?.length);
+                      const t = withPhotos[0] || placeResults[0];
+                      if (t.place_id) fetchPhotosByPlaceId(t.place_id);
+                      else setPhotoLoading(false);
+                    } else { setPhotoLoading(false); }
+                  }
+                );
+              }
+            }
+          );
+        } else {
+          placesService.nearbySearch(
+            { location: { lat: target.lat, lng: target.lng }, radius: 150, type: 'establishment' },
+            (placeResults, placeStatus) => {
+              if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults?.length) {
+                const withPhotos = placeResults.filter(p => p.photos?.length);
+                const t = withPhotos[0] || placeResults[0];
+                if (t.place_id) fetchPhotosByPlaceId(t.place_id);
+                else setPhotoLoading(false);
+              } else { setPhotoLoading(false); }
+            }
+          );
+        }
+        e.stopPropagation();
       });
     });
 
