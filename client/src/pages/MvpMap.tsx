@@ -716,6 +716,47 @@ export default function MvpMap() {
       setCurrentZoom(Math.round(zoom * 2) / 2); // 0.5 단위로 반올림
     });
 
+    // 핀치줌 민감도 2.5배 향상 - 터치 이벤트 인터셉터
+    const mapDiv = map.getDiv();
+    let lastTouchDistance = 0;
+    let pinchActive = false;
+    const PINCH_SENSITIVITY = 2.5;
+
+    const getTouchDist = (touches: TouchList) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onPinchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        lastTouchDistance = getTouchDist(e.touches);
+        pinchActive = true;
+      } else {
+        pinchActive = false;
+      }
+    };
+
+    const onPinchMove = (e: TouchEvent) => {
+      if (!pinchActive || e.touches.length !== 2) return;
+      const dist = getTouchDist(e.touches);
+      if (lastTouchDistance === 0) { lastTouchDistance = dist; return; }
+      const ratio = dist / lastTouchDistance;
+      // 기본 핀치줌에 추가 줌 적용 (민감도 배수 - 1 만큼 추가)
+      const extraDelta = Math.log2(ratio) * (PINCH_SENSITIVITY - 1);
+      if (Math.abs(extraDelta) > 0.005) {
+        const cur = map.getZoom() || 15;
+        map.setZoom(Math.max(8, Math.min(20, cur + extraDelta)));
+      }
+      lastTouchDistance = dist;
+    };
+
+    const onPinchEnd = () => { pinchActive = false; lastTouchDistance = 0; };
+
+    mapDiv.addEventListener('touchstart', onPinchStart, { passive: true });
+    mapDiv.addEventListener('touchmove', onPinchMove, { passive: true });
+    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true });
+
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
     userMarkerElement.style.cssText = `
@@ -1137,48 +1178,50 @@ export default function MvpMap() {
       if (isHotspot) {
         labelElement.className = 'hotspot-label';
         labelElement.style.cssText = `
-          background: rgba(0,0,0,0.95);
-          border: 1.5px solid #ff4500;
+          background: rgba(0,0,0,0.97);
+          border: 2px solid #ff4500;
           border-radius: 8px;
-          padding: 4px 7px;
+          padding: 6px 10px;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.3s;
           position: relative;
+          box-shadow: 0 0 12px rgba(255,69,0,0.5), inset 0 0 8px rgba(255,69,0,0.1);
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="display:flex;align-items:center;gap:2px;margin-bottom:2px;">
-            <span style="font-size:8px;">&#x1F525;</span>
-            <span style="font-size:8px;font-weight:900;color:#ff6a00;">핫플</span>
-            <span style="font-size:7px;color:rgba(255,180,100,0.7);">·${actualMarkerCount}</span>
+          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
+            <span style="font-size:11px;">&#x1F525;</span>
+            <span style="font-size:11px;font-weight:900;color:#ff6a00;text-shadow:0 0 8px rgba(255,106,0,0.8);">핫플</span>
+            <span style="font-size:10px;color:rgba(255,180,100,0.9);font-weight:700;"> ${actualMarkerCount}명</span>
           </div>
-          <div style="font-size:7px;color:#ffaa44;font-weight:700;margin-bottom:1px;">${city.name}</div>
+          <div style="font-size:11px;color:#ffcc66;font-weight:900;margin-bottom:2px;text-shadow:0 0 6px rgba(255,204,102,0.6);letter-spacing:0.5px;">${city.name}</div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:7px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti}·${count}</div>`
+            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}66;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
           ).join('')}
         `;
       } else {
         labelElement.style.cssText = `
-          background: rgba(0,0,0,0.9);
-          border: 1px solid rgba(0,240,255,0.35);
+          background: rgba(0,0,0,0.95);
+          border: 1.5px solid rgba(0,240,255,0.6);
           border-radius: 6px;
-          padding: 3px 5px;
+          padding: 5px 8px;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.3s;
+          box-shadow: 0 0 8px rgba(0,240,255,0.25);
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="font-size:7px;font-weight:800;color:#00f0ff;margin-bottom:2px;">${city.name} <span style="color:rgba(0,240,255,0.5);font-weight:400;">(${actualMarkerCount})</span></div>
+          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;text-shadow:0 0 6px rgba(0,240,255,0.7);letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualMarkerCount})</span></div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:7px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti} <span style="opacity:0.7;">(${count})</span></div>`
+            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}55;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
           ).join('')}
         `;
       }

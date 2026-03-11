@@ -217,5 +217,34 @@
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
+
+  /* 구글맵 기본 UI 강제 숨김 - 4방향 이동 버튼, 줌 버튼 등 */
+  .gm-bundled-control,
+  .gm-bundled-control-on-bottom,
+  .gmnoprint[role="menubar"],
+  .gm-svpc,
+  div[title="지도를 드래그하여 이동"],
+  div[title="Map"],
+  .gm-control-active[title*="이동"],
+  .gm-control-active[title*="Move"],
+  .gm-control-active[title*="Pan"],
+  button[title*="이동"],
+  button[title*="Move"],
+  button[title*="Pan"],
+  .gm-compass {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
+
+  /* 구글맵 줌 컨트롤 버튼 숨김 */
+  .gm-zoom-control,
+  button[title="확대"],
+  button[title="축소"],
+  button[title="Zoom in"],
+  button[title="Zoom out"] {
+    display: none !important;
+  }
   
 }
