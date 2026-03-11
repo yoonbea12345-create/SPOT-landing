@@ -11,7 +11,7 @@ export default function Home() {
   // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
   let { user, loading, error, isAuthenticated, logout } = useAuth();
 
-  const [email, setEmail] = useState("");위
+  const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
