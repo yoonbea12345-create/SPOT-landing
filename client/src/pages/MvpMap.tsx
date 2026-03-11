@@ -882,6 +882,59 @@ export default function MvpMap() {
       locationCount[key].count++;
     });
 
+    // 마커 겹침 감지 → 2개 이상 겹친 위치에 작은 숫자 뱃지 표시
+    // 4m 이내(≈0.000036도) 마커들을 그룹핑
+    const OVERLAP_THRESHOLD = 0.000036;
+    const visited = new Set<number>();
+    const overlapGroups: { lat: number; lng: number; count: number }[] = [];
+    dummyData.forEach((item, i) => {
+      if (visited.has(i)) return;
+      const group = [i];
+      dummyData.forEach((other, j) => {
+        if (i === j || visited.has(j)) return;
+        if (Math.abs(item.lat - other.lat) < OVERLAP_THRESHOLD && Math.abs(item.lng - other.lng) < OVERLAP_THRESHOLD) {
+          group.push(j);
+        }
+      });
+      if (group.length >= 2) {
+        group.forEach(idx => visited.add(idx));
+        overlapGroups.push({ lat: item.lat, lng: item.lng, count: group.length });
+      }
+    });
+
+    // 겹침 뱃지 CSS 주입 (중복 방지)
+    if (!document.getElementById('overlap-badge-style')) {
+      const badgeStyle = document.createElement('style');
+      badgeStyle.id = 'overlap-badge-style';
+      badgeStyle.textContent = `
+        .overlap-badge { pointer-events: none; }
+      `;
+      document.head.appendChild(badgeStyle);
+    }
+
+    overlapGroups.forEach(group => {
+      const badgeEl = document.createElement('div');
+      badgeEl.className = 'overlap-badge';
+      badgeEl.style.cssText = `
+        background: rgba(0,0,0,0.85);
+        border: 1px solid rgba(255,255,255,0.4);
+        border-radius: 8px;
+        padding: 1px 4px;
+        font-size: 9px;
+        font-weight: 700;
+        color: #fff;
+        white-space: nowrap;
+        line-height: 1.4;
+      `;
+      badgeEl.textContent = `+${group.count}`;
+      new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: group.lat + 0.000020, lng: group.lng + 0.000022 },
+        content: badgeEl,
+        zIndex: 997,
+      });
+    });
+
     // 반짝이 CSS 주입 (중복 방지)
     if (!document.getElementById('sparkle-style')) {
       const sparkleStyle = document.createElement('style');
@@ -1164,9 +1217,9 @@ export default function MvpMap() {
       } else {
         labelElement.style.cssText = `
           background: rgba(0,0,0,0.9);
-          border: 1px solid rgba(0,240,255,0.4);
-          border-radius: 8px;
-          padding: 4px 7px;
+          border: 1px solid rgba(0,240,255,0.35);
+          border-radius: 6px;
+          padding: 3px 5px;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
@@ -1176,12 +1229,9 @@ export default function MvpMap() {
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
-            <span style="font-size:9px;font-weight:800;color:#00f0ff;">${city.name}</span>
-            <span style="font-size:8px;color:rgba(0,240,255,0.5);">·${actualMarkerCount}</span>
-          </div>
+          <div style="font-size:7px;font-weight:800;color:#00f0ff;margin-bottom:2px;">${city.name} <span style="color:rgba(0,240,255,0.5);font-weight:400;">(${actualMarkerCount})</span></div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:8px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti}·${count}</div>`
+            `<div style="font-size:7px;color:${MBTI_COLORS[mbti]};line-height:1.3;">${mbti} <span style="opacity:0.7;">(${count})</span></div>`
           ).join('')}
         `;
       }
