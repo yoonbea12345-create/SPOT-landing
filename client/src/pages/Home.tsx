@@ -102,12 +102,12 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '33px'}}>
-              지도 위에 나를 새겨보세요. <br />
+              지금, 이 도시의 분위기를 보세요. <br />
               
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              그리고 다양한 사람들을 발견해보세요.
+              지도 위에 나타나는 사람들의 실존 데이터.
             </p>
           </div>
 
@@ -132,17 +132,17 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-8 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
-              핫플은 압니다. <br /> <span className="text-secondary">누가</span> 있는진 모릅니다.
+              블로그는 말합니다. <br /> 여기가<span className="text-secondary">핫플이라고.</span>
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
-              어디로 갈지도<br />
-              <span className="text-secondary">누가</span> 있을지도 모릅니다.
+              인스타는 보여줍니다.<br />
+              여기가<span className="text-secondary">예쁘다고</span>
             </p>
 
             <div className="pt-4">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '49px'}}>
-                그래서   <span className="text-primary">SPOT.</span>       
+                과연, <span className="text-primary">실제</span>로도 그럴까요?       
               </p>
             </div>
           </div>
