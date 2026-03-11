@@ -847,9 +847,10 @@ export default function MvpMap() {
       if (e.touches.length < 2) isPinching = false;
     };
 
-    mapDiv.addEventListener('touchstart', onPinchStart, { passive: true });
-    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false });
-    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true });
+    // capture: true로 등록 → 구글맵 내부 핸들러보다 먼저 실행되어 preventDefault()가 실제로 동작함
+    mapDiv.addEventListener('touchstart', onPinchStart, { passive: true, capture: true });
+    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false, capture: true });
+    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true, capture: true });
 
     // 사용자 위치 마커
     const userMarkerElement = document.createElement("div");
