@@ -1247,9 +1247,9 @@ export default function MvpMap() {
             <span style="font-size:11px;font-weight:900;color:#ff6a00;text-shadow:0 0 8px rgba(255,106,0,0.8);">핫플</span>
             <span style="font-size:10px;color:rgba(255,180,100,0.9);font-weight:700;"> ${actualMarkerCount}명</span>
           </div>
-          <div style="font-size:11px;color:#ffcc66;font-weight:900;margin-bottom:2px;text-shadow:0 0 6px rgba(255,204,102,0.6);letter-spacing:0.5px;">${city.name}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#ffcc66;margin-bottom:2px;text-shadow:0 0 8px rgba(255,204,102,0.8),0 0 18px rgba(255,106,0,0.5);letter-spacing:2px;line-height:1;">${city.name}</div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}66;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
+            `<div style="font-family:'Syne',sans-serif;font-size:9px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}66;letter-spacing:0.5px;">${mbti} <span style="opacity:0.8;font-weight:500;">${count}</span></div>`
           ).join('')}
         `;
       } else {
@@ -1268,9 +1268,9 @@ export default function MvpMap() {
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;text-shadow:0 0 6px rgba(0,240,255,0.7);letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualMarkerCount})</span></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#00f0ff;margin-bottom:3px;text-shadow:0 0 8px rgba(0,240,255,0.8),0 0 18px rgba(0,240,255,0.4);letter-spacing:2px;line-height:1;">${city.name} <span style="font-family:'Syne',sans-serif;color:rgba(0,240,255,0.65);font-weight:700;font-size:9px;letter-spacing:0px;vertical-align:middle;">${actualMarkerCount}</span></div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}55;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
+            `<div style="font-family:'Syne',sans-serif;font-size:9px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}55;letter-spacing:0.5px;">${mbti} <span style="opacity:0.75;font-weight:500;">${count}</span></div>`
           ).join('')}
         `;
       }
