@@ -402,6 +402,7 @@ type PopupData = {
   category?: string;   // 장소 카테고리 (폴백용)
   nearbyCount?: number; // 이 장소 반경 내 인원 수
   nearbyMbtiDist?: Record<string, number>; // 반경 내 MBTI 분포
+  avatar?: AvatarConfig; // 아바타 정보
 };
 
 // 장소 사진 타입
@@ -432,6 +433,8 @@ export default function MvpMap() {
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", avatar: randomAvatarConfig() });
   const [avatarTab, setAvatarTab] = useState<'animal' | 'accessory' | 'expression' | 'emoji'>('animal');
+  const [avatarTabSliding, setAvatarTabSliding] = useState(false);
+  const [avatarSlideDir, setAvatarSlideDir] = useState<'left' | 'right'>('right');
   const [spotSubmitted, setSpotSubmitted] = useState(false);
   const realSpotMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
@@ -1089,9 +1092,10 @@ export default function MvpMap() {
           lat: item.lat,
           lng: item.lng,
           screenX: mouseEvent.clientX,
-          screenY: mouseEvent.clientY - 15, // 아바타 원 반지름(11px) + 여백(4px) → 팝업이 원 위에 뜨도록
+          screenY: mouseEvent.clientY - 15,
           placeName: item.placeName,
           category: item.category,
+          avatar: item.avatar,
           nearbyCount: nearbyAllM.length,
           nearbyMbtiDist: nearbyMbtiDistM,
         });
@@ -1292,9 +1296,10 @@ export default function MvpMap() {
           lat: target.lat,
           lng: target.lng,
           screenX: mouseEvent.clientX,
-          screenY: mouseEvent.clientY - 15, // 아바타 원 반지름(11px) + 여백(4px) → 팝업이 원 위에 뜨도록
+          screenY: mouseEvent.clientY - 15,
           placeName: target.placeName,
           category: target.category,
+          avatar: target.avatar,
           nearbyCount: nearbyAllS.length,
           nearbyMbtiDist: nearbyMbtiDistS,
         });
@@ -1671,9 +1676,10 @@ export default function MvpMap() {
         lat: spot.lat,
         lng: spot.lng,
         screenX: me.clientX,
-        screenY: me.clientY - 15, // 아바타 원 반지름(11px) + 여백(4px) → 팝업이 원 위에 뜨도록
+        screenY: me.clientY - 15,
         nearbyCount: nearbyAllR.length,
         nearbyMbtiDist: nearbyMbtiDistR,
+        avatar: spot.avatar,
       });
       // 역지오코딩으로 주소 가져오기
       const geocoder2 = new google.maps.Geocoder();
@@ -2339,7 +2345,7 @@ export default function MvpMap() {
       {popupData && popupScreenPos && (() => {
         // 팝업 크기 (px)
         const PW = 260;
-        const PH = 420; // 실제 팝업 높이에 맞게
+        const PH = 460; // 아바타 미리보기 추가로 높이 증가
         const TAIL = 10; // 말풍선 코 높이
         const AVATAR_R = 11; // 아바타 원 반지름
 
@@ -2407,25 +2413,70 @@ export default function MvpMap() {
                   pointerEvents: 'auto',
                 }}
               >
-                {/* 헤더: MBTI 뼱지 + 주소 + 거리 + X */}
-                <div
-                  className="flex items-center justify-between px-3 pt-3 pb-2"
-                  style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    {/* MBTI 뼱지 */}
+                {/* 아바타 미리보기 섹션 */}
+                {popupData.avatar && (
+                  <div
+                    className="flex flex-col items-center justify-center py-3"
+                    style={{
+                      background: `radial-gradient(ellipse at center, ${MBTI_COLORS[popupData.mbti]}18 0%, transparent 70%)`,
+                      borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22`,
+                    }}
+                  >
+                    {/* 아바타 원형 + 글로우 */}
                     <div
-                      className="px-2 py-0.5 rounded-full text-xs font-black tracking-widest flex-shrink-0"
+                      style={{
+                        borderRadius: '50%',
+                        border: `2.5px solid ${MBTI_COLORS[popupData.mbti]}`,
+                        boxShadow: `0 0 16px ${MBTI_COLORS[popupData.mbti]}66, 0 0 32px ${MBTI_COLORS[popupData.mbti]}33`,
+                        overflow: 'hidden',
+                        width: '72px',
+                        height: '72px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <AvatarSVG
+                        config={popupData.avatar}
+                        size={72}
+                        bgColor={`${MBTI_COLORS[popupData.mbti]}33`}
+                        showEmoji={true}
+                      />
+                    </div>
+                    {/* MBTI 뱃지 */}
+                    <div
+                      className="mt-2 px-3 py-0.5 rounded-full text-xs font-black tracking-widest"
                       style={{
                         background: `${MBTI_COLORS[popupData.mbti]}22`,
                         border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}`,
                         color: MBTI_COLORS[popupData.mbti],
                         boxShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}66`,
-                        whiteSpace: 'nowrap',
                       }}
                     >
                       {popupData.mbti}
                     </div>
+                  </div>
+                )}
+
+                {/* 헤더: 주소 + 거리 + X */}
+                <div
+                  className="flex items-center justify-between px-3 pt-2 pb-2"
+                  style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {/* 아바타 없을 때만 MBTI 뱃지 표시 */}
+                    {!popupData.avatar && (
+                      <div
+                        className="px-2 py-0.5 rounded-full text-xs font-black tracking-widest flex-shrink-0"
+                        style={{
+                          background: `${MBTI_COLORS[popupData.mbti]}22`,
+                          border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}`,
+                          color: MBTI_COLORS[popupData.mbti],
+                          boxShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}66`,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {popupData.mbti}
+                      </div>
+                    )}
                     {/* 주소 + 거리 */}
                     <div className="flex flex-col gap-0 min-w-0">
                       <div className="text-[10px] font-bold text-gray-300 truncate">
@@ -2952,11 +3003,21 @@ export default function MvpMap() {
               {(['animal', 'accessory', 'expression', 'emoji'] as const).map(tab => {
                 const labels = { animal: '동물', accessory: '액세서리', expression: '표정', emoji: '이모티콘' };
                 const colors = { animal: '#00f0ff', accessory: '#c77dff', expression: '#ff9eb5', emoji: '#ffc800' };
+                const TAB_ORDER = ['animal', 'accessory', 'expression', 'emoji'];
                 const isActive = avatarTab === tab;
                 return (
                   <button
                     key={tab}
-                    onClick={() => setAvatarTab(tab)}
+                    onClick={() => {
+                      if (tab === avatarTab) return;
+                      const dir = TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(avatarTab) ? 'left' : 'right';
+                      setAvatarSlideDir(dir);
+                      setAvatarTabSliding(true);
+                      setTimeout(() => {
+                        setAvatarTab(tab);
+                        setAvatarTabSliding(false);
+                      }, 180);
+                    }}
                     style={{
                       flex: 1,
                       padding: '5px 2px',
@@ -2975,7 +3036,23 @@ export default function MvpMap() {
             </div>
 
             {/* ── 탭 콘텐츠 ── */}
-            <div className="mb-4" style={{ minHeight: '72px' }}>
+            <div
+              className="mb-4"
+              style={{
+                minHeight: '72px',
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              <div
+                style={{
+                  transform: avatarTabSliding
+                    ? `translateX(${avatarSlideDir === 'left' ? '-18px' : '18px'})`
+                    : 'translateX(0)',
+                  opacity: avatarTabSliding ? 0 : 1,
+                  transition: 'transform 0.18s cubic-bezier(0.4,0,0.2,1), opacity 0.18s ease',
+                }}
+              >
               {/* 동물 선택 */}
               {avatarTab === 'animal' && (
                 <div className="grid grid-cols-5 gap-1.5">
@@ -3079,6 +3156,7 @@ export default function MvpMap() {
                   ))}
                 </div>
               )}
+              </div>{/* 애니메이션 래퍼 div 닫기 */}
             </div>
 
             {/* ── 구분선 ── */}
