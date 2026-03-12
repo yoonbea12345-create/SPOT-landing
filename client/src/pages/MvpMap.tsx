@@ -1475,6 +1475,66 @@ export default function MvpMap() {
           animation: spot-icon-bounce 2s ease-in-out infinite;
           transform-origin: center bottom;
         }
+
+        /* 플로팅 액션 버튼 (FAB) 공통 스타일 */
+        .map-fab-btn {
+          width: 52px;
+          height: 52px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          position: relative;
+          overflow: visible;
+        }
+        .map-fab-btn:hover {
+          transform: scale(1.12) translateY(-2px);
+        }
+        .map-fab-btn:active {
+          transform: scale(0.92);
+        }
+
+        /* 아바타 버튼 */
+        .map-fab-avatar {
+          background: linear-gradient(135deg, #9b00ff 0%, #e040fb 100%);
+          border: none;
+          box-shadow: 0 4px 20px rgba(155,0,255,0.65), 0 2px 8px rgba(224,64,251,0.4);
+          animation: fab-avatar-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes fab-avatar-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(155,0,255,0.65), 0 2px 8px rgba(224,64,251,0.4); }
+          50% { box-shadow: 0 4px 32px rgba(155,0,255,0.9), 0 2px 16px rgba(224,64,251,0.7), 0 0 0 8px rgba(155,0,255,0.12); }
+        }
+
+        /* 검색 버튼 */
+        .map-fab-search {
+          background: linear-gradient(135deg, #0077ff 0%, #00c6ff 100%);
+          border: none;
+          box-shadow: 0 4px 20px rgba(0,119,255,0.6), 0 2px 8px rgba(0,198,255,0.4);
+          animation: fab-search-pulse 2.8s ease-in-out infinite;
+        }
+        .map-fab-search--active {
+          background: linear-gradient(135deg, #00c6ff 0%, #00f0ff 100%);
+          box-shadow: 0 4px 28px rgba(0,240,255,0.85), 0 0 0 6px rgba(0,240,255,0.18);
+          animation: none;
+        }
+        @keyframes fab-search-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(0,119,255,0.6), 0 2px 8px rgba(0,198,255,0.4); }
+          50% { box-shadow: 0 4px 32px rgba(0,119,255,0.85), 0 2px 16px rgba(0,198,255,0.65), 0 0 0 8px rgba(0,119,255,0.12); }
+        }
+
+        /* 핫플 버튼 폄스 애니메이션 */
+        @keyframes fab-hotspot-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(255,69,0,0.7), 0 2px 8px rgba(255,140,0,0.4); }
+          50% { box-shadow: 0 4px 32px rgba(255,69,0,0.95), 0 2px 16px rgba(255,140,0,0.7), 0 0 0 8px rgba(255,69,0,0.15); }
+        }
+        .hotspot-banner.map-fab-btn {
+          animation: banner-border-glow 2.5s ease-in-out infinite, fab-hotspot-pulse 2s ease-in-out infinite;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -2094,49 +2154,33 @@ export default function MvpMap() {
         {/* 우측 하단 버튼 그룹: 핫플 + 아바타DIY + 돋보기 */}
         <div className="absolute bottom-24 right-4 flex flex-col items-center gap-3">
 
-          {/* 핫플레이스 버튼 (돋보기 위) */}
+          {/* 핫플레이스 버튼 */}
           {hotspotCityNames.length > 0 && (
             <button
               onClick={() => { setSelectedHotplaceTab(0); setShowHotplacePopup(true); }}
-              className="hotspot-banner backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+              className="hotspot-banner map-fab-btn"
               style={{
-                background: 'rgba(10,5,0,0.95)',
-                border: '2px solid rgba(255,100,0,0.75)',
-                boxShadow: '0 0 18px rgba(255,69,0,0.6), 0 0 6px rgba(255,150,0,0.3)',
-                width: '42px',
-                height: '42px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
+                background: 'linear-gradient(135deg, #ff4500 0%, #ff8c00 100%)',
+                border: 'none',
+                boxShadow: '0 4px 20px rgba(255,69,0,0.7), 0 0 0 0 rgba(255,69,0,0.4)',
               }}
             >
-              <span className="hotspot-fire" style={{ fontSize: '20px', lineHeight: 1 }}>🔥</span>
+              <span className="hotspot-fire" style={{ fontSize: '22px', lineHeight: 1 }}>🔥</span>
             </button>
           )}
 
-          {/* 아바타 DIY 버튼 (돋보기 위) */}
+          {/* 아바타 DIY 버튼 */}
           {!spotSubmitted && (
             <button
               onClick={() => setShowSpotForm(true)}
-              className="backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform spot-btn-glow"
-              style={{
-                background: 'rgba(5,0,10,0.95)',
-                border: '2px solid rgba(180,0,255,0.75)',
-                boxShadow: '0 0 18px rgba(180,0,255,0.55), 0 0 6px rgba(255,0,200,0.3)',
-                width: '42px',
-                height: '42px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-              }}
+              className="map-fab-btn map-fab-avatar"
+              style={{}}
             >
-              <span className="spot-icon-anim" style={{ fontSize: '20px', lineHeight: 1 }}>🐶</span>
+              <span className="spot-icon-anim" style={{ fontSize: '22px', lineHeight: 1 }}>🐶</span>
             </button>
           )}
 
-          {/* 돋보기 검색 버튼 */}
+          {/* 검색 버튼 */}
           <button
             onClick={() => {
               setShowSearch(prev => !prev);
@@ -2144,21 +2188,11 @@ export default function MvpMap() {
               setSearchResults([]);
               setTimeout(() => searchInputRef.current?.focus(), 100);
             }}
-            className={`backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform ${!showSearch ? 'search-btn-glow' : ''}`}
-            style={{
-              background: 'rgba(0,5,10,0.95)',
-              border: showSearch ? '2px solid rgba(0,240,255,0.95)' : '2px solid rgba(0,200,255,0.55)',
-              boxShadow: showSearch ? '0 0 22px rgba(0,240,255,0.75)' : '0 0 12px rgba(0,200,255,0.35)',
-              width: '42px',
-              height: '42px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-            }}
+            className={`map-fab-btn map-fab-search ${showSearch ? 'map-fab-search--active' : ''}`}
+            style={{}}
           >
-            <span className={!showSearch ? 'search-icon-anim' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <span className={!showSearch ? 'search-icon-anim' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
