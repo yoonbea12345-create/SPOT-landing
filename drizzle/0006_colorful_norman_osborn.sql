@@ -1,0 +1,1 @@
+ALTER TABLE `userSpots` DROP COLUMN `avatar`;
