@@ -1,0 +1,190 @@
+{
+  "query": "\nSELECT 'accessLogs' as tbl, COUNT(*) as total FROM accessLogs;\nSELECT 'eventLogs' as tbl, COUNT(*) as total FROM eventLogs;\nSELECT ipAddress, COUNT(*) as cnt FROM accessLogs GROUP BY ipAddress ORDER BY cnt DESC LIMIT 20;\nSELECT ipAddress, COUNT(*) as cnt FROM eventLogs GROUP BY ipAddress ORDER BY cnt DESC LIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute \nSELECT 'accessLogs' as tbl, COUNT(*) as total FROM accessLogs;\nSELECT 'eventLogs' as tbl, COUNT(*) as total FROM eventLogs;\nSELECT ipAddress, COUNT(*) as cnt FROM accessLogs GROUP BY ipAddress ORDER BY cnt DESC LIMIT 20;\nSELECT ipAddress, COUNT(*) as cnt FROM eventLogs GROUP BY ipAddress ORDER BY cnt DESC LIMIT 20;\n",
+  "rows": [
+    {
+      "tbl": "accessLogs",
+      "total": "709"
+    },
+    {
+      "tbl": "tbl",
+      "total": "total"
+    },
+    {
+      "tbl": "eventLogs",
+      "total": "142"
+    },
+    {
+      "tbl": "ipAddress",
+      "total": "cnt"
+    },
+    {
+      "tbl": "2001:2d8:210e:548e::60ca:339b",
+      "total": "78"
+    },
+    {
+      "tbl": "211.234.205.205",
+      "total": "17"
+    },
+    {
+      "tbl": "124.49.199.205",
+      "total": "13"
+    },
+    {
+      "tbl": "222.110.176.244",
+      "total": "11"
+    },
+    {
+      "tbl": "34.233.134.219",
+      "total": "10"
+    },
+    {
+      "tbl": "173.194.92.179",
+      "total": "10"
+    },
+    {
+      "tbl": "3.82.144.86",
+      "total": "9"
+    },
+    {
+      "tbl": "173.194.92.181",
+      "total": "9"
+    },
+    {
+      "tbl": "54.204.73.147",
+      "total": "9"
+    },
+    {
+      "tbl": "54.147.17.179",
+      "total": "8"
+    },
+    {
+      "tbl": "172.253.15.227",
+      "total": "7"
+    },
+    {
+      "tbl": "54.197.171.77",
+      "total": "7"
+    },
+    {
+      "tbl": "173.194.92.182",
+      "total": "7"
+    },
+    {
+      "tbl": "54.88.120.143",
+      "total": "7"
+    },
+    {
+      "tbl": "173.194.92.184",
+      "total": "7"
+    },
+    {
+      "tbl": "98.94.37.27",
+      "total": "6"
+    },
+    {
+      "tbl": "1.229.44.66",
+      "total": "6"
+    },
+    {
+      "tbl": "211.200.156.54",
+      "total": "6"
+    },
+    {
+      "tbl": "210.179.251.57",
+      "total": "6"
+    },
+    {
+      "tbl": "3.88.20.157",
+      "total": "5"
+    },
+    {
+      "tbl": "ipAddress",
+      "total": "cnt"
+    },
+    {
+      "tbl": "2001:2d8:210e:548e::60ca:339b",
+      "total": "47"
+    },
+    {
+      "tbl": "222.110.176.244",
+      "total": "8"
+    },
+    {
+      "tbl": "211.200.156.54",
+      "total": "6"
+    },
+    {
+      "tbl": "2001:2d8:e71d:e0c4:d8e2:4d4:e2c8:44cb",
+      "total": "5"
+    },
+    {
+      "tbl": "2001:2d8:f0a8:a8b6:f9eb:21f9:eb19:541",
+      "total": "4"
+    },
+    {
+      "tbl": "18.142.160.178",
+      "total": "4"
+    },
+    {
+      "tbl": "2406:5900:1008:9466:ad7f:cafb:733c:fb28",
+      "total": "4"
+    },
+    {
+      "tbl": "2406:5900:1174:7457:4bfe:a7c2:fdbc:759a",
+      "total": "3"
+    },
+    {
+      "tbl": "2001:4430:c18d:1b49:e596:987:569d:9204",
+      "total": "3"
+    },
+    {
+      "tbl": "2001:e60:9360:5639:2c2c:3a6a:f360:5a87",
+      "total": "3"
+    },
+    {
+      "tbl": "2001:2d8:70a8:a7f5:1f7c:c88f:7a7c:2d5a",
+      "total": "2"
+    },
+    {
+      "tbl": "2001:2d8:220f:7d84::d888:2581",
+      "total": "2"
+    },
+    {
+      "tbl": "2001:e60:200b:9be3:54e7:7826:fbbf:5d0a",
+      "total": "2"
+    },
+    {
+      "tbl": "211.36.147.111",
+      "total": "2"
+    },
+    {
+      "tbl": "175.112.10.202",
+      "total": "2"
+    },
+    {
+      "tbl": "211.176.158.27",
+      "total": "2"
+    },
+    {
+      "tbl": "2001:2d8:e4b4:781e:6892:6f29:5faa:a63e",
+      "total": "2"
+    },
+    {
+      "tbl": "39.115.51.228",
+      "total": "2"
+    },
+    {
+      "tbl": "211.36.154.80",
+      "total": "2"
+    },
+    {
+      "tbl": "2406:5900:1008:9466:f0a0:1b4e:1c03:2c1f",
+      "total": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "tbl\ttotal\naccessLogs\t709\ntbl\ttotal\neventLogs\t142\nipAddress\tcnt\n2001:2d8:210e:548e::60ca:339b\t78\n211.234.205.205\t17\n124.49.199.205\t13\n222.110.176.244\t11\n34.233.134.219\t10\n173.194.92.179\t10\n3.82.144.86\t9\n173.194.92.181\t9\n54.204.73.147\t9\n54.147.17.179\t8\n172.253.15.227\t7\n54.197.171.77\t7\n173.194.92.182\t7\n54.88.120.143\t7\n173.194.92.184\t7\n98.94.37.27\t6\n1.229.44.66\t6\n211.200.156.54\t6\n210.179.251.57\t6\n3.88.20.157\t5\nipAddress\tcnt\n2001:2d8:210e:548e::60ca:339b\t47\n222.110.176.244\t8\n211.200.156.54\t6\n2001:2d8:e71d:e0c4:d8e2:4d4:e2c8:44cb\t5\n2001:2d8:f0a8:a8b6:f9eb:21f9:eb19:541\t4\n18.142.160.178\t4\n2406:5900:1008:9466:ad7f:cafb:733c:fb28\t4\n2406:5900:1174:7457:4bfe:a7c2:fdbc:759a\t3\n2001:4430:c18d:1b49:e596:987:569d:9204\t3\n2001:e60:9360:5639:2c2c:3a6a:f360:5a87\t3\n2001:2d8:70a8:a7f5:1f7c:c88f:7a7c:2d5a\t2\n2001:2d8:220f:7d84::d888:2581\t2\n2001:e60:200b:9be3:54e7:7826:fbbf:5d0a\t2\n211.36.147.111\t2\n175.112.10.202\t2\n211.176.158.27\t2\n2001:2d8:e4b4:781e:6892:6f29:5faa:a63e\t2\n39.115.51.228\t2\n211.36.154.80\t2\n2406:5900:1008:9466:f0a0:1b4e:1c03:2c1f\t2\n",
+  "stderr": "",
+  "execution_time_ms": 2354
+}

@@ -36,6 +36,13 @@
       "when": 1772612282747,
       "tag": "0004_curious_namorita",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1773288316597,
+      "tag": "0005_nappy_photon",
+      "breakpoints": true
     }
   ]
 }

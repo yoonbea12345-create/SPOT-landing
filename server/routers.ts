@@ -42,6 +42,11 @@ export const appRouter = router({
             ctx.req.socket?.remoteAddress ||
             "unknown";
 
+          // admin 계정 로그인 상태에서는 로그 저장 안 함
+          if (ctx.user?.role === 'admin') {
+            return { success: true, logId: null };
+          }
+
           // IP whitelist - skip logging for owner's devices
           const IP_WHITELIST = [
             "221.141.9.83",
@@ -55,6 +60,12 @@ export const appRouter = router({
             "::1",
           ];
           if (IP_WHITELIST.includes(ipAddress)) {
+            return { success: true, logId: null };
+          }
+
+          // Manus 미리보기 도메인 필터링
+          const referer = ctx.req.headers["referer"] || "";
+          if (referer.includes("manus.computer") || referer.includes("manus.space")) {
             return { success: true, logId: null };
           }
 
@@ -158,6 +169,9 @@ export const appRouter = router({
             ctx.req.socket?.remoteAddress ||
             "unknown";
 
+          // admin 계정 로그인 상태에서는 이벤트 로그 저장 안 함
+          if (ctx.user?.role === 'admin') return { success: true };
+
           const IP_WHITELIST = [
             "221.141.9.83",
             "112.221.224.125",
@@ -166,6 +180,10 @@ export const appRouter = router({
             "2001:2d8:2183:48bf::6089:339b",
           ];
           if (IP_WHITELIST.includes(ipAddress)) return { success: true };
+
+          // Manus 미리보기 도메인 필터링
+          const referer = ctx.req.headers["referer"] || "";
+          if (referer.includes("manus.computer") || referer.includes("manus.space")) return { success: true };
 
           await db.insert(eventLogs).values({
             ipAddress,
@@ -373,6 +391,7 @@ export const appRouter = router({
           sign: z.string().min(1).max(128),
           lat: z.number(),
           lng: z.number(),
+          avatar: z.string().max(256).optional(),
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -406,6 +425,7 @@ export const appRouter = router({
             lat: input.lat,
             lng: input.lng,
             ipAddress: IP_WHITELIST.includes(ipAddress) ? null : ipAddress,
+            avatar: input.avatar ?? null,
           });
 
           // Log the spot submission event
