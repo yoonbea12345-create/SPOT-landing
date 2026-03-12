@@ -1017,8 +1017,8 @@ export default function MvpMap() {
       const expressionEmoji = EXPRESSIONS.find(e => e.type === avatarCfg.expression)?.emoji || '😊';
       const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
       markerElement.style.cssText = `
-        width: 32px;
-        height: 38px;
+        width: 44px;
+        height: 52px;
         cursor: pointer;
         position: relative;
         display: flex;
@@ -1028,29 +1028,29 @@ export default function MvpMap() {
       `;
       markerElement.innerHTML = `
         <div style="
-          width: 30px;
-          height: 30px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           background: ${color}22;
-          border: 2px solid ${color};
-          box-shadow: 0 0 8px ${color}55;
+          border: 2.5px solid ${color};
+          box-shadow: 0 0 10px ${color}66;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 22px;
           position: relative;
           overflow: visible;
         ">
-          <span style="font-size:17px;line-height:1">${animalEmoji}</span>
-          ${accessoryEmoji ? `<span style="position:absolute;top:-6px;right:-4px;font-size:11px">${accessoryEmoji}</span>` : ''}
-          ${emojiVal ? `<span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(0,0,0,0.7);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
+          <span style="font-size:24px;line-height:1">${animalEmoji}</span>
+          ${accessoryEmoji ? `<span style="position:absolute;top:-7px;right:-5px;font-size:13px">${accessoryEmoji}</span>` : ''}
+          ${emojiVal ? `<span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:13px;background:rgba(0,0,0,0.75);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
         </div>
         <div style="
           width: 0;
           height: 0;
-          border-left: 4px solid transparent;
-          border-right: 4px solid transparent;
-          border-top: 5px solid ${color};
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-top: 6px solid ${color};
           margin-top: 1px;
         "></div>
       `;
@@ -1607,8 +1607,8 @@ export default function MvpMap() {
     const accessoryEmoji = ACCESSORIES.find(a => a.type === avatarCfg.accessory)?.emoji || '';
     const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
     el.style.cssText = `
-      width: 32px;
-      height: 38px;
+      width: 44px;
+      height: 52px;
       cursor: pointer;
       position: relative;
       display: flex;
@@ -1618,29 +1618,29 @@ export default function MvpMap() {
     `;
     el.innerHTML = `
       <div style="
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: ${color}33;
         border: 2.5px solid ${color};
-        box-shadow: 0 0 14px ${color}99, 0 0 4px ${color};
+        box-shadow: 0 0 14px ${color}99, 0 0 6px ${color};
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 22px;
         position: relative;
         overflow: visible;
       ">
-        <span style="font-size:17px;line-height:1">${animalEmoji}</span>
-        ${accessoryEmoji ? `<span style="position:absolute;top:-6px;right:-4px;font-size:11px">${accessoryEmoji}</span>` : ''}
-        ${emojiVal ? `<span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(0,0,0,0.7);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
+        <span style="font-size:24px;line-height:1">${animalEmoji}</span>
+        ${accessoryEmoji ? `<span style="position:absolute;top:-7px;right:-5px;font-size:13px">${accessoryEmoji}</span>` : ''}
+        ${emojiVal ? `<span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:13px;background:rgba(0,0,0,0.75);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
       </div>
       <div style="
         width: 0;
         height: 0;
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
-        border-top: 5px solid ${color};
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid ${color};
         margin-top: 1px;
       "></div>
     `;
@@ -2145,8 +2145,58 @@ export default function MvpMap() {
           </button>
         </div>
 
-        {/* 우측 하단 돋보기 검색 버튼 */}
+        {/* 우측 하단 버튼 그룹: 핫플 + 아바타DIY + 돋보기 */}
         <div className="absolute bottom-24 right-4 flex flex-col items-center gap-3">
+
+          {/* 핫플레이스 버튼 (돋보기 위) */}
+          {hotspotCityNames.length > 0 && (
+            <button
+              onClick={() => { setSelectedHotplaceTab(0); setShowHotplacePopup(true); }}
+              className="hotspot-banner backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+              style={{
+                background: 'rgba(10,5,0,0.95)',
+                border: '2px solid rgba(255,100,0,0.75)',
+                boxShadow: '0 0 18px rgba(255,69,0,0.6), 0 0 6px rgba(255,150,0,0.3)',
+                width: '42px',
+                height: '42px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '1px',
+                padding: 0,
+              }}
+            >
+              <span className="hotspot-fire" style={{ fontSize: '18px', lineHeight: 1 }}>🔥</span>
+              <span style={{ fontSize: '7px', fontWeight: 900, color: '#ff8c42', letterSpacing: '0.03em', lineHeight: 1 }}>핫플</span>
+            </button>
+          )}
+
+          {/* 아바타 DIY 버튼 (돋보기 위) */}
+          {!spotSubmitted && (
+            <button
+              onClick={() => setShowSpotForm(true)}
+              className="backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform spot-btn-glow"
+              style={{
+                background: 'rgba(5,0,10,0.95)',
+                border: '2px solid rgba(180,0,255,0.75)',
+                boxShadow: '0 0 18px rgba(180,0,255,0.55), 0 0 6px rgba(255,0,200,0.3)',
+                width: '42px',
+                height: '42px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '1px',
+                padding: 0,
+              }}
+            >
+              <span className="spot-icon-anim" style={{ fontSize: '18px', lineHeight: 1 }}>🐾</span>
+              <span style={{ fontSize: '7px', fontWeight: 900, color: '#cc66ff', letterSpacing: '0.03em', lineHeight: 1 }}>아바타</span>
+            </button>
+          )}
+
+          {/* 돋보기 검색 버튼 */}
           <button
             onClick={() => {
               setShowSearch(prev => !prev);
@@ -2154,24 +2204,28 @@ export default function MvpMap() {
               setSearchResults([]);
               setTimeout(() => searchInputRef.current?.focus(), 100);
             }}
-            className={`bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform ${!showSearch ? 'search-btn-glow' : ''}`}
+            className={`backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform ${!showSearch ? 'search-btn-glow' : ''}`}
             style={{
-              borderColor: showSearch ? 'rgba(0,240,255,0.95)' : undefined,
-              boxShadow: showSearch ? '0 0 22px rgba(0,240,255,0.75)' : undefined,
-              width: '38px',
-              height: '38px',
+              background: 'rgba(0,5,10,0.95)',
+              border: showSearch ? '2px solid rgba(0,240,255,0.95)' : '2px solid rgba(0,200,255,0.55)',
+              boxShadow: showSearch ? '0 0 22px rgba(0,240,255,0.75)' : '0 0 12px rgba(0,200,255,0.35)',
+              width: '42px',
+              height: '42px',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '1px',
               padding: 0,
             }}
           >
-            <span className={!showSearch ? 'search-icon-anim' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <span className={!showSearch ? 'search-icon-anim' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </span>
+            <span style={{ fontSize: '7px', fontWeight: 900, color: '#00d4ff', letterSpacing: '0.03em', lineHeight: 1 }}>검색</span>
           </button>
         </div>
 
@@ -2982,7 +3036,7 @@ export default function MvpMap() {
 
             {/* 제목 */}
             <p className="text-center font-black mb-4" style={{ color: '#00f0ff', fontSize: '15px', letterSpacing: '0.05em' }}>
-              나를 표현해봐요
+              지도에 나를 새겨보아요!!
             </p>
 
             {/* ── 아바타 미리보기 ── */}
