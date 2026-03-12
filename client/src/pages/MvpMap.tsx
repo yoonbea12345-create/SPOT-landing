@@ -2059,60 +2059,6 @@ export default function MvpMap() {
 
         {/* 내 위치로 돌아가기 버튼 + 내 스팟 등록 버튼 (세로 배치) */}
         <div className="absolute bottom-24 left-4 flex flex-col items-center gap-3">
-          {/* 핫플레이스 CTA 버튼 - 내 스팟 등록 버튼 위에 */}
-          {hotspotCityNames.length > 0 && (
-            <button
-              onClick={() => { setSelectedHotplaceTab(0); setShowHotplacePopup(true); }}
-              className="hotspot-banner bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
-              style={{
-                borderColor: 'rgba(255,69,0,0.7)',
-                boxShadow: '0 0 18px rgba(255,69,0,0.55)',
-                width: '38px',
-                height: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-              }}
-            >
-              <span className="hotspot-fire" style={{ fontSize: '18px', lineHeight: 1 }}>🔥</span>
-            </button>
-          )}
-
-          {/* 내 스팟 등록 CTA 버튼 - 내 위치 찾기 버튼 위에 */}
-          {!spotSubmitted && (
-            <button
-              onClick={() => setShowSpotForm(true)}
-              className="bg-black/95 backdrop-blur-lg border-2 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform spot-btn-glow"
-              style={{
-                borderColor: 'rgba(255,0,255,0.7)',
-                boxShadow: '0 0 14px rgba(255,0,255,0.45)',
-                width: '38px',
-                height: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-              }}
-            >
-              {/* 아바타 핀 아이콘: 사람 실루얣 + 위치 핀 조합 */}
-              <span className="spot-icon-anim" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* 머리 */}
-                <circle cx="12" cy="6" r="3" fill="#ff00ff" opacity="0.9"/>
-                {/* 몸통 */}
-                <path d="M7 14c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="#ff00ff" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9"/>
-                {/* 핀 꼬리 */}
-                <path d="M12 19 L12 22" stroke="#ff00ff" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
-                {/* 핀 원 */}
-                <circle cx="12" cy="19" r="1.5" fill="#ff00ff" opacity="0.85"/>
-                {/* 발광 효과용 외곽 */}
-                <circle cx="12" cy="6" r="3" stroke="#ff00ff" strokeWidth="0.5" opacity="0.4"/>
-              </svg>
-              </span>
-            </button>
-          )}
-
           {/* 내 위치로 돌아가기 버튼 */}
           <button
             onClick={() => {
@@ -2160,15 +2106,12 @@ export default function MvpMap() {
                 width: '42px',
                 height: '42px',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '1px',
                 padding: 0,
               }}
             >
-              <span className="hotspot-fire" style={{ fontSize: '18px', lineHeight: 1 }}>🔥</span>
-              <span style={{ fontSize: '7px', fontWeight: 900, color: '#ff8c42', letterSpacing: '0.03em', lineHeight: 1 }}>핫플</span>
+              <span className="hotspot-fire" style={{ fontSize: '20px', lineHeight: 1 }}>🔥</span>
             </button>
           )}
 
@@ -2184,15 +2127,12 @@ export default function MvpMap() {
                 width: '42px',
                 height: '42px',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '1px',
                 padding: 0,
               }}
             >
-              <span className="spot-icon-anim" style={{ fontSize: '18px', lineHeight: 1 }}>🐾</span>
-              <span style={{ fontSize: '7px', fontWeight: 900, color: '#cc66ff', letterSpacing: '0.03em', lineHeight: 1 }}>아바타</span>
+              <span className="spot-icon-anim" style={{ fontSize: '20px', lineHeight: 1 }}>🐾</span>
             </button>
           )}
 
@@ -2212,10 +2152,8 @@ export default function MvpMap() {
               width: '42px',
               height: '42px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '1px',
               padding: 0,
             }}
           >
@@ -2225,7 +2163,6 @@ export default function MvpMap() {
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </span>
-            <span style={{ fontSize: '7px', fontWeight: 900, color: '#00d4ff', letterSpacing: '0.03em', lineHeight: 1 }}>검색</span>
           </button>
         </div>
 
