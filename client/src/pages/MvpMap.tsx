@@ -1028,8 +1028,8 @@ export default function MvpMap() {
       `;
       markerElement.innerHTML = `
         <div style="
-          width: 30px;
-          height: 30px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           background: ${color}22;
           border: 2.5px solid ${color};
@@ -1618,8 +1618,8 @@ export default function MvpMap() {
     `;
     el.innerHTML = `
       <div style="
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         background: ${color}33;
         border: 2.5px solid ${color};
