@@ -4,6 +4,7 @@ import { MapView } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import { FIXED_PLACES } from "@/data/fixedPlaces";
+import { AvatarSVG, ANIMALS, ACCESSORIES, EXPRESSIONS, EMOJIS, randomAvatarConfig, serializeAvatar, deserializeAvatar, type AvatarConfig, type AnimalType, type AccessoryType, type ExpressionType, type EmojiType } from "@/components/Avatar";
 
 type Screen = "splash" | "map";
 
@@ -234,6 +235,7 @@ type DummyMarker = {
   mood: string;
   mode: string;
   sign: string;
+  avatar?: AvatarConfig;
   placeName?: string;   // 실제 장소명 (고정 마커)
   placeId?: string;     // Google Place ID (고정 마커)
   category?: string;    // 장소 카테고리 (폴백 이미지용)
@@ -361,7 +363,7 @@ const generateDummyData = (): DummyMarker[] => {
         lng = city.lng + Math.cos(angle) * dist;
       }
       
-      data.push({ mbti, lat, lng, id: id++, mood, mode, sign });
+      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig() });
     }
   });
   
@@ -373,7 +375,8 @@ const generateDummyData = (): DummyMarker[] => {
     id: id++,
     mood: "HAPPY",
     mode: "산책 중",
-    sign: "모두 안녕하세요"
+    sign: "모두 안녕하세요",
+    avatar: randomAvatarConfig()
   });
 
   // 실제 장소 고정 마커 추가
@@ -413,6 +416,7 @@ type SpotFormData = {
   mood: string;
   mode: string;
   sign: string;
+  avatar: AvatarConfig;
 };
 
 export default function MvpMap() {
@@ -426,7 +430,8 @@ export default function MvpMap() {
   const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
-  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "" });
+  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", avatar: randomAvatarConfig() });
+  const [avatarTab, setAvatarTab] = useState<'animal' | 'accessory' | 'expression' | 'emoji'>('animal');
   const [spotSubmitted, setSpotSubmitted] = useState(false);
   const realSpotMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
@@ -1001,19 +1006,51 @@ export default function MvpMap() {
       const color = MBTI_COLORS[item.mbti];
       const markerElement = document.createElement("div");
       markerElement.className = "custom-marker";
-      // 기존보다 작은 원, 테두리 색 동일, 내부 반투명 채움, 텍스트 없음
-      markerElement.style.cssText = `
-        width: 22px;
-        height: 22px;
-        background: ${color}33;
-        border: 2px solid ${color};
-        border-radius: 50%;
-        cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 0 8px ${color}55;
-      `;
-      // data 속성으로 MBTI 저장 (필터링용)
       markerElement.dataset.mbti = item.mbti;
+      // 아바타 SVG 마커
+      const avatarCfg = item.avatar || randomAvatarConfig();
+      const animalEmoji = ANIMALS.find(a => a.type === avatarCfg.animal)?.emoji || '🐶';
+      const accessoryEmoji = ACCESSORIES.find(a => a.type === avatarCfg.accessory)?.emoji || '';
+      const expressionEmoji = EXPRESSIONS.find(e => e.type === avatarCfg.expression)?.emoji || '😊';
+      const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
+      markerElement.style.cssText = `
+        width: 32px;
+        height: 38px;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: all 0.2s;
+      `;
+      markerElement.innerHTML = `
+        <div style="
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: ${color}22;
+          border: 2px solid ${color};
+          box-shadow: 0 0 8px ${color}55;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          position: relative;
+          overflow: visible;
+        ">
+          <span style="font-size:17px;line-height:1">${animalEmoji}</span>
+          ${accessoryEmoji ? `<span style="position:absolute;top:-6px;right:-4px;font-size:11px">${accessoryEmoji}</span>` : ''}
+          ${emojiVal ? `<span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(0,0,0,0.7);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
+        </div>
+        <div style="
+          width: 0;
+          height: 0;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 5px solid ${color};
+          margin-top: 1px;
+        "></div>
+      `;
 
       const marker = new google.maps.marker.AdvancedMarkerElement({
         map,
@@ -1554,21 +1591,53 @@ export default function MvpMap() {
   }, [userLocation, aggregateCityData, getHotspotCities]);
 
   // 실제 스팟 마커를 지도에 추가
-  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number }, map: google.maps.Map) => {
+  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number; avatar?: AvatarConfig }, map: google.maps.Map) => {
     const color = MBTI_COLORS[spot.mbti.toUpperCase()] || '#00f0ff';
     const el = document.createElement('div');
     el.className = 'custom-marker';
     el.dataset.mbti = spot.mbti.toUpperCase();
-    // 실제 유저 마커: 더 밝고 리폄 있는 원 (glow 강함)
+    // 실제 유저 마커: 아바타 스타일
+    const avatarCfg = spot.avatar || randomAvatarConfig();
+    const animalEmoji = ANIMALS.find(a => a.type === avatarCfg.animal)?.emoji || '🐶';
+    const accessoryEmoji = ACCESSORIES.find(a => a.type === avatarCfg.accessory)?.emoji || '';
+    const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
     el.style.cssText = `
-      width: 22px;
-      height: 22px;
-      background: ${color}55;
-      border: 2.5px solid ${color};
-      border-radius: 50%;
+      width: 32px;
+      height: 38px;
       cursor: pointer;
-      box-shadow: 0 0 14px ${color}99, 0 0 4px ${color};
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       transition: all 0.2s;
+    `;
+    el.innerHTML = `
+      <div style="
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: ${color}33;
+        border: 2.5px solid ${color};
+        box-shadow: 0 0 14px ${color}99, 0 0 4px ${color};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        position: relative;
+        overflow: visible;
+      ">
+        <span style="font-size:17px;line-height:1">${animalEmoji}</span>
+        ${accessoryEmoji ? `<span style="position:absolute;top:-6px;right:-4px;font-size:11px">${accessoryEmoji}</span>` : ''}
+        ${emojiVal ? `<span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(0,0,0,0.7);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
+      </div>
+      <div style="
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid ${color};
+        margin-top: 1px;
+      "></div>
     `;
     const marker = new google.maps.marker.AdvancedMarkerElement({
       map,
@@ -2861,182 +2930,219 @@ export default function MvpMap() {
             </button>
 
             {/* 제목 */}
-            <p
-              className="text-center font-bold mb-6"
-              style={{
-                color: '#00f0ff',
-                textShadow: '0 0 12px rgba(0, 240, 255, 0.7)',
-                fontSize: '15px',
-                lineHeight: '1.6',
-              }}
-            >
-              사용자님의 MBTI를<br />
-              지도 위에 표시해봐요!!
+            <p className="text-center font-black mb-4" style={{ color: '#00f0ff', fontSize: '15px', letterSpacing: '0.05em' }}>
+              나를 표현해봐요
             </p>
 
-            {/* MBTI - 자동완성 드롭다운 */}
-            {/* MBTI - 16개 카드 그리드 선택 UI */}
-            <div className="mb-4">
-              <label className="block text-center text-xs font-bold mb-2" style={{color: '#00f0ff', letterSpacing: '0.15em'}}>#TYPE (MBTI)</label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {MBTI_TYPES.map((type) => {
-                  const isSelected = spotFormData.mbti === type;
-                  const color = MBTI_COLORS[type] || '#00f0ff';
-                  return (
+            {/* ── 아바타 미리보기 ── */}
+            <div className="flex justify-center mb-4">
+              <div style={{
+                background: 'rgba(0,240,255,0.06)',
+                border: '2px solid rgba(0,240,255,0.3)',
+                borderRadius: '50%',
+                padding: '10px',
+                boxShadow: '0 0 24px rgba(0,240,255,0.2)',
+              }}>
+                <AvatarSVG config={spotFormData.avatar} size={80} bgColor={MBTI_COLORS[spotFormData.mbti] ? `${MBTI_COLORS[spotFormData.mbti]}33` : '#0a0a1e'} showEmoji={true} />
+              </div>
+            </div>
+
+            {/* ── 아바타 탭 ── */}
+            <div className="flex gap-1 mb-3">
+              {(['animal', 'accessory', 'expression', 'emoji'] as const).map(tab => {
+                const labels = { animal: '동물', accessory: '액세서리', expression: '표정', emoji: '이모티콘' };
+                const colors = { animal: '#00f0ff', accessory: '#c77dff', expression: '#ff9eb5', emoji: '#ffc800' };
+                const isActive = avatarTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setAvatarTab(tab)}
+                    style={{
+                      flex: 1,
+                      padding: '5px 2px',
+                      borderRadius: '8px',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      border: isActive ? `1.5px solid ${colors[tab]}` : '1.5px solid rgba(255,255,255,0.1)',
+                      background: isActive ? `${colors[tab]}18` : 'transparent',
+                      color: isActive ? colors[tab] : 'rgba(255,255,255,0.35)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >{labels[tab]}</button>
+                );
+              })}
+            </div>
+
+            {/* ── 탭 콘텐츠 ── */}
+            <div className="mb-4" style={{ minHeight: '72px' }}>
+              {/* 동물 선택 */}
+              {avatarTab === 'animal' && (
+                <div className="grid grid-cols-5 gap-1.5">
+                  {ANIMALS.map(a => (
                     <button
-                      key={type}
-                      type="button"
-                      onClick={() => setSpotFormData(p => ({...p, mbti: p.mbti === type ? '' : type}))}
-                      className="rounded-lg py-2.5 text-center transition-all"
+                      key={a.type}
+                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, animal: a.type } }))}
                       style={{
-                        background: isSelected ? `${color}22` : 'rgba(255,255,255,0.04)',
-                        border: isSelected ? `2px solid ${color}` : '1.5px solid rgba(255,255,255,0.12)',
-                        color: isSelected ? color : 'rgba(255,255,255,0.45)',
-                        fontSize: '11px',
-                        fontWeight: isSelected ? 900 : 600,
-                        letterSpacing: '0.03em',
-                        boxShadow: isSelected ? `0 0 8px ${color}55` : 'none',
-                        transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                        padding: '6px 2px',
+                        borderRadius: '8px',
+                        border: spotFormData.avatar.animal === a.type ? '1.5px solid #00f0ff' : '1.5px solid rgba(255,255,255,0.1)',
+                        background: spotFormData.avatar.animal === a.type ? 'rgba(0,240,255,0.15)' : 'rgba(255,255,255,0.03)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '2px',
+                        transition: 'all 0.12s',
                       }}
                     >
-                      {type}
+                      <span style={{ fontSize: '18px' }}>{a.emoji}</span>
+                      <span style={{ fontSize: '8px', color: spotFormData.avatar.animal === a.type ? '#00f0ff' : 'rgba(255,255,255,0.4)' }}>{a.label}</span>
                     </button>
-                  );
-                })}
-              </div>
-              {spotFormData.mbti && (
-                <div className="text-center text-[11px] mt-2 font-bold" style={{color: MBTI_COLORS[spotFormData.mbti] || '#00f0ff'}}>
-                  ✓ {spotFormData.mbti} 선택됨
+                  ))}
+                </div>
+              )}
+              {/* 액세서리 선택 */}
+              {avatarTab === 'accessory' && (
+                <div className="grid grid-cols-4 gap-1.5">
+                  {ACCESSORIES.map(a => (
+                    <button
+                      key={a.type}
+                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, accessory: a.type } }))}
+                      style={{
+                        padding: '6px 4px',
+                        borderRadius: '8px',
+                        border: spotFormData.avatar.accessory === a.type ? '1.5px solid #c77dff' : '1.5px solid rgba(255,255,255,0.1)',
+                        background: spotFormData.avatar.accessory === a.type ? 'rgba(199,125,255,0.15)' : 'rgba(255,255,255,0.03)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '2px',
+                        transition: 'all 0.12s',
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>{a.emoji}</span>
+                      <span style={{ fontSize: '8px', color: spotFormData.avatar.accessory === a.type ? '#c77dff' : 'rgba(255,255,255,0.4)' }}>{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* 표정 선택 */}
+              {avatarTab === 'expression' && (
+                <div className="grid grid-cols-5 gap-1.5">
+                  {EXPRESSIONS.map(e => (
+                    <button
+                      key={e.type}
+                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, expression: e.type } }))}
+                      style={{
+                        padding: '8px 4px',
+                        borderRadius: '8px',
+                        border: spotFormData.avatar.expression === e.type ? '1.5px solid #ff9eb5' : '1.5px solid rgba(255,255,255,0.1)',
+                        background: spotFormData.avatar.expression === e.type ? 'rgba(255,158,181,0.15)' : 'rgba(255,255,255,0.03)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '2px',
+                        transition: 'all 0.12s',
+                      }}
+                    >
+                      <span style={{ fontSize: '22px' }}>{e.emoji}</span>
+                      <span style={{ fontSize: '8px', color: spotFormData.avatar.expression === e.type ? '#ff9eb5' : 'rgba(255,255,255,0.4)' }}>{e.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* 이모티콘 선택 */}
+              {avatarTab === 'emoji' && (
+                <div className="grid grid-cols-6 gap-1.5">
+                  {EMOJIS.map(e => (
+                    <button
+                      key={e.type}
+                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, emoji: e.type } }))}
+                      style={{
+                        padding: '8px 4px',
+                        borderRadius: '8px',
+                        border: spotFormData.avatar.emoji === e.type ? '1.5px solid #ffc800' : '1.5px solid rgba(255,255,255,0.1)',
+                        background: spotFormData.avatar.emoji === e.type ? 'rgba(255,200,0,0.15)' : 'rgba(255,255,255,0.03)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '2px',
+                        transition: 'all 0.12s',
+                      }}
+                    >
+                      <span style={{ fontSize: e.type === 'none' ? '14px' : '22px' }}>{e.type === 'none' ? '없음' : e.type}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* MOOD */}
-            <div className="mb-4">
-              <label className="block text-center text-xs font-bold mb-2" style={{color: '#c77dff', letterSpacing: '0.15em'}}>#MOOD</label>
-              <div className="grid grid-cols-2 gap-1.5">
-                {['HAPPY', 'CHILL', 'EXCITED', 'LONELY', 'HYPED', 'PEACEFUL', 'CURIOUS', 'ENERGETIC'].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setSpotFormData(p => ({...p, mood: p.mood === m ? '' : m}))}
-                    className="rounded-lg py-2 text-center transition-all"
-                    style={{
-                      background: spotFormData.mood === m ? 'rgba(199,125,255,0.22)' : 'rgba(199,125,255,0.05)',
-                      border: spotFormData.mood === m ? '1.5px solid rgba(199,125,255,0.9)' : '1.5px solid rgba(199,125,255,0.25)',
-                      color: spotFormData.mood === m ? '#c77dff' : 'rgba(199,125,255,0.5)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      letterSpacing: '0.05em',
-                    }}
-                  >{m}</button>
-                ))}
-              </div>
-            </div>
+            {/* ── 구분선 ── */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginBottom: '14px' }} />
 
-            {/* MODE */}
-            <div className="mb-4">
-              <label className="block text-center text-xs font-bold mb-2" style={{color: '#00f0b4', letterSpacing: '0.15em'}}>#MODE</label>
-              <div className="grid grid-cols-2 gap-1.5">
-                {['산책 중', '카페 탐방', '쇼핑 중', '맛집 투어', '혼자만의 시간', '친구 만남', '데이트', '야경 구경'].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setSpotFormData(p => ({...p, mode: p.mode === m ? '' : m}))}
-                    className="rounded-lg py-2 text-center transition-all"
-                    style={{
-                      background: spotFormData.mode === m ? 'rgba(0,240,180,0.18)' : 'rgba(0,240,180,0.05)',
-                      border: spotFormData.mode === m ? '1.5px solid rgba(0,240,180,0.9)' : '1.5px solid rgba(0,240,180,0.25)',
-                      color: spotFormData.mode === m ? '#00f0b4' : 'rgba(0,240,180,0.5)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                    }}
-                  >{m}</button>
-                ))}
-              </div>
-            </div>
-
-            {/* SIGN */}
-            <div className="mb-6">
-              <label className="block text-center text-xs font-bold mb-2" style={{color: '#ffc800', letterSpacing: '0.15em'}}>#SIGN</label>
-              {/* 시그널 선택 그리드 */}
-              <div className="grid grid-cols-2 gap-1.5 mb-2">
-                {SIGN_SIGNALS.map((sig) => {
-                  const isDirectInput = sig.text === '직접 입력';
-                  const signedValue = `${sig.emoji} ${sig.text}`;
-                  const isSelected = isDirectInput
-                    ? !SIGN_SIGNALS.slice(1).some(s => `${s.emoji} ${s.text}` === spotFormData.sign) && spotFormData.sign !== '' && spotFormData.sign !== '__direct__'
-                    : spotFormData.sign === signedValue;
-                  const isDirectInputMode = spotFormData.sign === '__direct__' || (!SIGN_SIGNALS.slice(1).some(s => `${s.emoji} ${s.text}` === spotFormData.sign) && spotFormData.sign !== '' && spotFormData.sign !== '__direct__');
-                  return (
-                    <button
-                      key={sig.text}
-                      type="button"
-                      onClick={() => {
-                        if (isDirectInput) {
-                          setSpotFormData(p => ({...p, sign: '__direct__'}));
-                        } else {
-                          // 이모지+텍스트 형식으로 저장 (더미 데이터와 동일)
-                          setSpotFormData(p => ({...p, sign: `${sig.emoji} ${sig.text}`}));
-                        }
-                      }}
-                      className="rounded-lg px-2 py-2 text-center transition-all flex items-center justify-center gap-1.5"
-                      style={{
-                        background: isDirectInput
-                          ? (isDirectInputMode ? 'rgba(255,200,0,0.2)' : 'rgba(255,200,0,0.05)')
-                          : (isSelected ? 'rgba(255,200,0,0.2)' : 'rgba(255,200,0,0.05)'),
-                        border: isDirectInput
-                          ? (isDirectInputMode ? '1.5px solid rgba(255,200,0,0.8)' : '1.5px solid rgba(255,200,0,0.25)')
-                          : (isSelected ? '1.5px solid rgba(255,200,0,0.8)' : '1.5px solid rgba(255,200,0,0.25)'),
-                        color: isDirectInput
-                          ? (isDirectInputMode ? '#ffc800' : 'rgba(255,200,0,0.5)')
-                          : (isSelected ? '#ffc800' : 'rgba(255,200,0,0.5)'),
-                        fontSize: '10px',
-                        fontWeight: 700,
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      <span style={{ fontSize: '14px', flexShrink: 0 }}>{sig.emoji}</span>
-                      <span style={{ fontSize: '10px' }}>{sig.text}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              {/* 직접 입력 모드일 때 텍스트 입력창 표시 */}
-              {spotFormData.sign === '__direct__' && (
-                <input
-                  type="text"
-                  value=""
-                  onChange={e => setSpotFormData(p => ({...p, sign: e.target.value || '__direct__'}))}
-                  placeholder="직접 입력해주세요"
-                  maxLength={64}
-                  autoFocus
-                  className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
-                  style={{
-                    background: 'rgba(255, 200, 0, 0.07)',
-                    border: '1.5px solid rgba(255, 200, 0, 0.6)',
-                    color: '#ffc800',
-                  }}
-                />
-              )}
-              {/* 직접 입력 후 텍스트가 있을 때 (프리셋이 아닌 값) */}
-              {spotFormData.sign !== '' && spotFormData.sign !== '__direct__' && !SIGN_SIGNALS.slice(1).some(s => `${s.emoji} ${s.text}` === spotFormData.sign) && (
-                <input
-                  type="text"
-                  value={spotFormData.sign}
-                  onChange={e => setSpotFormData(p => ({...p, sign: e.target.value || '__direct__'}))}
-                  placeholder="직접 입력해주세요"
-                  maxLength={64}
-                  autoFocus
-                  className="w-full text-center rounded-lg px-3 py-2 text-sm font-bold outline-none"
-                  style={{
-                    background: 'rgba(255, 200, 0, 0.07)',
-                    border: '1.5px solid rgba(255, 200, 0, 0.6)',
-                    color: '#ffc800',
-                  }}
-                />
+            {/* ── MBTI 텍스트 입력 ── */}
+            <div className="mb-3">
+              <label className="block text-xs font-bold mb-1.5" style={{ color: '#00f0ff', letterSpacing: '0.12em' }}>#MBTI</label>
+              <input
+                type="text"
+                value={spotFormData.mbti}
+                onChange={e => setSpotFormData(p => ({ ...p, mbti: e.target.value.toUpperCase().slice(0, 4) }))}
+                placeholder="예: ENTJ"
+                maxLength={4}
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(0,240,255,0.06)',
+                  border: spotFormData.mbti && MBTI_TYPES.includes(spotFormData.mbti) ? '1.5px solid #00f0ff' : '1.5px solid rgba(0,240,255,0.25)',
+                  color: '#fff',
+                  letterSpacing: '0.15em',
+                }}
+              />
+              {spotFormData.mbti && !MBTI_TYPES.includes(spotFormData.mbti) && (
+                <p style={{ fontSize: '10px', color: 'rgba(255,100,100,0.8)', marginTop: '4px' }}>올바른 MBTI를 입력해주세요 (예: ENFP)</p>
               )}
             </div>
+
+            {/* ── MOOD 텍스트 입력 ── */}
+            <div className="mb-3">
+              <label className="block text-xs font-bold mb-1.5" style={{ color: '#c77dff', letterSpacing: '0.12em' }}>#MOOD</label>
+              <input
+                type="text"
+                value={spotFormData.mood}
+                onChange={e => setSpotFormData(p => ({ ...p, mood: e.target.value.slice(0, 30) }))}
+                placeholder="예: happy / 집에가고싶다,,, / 신남!"
+                maxLength={30}
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(199,125,255,0.06)',
+                  border: spotFormData.mood ? '1.5px solid rgba(199,125,255,0.7)' : '1.5px solid rgba(199,125,255,0.25)',
+                  color: '#fff',
+                }}
+              />
+            </div>
+
+            {/* ── MODE 텍스트 입력 (SIGN 통합) ── */}
+            <div className="mb-5">
+              <label className="block text-xs font-bold mb-1.5" style={{ color: '#00f0b4', letterSpacing: '0.12em' }}>#MODE</label>
+              <input
+                type="text"
+                value={spotFormData.mode}
+                onChange={e => setSpotFormData(p => ({ ...p, mode: e.target.value.slice(0, 30) }))}
+                placeholder="예: 출근중,,,,, / 산책중! / 쇼핑중"
+                maxLength={30}
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
+                style={{
+                  background: 'rgba(0,240,180,0.06)',
+                  border: spotFormData.mode ? '1.5px solid rgba(0,240,180,0.7)' : '1.5px solid rgba(0,240,180,0.25)',
+                  color: '#fff',
+                }}
+              />
+            </div>
+
+
 
             {/* 버튼 */}
             <div className="flex gap-3">
@@ -3050,10 +3156,9 @@ export default function MvpMap() {
               <button
                 onClick={async () => {
                   const { mbti, mood, mode } = spotFormData;
-                  // __direct__ 상태(직접 입력 선택했지만 아직 입력 안 한 경우) 처리
-                  const sign = spotFormData.sign === '__direct__' ? '' : spotFormData.sign;
-                  if (!mbti || !mood || !mode || !sign) {
-                    toast.error('네 가지를 모두 입력해주세요!');
+                  const sign = spotFormData.mode; // MODE와 SIGN 통합
+                  if (!mbti || !mood || !mode) {
+                    toast.error('MBTI, MOOD, MODE를 모두 입력해주세요!');
                     return;
                   }
                   if (!MBTI_TYPES.includes(mbti)) {
