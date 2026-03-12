@@ -77,7 +77,6 @@ export const userSpots = mysqlTable("userSpots", {
   lat: double("lat").notNull(),
   lng: double("lng").notNull(),
   ipAddress: varchar("ipAddress", { length: 45 }),
-  avatar: varchar("avatar", { length: 256 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

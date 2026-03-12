@@ -1,1 +1,0 @@
-ALTER TABLE `userSpots` ADD `avatar` varchar(256);

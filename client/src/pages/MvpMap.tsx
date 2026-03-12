@@ -1596,16 +1596,13 @@ export default function MvpMap() {
   }, [userLocation, aggregateCityData, getHotspotCities]);
 
   // 실제 스팟 마커를 지도에 추가
-  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number; avatar?: AvatarConfig | string | null }, map: google.maps.Map) => {
+  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number; avatar?: AvatarConfig }, map: google.maps.Map) => {
     const color = MBTI_COLORS[spot.mbti.toUpperCase()] || '#00f0ff';
     const el = document.createElement('div');
     el.className = 'custom-marker';
     el.dataset.mbti = spot.mbti.toUpperCase();
-    // 실제 유저 마커: 아바타 스타일 (DB에서 오면 string, 직접 넘기면 AvatarConfig)
-    const rawAvatar = spot.avatar;
-    const avatarCfg: AvatarConfig = typeof rawAvatar === 'string' && rawAvatar
-      ? deserializeAvatar(rawAvatar)
-      : (rawAvatar && typeof rawAvatar === 'object' ? rawAvatar as AvatarConfig : randomAvatarConfig());
+    // 실제 유저 마커: 아바타 스타일
+    const avatarCfg = spot.avatar || randomAvatarConfig();
     const animalEmoji = ANIMALS.find(a => a.type === avatarCfg.animal)?.emoji || '🐶';
     const accessoryEmoji = ACCESSORIES.find(a => a.type === avatarCfg.accessory)?.emoji || '';
     const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
@@ -1682,9 +1679,7 @@ export default function MvpMap() {
         screenY: me.clientY - 15,
         nearbyCount: nearbyAllR.length,
         nearbyMbtiDist: nearbyMbtiDistR,
-        avatar: typeof spot.avatar === 'string' && spot.avatar
-          ? deserializeAvatar(spot.avatar)
-          : (spot.avatar && typeof spot.avatar === 'object' ? spot.avatar as AvatarConfig : undefined),
+        avatar: spot.avatar,
       });
       // 역지오코딩으로 주소 가져오기
       const geocoder2 = new google.maps.Geocoder();
@@ -3250,7 +3245,6 @@ export default function MvpMap() {
                     sign,
                     lat: userLocation.lat,
                     lng: userLocation.lng,
-                    avatar: serializeAvatar(spotFormData.avatar),
                   });
                   if (result.success) {
                     setSpotSubmitted(true);
