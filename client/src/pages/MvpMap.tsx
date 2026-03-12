@@ -2132,7 +2132,7 @@ export default function MvpMap() {
                 padding: 0,
               }}
             >
-              <span className="spot-icon-anim" style={{ fontSize: '20px', lineHeight: 1 }}>🐾</span>
+              <span className="spot-icon-anim" style={{ fontSize: '20px', lineHeight: 1 }}>🐶</span>
             </button>
           )}
 
