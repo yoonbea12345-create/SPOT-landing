@@ -1,0 +1,37 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'userSpots' ORDER BY ORDINAL_POSITION;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user RGrk2thZYC4WY66.root --database Unzs4ztvsFWb6bAqqUL6Mc --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'userSpots' ORDER BY ORDINAL_POSITION;",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "mbti"
+    },
+    {
+      "COLUMN_NAME": "mood"
+    },
+    {
+      "COLUMN_NAME": "mode"
+    },
+    {
+      "COLUMN_NAME": "sign"
+    },
+    {
+      "COLUMN_NAME": "lat"
+    },
+    {
+      "COLUMN_NAME": "lng"
+    },
+    {
+      "COLUMN_NAME": "ipAddress"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nmbti\nmood\nmode\nsign\nlat\nlng\nipAddress\ncreatedAt\n",
+  "stderr": "",
+  "execution_time_ms": 1583
+}

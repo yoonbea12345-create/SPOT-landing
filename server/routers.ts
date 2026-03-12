@@ -49,6 +49,7 @@ export const appRouter = router({
             "211.235.89.25",
             "2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f",
             "2001:2d8:2183:48bf::6089:339b",
+            "2001:2d8:210e:548e::60ca:339b",
             // 내부 로칼호스트 (Manus 샌드박스 상태체크)
             "::ffff:127.0.0.1",
             "127.0.0.1",
@@ -164,6 +165,7 @@ export const appRouter = router({
             "211.235.89.25",
             "2001:2d8:71a3:b0c2:2c69:8653:d08a:4d8f",
             "2001:2d8:2183:48bf::6089:339b",
+            "2001:2d8:210e:548e::60ca:339b",
           ];
           if (IP_WHITELIST.includes(ipAddress)) return { success: true };
 
