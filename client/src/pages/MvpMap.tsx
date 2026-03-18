@@ -582,8 +582,24 @@ export default function MvpMap() {
     }
   }, [showConsentPopup]);
 
-  // 스플래시 → 지도 전환 (2초 후)
+  // GPS 동의 여부 ref (handleConsent 클로저에서 최신 값 참조용)
+  const gpsAgreedRef = useRef<boolean>(false);
+  // GPS 재시도 타이머 ref
+  const gpsRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 스플래시 → 지도 전환 + GPS 팝업 (마운트 기반, SPA 재방문 시에도 항상 동작)
   useEffect(() => {
+    // 이전 GPS watch 완전 정리
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    if (gpsRetryTimerRef.current) {
+      clearTimeout(gpsRetryTimerRef.current);
+      gpsRetryTimerRef.current = null;
+    }
+    gpsAgreedRef.current = false;
+
     const checkLogId = () => {
       const id = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
       if (id) mvpLogIdRef.current = id;
@@ -591,24 +607,21 @@ export default function MvpMap() {
     const idTimer = setTimeout(checkLogId, 500);
     // 1.7초 후 페이드아웃 시작, 2초 후 실제 화면 전환
     const fadeTimer = setTimeout(() => setSplashFading(true), 1700);
-    const timer = setTimeout(() => setScreen("map"), 2000);
-    return () => { clearTimeout(timer); clearTimeout(idTimer); clearTimeout(fadeTimer); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // 지도 표시 후 3.8초 뒤 GPS 동의 팝업
-  useEffect(() => {
-    if (screen === "map") {
-      // 지도 화면 페이드인 - 다음 프레임에서 트리거
+    const timer = setTimeout(() => {
+      setScreen("map");
+      // 지도 화면 페이드인
       requestAnimationFrame(() => setMapVisible(true));
-      const timer = setTimeout(() => setShowConsentPopup(true), 3800);
-      return () => clearTimeout(timer);
-    }
-  }, [screen]);
+    }, 2000);
+    // 마운트 기준 5.8초 후 GPS 동의 팝업 (2초 스플래시 + 3.8초 대기)
+    const consentTimer = setTimeout(() => setShowConsentPopup(true), 5800);
 
-  // 컴포넌트 마운트 시 watchIdRef 초기화 (두 번째 접속 시 GPS 재시작 보장)
-  useEffect(() => {
-    watchIdRef.current = null;
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(idTimer);
+      clearTimeout(fadeTimer);
+      clearTimeout(consentTimer);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // bfcache(뒤로가기 캐시) 복원 시 GPS 팝업 재표시 및 GPS 재시작
@@ -620,6 +633,11 @@ export default function MvpMap() {
           navigator.geolocation.clearWatch(watchIdRef.current);
           watchIdRef.current = null;
         }
+        if (gpsRetryTimerRef.current) {
+          clearTimeout(gpsRetryTimerRef.current);
+          gpsRetryTimerRef.current = null;
+        }
+        gpsAgreedRef.current = false;
         // 1초 후 GPS 팝업 재표시
         setTimeout(() => setShowConsentPopup(true), 1000);
       }
@@ -644,27 +662,32 @@ export default function MvpMap() {
     }, 180); // 페이드아웃 duration과 맞춰
   }, []);
 
-  // GPS 동의 처리 - 이벤트 트래킹은 비동기로 실행하고 GPS는 즉시 시작
-  const handleConsent = useCallback((agreed: boolean) => {
-    setShowConsentPopup(false);
-
-    // 이벤트 트래킹은 GPS와 독립적으로 비동기 실행 (대기 없음)
-    trackEvent.mutate({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
-
+  // GPS 시작 함수 (재사용 가능하도로 분리)
+  const startGpsWatch = useCallback((agreed: boolean) => {
     if (!navigator.geolocation) {
       if (agreed) toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
       return;
     }
 
-    // 이미 추적 중이면 기존 watch 정리 후 재시작 (중복 방지 대신 재시작 보장)
+    // 이전 watch 정리
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
+    }
+    if (gpsRetryTimerRef.current) {
+      clearTimeout(gpsRetryTimerRef.current);
+      gpsRetryTimerRef.current = null;
     }
 
     const isFirstRef = { current: true };
 
     const onSuccess = (position: GeolocationPosition) => {
+      // 성공 시 재시도 타이머 취소
+      if (gpsRetryTimerRef.current) {
+        clearTimeout(gpsRetryTimerRef.current);
+        gpsRetryTimerRef.current = null;
+      }
+
       const newLocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
@@ -716,30 +739,45 @@ export default function MvpMap() {
     };
 
     const onError = (error: GeolocationPositionError) => {
-      console.log("GPS watch error:", error);
+      console.log("GPS watch error:", error.code, error.message);
       toast.dismiss('gps-loading');
-      if (agreed) {
-        if (error.code === error.PERMISSION_DENIED) {
-          toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
-        } else {
-          toast.error("📍 GPS를 켜주시고 다시 시도해주세요.", { duration: 5000 });
-        }
-      }
       watchIdRef.current = null;
+
+      if (error.code === error.PERMISSION_DENIED) {
+        // 권한 거부 - 재시도 불가
+        if (agreed) {
+          toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
+        }
+      } else {
+        // GPS 꺼짐 / 신호 없음 - 3초 후 자동 재시도
+        if (agreed) {
+          toast.error("📍 GPS를 켜주세요. 켜지면 자동으로 위치를 받아와요.", { duration: 4000 });
+        }
+        // GPS가 켜지면 자동으로 재시도 (3초 간격)
+        gpsRetryTimerRef.current = setTimeout(() => {
+          if (gpsAgreedRef.current) {
+            startGpsWatch(true);
+          }
+        }, 3000);
+      }
     };
 
     if (agreed) {
       toast.loading("📍 GPS 연결 중...", { id: 'gps-loading', duration: 10000 });
     }
 
-    // 1단계: 저정밀 모드로 즉시 첫 응답 수신 (enableHighAccuracy: false → 빠름)
+    // 저정밀 모드로 즉시 첫 응답 수신 (enableHighAccuracy: false → 빠름)
     watchIdRef.current = navigator.geolocation.watchPosition(
       onSuccess,
-      (error) => {
+      (lowAccuracyError) => {
         // 저정밀 실패 시 고정밀로 폴백
         if (watchIdRef.current !== null) {
           navigator.geolocation.clearWatch(watchIdRef.current);
           watchIdRef.current = null;
+        }
+        if (lowAccuracyError.code === lowAccuracyError.PERMISSION_DENIED) {
+          onError(lowAccuracyError);
+          return;
         }
         // 고정밀 모드로 재시도
         watchIdRef.current = navigator.geolocation.watchPosition(
@@ -748,19 +786,36 @@ export default function MvpMap() {
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       },
-      // 저정밀: 네트워크/WiFi 기반 위치 즉시 응답 (1~2초)
       { enableHighAccuracy: false, timeout: 3000, maximumAge: 5000 }
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackEvent]);
+  }, [trackGps]);
 
-  // 컴포넌트 언마운트 시 GPS 추적 중지
+  // GPS 동의 처리
+  const handleConsent = useCallback((agreed: boolean) => {
+    setShowConsentPopup(false);
+    gpsAgreedRef.current = agreed;
+
+    // 이벤트 트래킹은 GPS와 독립적으로 비동기 실행
+    trackEvent.mutate({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
+
+    // 동의/미동의 모두 GPS watchPosition 시작 (위치 수신 시도)
+    startGpsWatch(agreed);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startGpsWatch, trackEvent]);
+
+  // 컴포넌트 언마운트 시 GPS 추적 중지 + 재시도 타이머 정리
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
         watchIdRef.current = null;
       }
+      if (gpsRetryTimerRef.current) {
+        clearTimeout(gpsRetryTimerRef.current);
+        gpsRetryTimerRef.current = null;
+      }
+      gpsAgreedRef.current = false;
     };
   }, []);
 
