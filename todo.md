@@ -335,3 +335,13 @@
 - [x] 우측 하단 돋보기 버튼 추가 (검색 패널 토글)
 - [x] 검색 패널: 지역명 입력 → Geocoding → 지도 이동
 - [ ] 체크포인트 저장
+
+## GPS 버그 수정 및 아바타 저장 기능
+- [x] DB 스키마에 avatar 컬럼 추가 (varchar 512, JSON 문자열)
+- [x] pnpm db:push 실행 (마이그레이션 완료)
+- [x] spot.submit에 avatar 필드 추가 (서버/클라이언트)
+- [x] 스팟 제출 시 serializeAvatar로 JSON 직렬화
+- [x] DB에서 스팟 로드 시 deserializeAvatar로 파싱
+- [x] GPS 팝업 bfcache 복원 시 재표시 (pageshow 이벤트)
+- [x] GPS 재시작 로직 개선 (기존 watch 정리 후 재시작)
+- [ ] 체크포인트 저장

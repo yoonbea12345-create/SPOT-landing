@@ -375,6 +375,7 @@ export const appRouter = router({
           sign: z.string().min(1).max(128),
           lat: z.number(),
           lng: z.number(),
+          avatar: z.string().max(512).optional(), // JSON string of AvatarConfig
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -408,6 +409,7 @@ export const appRouter = router({
             lat: input.lat,
             lng: input.lng,
             ipAddress: IP_WHITELIST.includes(ipAddress) ? null : ipAddress,
+            avatar: input.avatar ?? null,
           });
 
           // Log the spot submission event

@@ -606,6 +606,28 @@ export default function MvpMap() {
     }
   }, [screen]);
 
+  // 컴포넌트 마운트 시 watchIdRef 초기화 (두 번째 접속 시 GPS 재시작 보장)
+  useEffect(() => {
+    watchIdRef.current = null;
+  }, []);
+
+  // bfcache(뒤로가기 캐시) 복원 시 GPS 팝업 재표시 및 GPS 재시작
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        // bfcache에서 복원된 경우 - GPS 상태 초기화 후 팝업 재표시
+        if (watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+        // 1초 후 GPS 팝업 재표시
+        setTimeout(() => setShowConsentPopup(true), 1000);
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   // 스팟 폼은 CTA 버튼으로 수동 오픈
 
   // 팝업 닫기 - 페이드아웃 후 데이터 제거
@@ -634,8 +656,11 @@ export default function MvpMap() {
       return;
     }
 
-    // 이미 추적 중이면 중복 방지
-    if (watchIdRef.current !== null) return;
+    // 이미 추적 중이면 기존 watch 정리 후 재시작 (중복 방지 대신 재시작 보장)
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
 
     const isFirstRef = { current: true };
 
@@ -1704,9 +1729,15 @@ export default function MvpMap() {
     // 기존 실제 스팟 마커 제거
     realSpotMarkersRef.current.forEach(m => { m.map = null; });
     realSpotMarkersRef.current = [];
-    // 새로 추가
+    // 새로 추가 (avatar JSON 문자열 파싱)
     spotsData.spots.forEach(spot => {
-      if (mapRef.current) addRealSpotMarker(spot, mapRef.current);
+      if (mapRef.current) {
+        let parsedAvatar: AvatarConfig | undefined = undefined;
+        if (spot.avatar) {
+          try { parsedAvatar = deserializeAvatar(spot.avatar); } catch (_) {}
+        }
+        addRealSpotMarker({ ...spot, avatar: parsedAvatar }, mapRef.current);
+      }
     });
   }, [spotsData, addRealSpotMarker]);
 
@@ -3245,6 +3276,7 @@ export default function MvpMap() {
                     sign,
                     lat: userLocation.lat,
                     lng: userLocation.lng,
+                    avatar: serializeAvatar(spotFormData.avatar),
                   });
                   if (result.success) {
                     setSpotSubmitted(true);
