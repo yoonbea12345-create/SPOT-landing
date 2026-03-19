@@ -183,7 +183,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 // ─── 메인 컴포넌트 ────────────────────────────────────────────────
 interface SpotFeedProps {
   onClose: () => void;
-  mapService: google.maps.places.PlacesService | null;
+  mapService?: google.maps.places.PlacesService | null; // 선택적 - 이제 사진 로드에 불필요
   onGoToPlace?: (lat: number, lng: number, placeName: string) => void;
   userSpots?: UserSpot[];
 }
@@ -195,7 +195,7 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
   const [transitioning, setTransitioning] = useState(false);
   const [slideDir, setSlideDir] = useState<'up' | 'down'>('up');
   const [visible, setVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // 초기 로딩 상태
+  const [isLoading, setIsLoading] = useState(false); // 즉시 카드 생성으로 로딩 불필요
 
   // 처리 중인 장소 큐 (사진 조회 대기)
   const pendingRef = useRef<FixedPlace[]>([]);
@@ -216,104 +216,117 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
     };
   }, []);
 
-  // ─── 사진 조회 함수 (순수 비동기, setCards 밖에서 처리) ───────────
-  const fetchPhotoForPlace = useCallback(
-    (place: FixedPlace, seed: number): Promise<string | null> => {
-      return new Promise((resolve) => {
-        if (!mapService) { resolve(null); return; }
+  // ─── 카테고리별 큐레이션된 Unsplash 이미지 URL 풀 ────────────────────
+  // source.unsplash.com 서비스 종료로 images.unsplash.com 직접 URL 사용
+  const CATEGORY_PHOTOS: Record<string, string[]> = {
+    cafe: [
+      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=1200&fit=crop',
+    ],
+    restaurant: [
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&h=1200&fit=crop',
+    ],
+    bar: [
+      'https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=800&h=1200&fit=crop',
+    ],
+    park: [
+      'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1563299796-17596ed6b017?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&h=1200&fit=crop',
+    ],
+    beach: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1473116763249-2faaef81ccda?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1468581264429-2548ef9eb732?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&h=1200&fit=crop',
+    ],
+    nature: [
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=800&h=1200&fit=crop',
+    ],
+    market: [
+      'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&h=1200&fit=crop',
+    ],
+    landmark: [
+      'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1549693578-d683be217e58?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1601621915196-2621bfb0cd6e?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&h=1200&fit=crop',
+      'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&h=1200&fit=crop',
+    ],
+  };
 
-        const req: google.maps.places.PlaceSearchRequest = {
-          location: new google.maps.LatLng(place.lat, place.lng),
-          radius: 100,
-          keyword: place.placeName,
-        };
+  const getPhotoUrl = useCallback((place: FixedPlace, seed: number): string => {
+    const photos = CATEGORY_PHOTOS[place.category] || CATEGORY_PHOTOS['landmark'];
+    return photos[seed % photos.length];
+  }, []);
 
-        mapService.nearbySearch(req, (results, status) => {
-          if (
-            status === google.maps.places.PlacesServiceStatus.OK &&
-            results?.[0]?.place_id
-          ) {
-            mapService.getDetails(
-              { placeId: results[0].place_id!, fields: ['photos'] },
-              (detail, detailStatus) => {
-                if (
-                  detailStatus === google.maps.places.PlacesServiceStatus.OK &&
-                  detail?.photos?.length
-                ) {
-                  const url = detail.photos[0].getUrl({ maxWidth: 800, maxHeight: 1200 });
-                  resolve(url);
-                } else {
-                  resolve(null);
-                }
-              }
-            );
-          } else {
-            resolve(null);
-          }
-        });
-      });
-    },
-    [mapService]
-  );
-
-  // ─── 큐 처리 (동시 3개씩 병렬 처리) ─────────────────────────────
-  const processQueue = useCallback(async () => {
-    if (processingRef.current || !mapService) return;
+  // ─── 큐 처리 (동기 - API 호출 없이 즉시 카드 생성) ──────────────
+  const processQueue = useCallback(() => {
+    if (processingRef.current) return;
     processingRef.current = true;
 
-    while (pendingRef.current.length > 0 && mountedRef.current) {
-      // 동시 3개 처리
-      const batch = pendingRef.current.splice(0, 3);
-      const results = await Promise.all(
-        batch.map((place, i) =>
-          fetchPhotoForPlace(place, processedCountRef.current + i)
-        )
-      );
+    const batch = pendingRef.current.splice(0, 20); // 한 번에 20개 처리
+    if (batch.length === 0) {
+      processingRef.current = false;
+      return;
+    }
 
-      if (!mountedRef.current) break;
+    const newCards: FeedCard[] = batch.map((place, i) => {
+      const seed = processedCountRef.current + i;
+      const minutesAgo = Math.floor(Math.random() * 30) + 1;
+      return {
+        id: `place-${place.placeName}-${seed}`,
+        place,
+        mbti: r(MBTI_TYPES),
+        sign: r(SIGN_LIST),
+        mood: r(MOOD_LIST),
+        hashtags: getHashtags(place.category, seed * 137 + 42),
+        photoUrl: getPhotoUrl(place, seed),
+        postedAt: Date.now() - minutesAgo * 60 * 1000,
+      };
+    });
 
-      const newCards: FeedCard[] = [];
-      batch.forEach((place, i) => {
-        const photoUrl = results[i];
-        if (photoUrl) {
-          const seed = processedCountRef.current + i;
-          // 1~30분 전 사이 랜덤 타임스탬프 (현장감 연출)
-          const minutesAgo = Math.floor(Math.random() * 30) + 1;
-          newCards.push({
-            id: `place-${place.placeName}-${seed}`,
-            place,
-            mbti: r(MBTI_TYPES),
-            sign: r(SIGN_LIST),
-            mood: r(MOOD_LIST),
-            hashtags: getHashtags(place.category, seed * 137 + 42),
-            photoUrl,
-            postedAt: Date.now() - minutesAgo * 60 * 1000,
-          });
-        }
-        processedCountRef.current++;
-      });
+    processedCountRef.current += batch.length;
 
-      if (newCards.length > 0 && mountedRef.current) {
-        setCards(prev => {
-          const updated = [...prev, ...newCards];
-          return updated;
-        });
-        setIsLoading(false);
-      }
-
-      // 카드가 15개 이상 쌓이면 잠시 대기 (과도한 API 호출 방지)
-      if (cards.length >= 15) {
-        await new Promise(res => setTimeout(res, 500));
-      }
+    if (mountedRef.current) {
+      setCards(prev => [...prev, ...newCards]);
+      setIsLoading(false);
     }
 
     processingRef.current = false;
-  }, [mapService, fetchPhotoForPlace, cards.length]);
+  }, [getPhotoUrl]);
 
-  // ─── 초기 큐 설정 ────────────────────────────────────────────────
+  // ─── 초기 큐 설정 (마운트 즉시 실행, mapService 불필요) ──────────────────
   useEffect(() => {
-    if (!mapService) return;
-
     // FIXED_PLACES 랜덤 셔플 후 큐에 추가
     const shuffled = [...FIXED_PLACES].sort(() => Math.random() - 0.5);
     pendingRef.current = shuffled;
@@ -321,7 +334,7 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
     processingRef.current = false;
 
     processQueue();
-  }, [mapService]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── 카드 부족 시 추가 처리 ──────────────────────────────────────
   useEffect(() => {
@@ -331,51 +344,45 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
     }
   }, [currentIndex, cards.length, processQueue]);
 
-  // ─── 사용자 스팟 피드에 삽입 ─────────────────────────────────────
+    // ─── 사용자 스팟 피드에 삽입 ─────────────────────────────────
   // userSpots가 있으면 cards 3번째마다 삽입 (별도 처리)
   const [userSpotCards, setUserSpotCards] = useState<FeedCard[]>([]);
 
   useEffect(() => {
-    if (!userSpots?.length || !mapService) return;
+    if (!userSpots?.length) return;
 
-    // 사용자 스팟 주변 장소 사진 조회
-    const processUserSpots = async () => {
-      const newUserCards: FeedCard[] = [];
-      for (const spot of userSpots.slice(0, 10)) {
-        // 가장 가까운 FIXED_PLACE 찾기
-        let closestPlace: FixedPlace | null = null;
-        let minDist = Infinity;
-        for (const fp of FIXED_PLACES) {
-          const d = Math.sqrt(
-            Math.pow(fp.lat - spot.lat, 2) + Math.pow(fp.lng - spot.lng, 2)
-          );
-          if (d < minDist) { minDist = d; closestPlace = fp; }
-        }
-        if (!closestPlace) continue;
-
-        const photoUrl = await fetchPhotoForPlace(closestPlace, Math.random() * 1000 | 0);
-        if (photoUrl && mountedRef.current) {
-          newUserCards.push({
-            id: `user-spot-${spot.id}`,
-            place: { ...closestPlace, placeName: closestPlace.placeName },
-            mbti: spot.mbti,
-            sign: spot.sign || r(SIGN_LIST),
-            mood: spot.mood || r(MOOD_LIST),
-            hashtags: getHashtags(closestPlace.category, spot.id * 37),
-            photoUrl,
-            postedAt: spot.createdAt instanceof Date ? spot.createdAt.getTime() : Date.now() - 2 * 60 * 1000,
-            isUserSpot: true,
-            userSpotInfo: { mbti: spot.mbti, sign: spot.sign, mood: spot.mood },
-          });
-        }
+    // 사용자 스팟 주변 장소 사진 조회 (getPhotoUrl 사용)
+    const newUserCards: FeedCard[] = [];
+    for (const spot of userSpots.slice(0, 10)) {
+      // 가장 가까운 FIXED_PLACE 찾기
+      let closestPlace: FixedPlace | null = null;
+      let minDist = Infinity;
+      for (const fp of FIXED_PLACES) {
+        const d = Math.sqrt(
+          Math.pow(fp.lat - spot.lat, 2) + Math.pow(fp.lng - spot.lng, 2)
+        );
+        if (d < minDist) { minDist = d; closestPlace = fp; }
       }
-      if (newUserCards.length > 0 && mountedRef.current) {
-        setUserSpotCards(newUserCards);
-      }
-    };
+      if (!closestPlace) continue;
 
-    processUserSpots();
-  }, [userSpots, mapService, fetchPhotoForPlace]);
+      const seed = Math.floor(Math.random() * 1000);
+      newUserCards.push({
+        id: `user-spot-${spot.id}`,
+        place: { ...closestPlace, placeName: closestPlace.placeName },
+        mbti: spot.mbti,
+        sign: spot.sign || r(SIGN_LIST),
+        mood: spot.mood || r(MOOD_LIST),
+        hashtags: getHashtags(closestPlace.category, spot.id * 37),
+        photoUrl: getPhotoUrl(closestPlace, seed),
+        postedAt: spot.createdAt instanceof Date ? spot.createdAt.getTime() : Date.now() - 2 * 60 * 1000,
+        isUserSpot: true,
+        userSpotInfo: { mbti: spot.mbti, sign: spot.sign, mood: spot.mood },
+      });
+    }
+    if (newUserCards.length > 0 && mountedRef.current) {
+      setUserSpotCards(newUserCards);
+    }
+  }, [userSpots, getPhotoUrl]);
 
   // ─── 최종 피드 = 일반 카드 + 사용자 스팟 카드 섞기 ──────────────
   const mergedCards = (() => {
