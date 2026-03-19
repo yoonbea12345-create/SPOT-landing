@@ -111,8 +111,8 @@ const FALLBACK_GRADIENTS: Record<string, string> = {
 
 // ─── 카드 초기 데이터 생성 ────────────────────────────────────────
 const buildInitialCards = (): FeedCard[] => {
-  // FIXED_PLACES를 랜덤 셔플 후 최대 50개 선택
-  const shuffled = [...FIXED_PLACES].sort(() => Math.random() - 0.5).slice(0, 50);
+  // FIXED_PLACES를 랜덤 셔플 후 최대 80개 선택 (사진 없는 것 제거 후에도 충분한 수 확보)
+  const shuffled = [...FIXED_PLACES].sort(() => Math.random() - 0.5).slice(0, 80);
   return shuffled.map((place, i) => ({
     place,
     mbti: r(MBTI_TYPES),
@@ -147,49 +147,61 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
     return () => clearTimeout(t);
   }, []);
 
-  // 사진 로드 (현재 카드 + 다음 2개 프리로드)
+  // 사진 로드 - 사진 없으면 해당 카드 제거
+  // 중복 로드 방지용 Set
+  const loadingSet = useRef<Set<number>>(new Set());
+
   const loadPhoto = useCallback((index: number) => {
     if (!mapService) return;
-    const card = cards[index];
-    if (!card || !card.photoLoading) return;
+    if (loadingSet.current.has(index)) return; // 이미 로드 중
 
-    const req: google.maps.places.PlaceSearchRequest = {
-      location: new google.maps.LatLng(card.place.lat, card.place.lng),
-      radius: 80,
-      keyword: card.place.placeName,
-    };
+    setCards(prev => {
+      const card = prev[index];
+      if (!card || !card.photoLoading) return prev;
+      loadingSet.current.add(index);
 
-    mapService.nearbySearch(req, (results: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]?.place_id) {
-        mapService.getDetails(
-          { placeId: results[0].place_id, fields: ['photos'] },
-          (detail: google.maps.places.PlaceResult | null, detailStatus: google.maps.places.PlacesServiceStatus) => {
-            if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos?.length) {
-              const url = detail.photos[0].getUrl({ maxWidth: 800, maxHeight: 1200 });
-              setCards(prev => prev.map((c, i) =>
-                i === index ? { ...c, photoUrl: url, photoLoading: false } : c
-              ));
-            } else {
-              setCards(prev => prev.map((c, i) =>
-                i === index ? { ...c, photoUrl: null, photoLoading: false } : c
-              ));
+      const req: google.maps.places.PlaceSearchRequest = {
+        location: new google.maps.LatLng(card.place.lat, card.place.lng),
+        radius: 80,
+        keyword: card.place.placeName,
+      };
+
+      mapService.nearbySearch(req, (results, status) => {
+        loadingSet.current.delete(index);
+        if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]?.place_id) {
+          mapService.getDetails(
+            { placeId: results[0].place_id!, fields: ['photos'] },
+            (detail, detailStatus) => {
+              if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos?.length) {
+                // 사진 있음: URL 저장
+                const url = detail.photos[0].getUrl({ maxWidth: 800, maxHeight: 1200 });
+                setCards(prev2 => prev2.map((c, i) =>
+                  i === index ? { ...c, photoUrl: url, photoLoading: false } : c
+                ));
+              } else {
+                // 사진 없음: 해당 카드 제거
+                setCards(prev2 => prev2.filter((_, i) => i !== index));
+                setCurrentIndex(ci => ci > index ? ci - 1 : ci);
+              }
             }
-          }
-        );
-      } else {
-        setCards(prev => prev.map((c, i) =>
-          i === index ? { ...c, photoUrl: null, photoLoading: false } : c
-        ));
-      }
+          );
+        } else {
+          // 장소 조회 실패: 해당 카드 제거
+          setCards(prev2 => prev2.filter((_, i) => i !== index));
+          setCurrentIndex(ci => ci > index ? ci - 1 : ci);
+        }
+      });
+
+      return prev; // 비동기 시작 전 상태 유지
     });
-  }, [mapService, cards]);
+  }, [mapService]);
 
   useEffect(() => {
-    // 현재 + 다음 2개 프리로드
-    [currentIndex, currentIndex + 1, currentIndex + 2].forEach(i => {
+    // 현재 + 다음 3개 프리로드
+    [currentIndex, currentIndex + 1, currentIndex + 2, currentIndex + 3].forEach(i => {
       if (i < cards.length) loadPhoto(i);
     });
-  }, [currentIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentIndex, loadPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const goTo = useCallback((dir: 'up' | 'down') => {
     if (transitioning) return;
