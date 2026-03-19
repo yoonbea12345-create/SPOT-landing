@@ -60,6 +60,155 @@ const SIGN_SIGNALS = [
 // SIGN 목록 (더미 데이터용 - SIGN_SIGNALS와 동일한 이모지+텍스트 형식)
 const SIGN_LIST = SIGN_SIGNALS.slice(1).map(s => `${s.emoji} ${s.text}`);
 
+// ─────────────────────────────────────────────────────────────
+// 스포트라이트 해시태그 시스템
+// "지금 이 장소에 있는 사람만 알 수 있는" 실시간 현장 정보 중심
+// ─────────────────────────────────────────────────────────────
+
+type PlaceTagType =
+  | 'cafe'
+  | 'bar_club'
+  | 'restaurant'
+  | 'park_picnic'
+  | 'river_beach'
+  | 'accommodation'
+  | 'market'
+  | 'culture_museum'
+  | 'sports_fitness'
+  | 'shopping'
+  | 'landmark'
+  | 'nature';
+
+// 장소 카테고리 문자열 → PlaceTagType 분류
+const classifyPlaceType = (category?: string): PlaceTagType => {
+  if (!category) return 'landmark';
+  const c = category.toLowerCase().trim();
+  // 영문 직접 매핑 (fixedPlaces.ts 카테고리)
+  if (c === 'cafe') return 'cafe';
+  if (c === 'bar') return 'bar_club';
+  if (c === 'restaurant') return 'restaurant';
+  if (c === 'park') return 'park_picnic';
+  if (c === 'beach') return 'river_beach';
+  if (c === 'nature') return 'nature';
+  if (c === 'market') return 'market';
+  if (c === 'landmark') return 'landmark';
+  // 한글 키워드 매핑
+  if (c.includes('카페') || c.includes('커피') || c.includes('디저트') || c.includes('브런치')) return 'cafe';
+  if (c.includes('클럽') || c.includes('포차') || c.includes('비어') || c.includes('펍') || c.includes('술집') || c.includes('루프탑 바')) return 'bar_club';
+  if (c.includes('맛집') || c.includes('식당') || c.includes('라멘') || c.includes('음식') || c.includes('이색 맛')) return 'restaurant';
+  if (c.includes('공원') || c.includes('피크닉') || c.includes('야외')) return 'park_picnic';
+  if (c.includes('한강') || c.includes('해변') || c.includes('해수욕') || c.includes('오션') || c.includes('루프탑')) return 'river_beach';
+  if (c.includes('숙박') || c.includes('호텔') || c.includes('모텔') || c.includes('펜션') || c.includes('게스트')) return 'accommodation';
+  if (c.includes('시장') || c.includes('마트')) return 'market';
+  if (c.includes('문화') || c.includes('박물관') || c.includes('갤러리') || c.includes('미술') || c.includes('전시')) return 'culture_museum';
+  if (c.includes('스포츠') || c.includes('피트니스') || c.includes('헬스') || c.includes('운동')) return 'sports_fitness';
+  if (c.includes('쇼핑') || c.includes('백화점') || c.includes('아울렛')) return 'shopping';
+  if (c.includes('자연') || c.includes('산') || c.includes('숲') || c.includes('계곡')) return 'nature';
+  return 'landmark';
+};
+
+// 장소 유형별 해시태그 풀 (현장에 있는 사람만 알 수 있는 실시간 정보)
+const PLACE_HASHTAG_POOL: Record<PlaceTagType, string[]> = {
+  cafe: [
+    '아아맛집', '따아맛집', '크로와상맛집', '화장실 깨끗', '콘센트 있음',
+    '혼자 와도 어색 안함', '줄 없음', '줄 김', '자리 많음', '자리 없음',
+    '와이파이 빠름', '노트북 하기 좋음', '뷰 실화', '사진 잘 나옴',
+    '직원 친절', '음악 좋음', '조용함', '시끄러움', '냄새 좋음',
+  ],
+  bar_club: [
+    '혼술하기 좋음', '분위기 미침', '웨이팅 있음', '웨이팅 없음',
+    '음악 너무 큼', '음악 딱 좋음', '안주 맛있음', '가성비 좋음',
+    '혼자 와도 어색 안함', '커플 많음', '혼자 온 사람 많음',
+    '직원 친절', '화장실 깨끗', '흡연구역 있음', '야외석 있음',
+    '지금 자리 있음', '지금 자리 없음', '분위기 업됨',
+  ],
+  restaurant: [
+    '웨이팅 있음', '웨이팅 없음', '줄 김', '줄 없음', '양 많음',
+    '가성비 실화', '맛 실화', '국물 진함', '매운맛 주의',
+    '혼밥 하기 좋음', '단체석 있음', '화장실 깨끗', '주차 가능',
+    '포장 가능', '배달 안됨', '현금만 됨', '카드 됨', '직원 친절',
+    '재료 신선', '양 적음', '가격 비쌈',
+  ],
+  park_picnic: [
+    '사람 없어요', '사람 많아요', '자리 있음', '자리 없음',
+    '바람 많이 붐', '날씨 딱 좋음', '구름 많음', '햇빛 강함',
+    '그늘 있음', '그늘 없음', '강아지 많음', '뛰어다니는 애들 많음',
+    '조용함', '시끄러움', '쓰레기통 있음', '화장실 있음',
+    '편의점 근처', '돗자리 필수', '모기 있음', '야경 좋음',
+  ],
+  river_beach: [
+    '한강뷰 실화', '바다뷰 실화', '노을 지금 딱 좋음', '노을 이미 짐',
+    '파도 높음', '파도 잔잔', '바람 강함', '바람 시원',
+    '사람 많음', '사람 없음', '수영 가능', '수영 금지',
+    '모래 깨끗', '쓰레기 있음', '화장실 있음', '편의점 있음',
+    '자전거 많음', '야경 미침', '사진 잘 나옴', '혼자 와도 좋음',
+  ],
+  accommodation: [
+    '침대 깨끗', '침대 불편', '직원 친절', '직원 불친절',
+    '방음 잘 됨', '방음 안 됨', '와이파이 빠름', '와이파이 느림',
+    '뷰 좋음', '뷰 별로', '청결 합격', '청결 불합격',
+    '주차 가능', '주차 불가', '조식 맛있음', '조식 별로',
+    '체크인 빠름', '체크아웃 편함', '가성비 좋음', '가격 비쌈',
+  ],
+  market: [
+    '사람 많음', '사람 없음', '가격 흥정 가능', '가격 고정',
+    '신선도 좋음', '먹거리 많음', '주차 어려움', '주차 가능',
+    '화장실 있음', '화장실 없음', '카드 됨', '현금만 됨',
+    '구경 재밌음', '냄새 강함', '좁음', '넓음',
+    '외국인 많음', '로컬 느낌', '야시장 분위기',
+  ],
+  culture_museum: [
+    '줄 없음', '줄 김', '조용함', '시끄러움', '전시 좋음',
+    '사진 찍기 좋음', '사진 금지 구역 있음', '화장실 깨끗',
+    '에어컨 빵빵', '더움', '주차 가능', '주차 어려움',
+    '혼자 와도 좋음', '설명 잘 돼 있음', '안내원 친절',
+    '카페 있음', '기념품샵 있음', '어린이 많음', '어른만 있음',
+  ],
+  sports_fitness: [
+    '기구 많음', '기구 부족', '사람 많음', '사람 없음',
+    '샤워실 깨끗', '샤워실 더러움', '직원 친절', '직원 불친절',
+    '에어컨 빵빵', '더움', '주차 가능', '와이파이 됨',
+    '운동 분위기 좋음', '초보자 환영', '고수들만 있음',
+    '락커 있음', '수건 제공', '가성비 좋음',
+  ],
+  shopping: [
+    '세일 중', '세일 없음', '사람 많음', '사람 없음',
+    '주차 가능', '주차 어려움', '에어컨 빵빵', '더움',
+    '화장실 깨끗', '음식점 많음', '카드 됨', '직원 친절',
+    '구경 재밌음', '가격 비쌈', '가성비 좋음', '신상 있음',
+    '피팅룸 있음', '재고 많음', '재고 없음',
+  ],
+  nature: [
+    '산책하기 좋음', '사람 없어요', '뷰 실화', '공기 좋음',
+    '날씨 딱 좋음', '구름 많음', '안개 있음', '바람 강함',
+    '길 험함', '길 평탄', '화장실 있음', '화장실 없음',
+    '모기 있음', '벌레 없음', '그늘 있음', '일출 좋음',
+    '일몰 좋음', '사진 잘 나옴', '혼자 와도 좋음', '강아지 동반 가능',
+  ],
+  landmark: [
+    '사진 잘 나옴', '뷰 실화', '사람 많음', '사람 없음',
+    '야경 미침', '낮에 와야 함', '밤에 와야 함',
+    '주차 가능', '주차 어려움', '화장실 있음',
+    '포토존 있음', '줄 없음', '줄 김', '입장료 있음',
+    '입장료 없음', '가이드 있음', '혼자 와도 좋음',
+    '커플 많음', '외국인 많음',
+  ],
+};
+
+// 장소 유형에 맞는 해시태그 랜덤 선택 (4~5개)
+const getPlaceHashtags = (category?: string, seed?: number): string[] => {
+  const type = classifyPlaceType(category);
+  const pool = PLACE_HASHTAG_POOL[type];
+  // seed 기반 pseudo-random (같은 장소는 같은 태그 유지)
+  const s = seed ?? Math.floor(Date.now() / 300000); // 5분마다 갱신
+  const shuffled = [...pool].sort((a, b) => {
+    const ha = (a.charCodeAt(0) * 31 + s) % pool.length;
+    const hb = (b.charCodeAt(0) * 31 + s) % pool.length;
+    return ha - hb;
+  });
+  return shuffled.slice(0, 5);
+};
+
 // 핫플레이스 도시별 큐레이션 데이터
 type HotplaceVenue = {
   name: string;
@@ -2712,28 +2861,58 @@ export default function MvpMap() {
                       border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
                     }}
                   >
-                    {/* 헤더 - 장소명 + 사진 수 */}
-                    <div className="flex items-center justify-between px-2 py-1.5"
+                    {/* 헤더 - 장소명 + 해시태그 + 사진 수 */}
+                    <div className="flex flex-col"
                       style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
                     >
-                      <div className="flex flex-col gap-0 min-w-0 flex-1">
+                      {/* 상단: SPOTLIGHT 레이블 + 사진수 */}
+                      <div className="flex items-center justify-between px-2 pt-1.5 pb-0.5">
                         <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
                           ✨ SPOTLIGHT
                         </div>
-                        {popupPlaceName && (
-                          <div className="text-[9px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.55)', marginTop: '1px' }}>
-                            {popupPlaceName}
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {placePhotos.length > 0 && (
+                            <div className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                              {placePhotos.length}장
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {placePhotos.length > 0 && (
-                          <div className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                            {placePhotos.length}장
+                      {/* 장소명 */}
+                      {popupPlaceName && (
+                        <div className="px-2 pb-0.5 text-[9px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                          {popupPlaceName}
+                        </div>
+                      )}
+                      {/* 해시태그 스트립 - 장소명 리로 표시 (핫플레이스/실제 스팟 모두 표시) */}
+                      {(() => {
+                        const tags = getPlaceHashtags(
+                          popupData.category,
+                          popupPlaceName ? popupPlaceName.charCodeAt(0) : (popupData.lat * 1000 | 0)
+                        );
+                        return (
+                          <div
+                            className="flex gap-1 px-2 pb-1.5 overflow-x-auto"
+                            style={{ scrollbarWidth: 'none' }}
+                          >
+                            {tags.map((tag, i) => (
+                              <span
+                                key={i}
+                                className="flex-shrink-0 text-[7.5px] font-bold px-1.5 py-0.5 rounded-full"
+                                style={{
+                                  background: `${MBTI_COLORS[popupData.mbti]}18`,
+                                  color: `${MBTI_COLORS[popupData.mbti]}cc`,
+                                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
+                                  letterSpacing: '0.01em',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                #{tag}
+                              </span>
+                            ))}
                           </div>
-                        )}
-
-                      </div>
+                        );
+                      })()}
                     </div>
 
                     {/* 사진 콘텐츠 */}
