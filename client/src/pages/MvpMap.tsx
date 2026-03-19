@@ -2350,12 +2350,13 @@ export default function MvpMap() {
               padding: 0,
             }}
           >
-            {/* 재생 아이콘 (숏폼 상징) */}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="2" width="8" height="10" rx="1.5" fill="rgba(0,240,255,0.9)"/>
-              <rect x="14" y="2" width="8" height="10" rx="1.5" fill="rgba(0,240,255,0.9)"/>
-              <rect x="2" y="15" width="8" height="7" rx="1.5" fill="rgba(0,240,255,0.9)"/>
-              <rect x="14" y="15" width="8" height="7" rx="1.5" fill="rgba(0,240,255,0.9)"/>
+            {/* 세로형 숏폼 아이콘: 세로 바 3개 + 삼각형 재생 */}
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* 세로 바 3개 (숏폼 피드 느낌) */}
+              <rect x="1" y="2" width="3" height="16" rx="1.5" fill="rgba(0,240,255,0.5)"/>
+              <rect x="6" y="2" width="3" height="16" rx="1.5" fill="rgba(0,240,255,0.5)"/>
+              {/* 삼각형 재생 버튼 (오른쪽) */}
+              <path d="M12 5 L19 10 L12 15 Z" fill="rgba(0,240,255,0.95)"/>
             </svg>
           </button>
 
