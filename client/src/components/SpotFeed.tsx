@@ -23,6 +23,7 @@ type FeedCard = {
   mood: string;
   hashtags: string[];
   photoUrl: string;        // 사진 확인된 것만 cards에 추가하므로 항상 존재
+  postedAt: number;        // 게시 시각 (ms timestamp)
   isUserSpot?: boolean;    // 실제 사용자 스팟 여부
   userSpotInfo?: {
     mbti: string;
@@ -74,76 +75,76 @@ const MOOD_LIST = [
 // 핵심 철학: 단순 장소 정보가 아닌, 지금 이 순간 현장 분위기를 전달
 const PLACE_HASHTAG_POOL: Record<PlaceTagType, string[]> = {
   cafe: [
-    '지금 줄 없음','지금 자리 있음','지금 조용함','지금 사람 많음',
-    '지금 콘센트 자리 있음','지금 음악 좋음','지금 뷰 딱 좋음',
-    '지금 웨이팅 없음','지금 혼자 온 사람 많음','지금 작업하기 좋음',
-    '지금 커플 많음','지금 분위기 업됨','지금 와이파이 빠름',
+    '줄 없음','자리 있음','조용함','사람 많음',
+    '콘센트 자리 있음','음악 좋음','뷰 딩 좋음',
+    '웨이팅 없음','혼자 온 사람 많음','작업하기 좋음',
+    '커플 많음','분위기 업됨','와이파이 빠름',
   ],
   bar_club: [
-    '지금 자리 있음','지금 분위기 미침','지금 웨이팅 없음',
-    '지금 음악 딱 좋음','지금 혼술하기 좋음','지금 사람 적당함',
-    '지금 야외석 비어있음','지금 분위기 업됨','지금 혼자 온 사람 많음',
-    '지금 시끄러움','지금 조용한 편','지금 20대 많음',
+    '자리 있음','분위기 미침','웨이팅 없음',
+    '음악 딩 좋음','혼술하기 좋음','사람 적당함',
+    '야외석 비어있음','분위기 업됨','혼자 온 사람 많음',
+    '시끄러움','조용한 편','20대 많음',
   ],
   restaurant: [
-    '지금 웨이팅 없음','지금 자리 있음','지금 혼밥하기 좋음',
-    '지금 사람 많음','지금 회전율 빠름','지금 포장 가능',
-    '지금 조용함','지금 시끄러움','지금 직원 친절',
-    '지금 재료 신선','지금 양 많음','지금 가성비 실화',
+    '웨이팅 없음','자리 있음','혼밥하기 좋음',
+    '사람 많음','회전율 빠름','포장 가능',
+    '조용함','시끄러움','직원 친절',
+    '재료 신선','양 많음','가성비 실화',
   ],
   park_picnic: [
-    '지금 사람 없음','지금 자리 있음','지금 날씨 딱 좋음',
-    '지금 그늘 있음','지금 조용함','지금 강아지 많음',
-    '지금 돗자리 많음','지금 야경 좋음','지금 바람 시원',
-    '지금 커플 많음','지금 가족 많음','지금 사진 잘 나옴',
+    '사람 없음','자리 있음','날씨 딩 좋음',
+    '그늘 있음','조용함','강아지 많음',
+    '돌자리 많음','야경 좋음','바람 시원',
+    '커플 많음','가족 많음','사진 잘 나옴',
   ],
   river_beach: [
-    '지금 노을 딱 좋음','지금 바람 시원','지금 사람 없음',
-    '지금 사진 잘 나옴','지금 야경 미침','지금 자리 있음',
-    '지금 자전거 많음','지금 혼자 와도 좋음','지금 뷰 실화',
-    '지금 물 맑음','지금 파도 잔잔','지금 분위기 좋음',
+    '노을 딩 좋음','바람 시원','사람 없음',
+    '사진 잘 나옴','야경 미침','자리 있음',
+    '자전거 많음','혼자 와도 좋음','뷰 실화',
+    '물 맑음','파도 잌잌','분위기 좋음',
   ],
   accommodation: [
-    '지금 체크인 빠름','지금 직원 친절','지금 방음 잘 됨',
-    '지금 청결 합격','지금 뷰 좋음','지금 와이파이 빠름',
-    '지금 조용함','지금 시설 깨끗','지금 조식 맛있음',
-    '지금 주차 가능','지금 가성비 좋음','지금 빈 방 있음',
+    '체크인 빠름','직원 친절','방음 잘 됨',
+    '청결 합격','뷰 좋음','와이파이 빠름',
+    '조용함','시설 깨끗','조식 맛있음',
+    '주차 가능','가성비 좋음','빈 방 있음',
   ],
   market: [
-    '지금 사람 많음','지금 먹거리 많음','지금 구경 재밌음',
-    '지금 로컬 느낌','지금 흥정 가능','지금 신선도 좋음',
-    '지금 외국인 많음','지금 야시장 분위기','지금 카드 됨',
-    '지금 줄 없음','지금 가격 착함','지금 포장 가능',
+    '사람 많음','먹거리 많음','구경 재및음',
+    '로컈 느낌','흥정 가능','신선도 좋음',
+    '외국인 많음','야시장 분위기','카드 됨',
+    '줄 없음','가격 착함','포장 가능',
   ],
   culture_museum: [
-    '지금 줄 없음','지금 조용함','지금 에어컨 빵빵',
-    '지금 혼자 와도 좋음','지금 사진 찍기 좋음','지금 전시 좋음',
-    '지금 설명 잘 돼 있음','지금 카페 있음','지금 기념품샵 있음',
-    '지금 입장 가능','지금 관람객 적음','지금 분위기 좋음',
+    '줄 없음','조용함','에어콘 빡빡',
+    '혼자 와도 좋음','사진 찍기 좋음','전시 좋음',
+    '설명 잘 돼 있음','카페 있음','기념품샵 있음',
+    '입장 가능','관람객 적음','분위기 좋음',
   ],
   sports_fitness: [
-    '지금 기구 비어있음','지금 사람 없음','지금 에어컨 빵빵',
-    '지금 운동 분위기 좋음','지금 샤워실 깨끗','지금 락커 있음',
-    '지금 초보자 환영','지금 가성비 좋음','지금 와이파이 됨',
-    '지금 직원 친절','지금 혼자 와도 좋음','지금 쾌적함',
+    '기구 비어있음','사람 없음','에어콘 빡빡',
+    '운동 분위기 좋음','샤워실 깨끗','락커 있음',
+    '초보자 환영','가성비 좋음','와이파이 됨',
+    '직원 친절','혼자 와도 좋음','쿨적함',
   ],
   shopping: [
-    '지금 세일 중','지금 사람 없음','지금 에어컨 빵빵',
-    '지금 신상 있음','지금 피팅룸 비어있음','지금 직원 친절',
-    '지금 주차 가능','지금 구경 재밌음','지금 음식점 많음',
-    '지금 화장실 깨끗','지금 카드 됨','지금 할인 중',
+    '세일 중','사람 없음','에어콘 빡빡',
+    '신상 있음','피팅룸 비어있음','직원 친절',
+    '주차 가능','구경 재및음','음식점 많음',
+    '화장실 깨끗','카드 됨','할인 중',
   ],
   nature: [
-    '지금 산책하기 좋음','지금 사람 없음','지금 공기 좋음',
-    '지금 날씨 딱 좋음','지금 그늘 있음','지금 일몰 좋음',
-    '지금 사진 잘 나옴','지금 혼자 와도 좋음','지금 강아지 동반 가능',
-    '지금 조용함','지금 바람 시원','지금 뷰 실화',
+    '산책하기 좋음','사람 없음','공기 좋음',
+    '날씨 딩 좋음','그늘 있음','일몰 좋음',
+    '사진 잘 나옴','혼자 와도 좋음','강아지 동반 가능',
+    '조용함','바람 시원','뷰 실화',
   ],
   landmark: [
-    '지금 줄 없음','지금 사진 잘 나옴','지금 야경 미침',
-    '지금 포토존 비어있음','지금 외국인 많음','지금 혼자 와도 좋음',
-    '지금 입장 가능','지금 뷰 실화','지금 낮에 딱 좋음',
-    '지금 주차 가능','지금 관광객 많음','지금 분위기 좋음',
+    '줄 없음','사진 잘 나옴','야경 미침',
+    '포토존 비어있음','외국인 많음','혼자 와도 좋음',
+    '입장 가능','뷰 실화','낙에 딩 좋음',
+    '주차 가능','관광객 많음','분위기 좋음',
   ],
 };
 
@@ -276,6 +277,8 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
         const photoUrl = results[i];
         if (photoUrl) {
           const seed = processedCountRef.current + i;
+          // 1~30분 전 사이 랜덤 타임스탬프 (현장감 연출)
+          const minutesAgo = Math.floor(Math.random() * 30) + 1;
           newCards.push({
             id: `place-${place.placeName}-${seed}`,
             place,
@@ -284,6 +287,7 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
             mood: r(MOOD_LIST),
             hashtags: getHashtags(place.category, seed * 137 + 42),
             photoUrl,
+            postedAt: Date.now() - minutesAgo * 60 * 1000,
           });
         }
         processedCountRef.current++;
@@ -359,6 +363,7 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
             mood: spot.mood || r(MOOD_LIST),
             hashtags: getHashtags(closestPlace.category, spot.id * 37),
             photoUrl,
+            postedAt: spot.createdAt instanceof Date ? spot.createdAt.getTime() : Date.now() - 2 * 60 * 1000,
             isUserSpot: true,
             userSpotInfo: { mbti: spot.mbti, sign: spot.sign, mood: spot.mood },
           });
@@ -743,32 +748,46 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
             </div>
           </div>
 
-          {/* 실시간 공간 피드 - 핵심 철학 인디케이터 */}
+          {/* 실시간 공간 피드 - N분 전 표시 */}
           <div
             style={{
               position: 'absolute',
               top: '60px',
               right: '12px',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'row',
               alignItems: 'center',
-              gap: '3px',
+              gap: '4px',
+              background: 'rgba(0,0,0,0.45)',
+              backdropFilter: 'blur(6px)',
+              border: `1px solid ${card.isUserSpot ? 'rgba(255,0,200,0.3)' : 'rgba(0,240,255,0.25)'}`,
+              borderRadius: '20px',
+              padding: '3px 8px',
             }}
           >
             <div style={{
-              width: '6px',
-              height: '6px',
+              width: '5px',
+              height: '5px',
               borderRadius: '50%',
               background: card.isUserSpot ? '#ff00cc' : '#00f0ff',
-              boxShadow: card.isUserSpot ? '0 0 8px #ff00cc' : '0 0 8px #00f0ff',
+              boxShadow: card.isUserSpot ? '0 0 6px #ff00cc' : '0 0 6px #00f0ff',
               animation: 'pulse-dot 1.5s ease-in-out infinite',
+              flexShrink: 0,
             }} />
             <span style={{
-              fontSize: '8px',
-              color: card.isUserSpot ? 'rgba(255,0,200,0.7)' : 'rgba(0,240,255,0.6)',
-              letterSpacing: '0.5px',
-              fontWeight: 700,
-            }}>LIVE</span>
+              fontSize: '10px',
+              color: card.isUserSpot ? 'rgba(255,0,200,0.9)' : 'rgba(0,240,255,0.85)',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+            }}>
+              {(() => {
+                const diff = Math.floor((Date.now() - card.postedAt) / 60000);
+                if (diff < 1) return '방금';
+                if (diff < 60) return `${diff}분 전`;
+                const h = Math.floor(diff / 60);
+                return `${h}시간 전`;
+              })()}
+            </span>
           </div>
 
           {/* 하단 오버레이 - 핵심 정보 */}
