@@ -196,6 +196,7 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
   const [slideDir, setSlideDir] = useState<'up' | 'down'>('up');
   const [visible, setVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // 즉시 카드 생성으로 로딩 불필요
+  const [imageLoaded, setImageLoaded] = useState(false); // 현재 카드 사진 로드 완료 여부
 
   // 처리 중인 장소 큐 (사진 조회 대기)
   const pendingRef = useRef<FixedPlace[]>([]);
@@ -405,11 +406,23 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
     if (next < 0 || next >= mergedCards.length) return;
     setSlideDir(dir);
     setTransitioning(true);
+    setImageLoaded(false); // 스와이프 즉시 로딩 상태로 전환
     setTimeout(() => {
       setCurrentIndex(next);
       setTransitioning(false);
     }, 280);
   }, [transitioning, currentIndex, mergedCards.length]);
+
+  // ─── 이미지 프리로드 (현재 ±2 카드 미리 로드) ──────────────────
+  useEffect(() => {
+    const preloadIndexes = [currentIndex + 1, currentIndex + 2, currentIndex - 1];
+    preloadIndexes.forEach(idx => {
+      if (idx >= 0 && idx < mergedCards.length) {
+        const img = new window.Image();
+        img.src = mergedCards[idx].photoUrl;
+      }
+    });
+  }, [currentIndex, mergedCards]);
 
   // 키보드
   useEffect(() => {
@@ -645,9 +658,44 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center',
+              opacity: imageLoaded ? 1 : 0,
+              transition: 'opacity 0.25s ease',
             }}
             draggable={false}
+            onLoad={() => setImageLoaded(true)}
           />
+
+          {/* 로딩 중 오버레이 */}
+          {!imageLoaded && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                zIndex: 1,
+              }}
+            >
+              <div style={{
+                width: '32px',
+                height: '32px',
+                border: '2.5px solid rgba(0,240,255,0.15)',
+                borderTop: '2.5px solid #00f0ff',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }} />
+              <span style={{
+                fontSize: '11px',
+                color: 'rgba(255,255,255,0.45)',
+                letterSpacing: '1.5px',
+                fontFamily: "'Bebas Neue', sans-serif",
+              }}>LOADING</span>
+            </div>
+          )}
 
           {/* 그라디언트 오버레이 (하단 정보 가독성) */}
           <div

@@ -410,3 +410,10 @@
 - [x] Google Places API 완전 제거, 카테고리별 큐레이션된 Unsplash 직접 URL 풀으로 교체 (8개 카테고리)
 - [x] 마운트 즉시 카드 생성 (로딩 스피너 제거), 다양한 장소 사진 정상 표시
 - [ ] 체크포인트 저장
+
+## SpotFeed 스와이프 딕레이 UX 개선
+- [x] 스와이프 즉시 imageLoaded=false로 리셋, LOADING 스피너 + 오버레이 표시
+- [x] 현재 ±2 카드 이미지 프리로드 (new Image() 객체 사용)
+- [x] 사진 onLoad 시 opacity 0→1 페이드인 (0.25s ease)
+- [x] spin 애니메이션 CSS 추가
+- [ ] 체크포인트 저장
