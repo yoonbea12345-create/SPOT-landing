@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import { FIXED_PLACES } from "@/data/fixedPlaces";
 import { AvatarSVG, ANIMALS, ACCESSORIES, EXPRESSIONS, EMOJIS, randomAvatarConfig, serializeAvatar, deserializeAvatar, type AvatarConfig, type AnimalType, type AccessoryType, type ExpressionType, type EmojiType } from "@/components/Avatar";
+import { SpotFeed } from "@/components/SpotFeed";
 
 type Screen = "splash" | "map";
 
@@ -628,6 +629,8 @@ export default function MvpMap() {
   const swipeTouchStartY = useRef<number | null>(null);
   const swipeTranslateY = useRef(0);
   const [sheetTranslateY, setSheetTranslateY] = useState(0);
+  const [showSpotFeed, setShowSpotFeed] = useState(false); // 숏폼 뷰어 표시 여부
+  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null); // Places 서비스 ref
 
   // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
   const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
@@ -1059,6 +1062,8 @@ export default function MvpMap() {
   // 지도 준비 완료 시 마커 생성
   const handleMapReady = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    // PlacesService 초기화 (숏폼 뷰어에서 사진 로드용)
+    placesServiceRef.current = new google.maps.places.PlacesService(map);
     const center = userLocation || HONGDAE_CENTER;
 
     // 구글 맵 기본 UI 컨트롤 제거 (전체화면 버튼만 유지)
@@ -2328,6 +2333,31 @@ export default function MvpMap() {
 
         {/* 우측 하단 버튼 그룹: 핫플 + 아바타DIY + 돋보기 */}
         <div className="absolute bottom-24 right-4 flex flex-col items-center gap-3">
+
+          {/* 숏폼 컨텐츠 버튼 (핫플 위) */}
+          <button
+            onClick={() => setShowSpotFeed(true)}
+            className="backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+            style={{
+              background: 'rgba(0,5,15,0.95)',
+              border: '2px solid rgba(0,240,255,0.65)',
+              boxShadow: '0 0 16px rgba(0,240,255,0.5), 0 0 6px rgba(0,200,255,0.25)',
+              width: '42px',
+              height: '42px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+            }}
+          >
+            {/* 재생 아이콘 (숏폼 상징) */}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="2" width="8" height="10" rx="1.5" fill="rgba(0,240,255,0.9)"/>
+              <rect x="14" y="2" width="8" height="10" rx="1.5" fill="rgba(0,240,255,0.9)"/>
+              <rect x="2" y="15" width="8" height="7" rx="1.5" fill="rgba(0,240,255,0.9)"/>
+              <rect x="14" y="15" width="8" height="7" rx="1.5" fill="rgba(0,240,255,0.9)"/>
+            </svg>
+          </button>
 
           {/* 핫플레이스 버튼 (돋보기 위) */}
           {hotspotCityNames.length > 0 && (
@@ -3610,6 +3640,14 @@ export default function MvpMap() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 숏폼 컨텐츠 뷰어 */}
+      {showSpotFeed && (
+        <SpotFeed
+          onClose={() => setShowSpotFeed(false)}
+          mapService={placesServiceRef.current}
+        />
       )}
     </div>
   );

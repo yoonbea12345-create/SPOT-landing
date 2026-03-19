@@ -1,0 +1,683 @@
+/**
+ * SpotFeed - SPOT 서비스의 숏폼 컨텐츠 뷰어
+ * 장소 사진 + 해시태그 + MBTI/SIGN을 세로형 스와이프 뷰어로 표시
+ * 인스타 릴스와 차별화: 다크 네온 테마, SPOT 고유 정보 레이어
+ */
+import { useState, useRef, useEffect, useCallback } from "react";
+import { FIXED_PLACES, type FixedPlace } from "@/data/fixedPlaces";
+
+// ─── 타입 ────────────────────────────────────────────────────────
+type PlaceTagType =
+  | 'cafe' | 'bar_club' | 'restaurant' | 'park_picnic'
+  | 'river_beach' | 'accommodation' | 'market' | 'culture_museum'
+  | 'sports_fitness' | 'shopping' | 'landmark' | 'nature';
+
+type FeedCard = {
+  place: FixedPlace;
+  mbti: string;
+  sign: string;
+  mood: string;
+  hashtags: string[];
+  photoUrl: string | null;
+  photoLoading: boolean;
+};
+
+// ─── 상수 ────────────────────────────────────────────────────────
+const MBTI_TYPES = [
+  "INTJ","INTP","ENTJ","ENTP",
+  "INFJ","INFP","ENFJ","ENFP",
+  "ISTJ","ISFJ","ESTJ","ESFJ",
+  "ISTP","ISFP","ESTP","ESFP"
+];
+
+const MBTI_COLORS: Record<string, string> = {
+  INTJ: "#00f5ff", INTP: "#00d4ff", ENTJ: "#00b8ff", ENTP: "#009cff",
+  INFJ: "#bf00ff", INFP: "#d400ff", ENFJ: "#e900ff", ENFP: "#ff00e5",
+  ISTJ: "#ff9500", ISFJ: "#ffb800", ESTJ: "#ffd700", ESFJ: "#ffaa00",
+  ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
+};
+
+const SIGN_LIST = [
+  "👋 말 걸어도 돼요", "🎧 혼자 있고 싶어요", "☕ 같이 앉아도 돼요",
+  "👀 구경 중이에요", "📸 사진 찍는 중이에요", "🌙 야경 보러 왔어요",
+  "🐾 산책 중이에요", "💬 대화 상대 찾아요", "🍽️ 맛집 찾는 중이에요",
+  "🛍️ 쇼핑 중이에요", "💻 작업 중이에요", "🍺 한잔하러 왔어요",
+];
+
+const MOOD_LIST = [
+  "HAPPY", "CHILL", "EXCITED", "PEACEFUL", "CURIOUS",
+  "DREAMY", "CONTENT", "HYPED", "ENERGETIC", "NOSTALGIC"
+];
+
+// ─── 해시태그 풀 ──────────────────────────────────────────────────
+const PLACE_HASHTAG_POOL: Record<PlaceTagType, string[]> = {
+  cafe: ['아아맛집','따아맛집','크로와상맛집','화장실 깨끗','콘센트 있음','혼자 와도 어색 안함','줄 없음','자리 많음','와이파이 빠름','뷰 실화','사진 잘 나옴','조용함','음악 좋음'],
+  bar_club: ['혼술하기 좋음','분위기 미침','웨이팅 없음','음악 딱 좋음','안주 맛있음','가성비 좋음','야외석 있음','지금 자리 있음','분위기 업됨','혼자 온 사람 많음'],
+  restaurant: ['웨이팅 없음','양 많음','가성비 실화','맛 실화','혼밥 하기 좋음','화장실 깨끗','재료 신선','국물 진함','포장 가능','직원 친절'],
+  park_picnic: ['사람 없어요','자리 있음','날씨 딱 좋음','그늘 있음','조용함','야경 좋음','강아지 많음','돗자리 필수','화장실 있음','편의점 근처'],
+  river_beach: ['한강뷰 실화','바다뷰 실화','노을 지금 딱 좋음','바람 시원','사람 없음','사진 잘 나옴','야경 미침','혼자 와도 좋음','자전거 많음','편의점 있음'],
+  accommodation: ['침대 깨끗','직원 친절','방음 잘 됨','와이파이 빠름','뷰 좋음','청결 합격','조식 맛있음','가성비 좋음','체크인 빠름','주차 가능'],
+  market: ['사람 많음','가격 흥정 가능','신선도 좋음','먹거리 많음','구경 재밌음','로컬 느낌','야시장 분위기','카드 됨','화장실 있음','외국인 많음'],
+  culture_museum: ['줄 없음','조용함','전시 좋음','사진 찍기 좋음','에어컨 빵빵','혼자 와도 좋음','설명 잘 돼 있음','카페 있음','기념품샵 있음','안내원 친절'],
+  sports_fitness: ['기구 많음','사람 없음','샤워실 깨끗','에어컨 빵빵','운동 분위기 좋음','초보자 환영','락커 있음','가성비 좋음','와이파이 됨','직원 친절'],
+  shopping: ['세일 중','사람 없음','에어컨 빵빵','화장실 깨끗','음식점 많음','구경 재밌음','신상 있음','피팅룸 있음','직원 친절','주차 가능'],
+  nature: ['산책하기 좋음','사람 없어요','뷰 실화','공기 좋음','날씨 딱 좋음','그늘 있음','일몰 좋음','사진 잘 나옴','혼자 와도 좋음','강아지 동반 가능'],
+  landmark: ['사진 잘 나옴','뷰 실화','야경 미침','포토존 있음','줄 없음','혼자 와도 좋음','입장료 없음','외국인 많음','낮에 와야 함','주차 가능'],
+};
+
+const classifyPlaceType = (category: string): PlaceTagType => {
+  const c = category.toLowerCase().trim();
+  if (c === 'cafe') return 'cafe';
+  if (c === 'bar') return 'bar_club';
+  if (c === 'restaurant') return 'restaurant';
+  if (c === 'park') return 'park_picnic';
+  if (c === 'beach') return 'river_beach';
+  if (c === 'nature') return 'nature';
+  if (c === 'market') return 'market';
+  if (c === 'landmark') return 'landmark';
+  return 'landmark';
+};
+
+const getHashtags = (category: string, seed: number): string[] => {
+  const type = classifyPlaceType(category);
+  const pool = PLACE_HASHTAG_POOL[type];
+  const shuffled = [...pool].sort((a, b) => {
+    const ha = (a.charCodeAt(0) * 31 + seed) % pool.length;
+    const hb = (b.charCodeAt(0) * 31 + seed) % pool.length;
+    return ha - hb;
+  });
+  return shuffled.slice(0, 5);
+};
+
+const r = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+// ─── 카테고리 이모지 ──────────────────────────────────────────────
+const CATEGORY_EMOJI: Record<string, string> = {
+  cafe: '☕', bar: '🍺', restaurant: '🍽️', park: '🌿',
+  beach: '🌊', nature: '🌲', market: '🛒', landmark: '📍',
+};
+
+// ─── 폴백 그라디언트 (사진 없을 때) ──────────────────────────────
+const FALLBACK_GRADIENTS: Record<string, string> = {
+  cafe: 'linear-gradient(160deg, #1a0a00 0%, #3d1a00 40%, #0a0a1a 100%)',
+  bar: 'linear-gradient(160deg, #0a001a 0%, #1a0033 40%, #000a1a 100%)',
+  restaurant: 'linear-gradient(160deg, #1a0000 0%, #330a00 40%, #0a0a00 100%)',
+  park: 'linear-gradient(160deg, #001a00 0%, #003300 40%, #001a0a 100%)',
+  beach: 'linear-gradient(160deg, #00001a 0%, #000033 40%, #001a1a 100%)',
+  nature: 'linear-gradient(160deg, #001a00 0%, #002200 40%, #00100a 100%)',
+  market: 'linear-gradient(160deg, #1a1000 0%, #332200 40%, #0a0a00 100%)',
+  landmark: 'linear-gradient(160deg, #00001a 0%, #000033 40%, #0a001a 100%)',
+};
+
+// ─── 카드 초기 데이터 생성 ────────────────────────────────────────
+const buildInitialCards = (): FeedCard[] => {
+  // FIXED_PLACES를 랜덤 셔플 후 최대 50개 선택
+  const shuffled = [...FIXED_PLACES].sort(() => Math.random() - 0.5).slice(0, 50);
+  return shuffled.map((place, i) => ({
+    place,
+    mbti: r(MBTI_TYPES),
+    sign: r(SIGN_LIST),
+    mood: r(MOOD_LIST),
+    hashtags: getHashtags(place.category, i * 137 + 42),
+    photoUrl: null,
+    photoLoading: true,
+  }));
+};
+
+// ─── 메인 컴포넌트 ────────────────────────────────────────────────
+interface SpotFeedProps {
+  onClose: () => void;
+  mapService: google.maps.places.PlacesService | null;
+}
+
+export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
+  const [cards, setCards] = useState<FeedCard[]>(() => buildInitialCards());
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const [slideDir, setSlideDir] = useState<'up' | 'down'>('up');
+  const [visible, setVisible] = useState(false);
+
+  // 터치 스와이프
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+
+  // 페이드인
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 30);
+    return () => clearTimeout(t);
+  }, []);
+
+  // 사진 로드 (현재 카드 + 다음 2개 프리로드)
+  const loadPhoto = useCallback((index: number) => {
+    if (!mapService) return;
+    const card = cards[index];
+    if (!card || !card.photoLoading) return;
+
+    const req: google.maps.places.PlaceSearchRequest = {
+      location: new google.maps.LatLng(card.place.lat, card.place.lng),
+      radius: 80,
+      keyword: card.place.placeName,
+    };
+
+    mapService.nearbySearch(req, (results: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]?.place_id) {
+        mapService.getDetails(
+          { placeId: results[0].place_id, fields: ['photos'] },
+          (detail: google.maps.places.PlaceResult | null, detailStatus: google.maps.places.PlacesServiceStatus) => {
+            if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos?.length) {
+              const url = detail.photos[0].getUrl({ maxWidth: 800, maxHeight: 1200 });
+              setCards(prev => prev.map((c, i) =>
+                i === index ? { ...c, photoUrl: url, photoLoading: false } : c
+              ));
+            } else {
+              setCards(prev => prev.map((c, i) =>
+                i === index ? { ...c, photoUrl: null, photoLoading: false } : c
+              ));
+            }
+          }
+        );
+      } else {
+        setCards(prev => prev.map((c, i) =>
+          i === index ? { ...c, photoUrl: null, photoLoading: false } : c
+        ));
+      }
+    });
+  }, [mapService, cards]);
+
+  useEffect(() => {
+    // 현재 + 다음 2개 프리로드
+    [currentIndex, currentIndex + 1, currentIndex + 2].forEach(i => {
+      if (i < cards.length) loadPhoto(i);
+    });
+  }, [currentIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const goTo = useCallback((dir: 'up' | 'down') => {
+    if (transitioning) return;
+    const next = dir === 'up' ? currentIndex + 1 : currentIndex - 1;
+    if (next < 0 || next >= cards.length) return;
+    setSlideDir(dir);
+    setTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex(next);
+      setTransitioning(false);
+    }, 280);
+  }, [transitioning, currentIndex, cards.length]);
+
+  // 키보드
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo('up');
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') goTo('down');
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [goTo, onClose]);
+
+  // 터치 핸들러
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const dy = touchStartY.current - e.changedTouches[0].clientY;
+    const dt = Date.now() - touchStartTime.current;
+    if (Math.abs(dy) > 40 && dt < 500) {
+      goTo(dy > 0 ? 'up' : 'down');
+    }
+    touchStartY.current = null;
+  };
+
+  // 마우스 드래그
+  const mouseStartY = useRef<number | null>(null);
+  const onMouseDown = (e: React.MouseEvent) => { mouseStartY.current = e.clientY; };
+  const onMouseUp = (e: React.MouseEvent) => {
+    if (mouseStartY.current === null) return;
+    const dy = mouseStartY.current - e.clientY;
+    if (Math.abs(dy) > 50) goTo(dy > 0 ? 'up' : 'down');
+    mouseStartY.current = null;
+  };
+
+  const card = cards[currentIndex];
+  if (!card) return null;
+
+  const mbtiColor = MBTI_COLORS[card.mbti] || '#00f0ff';
+  const catEmoji = CATEGORY_EMOJI[card.place.category] || '📍';
+  const fallbackBg = FALLBACK_GRADIENTS[card.place.category] || FALLBACK_GRADIENTS.landmark;
+
+  // 슬라이드 애니메이션
+  const slideStyle: React.CSSProperties = transitioning
+    ? {
+        transform: slideDir === 'up' ? 'translateY(-8%)' : 'translateY(8%)',
+        opacity: 0,
+        transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease',
+      }
+    : {
+        transform: 'translateY(0)',
+        opacity: 1,
+        transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease',
+      };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        background: '#000',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        userSelect: 'none',
+      }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+    >
+      {/* 닫기 버튼 */}
+      <button
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          zIndex: 10001,
+          background: 'rgba(0,0,0,0.6)',
+          border: '1.5px solid rgba(255,255,255,0.25)',
+          borderRadius: '50%',
+          width: '36px',
+          height: '36px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <line x1="1" y1="1" x2="13" y2="13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="13" y1="1" x2="1" y2="13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      </button>
+
+      {/* SPOT 로고 (좌상단) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '18px',
+          left: '16px',
+          zIndex: 10001,
+          fontFamily: "'Bebas Neue', 'Black Han Sans', sans-serif",
+          fontSize: '20px',
+          fontWeight: 900,
+          letterSpacing: '3px',
+          color: '#00f0ff',
+          textShadow: '0 0 12px #00f0ff88',
+        }}
+      >
+        SPOT
+      </div>
+
+      {/* 카드 영역 */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '420px',
+          height: '100%',
+          maxHeight: '100dvh',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* 메인 카드 */}
+        <div
+          style={{
+            ...slideStyle,
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            background: card.photoUrl ? 'transparent' : fallbackBg,
+          }}
+        >
+          {/* 배경 사진 */}
+          {card.photoUrl ? (
+            <img
+              src={card.photoUrl}
+              alt={card.place.placeName}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+              draggable={false}
+            />
+          ) : card.photoLoading ? (
+            // 로딩 shimmer
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(90deg, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.5s infinite',
+              }}
+            />
+          ) : (
+            // 폴백 - 네온 패턴 배경
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: fallbackBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div style={{ fontSize: '80px', opacity: 0.15 }}>{catEmoji}</div>
+            </div>
+          )}
+
+          {/* 그라디언트 오버레이 (하단 정보 가독성) */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, transparent 30%, transparent 45%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.95) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* 상단 - 인원 정보 */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '60px',
+              left: '16px',
+              right: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <div
+              style={{
+                background: 'rgba(0,0,0,0.55)',
+                backdropFilter: 'blur(8px)',
+                border: `1px solid ${mbtiColor}44`,
+                borderRadius: '20px',
+                padding: '4px 10px',
+                fontSize: '11px',
+                color: 'rgba(255,255,255,0.7)',
+                letterSpacing: '0.5px',
+              }}
+            >
+              {catEmoji} {card.place.placeName.length > 14 ? card.place.placeName.slice(0, 14) + '…' : card.place.placeName}
+            </div>
+          </div>
+
+          {/* 우측 - 인터랙션 버튼 (인스타 차별화: 지도 이동 버튼) */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '12px',
+              bottom: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '20px',
+            }}
+          >
+            {/* MBTI 뱃지 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: `${mbtiColor}22`,
+                  border: `2px solid ${mbtiColor}`,
+                  boxShadow: `0 0 14px ${mbtiColor}66`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 900,
+                  color: mbtiColor,
+                  letterSpacing: '0.5px',
+                }}
+              >
+                {card.mbti}
+              </div>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>TYPE</span>
+            </div>
+
+            {/* 지도 이동 버튼 (SPOT 고유 기능) */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: 'rgba(0,240,255,0.12)',
+                  border: '2px solid rgba(0,240,255,0.5)',
+                  boxShadow: '0 0 12px rgba(0,240,255,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                onClick={onClose}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+                  <path d="M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>
+                </svg>
+              </div>
+              <span style={{ fontSize: '10px', color: 'rgba(0,240,255,0.7)' }}>지도</span>
+            </div>
+
+            {/* 인원 수 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,0,200,0.12)',
+                  border: '2px solid rgba(255,0,200,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: 900,
+                  color: '#ff00cc',
+                }}
+              >
+                {Math.floor(Math.random() * 15) + 2}
+              </div>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>명</span>
+            </div>
+          </div>
+
+          {/* 하단 오버레이 - 핵심 정보 */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '20px 16px 36px',
+            }}
+          >
+            {/* 아이디/MBTI/SIGN 라인 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px',
+                flexWrap: 'wrap',
+              }}
+            >
+              {/* MBTI 인라인 뱃지 */}
+              <span
+                style={{
+                  background: `${mbtiColor}22`,
+                  border: `1px solid ${mbtiColor}88`,
+                  borderRadius: '6px',
+                  padding: '2px 7px',
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  color: mbtiColor,
+                  letterSpacing: '1px',
+                  textShadow: `0 0 8px ${mbtiColor}66`,
+                }}
+              >
+                {card.mbti}
+              </span>
+              {/* SIGN */}
+              <span
+                style={{
+                  fontSize: '12px',
+                  color: 'rgba(255,255,255,0.85)',
+                  fontWeight: 500,
+                }}
+              >
+                {card.sign}
+              </span>
+            </div>
+
+            {/* 장소명 */}
+            <div
+              style={{
+                fontSize: '17px',
+                fontWeight: 900,
+                color: '#fff',
+                marginBottom: '10px',
+                letterSpacing: '-0.3px',
+                lineHeight: 1.3,
+                textShadow: '0 1px 8px rgba(0,0,0,0.8)',
+              }}
+            >
+              {card.place.placeName}
+            </div>
+
+            {/* 해시태그 */}
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px',
+              }}
+            >
+              {card.hashtags.map((tag, i) => (
+                <span
+                  key={i}
+                  style={{
+                    fontSize: '12px',
+                    color: i === 0 ? '#00f0ff' : 'rgba(255,255,255,0.65)',
+                    fontWeight: i === 0 ? 700 : 400,
+                    textShadow: i === 0 ? '0 0 8px #00f0ff66' : 'none',
+                  }}
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+
+            {/* SPOT 워터마크 */}
+            <div
+              style={{
+                marginTop: '12px',
+                fontSize: '10px',
+                color: 'rgba(0,240,255,0.4)',
+                letterSpacing: '2px',
+                fontWeight: 700,
+              }}
+            >
+              SPOT · 지금 이 순간
+            </div>
+          </div>
+        </div>
+
+        {/* 우측 진행 인디케이터 */}
+        <div
+          style={{
+            position: 'absolute',
+            right: '6px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            zIndex: 10,
+          }}
+        >
+          {cards.slice(Math.max(0, currentIndex - 2), Math.min(cards.length, currentIndex + 5)).map((_, i) => {
+            const absIdx = Math.max(0, currentIndex - 2) + i;
+            const isActive = absIdx === currentIndex;
+            return (
+              <div
+                key={absIdx}
+                style={{
+                  width: isActive ? '3px' : '2px',
+                  height: isActive ? '20px' : '6px',
+                  borderRadius: '2px',
+                  background: isActive ? '#00f0ff' : 'rgba(255,255,255,0.25)',
+                  boxShadow: isActive ? '0 0 6px #00f0ff' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {/* 스와이프 힌트 (첫 번째 카드에만) */}
+        {currentIndex === 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '100px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              animation: 'swipeHint 2s ease-in-out infinite',
+              pointerEvents: 'none',
+              zIndex: 10,
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', letterSpacing: '1px' }}>위로 스와이프</span>
+          </div>
+        )}
+      </div>
+
+      {/* CSS 애니메이션 */}
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes swipeHint {
+          0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+          50% { transform: translateX(-50%) translateY(-8px); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
