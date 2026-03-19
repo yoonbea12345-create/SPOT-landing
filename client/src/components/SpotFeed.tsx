@@ -2,6 +2,9 @@
  * SpotFeed - SPOT 서비스의 숏폼 컨텐츠 뷰어
  * 장소 사진 + 해시태그 + MBTI/SIGN을 세로형 스와이프 뷰어로 표시
  * 인스타 릴스와 차별화: 다크 네온 테마, SPOT 고유 정보 레이어
+ *
+ * v2: 검정 피드 완전 제거 - 사진 확인된 카드만 표시
+ *     지도 연동 + 사용자 스팟 연동
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { FIXED_PLACES, type FixedPlace } from "@/data/fixedPlaces";
@@ -13,13 +16,31 @@ type PlaceTagType =
   | 'sports_fitness' | 'shopping' | 'landmark' | 'nature';
 
 type FeedCard = {
+  id: string;
   place: FixedPlace;
   mbti: string;
   sign: string;
   mood: string;
   hashtags: string[];
-  photoUrl: string | null;
-  photoLoading: boolean;
+  photoUrl: string;        // 사진 확인된 것만 cards에 추가하므로 항상 존재
+  isUserSpot?: boolean;    // 실제 사용자 스팟 여부
+  userSpotInfo?: {
+    mbti: string;
+    sign: string;
+    mood: string;
+  };
+};
+
+type UserSpot = {
+  id: number;
+  mbti: string;
+  mood: string;
+  mode: string;
+  sign: string;
+  lat: number;
+  lng: number;
+  avatar?: string | null;
+  createdAt: Date;
 };
 
 // ─── 상수 ────────────────────────────────────────────────────────
@@ -97,45 +118,28 @@ const CATEGORY_EMOJI: Record<string, string> = {
   beach: '🌊', nature: '🌲', market: '🛒', landmark: '📍',
 };
 
-// ─── 폴백 그라디언트 (사진 없을 때) ──────────────────────────────
-const FALLBACK_GRADIENTS: Record<string, string> = {
-  cafe: 'linear-gradient(160deg, #1a0a00 0%, #3d1a00 40%, #0a0a1a 100%)',
-  bar: 'linear-gradient(160deg, #0a001a 0%, #1a0033 40%, #000a1a 100%)',
-  restaurant: 'linear-gradient(160deg, #1a0000 0%, #330a00 40%, #0a0a00 100%)',
-  park: 'linear-gradient(160deg, #001a00 0%, #003300 40%, #001a0a 100%)',
-  beach: 'linear-gradient(160deg, #00001a 0%, #000033 40%, #001a1a 100%)',
-  nature: 'linear-gradient(160deg, #001a00 0%, #002200 40%, #00100a 100%)',
-  market: 'linear-gradient(160deg, #1a1000 0%, #332200 40%, #0a0a00 100%)',
-  landmark: 'linear-gradient(160deg, #00001a 0%, #000033 40%, #0a001a 100%)',
-};
-
-// ─── 카드 초기 데이터 생성 ────────────────────────────────────────
-const buildInitialCards = (): FeedCard[] => {
-  // FIXED_PLACES를 랜덤 셔플 후 최대 80개 선택 (사진 없는 것 제거 후에도 충분한 수 확보)
-  const shuffled = [...FIXED_PLACES].sort(() => Math.random() - 0.5).slice(0, 80);
-  return shuffled.map((place, i) => ({
-    place,
-    mbti: r(MBTI_TYPES),
-    sign: r(SIGN_LIST),
-    mood: r(MOOD_LIST),
-    hashtags: getHashtags(place.category, i * 137 + 42),
-    photoUrl: null,
-    photoLoading: true,
-  }));
-};
-
 // ─── 메인 컴포넌트 ────────────────────────────────────────────────
 interface SpotFeedProps {
   onClose: () => void;
   mapService: google.maps.places.PlacesService | null;
+  onGoToPlace?: (lat: number, lng: number, placeName: string) => void;
+  userSpots?: UserSpot[];
 }
 
-export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
-  const [cards, setCards] = useState<FeedCard[]>(() => buildInitialCards());
+export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFeedProps) {
+  // 확인된 카드만 표시 (사진 있는 것만)
+  const [cards, setCards] = useState<FeedCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const [slideDir, setSlideDir] = useState<'up' | 'down'>('up');
   const [visible, setVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // 초기 로딩 상태
+
+  // 처리 중인 장소 큐 (사진 조회 대기)
+  const pendingRef = useRef<FixedPlace[]>([]);
+  const processingRef = useRef(false); // 현재 처리 중 여부
+  const mountedRef = useRef(true);
+  const processedCountRef = useRef(0); // 처리된 총 수
 
   // 터치 스와이프
   const touchStartY = useRef<number | null>(null);
@@ -144,76 +148,195 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
   // 페이드인
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 30);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      mountedRef.current = false;
+    };
   }, []);
 
-  // 사진 로드 - 사진 없으면 해당 카드 제거
-  // 중복 로드 방지용 Set
-  const loadingSet = useRef<Set<number>>(new Set());
+  // ─── 사진 조회 함수 (순수 비동기, setCards 밖에서 처리) ───────────
+  const fetchPhotoForPlace = useCallback(
+    (place: FixedPlace, seed: number): Promise<string | null> => {
+      return new Promise((resolve) => {
+        if (!mapService) { resolve(null); return; }
 
-  const loadPhoto = useCallback((index: number) => {
-    if (!mapService) return;
-    if (loadingSet.current.has(index)) return; // 이미 로드 중
+        const req: google.maps.places.PlaceSearchRequest = {
+          location: new google.maps.LatLng(place.lat, place.lng),
+          radius: 100,
+          keyword: place.placeName,
+        };
 
-    setCards(prev => {
-      const card = prev[index];
-      if (!card || !card.photoLoading) return prev;
-      loadingSet.current.add(index);
-
-      const req: google.maps.places.PlaceSearchRequest = {
-        location: new google.maps.LatLng(card.place.lat, card.place.lng),
-        radius: 80,
-        keyword: card.place.placeName,
-      };
-
-      mapService.nearbySearch(req, (results, status) => {
-        loadingSet.current.delete(index);
-        if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]?.place_id) {
-          mapService.getDetails(
-            { placeId: results[0].place_id!, fields: ['photos'] },
-            (detail, detailStatus) => {
-              if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos?.length) {
-                // 사진 있음: URL 저장
-                const url = detail.photos[0].getUrl({ maxWidth: 800, maxHeight: 1200 });
-                setCards(prev2 => prev2.map((c, i) =>
-                  i === index ? { ...c, photoUrl: url, photoLoading: false } : c
-                ));
-              } else {
-                // 사진 없음: 해당 카드 제거
-                setCards(prev2 => prev2.filter((_, i) => i !== index));
-                setCurrentIndex(ci => ci > index ? ci - 1 : ci);
+        mapService.nearbySearch(req, (results, status) => {
+          if (
+            status === google.maps.places.PlacesServiceStatus.OK &&
+            results?.[0]?.place_id
+          ) {
+            mapService.getDetails(
+              { placeId: results[0].place_id!, fields: ['photos'] },
+              (detail, detailStatus) => {
+                if (
+                  detailStatus === google.maps.places.PlacesServiceStatus.OK &&
+                  detail?.photos?.length
+                ) {
+                  const url = detail.photos[0].getUrl({ maxWidth: 800, maxHeight: 1200 });
+                  resolve(url);
+                } else {
+                  resolve(null);
+                }
               }
-            }
-          );
-        } else {
-          // 장소 조회 실패: 해당 카드 제거
-          setCards(prev2 => prev2.filter((_, i) => i !== index));
-          setCurrentIndex(ci => ci > index ? ci - 1 : ci);
+            );
+          } else {
+            resolve(null);
+          }
+        });
+      });
+    },
+    [mapService]
+  );
+
+  // ─── 큐 처리 (동시 3개씩 병렬 처리) ─────────────────────────────
+  const processQueue = useCallback(async () => {
+    if (processingRef.current || !mapService) return;
+    processingRef.current = true;
+
+    while (pendingRef.current.length > 0 && mountedRef.current) {
+      // 동시 3개 처리
+      const batch = pendingRef.current.splice(0, 3);
+      const results = await Promise.all(
+        batch.map((place, i) =>
+          fetchPhotoForPlace(place, processedCountRef.current + i)
+        )
+      );
+
+      if (!mountedRef.current) break;
+
+      const newCards: FeedCard[] = [];
+      batch.forEach((place, i) => {
+        const photoUrl = results[i];
+        if (photoUrl) {
+          const seed = processedCountRef.current + i;
+          newCards.push({
+            id: `place-${place.placeName}-${seed}`,
+            place,
+            mbti: r(MBTI_TYPES),
+            sign: r(SIGN_LIST),
+            mood: r(MOOD_LIST),
+            hashtags: getHashtags(place.category, seed * 137 + 42),
+            photoUrl,
+          });
         }
+        processedCountRef.current++;
       });
 
-      return prev; // 비동기 시작 전 상태 유지
-    });
-  }, [mapService]);
+      if (newCards.length > 0 && mountedRef.current) {
+        setCards(prev => {
+          const updated = [...prev, ...newCards];
+          return updated;
+        });
+        setIsLoading(false);
+      }
+
+      // 카드가 15개 이상 쌓이면 잠시 대기 (과도한 API 호출 방지)
+      if (cards.length >= 15) {
+        await new Promise(res => setTimeout(res, 500));
+      }
+    }
+
+    processingRef.current = false;
+  }, [mapService, fetchPhotoForPlace, cards.length]);
+
+  // ─── 초기 큐 설정 ────────────────────────────────────────────────
+  useEffect(() => {
+    if (!mapService) return;
+
+    // FIXED_PLACES 랜덤 셔플 후 큐에 추가
+    const shuffled = [...FIXED_PLACES].sort(() => Math.random() - 0.5);
+    pendingRef.current = shuffled;
+    processedCountRef.current = 0;
+    processingRef.current = false;
+
+    processQueue();
+  }, [mapService]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── 카드 부족 시 추가 처리 ──────────────────────────────────────
+  useEffect(() => {
+    const remaining = cards.length - currentIndex;
+    if (remaining <= 5 && pendingRef.current.length > 0 && !processingRef.current) {
+      processQueue();
+    }
+  }, [currentIndex, cards.length, processQueue]);
+
+  // ─── 사용자 스팟 피드에 삽입 ─────────────────────────────────────
+  // userSpots가 있으면 cards 3번째마다 삽입 (별도 처리)
+  const [userSpotCards, setUserSpotCards] = useState<FeedCard[]>([]);
 
   useEffect(() => {
-    // 현재 + 다음 3개 프리로드
-    [currentIndex, currentIndex + 1, currentIndex + 2, currentIndex + 3].forEach(i => {
-      if (i < cards.length) loadPhoto(i);
+    if (!userSpots?.length || !mapService) return;
+
+    // 사용자 스팟 주변 장소 사진 조회
+    const processUserSpots = async () => {
+      const newUserCards: FeedCard[] = [];
+      for (const spot of userSpots.slice(0, 10)) {
+        // 가장 가까운 FIXED_PLACE 찾기
+        let closestPlace: FixedPlace | null = null;
+        let minDist = Infinity;
+        for (const fp of FIXED_PLACES) {
+          const d = Math.sqrt(
+            Math.pow(fp.lat - spot.lat, 2) + Math.pow(fp.lng - spot.lng, 2)
+          );
+          if (d < minDist) { minDist = d; closestPlace = fp; }
+        }
+        if (!closestPlace) continue;
+
+        const photoUrl = await fetchPhotoForPlace(closestPlace, Math.random() * 1000 | 0);
+        if (photoUrl && mountedRef.current) {
+          newUserCards.push({
+            id: `user-spot-${spot.id}`,
+            place: { ...closestPlace, placeName: closestPlace.placeName },
+            mbti: spot.mbti,
+            sign: spot.sign || r(SIGN_LIST),
+            mood: spot.mood || r(MOOD_LIST),
+            hashtags: getHashtags(closestPlace.category, spot.id * 37),
+            photoUrl,
+            isUserSpot: true,
+            userSpotInfo: { mbti: spot.mbti, sign: spot.sign, mood: spot.mood },
+          });
+        }
+      }
+      if (newUserCards.length > 0 && mountedRef.current) {
+        setUserSpotCards(newUserCards);
+      }
+    };
+
+    processUserSpots();
+  }, [userSpots, mapService, fetchPhotoForPlace]);
+
+  // ─── 최종 피드 = 일반 카드 + 사용자 스팟 카드 섞기 ──────────────
+  const mergedCards = (() => {
+    if (!userSpotCards.length) return cards;
+    // 3번째마다 사용자 스팟 카드 삽입
+    const result: FeedCard[] = [];
+    let userIdx = 0;
+    cards.forEach((card, i) => {
+      result.push(card);
+      if ((i + 1) % 3 === 0 && userIdx < userSpotCards.length) {
+        result.push(userSpotCards[userIdx++]);
+      }
     });
-  }, [currentIndex, loadPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
+    return result;
+  })();
 
   const goTo = useCallback((dir: 'up' | 'down') => {
     if (transitioning) return;
     const next = dir === 'up' ? currentIndex + 1 : currentIndex - 1;
-    if (next < 0 || next >= cards.length) return;
+    if (next < 0 || next >= mergedCards.length) return;
     setSlideDir(dir);
     setTransitioning(true);
     setTimeout(() => {
       setCurrentIndex(next);
       setTransitioning(false);
     }, 280);
-  }, [transitioning, currentIndex, cards.length]);
+  }, [transitioning, currentIndex, mergedCards.length]);
 
   // 키보드
   useEffect(() => {
@@ -251,12 +374,80 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
     mouseStartY.current = null;
   };
 
-  const card = cards[currentIndex];
-  if (!card) return null;
+  const card = mergedCards[currentIndex];
+  const mbtiColor = card ? (MBTI_COLORS[card.mbti] || '#00f0ff') : '#00f0ff';
+  const catEmoji = card ? (CATEGORY_EMOJI[card.place.category] || '📍') : '📍';
 
-  const mbtiColor = MBTI_COLORS[card.mbti] || '#00f0ff';
-  const catEmoji = CATEGORY_EMOJI[card.place.category] || '📍';
-  const fallbackBg = FALLBACK_GRADIENTS[card.place.category] || FALLBACK_GRADIENTS.landmark;
+  // ─── 초기 로딩 화면 ──────────────────────────────────────────────
+  if (isLoading || !card) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          background: '#000',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+        }}
+      >
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: 'rgba(0,0,0,0.6)',
+            border: '1.5px solid rgba(255,255,255,0.25)',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <line x1="1" y1="1" x2="13" y2="13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            <line x1="13" y1="1" x2="1" y2="13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
+        <div style={{
+          fontFamily: "'Bebas Neue', 'Black Han Sans', sans-serif",
+          fontSize: '28px',
+          fontWeight: 900,
+          letterSpacing: '4px',
+          color: '#00f0ff',
+          textShadow: '0 0 20px #00f0ff88',
+        }}>
+          SPOT
+        </div>
+        {/* 로딩 스피너 */}
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid rgba(0,240,255,0.15)',
+          borderTop: '3px solid #00f0ff',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <div style={{
+          fontSize: '12px',
+          color: 'rgba(255,255,255,0.4)',
+          letterSpacing: '2px',
+        }}>
+          장소 사진 불러오는 중...
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
   // 슬라이드 애니메이션
   const slideStyle: React.CSSProperties = transitioning
@@ -330,9 +521,24 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
           letterSpacing: '3px',
           color: '#00f0ff',
           textShadow: '0 0 12px #00f0ff88',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
         }}
       >
         SPOT
+        {card.isUserSpot && (
+          <span style={{
+            fontSize: '9px',
+            background: 'rgba(255,0,200,0.2)',
+            border: '1px solid rgba(255,0,200,0.5)',
+            borderRadius: '4px',
+            padding: '1px 5px',
+            color: '#ff00cc',
+            letterSpacing: '1px',
+            fontFamily: 'inherit',
+          }}>LIVE</span>
+        )}
       </div>
 
       {/* 카드 영역 */}
@@ -353,50 +559,22 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
             width: '100%',
             height: '100%',
             position: 'relative',
-            background: card.photoUrl ? 'transparent' : fallbackBg,
           }}
         >
-          {/* 배경 사진 */}
-          {card.photoUrl ? (
-            <img
-              src={card.photoUrl}
-              alt={card.place.placeName}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-              }}
-              draggable={false}
-            />
-          ) : card.photoLoading ? (
-            // 로딩 shimmer
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(90deg, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 1.5s infinite',
-              }}
-            />
-          ) : (
-            // 폴백 - 네온 패턴 배경
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: fallbackBg,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <div style={{ fontSize: '80px', opacity: 0.15 }}>{catEmoji}</div>
-            </div>
-          )}
+          {/* 배경 사진 (항상 존재) */}
+          <img
+            src={card.photoUrl}
+            alt={card.place.placeName}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
+            draggable={false}
+          />
 
           {/* 그라디언트 오버레이 (하단 정보 가독성) */}
           <div
@@ -408,7 +586,7 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
             }}
           />
 
-          {/* 상단 - 인원 정보 */}
+          {/* 상단 - 장소명 태그 */}
           <div
             style={{
               position: 'absolute',
@@ -436,7 +614,7 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
             </div>
           </div>
 
-          {/* 우측 - 인터랙션 버튼 (인스타 차별화: 지도 이동 버튼) */}
+          {/* 우측 - 인터랙션 버튼 */}
           <div
             style={{
               position: 'absolute',
@@ -487,7 +665,12 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
                   justifyContent: 'center',
                   cursor: 'pointer',
                 }}
-                onClick={onClose}
+                onClick={() => {
+                  if (onGoToPlace) {
+                    onGoToPlace(card.place.lat, card.place.lng, card.place.placeName);
+                  }
+                  onClose();
+                }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="3"/>
@@ -612,12 +795,12 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
               style={{
                 marginTop: '12px',
                 fontSize: '10px',
-                color: 'rgba(0,240,255,0.4)',
+                color: card.isUserSpot ? 'rgba(255,0,200,0.6)' : 'rgba(0,240,255,0.4)',
                 letterSpacing: '2px',
                 fontWeight: 700,
               }}
             >
-              SPOT · 지금 이 순간
+              {card.isUserSpot ? 'SPOT · 실시간 현장' : 'SPOT · 지금 이 순간'}
             </div>
           </div>
         </div>
@@ -635,7 +818,7 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
             zIndex: 10,
           }}
         >
-          {cards.slice(Math.max(0, currentIndex - 2), Math.min(cards.length, currentIndex + 5)).map((_, i) => {
+          {mergedCards.slice(Math.max(0, currentIndex - 2), Math.min(mergedCards.length, currentIndex + 5)).map((_, i) => {
             const absIdx = Math.max(0, currentIndex - 2) + i;
             const isActive = absIdx === currentIndex;
             return (
@@ -681,13 +864,12 @@ export function SpotFeed({ onClose, mapService }: SpotFeedProps) {
 
       {/* CSS 애니메이션 */}
       <style>{`
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
         @keyframes swipeHint {
           0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
           50% { transform: translateX(-50%) translateY(-8px); opacity: 1; }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>

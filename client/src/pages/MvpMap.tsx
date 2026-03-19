@@ -3648,6 +3648,13 @@ export default function MvpMap() {
         <SpotFeed
           onClose={() => setShowSpotFeed(false)}
           mapService={placesServiceRef.current}
+          userSpots={spotsData?.spots}
+          onGoToPlace={(lat, lng, placeName) => {
+            if (mapRef.current) {
+              mapRef.current.panTo({ lat, lng });
+              mapRef.current.setZoom(17);
+            }
+          }}
         />
       )}
     </div>
