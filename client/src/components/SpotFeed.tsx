@@ -450,14 +450,47 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
     touchStartY.current = null;
   };
 
+  // 드래그 실시간 피드백 (translateY 따라오기)
+  const [dragOffset, setDragOffset] = useState(0);
+  const isDragging = useRef(false);
+
+  // 터치 드래그 (onTouchMove 추가)
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    // 반대 방향 제한: 첫 카드에서 위로, 마지막 카드에서 아래로
+    if (currentIndex === 0 && dy > 0) return;
+    if (currentIndex === mergedCards.length - 1 && dy < 0) return;
+    setDragOffset(dy * 0.4); // 저항감 (0.4배)
+  };
+
   // 마우스 드래그
   const mouseStartY = useRef<number | null>(null);
-  const onMouseDown = (e: React.MouseEvent) => { mouseStartY.current = e.clientY; };
+  const onMouseDown = (e: React.MouseEvent) => {
+    mouseStartY.current = e.clientY;
+    isDragging.current = true;
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || mouseStartY.current === null) return;
+    const dy = e.clientY - mouseStartY.current;
+    if (currentIndex === 0 && dy > 0) return;
+    if (currentIndex === mergedCards.length - 1 && dy < 0) return;
+    setDragOffset(dy * 0.4);
+  };
   const onMouseUp = (e: React.MouseEvent) => {
     if (mouseStartY.current === null) return;
     const dy = mouseStartY.current - e.clientY;
+    setDragOffset(0);
+    isDragging.current = false;
     if (Math.abs(dy) > 50) goTo(dy > 0 ? 'up' : 'down');
     mouseStartY.current = null;
+  };
+  const onMouseLeave = () => {
+    if (isDragging.current && mouseStartY.current !== null) {
+      setDragOffset(0);
+      isDragging.current = false;
+      mouseStartY.current = null;
+    }
   };
 
   const card = mergedCards[currentIndex];
@@ -535,12 +568,18 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
     );
   }
 
-  // 슬라이드 애니메이션
+  // 슬라이드 애니메이션 + 드래그 오프셋
   const slideStyle: React.CSSProperties = transitioning
     ? {
         transform: slideDir === 'up' ? 'translateY(-8%)' : 'translateY(8%)',
         opacity: 0,
         transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease',
+      }
+    : dragOffset !== 0
+    ? {
+        transform: `translateY(${dragOffset}px)`,
+        opacity: 1 - Math.abs(dragOffset) / 400,
+        transition: 'none', // 드래그 중 트랜지션 없애야 부드러움
       }
     : {
         transform: 'translateY(0)',
@@ -564,9 +603,12 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
         userSelect: 'none',
       }}
       onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
+      onTouchMove={onTouchMove}
+      onTouchEnd={(e) => { setDragOffset(0); onTouchEnd(e); }}
       onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
     >
       {/* 닫기 버튼 */}
       <button
@@ -671,29 +713,87 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
+                background: '#0a0a0a',
                 zIndex: 1,
+                overflow: 'hidden',
               }}
             >
+              {/* Shimmer 오버레이 */}
               <div style={{
-                width: '32px',
-                height: '32px',
-                border: '2.5px solid rgba(0,240,255,0.15)',
-                borderTop: '2.5px solid #00f0ff',
-                borderRadius: '50%',
-                animation: 'spin 0.8s linear infinite',
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(105deg, transparent 40%, rgba(0,240,255,0.04) 50%, transparent 60%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.4s ease-in-out infinite',
               }} />
-              <span style={{
-                fontSize: '11px',
-                color: 'rgba(255,255,255,0.45)',
-                letterSpacing: '1.5px',
-                fontFamily: "'Bebas Neue', sans-serif",
-              }}>LOADING</span>
+
+              {/* 상단 장소명 스켈레턴 */}
+              <div style={{
+                position: 'absolute',
+                top: '60px',
+                left: '16px',
+                height: '22px',
+                width: '140px',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.07)',
+                overflow: 'hidden',
+              }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(0,240,255,0.08) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite' }} />
+              </div>
+
+              {/* 하단 오버레이 그라디언트 */}
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '55%',
+                background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.85) 60%, #000 100%)',
+              }} />
+
+              {/* MBTI 배지 스켈레턴 */}
+              <div style={{
+                position: 'absolute',
+                bottom: '180px',
+                left: '16px',
+                height: '28px',
+                width: '72px',
+                borderRadius: '14px',
+                background: 'rgba(0,240,255,0.1)',
+                border: '1px solid rgba(0,240,255,0.15)',
+                overflow: 'hidden',
+              }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(0,240,255,0.12) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite 0.1s' }} />
+              </div>
+
+              {/* SIGN 스켈레턴 */}
+              <div style={{
+                position: 'absolute',
+                bottom: '144px',
+                left: '16px',
+                height: '16px',
+                width: '160px',
+                borderRadius: '8px',
+                background: 'rgba(255,255,255,0.06)',
+                overflow: 'hidden',
+              }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite 0.2s' }} />
+              </div>
+
+              {/* 해시태그 스켈레턴 3개 */}
+              <div style={{ position: 'absolute', bottom: '108px', left: '16px', display: 'flex', gap: '6px' }}>
+                {[80, 100, 70].map((w, i) => (
+                  <div key={i} style={{
+                    height: '22px',
+                    width: `${w}px`,
+                    borderRadius: '11px',
+                    background: 'rgba(255,255,255,0.07)',
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: `shimmer 1.4s ease-in-out infinite ${0.1 * i}s` }} />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -800,6 +900,51 @@ export function SpotFeed({ onClose, mapService, onGoToPlace, userSpots }: SpotFe
                 {card.place.placeName.length % 14 + 3}
               </div>
               <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>명</span>
+            </div>
+
+            {/* 공유 버튼 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1.5px solid rgba(255,255,255,0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const shareText = `${card.place.placeName}\n${card.mbti} · ${card.mood}\n${card.hashtags.slice(0, 3).join(' ')}\n\nSPOT - 지금 이 곳의 실시간 분위기`;
+                  const shareUrl = window.location.origin + '/mvp';
+                  if (navigator.share) {
+                    try {
+                      await navigator.share({ title: `SPOT · ${card.place.placeName}`, text: shareText, url: shareUrl });
+                    } catch (_) { /* 취소 */ }
+                  } else {
+                    // 폴백: 클립보드 복사
+                    try {
+                      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+                      // 토스트 대신 잊시적 피드백
+                      const el = e.currentTarget as HTMLElement;
+                      const prev = el.style.background;
+                      el.style.background = 'rgba(0,240,255,0.25)';
+                      setTimeout(() => { el.style.background = prev; }, 600);
+                    } catch (_) { /* 실패 무시 */ }
+                  }
+                }}
+              >
+                {/* 공유 아이콘 (arrow up from box) */}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                  <polyline points="16 6 12 2 8 6"/>
+                  <line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>공유</span>
             </div>
           </div>
 

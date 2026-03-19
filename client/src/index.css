@@ -254,3 +254,9 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* SpotFeed shimmer 스켈레톤 */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}

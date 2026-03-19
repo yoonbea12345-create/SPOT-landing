@@ -417,3 +417,9 @@
 - [x] 사진 onLoad 시 opacity 0→1 페이드인 (0.25s ease)
 - [x] spin 애니메이션 CSS 추가
 - [ ] 체크포인트 저장
+
+## SpotFeed 3가지 UX 개선
+- [x] 스켈레톤 UI: LOADING 스피너 → shimmer 스켈레톤 (장소명/MBTI/SIGN/해시태그 자리 포함, shimmer 애니메이션)
+- [x] 스와이프 드래그 실시간 피드백: onTouchMove/onMouseMove로 translateY 따라오기 + 저항감(0.4배) + 슬라이드 시 transition none
+- [x] 공유 버튼: 우측 사이드바에 추가, Web Share API(모바일 네이티브 공유시트) + 클립보드 복사 폴백
+- [ ] 체크포인트 저장
