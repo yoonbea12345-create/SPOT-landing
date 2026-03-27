@@ -389,6 +389,7 @@ type DummyMarker = {
   placeName?: string;   // 실제 장소명 (고정 마커)
   placeId?: string;     // Google Place ID (고정 마커)
   category?: string;    // 장소 카테고리 (폴백 이미지용)
+  checkinTime?: number; // 체크인 시각 (ms timestamp)
 };
 
 // 더미 데이터 생성 (주요 도시 집약 + 전국 무작위 분포)
@@ -513,7 +514,9 @@ const generateDummyData = (): DummyMarker[] => {
         lng = city.lng + Math.cos(angle) * dist;
       }
       
-      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig() });
+      // 체크인 시각: 1~90분 전 랜덤
+      const checkinTime = Date.now() - Math.floor(Math.random() * 90 + 1) * 60 * 1000;
+      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig(), checkinTime });
     }
   });
   
@@ -553,6 +556,7 @@ type PopupData = {
   nearbyCount?: number; // 이 장소 반경 내 인원 수
   nearbyMbtiDist?: Record<string, number>; // 반경 내 MBTI 분포
   avatar?: AvatarConfig; // 아바타 정보
+  checkinTime?: number; // 체크인 시각 (ms timestamp)
 };
 
 // 장소 사진 타입
@@ -569,6 +573,65 @@ type SpotFormData = {
   sign: string;
   avatar: AvatarConfig;
 };
+
+// 체류 시간 라이브 카운터 컴포넌트
+function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbtiColor: string }) {
+  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - checkinTime) / 1000));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - checkinTime) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [checkinTime]);
+
+  const formatElapsed = (secs: number) => {
+    if (secs < 60) return `${secs}초`;
+    const mins = Math.floor(secs / 60);
+    const remainSecs = secs % 60;
+    if (mins < 60) return remainSecs > 0 ? `${mins}분 ${remainSecs}초` : `${mins}분`;
+    const hours = Math.floor(mins / 60);
+    const remainMins = mins % 60;
+    return remainMins > 0 ? `${hours}시간 ${remainMins}분` : `${hours}시간`;
+  };
+
+  return (
+    <div
+      className="rounded-xl p-2"
+      style={{
+        background: `${mbtiColor}0d`,
+        border: `1px solid ${mbtiColor}33`,
+      }}
+    >
+      <div className="text-[9px] font-bold text-gray-600 mb-1 tracking-widest">⏱️ 이 장소에 머문 시간</div>
+      <div className="flex items-center gap-2">
+        {/* 폄스 애니메이션 도트 */}
+        <div
+          style={{
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: mbtiColor,
+            boxShadow: `0 0 8px ${mbtiColor}`,
+            animation: 'pulse-dot 1.5s ease-in-out infinite',
+            flexShrink: 0,
+          }}
+        />
+        <div
+          className="text-sm font-black tabular-nums"
+          style={{
+            color: mbtiColor,
+            textShadow: `0 0 10px ${mbtiColor}88`,
+            letterSpacing: '0.02em',
+          }}
+        >
+          {formatElapsed(elapsed)}
+        </div>
+        <div className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>지나는 중</div>
+      </div>
+    </div>
+  );
+}
 
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
@@ -1332,6 +1395,7 @@ export default function MvpMap() {
           avatar: item.avatar,
           nearbyCount: nearbyAllM.length,
           nearbyMbtiDist: nearbyMbtiDistM,
+          checkinTime: item.checkinTime,
         });
         // 고정 장소명 있으면 즉시 설정
         if (item.placeName) setPopupPlaceName(item.placeName);
@@ -1536,6 +1600,7 @@ export default function MvpMap() {
           avatar: target.avatar,
           nearbyCount: nearbyAllS.length,
           nearbyMbtiDist: nearbyMbtiDistS,
+          checkinTime: target.checkinTime,
         });
         // 역지오코딩
         const geocoder = new google.maps.Geocoder();
@@ -1914,6 +1979,7 @@ export default function MvpMap() {
         nearbyCount: nearbyAllR.length,
         nearbyMbtiDist: nearbyMbtiDistR,
         avatar: spot.avatar,
+        checkinTime: Date.now(), // 실제 스팟 = 방금 체크인
       });
       // 역지오코딩으로 주소 가져오기
       const geocoder2 = new google.maps.Geocoder();
@@ -2830,6 +2896,14 @@ export default function MvpMap() {
                       {popupData.sign}
                     </div>
                   </div>
+
+                  {/* 체류 시간 라이브 카운터 */}
+                  {popupData.checkinTime && (
+                    <LiveDwellCounter
+                      checkinTime={popupData.checkinTime}
+                      mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'}
+                    />
+                  )}
 
                   {/* 이 장소 인원 & MBTI 분포 */}
                   {popupData.nearbyCount !== undefined && popupData.nearbyCount > 0 && (

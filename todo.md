@@ -423,3 +423,10 @@
 - [x] 스와이프 드래그 실시간 피드백: onTouchMove/onMouseMove로 translateY 따라오기 + 저항감(0.4배) + 슬라이드 시 transition none
 - [x] 공유 버튼: 우측 사이드바에 추가, Web Share API(모바일 네이티브 공유시트) + 클립보드 복사 폴백
 - [ ] 체크포인트 저장
+
+## 아바타 팝업 체류 시간 라이브 카운터
+- [x] 아바타 팝업 컴포넌트 파악 (MvpMap.tsx 팝업 데이터 구조 확인)
+- [x] DummyMarker/PopupData에 checkinTime 필드 추가, 더미 데이터 생성 시 1~90분 전 랜덤 시각 부여
+- [x] LiveDwellCounter 컴포넌트 구현 (1초마다 갱신, 폄스 도트 애니메이션, MBTI 색상 연동)
+- [x] SIGN 아래에 실시간 카운터 위치, 실제 스팟은 방금 체크인(0초부터 시작)
+- [ ] 체크포인트 저장
