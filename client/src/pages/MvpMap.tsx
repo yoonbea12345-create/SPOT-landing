@@ -595,6 +595,14 @@ function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbt
     return remainMins > 0 ? `${hours}시간 ${remainMins}분` : `${hours}시간`;
   };
 
+  // 체류 시간 기반 배지
+  const mins = Math.floor(elapsed / 60);
+  const badge = mins >= 60
+    ? { emoji: '🏠', label: '여기 살아요?', color: '#ff6b35', glow: 'rgba(255,107,53,0.6)' }
+    : mins >= 30
+    ? { emoji: '🔥', label: '오래 있는 중', color: '#ff4500', glow: 'rgba(255,69,0,0.6)' }
+    : null;
+
   return (
     <div
       className="rounded-xl p-2"
@@ -604,6 +612,30 @@ function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbt
       }}
     >
       <div className="text-[9px] font-bold text-gray-600 mb-1 tracking-widest">⏱️ 이 장소에 머문 시간</div>
+
+      {/* 체류 시간 배지 - 30분 이상일 때만 표시 */}
+      {badge && (
+        <div
+          className="flex items-center gap-1.5 mb-1.5 px-2 py-1 rounded-lg"
+          style={{
+            background: `${badge.color}18`,
+            border: `1px solid ${badge.color}55`,
+            boxShadow: `0 0 10px ${badge.glow}`,
+          }}
+        >
+          <span style={{ fontSize: '13px' }}>{badge.emoji}</span>
+          <span
+            className="text-[10px] font-black tracking-wide"
+            style={{
+              color: badge.color,
+              textShadow: `0 0 8px ${badge.glow}`,
+            }}
+          >
+            {badge.label}
+          </span>
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
         {/* 폄스 애니메이션 도트 */}
         <div
