@@ -131,7 +131,7 @@ export default function Home() {
       <section className="relative py-0 overflow-hidden border-t border-border">
         <div className="relative z-10 max-w-sm mx-auto">
           {/* 카드 상단 효익 문구 */}
-          <p className="text-center text-sm text-muted-foreground pt-4 pb-2 px-4">
+          <p className="text-center text-sm pt-4 pb-2 px-4" style={{ color: '#f8f8f7' }}>
             방문자 수 · 실시간 사진 · 사용자 유형으로<br />
             <span style={{ color: '#f8f8f7' }}>공간 분위기를 10초 안에 파악하세요.</span>
           </p>
