@@ -86,15 +86,19 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-lg mx-auto text-center">
-          <h1 className="font-black tracking-tighter mb-6" style={{ fontSize: '72px', lineHeight: 1 }}>
-            <span className="text-primary" style={{ textShadow: '0 0 32px oklch(0.7 0.25 270)' }}>SPOT</span>
+          <h1 className="font-black tracking-tighter mb-10" style={{ fontSize: '72px', lineHeight: 1 }}>
+            <span className="text-primary">SPOT</span>
           </h1>
 
-          <p className="font-black leading-tight mb-4" style={{ fontSize: '26px' }}>
+          {/* 3줄 문구 — 크기 점층적으로 커짐 */}
+          <p className="font-medium text-muted-foreground mb-2" style={{ fontSize: '18px', letterSpacing: '0.02em' }}>
             연출된 리뷰, 평점, 사진보다
           </p>
-          <p className="font-black leading-tight mb-10" style={{ fontSize: '26px' }}>
-            거기 <span className="text-primary">실시간 분위기</span>가 더 중요하니까.
+          <p className="font-black mb-2" style={{ fontSize: '26px' }}>
+            실시간 공간 분위기 정보가
+          </p>
+          <p className="font-black text-primary mb-12" style={{ fontSize: '30px' }}>
+            더 중요하니까.
           </p>
 
           <Button
@@ -111,15 +115,15 @@ export default function Home() {
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-0 right-0 w-80 h-80 bg-secondary rounded-full filter blur-3xl animate-pulse" />
         </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
+        <div className="relative z-10 max-w-lg mx-auto text-center space-y-5">
           <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
-            리뷰, 평점, 연출된 사진은
+            리뷰, 평점, 사진은
           </p>
-          <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
-            <span className="text-secondary">실시간 공간을 못담기에</span>
+          <p className="font-black leading-tight text-secondary" style={{ fontSize: '28px' }}>
+            실시간 공간을 못 담기에
           </p>
-          <p className="font-black leading-tight pt-4" style={{ fontSize: '36px' }}>
-          <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>SPOT.</span> 새롭게 시작합니다.
+          <p className="font-black leading-tight pt-2" style={{ fontSize: '28px', whiteSpace: 'nowrap' }}>
+            <span className="text-primary">SPOT</span>이 새롭게 시작합니다.
           </p>
         </div>
       </section>
@@ -161,7 +165,7 @@ export default function Home() {
                 className="flex transition-transform duration-300 ease-out"
                 style={{ transform: `translateX(-${carouselIndex * 100}%)` }}
               >
-                {/* Card 0 - 스포리 팝업 (ISTJ, MOOD/MODE/SIGN/SPOTLIGHT) */}
+                {/* Card 0 */}
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
@@ -175,13 +179,13 @@ export default function Home() {
                       <h3 className="text-xl font-black mb-1 text-primary">#SPOT:INFO</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         MBTI·MOOD·MODE·SIGN.<br />
-                        <span className="text-primary">지금 그 공간의 분위기.</span>
+                        <span className="text-white">지금 그 공간의 분위기.</span>
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Card 1 - 서울 전체 지도 (핫플 클러스터) */}
+                {/* Card 1 */}
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
@@ -195,13 +199,13 @@ export default function Home() {
                       <h3 className="text-xl font-black mb-1 text-secondary">#SPOT:WIDE</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         지금 어디에 몇 명이 모였는지.<br />
-                        <span className="text-secondary">실시간 흐름을 한눈에.</span>
+                        <span className="text-white">실시간 흐름을 한눈에.</span>
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Card 2 - INFP 팝업 (망원 한강공원) */}
+                {/* Card 2 */}
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
@@ -214,14 +218,14 @@ export default function Home() {
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
                       <h3 className="text-xl font-black mb-1 text-accent">#SPOT:NEAR</h3>
                       <p className="text-sm leading-relaxed text-white/80">
-                        마커를 누르면 그 사람의 지금.<br />
-                        <span className="text-accent">SPOTLIGHT 사진까지.</span>
+                        마커로 보는 해당 사람, 공간의 지금.<br />
+                        <span className="text-white">SPOTLIGHT로 누구보다 정확히.</span>
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Card 3 - 스팟 등록 폼 */}
+                {/* Card 3 */}
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
@@ -234,8 +238,8 @@ export default function Home() {
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
                       <h3 className="text-xl font-black mb-1 text-primary">#SPOT:ME</h3>
                       <p className="text-sm leading-relaxed text-white/80">
-                        나도 지금 이 공간에.<br />
-                        <span className="text-primary">내 스팟을 남겨보세요.</span>
+                        이젠 실망한 모습에서 공유하고 싶은 현장을.<br />
+                        <span className="text-white">지도 위에 나만의 마커를.</span>
                       </p>
                     </div>
                   </div>
@@ -285,8 +289,6 @@ export default function Home() {
         </div>
       </section>
 
-      
-
       {/* ─── BETA CTA ─── */}
       <section className="relative py-16 px-6 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -296,9 +298,6 @@ export default function Home() {
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
           <p className="font-black" style={{ fontSize: '32px' }}>
             26.07. BETA SERVICE LAUNCH
-          </p>
-          <p className="text-muted-foreground" style={{ fontSize: '16px' }}>
-            
           </p>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -352,11 +351,15 @@ export default function Home() {
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl animate-pulse" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
         </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
-          <p className="font-black leading-tight" style={{ fontSize: '30px' }}>
-            이젠 과거로부터의 선택과 비교가 아닌<br />
-            <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>실시간의 탐색을.</span>
-          </p>
+        <div className="relative z-10 max-w-lg mx-auto text-center space-y-8">
+          <div className="space-y-3">
+            <p className="font-medium text-muted-foreground" style={{ fontSize: '18px' }}>
+              이젠 과거로부터의 선택이 아닌
+            </p>
+            <p className="font-black text-primary" style={{ fontSize: '34px' }}>
+              실시간의 탐색을.
+            </p>
+          </div>
           <Button
             className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
             onClick={() => handleTrackAndNavigate('click_보러가기_cta', '/mvp')}
@@ -381,7 +384,6 @@ export default function Home() {
               height: activeSection === i ? '6px' : '4px',
               borderRadius: '50%',
               background: activeSection === i ? 'oklch(0.8 0.15 195)' : 'rgba(255,255,255,0.35)',
-              boxShadow: activeSection === i ? '0 0 6px 1px oklch(0.8 0.15 195)' : 'none',
               border: 'none',
               padding: 0,
               cursor: 'pointer',
