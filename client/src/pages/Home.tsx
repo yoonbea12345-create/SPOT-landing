@@ -184,7 +184,7 @@ export default function Home() {
           {/* 카드 상단 효익 문구 */}
           <p className="text-center text-sm pt-4 pb-2 px-4" style={{ color: '#f8f8f7' }}>
             방문자 수 · 실시간 사진 · 사용자 유형으로<br />
-            <span style={{ color: '#f8f8f7' }}>실시간 공간 분위기를 탐색해봐요.</span>
+            <span style={{ color: '#f8f8f7' }}>실시간 공간 분위기를 탐색해보세요.</span>
           </p>
 
           <div className="relative">
