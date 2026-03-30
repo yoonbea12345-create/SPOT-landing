@@ -274,7 +274,7 @@ export default function Home() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM: MAKER-VIEW</h3>
+                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM: REAL-TIME VIEW</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         마커로 보는 해당 사람·공간의 지금.<br />
                         <span className="text-white">SPOTLIGHT로 누구보다 정확히.</span>
@@ -294,7 +294,7 @@ export default function Home() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM: SH</h3>
+                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM: ACTIVITY</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         이젠 실망했던 실제모습이 아닌 공유하고 싶은 현장을.<br />
                         <span className="text-white">지도 위에 나만의 마커를.</span>
