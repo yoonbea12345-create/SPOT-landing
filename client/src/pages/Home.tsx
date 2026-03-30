@@ -95,7 +95,7 @@ export default function Home() {
             블로그, SNS, 리뷰 보다
           </p>
           <p className="font-black mb-10" style={{ fontSize: '24px' }}>
-            <span className="text-primary">실시간 공간 분위기</span> </p>정보가 더 중요하니까.
+            <span className="text-primary">실시간 공간 분위기</span> 정보가 더 중요하니까.
           </p>
 
           <Button
@@ -117,7 +117,7 @@ export default function Home() {
             블로그·SNS·지도 리뷰는
           </p>
           <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.6, color: '#f8f8f7' }}>
-            때때로 <span style={{ color: 'oklch(0.6 0.01 0)' }}>과거 혹은 광고</span>입니다.</p>
+            때때로 <span style={{ color: 'oklch(0.6 0.01 0)' }}>과거 혹은 광고</span>입니다.<br />
             실시간의 혼잡도·사람 구성·분위기를<br />
             보여주지 못합니다.
           </p>
@@ -174,7 +174,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/19_e5c120f8.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp19_034cedbc.png"
                       alt="스포리 팝업"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
@@ -194,7 +194,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/14_491996bc.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp14_346f6aa9.png"
                       alt="서울 전체 지도"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
@@ -214,7 +214,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/15_0534eb38.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp15_7bd1c973.png"
                       alt="INFP 팝업"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
@@ -234,7 +234,7 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/17_b95ae4f4.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp17_43341ade.png"
                       alt="스팟 등록 폼"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
