@@ -135,8 +135,7 @@ export default function Home() {
             블로그, SNS, 리뷰 보다
           </p>
           <p className="font-black mb-10" style={{ fontSize: '24px' }}>
-            <span className="text-primary">실시간 공간 분위기</span> 
-           </p>
+            <span className="text-primary">실시간 공간 분위기</span><br />
             정보가 더 중요하니까.
           </p>
 
@@ -170,8 +169,7 @@ export default function Home() {
           </div>
 
           <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.7, color: '#f8f8f7' }}>
-            기존 서비스들은
-             </p>
+            기존 서비스들은<br />
             실시간의 혼잡도·사람 구성·분위기를<br />
             보여주지 못합니다.
           </p>
