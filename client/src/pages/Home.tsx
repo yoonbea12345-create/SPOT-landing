@@ -91,10 +91,10 @@ export default function Home() {
           </h1>
 
           <p className="font-black leading-tight mb-4" style={{ fontSize: '26px' }}>
-            어디 갈지보다,
+            연출된 리뷰, 평점, 사진보다
           </p>
           <p className="font-black leading-tight mb-10" style={{ fontSize: '26px' }}>
-            거기 <span className="text-primary">분위기</span>가 더 중요하니까.
+            거기 <span className="text-primary">실시간 분위기</span>가 더 중요하니까.
           </p>
 
           <Button
@@ -113,13 +113,13 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
           <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
-            핫플은 압니다.
+            리뷰, 평점, 연출된 사진은
           </p>
           <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
-            <span className="text-secondary">누가 있는지</span>는 모릅니다.
+            <span className="text-secondary">실시간 공간을 못담기에 
           </p>
           <p className="font-black leading-tight pt-4" style={{ fontSize: '36px' }}>
-            그래서 <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>SPOT.</span>
+          <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>SPOT.</span> 새롭게 시작합니다.
           </p>
         </div>
       </section>
@@ -285,34 +285,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── TRUST ─── */}
-      <section className="relative py-16 px-6 border-t border-border overflow-hidden">
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 left-0 w-80 h-80 bg-primary rounded-full filter blur-3xl animate-pulse" />
-        </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-8">
-          <p className="font-black" style={{ fontSize: '22px' }}>
-            걱정 마세요.
-          </p>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="p-4 border border-primary/30 rounded-xl bg-card/50 space-y-2">
-              <div className="text-3xl">🎭</div>
-              <p className="text-xs font-black text-primary leading-tight">오직 MBTI만</p>
-              <p className="text-xs text-muted-foreground leading-tight">누구인지 보이지 않습니다.</p>
-            </div>
-            <div className="p-4 border border-secondary/30 rounded-xl bg-card/50 space-y-2">
-              <div className="text-3xl">📍</div>
-              <p className="text-xs font-black text-secondary leading-tight">범위만 표시</p>
-              <p className="text-xs text-muted-foreground leading-tight">정확한 위치는 없습니다.</p>
-            </div>
-            <div className="p-4 border border-accent/30 rounded-xl bg-card/50 space-y-2">
-              <div className="text-3xl">✋</div>
-              <p className="text-xs font-black text-accent leading-tight">내 선택</p>
-              <p className="text-xs text-muted-foreground leading-tight">다가갈지 지나칠지.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* ─── BETA CTA ─── */}
       <section className="relative py-16 px-6 border-t border-border overflow-hidden">
@@ -322,10 +295,10 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
           <p className="font-black" style={{ fontSize: '32px' }}>
-            26.07. BETA.
+            26.07. BETA SERVICE LAUNCH
           </p>
           <p className="text-muted-foreground" style={{ fontSize: '16px' }}>
-            홍대·성수 먼저.
+            
           </p>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -381,8 +354,8 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
           <p className="font-black leading-tight" style={{ fontSize: '30px' }}>
-            지금 이 골목,<br />
-            <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>누가 있는지 확인해보세요.</span>
+            이젠 과거로부터의 선택과 비교가 아닌<br />
+            <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}실시간의 탐색을.</span>
           </p>
           <Button
             className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
