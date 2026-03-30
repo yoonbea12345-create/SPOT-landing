@@ -95,14 +95,14 @@ export default function Home() {
             블로그, SNS, 리뷰 보다
           </p>
           <p className="font-black mb-10" style={{ fontSize: '24px' }}>
-            <span className="text-primary">실시간</span>으로 찾는 지도.
+            <span className="text-primary">실시간 공간 분위기</span> 정보가 더 중요하니까.
           </p>
 
           <Button
             className="px-10 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
             onClick={() => handleTrackAndNavigate('click_mvp_hero', '/mvp')}
           >
-            지금 MVP 체험하기
+            지도 내 검색
           </Button>
         </div>
       </section>
@@ -117,12 +117,12 @@ export default function Home() {
             블로그·SNS·지도 리뷰는
           </p>
           <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.6, color: '#f8f8f7' }}>
-            모두 <span style={{ color: 'oklch(0.6 0.01 0)' }}>누적 정보</span>입니다.<br />
-            지금 이 순간의 혼잡도·사람 구성·현장 무드를<br />
+            때때로 <span style={{ color: 'oklch(0.6 0.01 0)' }}>과거 혹은 광고</span>입니다.<br />
+            실시간의 혼잡도·사람 구성·분위기를<br />
             보여주지 못합니다.
           </p>
           <p className="font-black pt-2" style={{ fontSize: '24px' }}>
-            <span className="text-primary">SPOT</span>이 새롭게 시작합니다.
+            그래서 <span className="text-primary">SPOT</span>이 시작합니다.
           </p>
         </div>
       </section>
