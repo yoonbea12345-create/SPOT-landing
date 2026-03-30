@@ -136,7 +136,6 @@ export default function Home() {
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
              사진에선 예뻤지만<span className="text-secondary">실제는.</span> 다르다.
             </p>
-            </p>
 
             <div className="pt-4">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '30px'}}>
@@ -448,8 +447,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
-              이젠 과거로부터의 선택에서 
-            <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
+              이젠 과거로부터의 선택에서 <br />
               <span className="text-primary">실시간의 탐색을.</span>
             </p>
           </div>
