@@ -116,7 +116,7 @@ export default function Home() {
             리뷰, 평점, 연출된 사진은
           </p>
           <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
-            <span className="text-secondary">실시간 공간을 못담기에 
+            <span className="text-secondary">실시간 공간을 못담기에</span>
           </p>
           <p className="font-black leading-tight pt-4" style={{ fontSize: '36px' }}>
           <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>SPOT.</span> 새롭게 시작합니다.
@@ -355,7 +355,7 @@ export default function Home() {
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
           <p className="font-black leading-tight" style={{ fontSize: '30px' }}>
             이젠 과거로부터의 선택과 비교가 아닌<br />
-            <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}실시간의 탐색을.</span>
+            <span className="text-primary" style={{ textShadow: '0 0 20px oklch(0.7 0.25 270)' }}>실시간의 탐색을.</span>
           </p>
           <Button
             className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
