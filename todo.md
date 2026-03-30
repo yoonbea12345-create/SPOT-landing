@@ -442,3 +442,9 @@
 - [x] MOOD/MODE/SIGN/SPOTLIGHT/인원분포 → 확장 영역으로 이동
 - [x] nearbyRecent 필드 추가, popupExpanded/popupTagVotes 상태 관리
 - [ ] 체크포인트 저장
+
+## 랜딩페이지 문구 전면 수정 + 카드 사진 교체
+- [x] 예창.pdf + SS.pdf 핵심 문구 파악 (A/B 테스트 결과 반영)
+- [x] Home.tsx 전 섹션 문구를 SPOT 느낌으로 짧고 강하게 수정
+- [x] 카드 섹션 사진 4장을 첨부 스크린샷으로 교체 (CDN 업로드)
+- [ ] 체크포인트 저장
