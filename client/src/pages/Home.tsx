@@ -92,17 +92,17 @@ export default function Home() {
 
           {/* 헤드라인: 구체적 가치 제안 */}
           <p className="font-black mb-2" style={{ fontSize: '24px' }}>
-            지금 분위기 맞는 카페·술집,
+            블로그, SNS, 리뷰 보다
           </p>
           <p className="font-black mb-10" style={{ fontSize: '24px' }}>
-            <span className="text-primary">실시간</span>으로 찾는 지도.
+            <span className="text-primary">실시간 공간 분위기</span> </ br>정보가 더 중요하니까.
           </p>
 
-          <Button
+          <Button></Button>
             className="px-10 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
-            onClick={() => handleTrackAndNavigate('click_mvp_hero', '/mvp')}
+            onClick={() => handleTrackAndNavigate('click__hero', '/')}
           >
-            지금 MVP 체험하기
+            지도 내 검색
           </Button>
         </div>
       </section>
@@ -117,12 +117,12 @@ export default function Home() {
             블로그·SNS·지도 리뷰는
           </p>
           <p className="font-black text-muted-foreground" style={{ fontSize: '18px', lineHeight: 1.6 }}>
-            모두 <span style={{ color: '#f8f8f7' }}>누적 정보</span>입니다.<br />
-            지금 이 순간의 혼잡도·사람 구성·현장 무드를<br />
+            때때로<span style={{ color: '#f8f8f7' }}> 과거 혹은 광고</span>입니다.</p>
+            실시간의 혼잡도·사람 구성·분위기를</p>
             보여주지 못합니다.
           </p>
           <p className="font-black pt-2" style={{ fontSize: '24px' }}>
-            <span className="text-primary">SPOT</span>이 새롭게 시작합니다.
+            그래서<span className="text-primary">SPOT</span>이 시작합니다.
           </p>
         </div>
       </section>
@@ -133,7 +133,7 @@ export default function Home() {
           {/* 카드 상단 효익 문구 */}
           <p className="text-center text-sm pt-4 pb-2 px-4" style={{ color: '#f8f8f7' }}>
             방문자 수 · 실시간 사진 · 사용자 유형으로<br />
-            <span style={{ color: '#f8f8f7' }}>공간 분위기를 10초 안에 파악하세요.</span>
+            <span style={{ color: '#f8f8f7' }}>실시간 공간 분위기를 탐색해봐요.</span>
           </p>
 
           <div className="relative">
@@ -174,14 +174,14 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp19_e5c120f8.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/19_e5c120f8.png"
                       alt="스포리 팝업"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-primary">#SPOT:INFO</h3>
+                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM: MOOD</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         MBTI·MOOD·MODE·SIGN.<br />
                         <span className="text-white">지금 그 공간의 분위기.</span>
@@ -194,14 +194,14 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp14_491996bc.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/14_491996bc.png"
                       alt="서울 전체 지도"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-secondary">#SPOT:WIDE</h3>
+                      <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM: EXPLORE</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         지금 어디에 몇 명이 모였는지.<br />
                         <span className="text-white">실시간 흐름을 한눈에.</span>
@@ -214,16 +214,16 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp15_0534eb38.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/15_0534eb38.png"
                       alt="INFP 팝업"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-accent">#SPOT:NEAR</h3>
+                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM: SPOTLIGHT</h3>
                       <p className="text-sm leading-relaxed text-white/80">
-                        마커로 보는 해당 사람, 공간의 지금.<br />
+                        마커로 보는 해당 사람·공간의 지금을.<br />
                         <span className="text-white">SPOTLIGHT로 누구보다 정확히.</span>
                       </p>
                     </div>
@@ -234,14 +234,14 @@ export default function Home() {
                 <div className="w-full flex-shrink-0 p-2">
                   <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                     <img
-                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/mvp17_b95ae4f4.png"
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/17_b95ae4f4.png"
                       alt="스팟 등록 폼"
                       className="w-full object-cover object-top"
                       style={{ aspectRatio: '9/16', maxHeight: '75vh' }}
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-primary">#SPOT:ME</h3>
+                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM: ABOUT-ME</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         이젠 실망한 모습에서 공유하고 싶은 현장을.<br />
                         <span className="text-white">지도 위에 나만의 마커를.</span>
