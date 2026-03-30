@@ -13,12 +13,33 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
-  const totalSections = 5;
+  const totalSections = 4;
   const [carouselIndex, setCarouselIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
+  const autoSlideRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isPausedRef = useRef(false);
   const CAROUSEL_TOTAL = 4;
+
+  // 카운트다운 타이머 — 2026-07-01 기준
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  useEffect(() => {
+    const target = new Date('2026-07-01T00:00:00+09:00').getTime();
+    const tick = () => {
+      const now = Date.now();
+      const diff = Math.max(target - now, 0);
+      setCountdown({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const trackEvent = trpc.log.trackEvent.useMutation();
   const emailSubscribe = trpc.email.subscribe.useMutation();
@@ -34,6 +55,7 @@ export default function Home() {
     window.location.href = url;
   };
 
+  // 스크롤 섹션 감지
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll('section');
@@ -48,6 +70,25 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // 카드 자동 슬라이드 — 3초 간격, 터치/마우스 시 일시정지
+  useEffect(() => {
+    const startAuto = () => {
+      if (autoSlideRef.current) clearInterval(autoSlideRef.current);
+      autoSlideRef.current = setInterval(() => {
+        if (!isPausedRef.current) {
+          setCarouselIndex(i => (i + 1) % CAROUSEL_TOTAL);
+        }
+      }, 3000);
+    };
+    startAuto();
+    return () => { if (autoSlideRef.current) clearInterval(autoSlideRef.current); };
+  }, []);
+
+  const pauseAuto = () => { isPausedRef.current = true; };
+  const resumeAuto = () => {
+    isPausedRef.current = false;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,12 +131,12 @@ export default function Home() {
             <span className="text-primary">SPOT</span>
           </h1>
 
-          {/* 헤드라인: 구체적 가치 제안 */}
           <p className="font-black mb-2" style={{ fontSize: '24px' }}>
             블로그, SNS, 리뷰 보다
           </p>
           <p className="font-black mb-10" style={{ fontSize: '24px' }}>
-            <span className="text-primary">실시간 공간 분위기</span> 정보가 더 중요하니까.
+            <span className="text-primary">실시간 공간 분위기</span><br />
+            정보가 더 중요하니까.
           </p>
 
           <Button
@@ -112,17 +153,28 @@ export default function Home() {
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-0 right-0 w-80 h-80 bg-secondary rounded-full filter blur-3xl animate-pulse" />
         </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-4">
-          <p className="font-black" style={{ fontSize: '22px' }}>
-            블로그·SNS·지도 리뷰는
-          </p>
-          <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.6, color: '#f8f8f7' }}>
+        <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
+          {/* 기존 방식 한계 비교 */}
+          <div className="grid grid-cols-2 gap-3 mb-2">
+            <div className="rounded-xl border border-border/50 bg-card/60 px-3 py-4 text-center space-y-1">
+              <p className="text-xs font-bold text-muted-foreground tracking-widest">기존</p>
+              <p className="text-sm font-black text-muted-foreground">블로그 · SNS · 지도</p>
+              <p className="text-xs text-muted-foreground/70 leading-relaxed">누적 정보<br />과거 혹은 광고</p>
+            </div>
+            <div className="rounded-xl border border-primary/40 bg-primary/5 px-3 py-4 text-center space-y-1">
+              <p className="text-xs font-bold text-primary tracking-widest">SPOT</p>
+              <p className="text-sm font-black text-primary">실시간 지도</p>
+              <p className="text-xs text-white/70 leading-relaxed">지금 이 순간<br />혼잡도 · 분위기</p>
+            </div>
+          </div>
+
+          <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.7, color: '#f8f8f7' }}>
             때때로 <span style={{ color: 'oklch(0.6 0.01 0)' }}>과거 혹은 광고</span>입니다.<br />
             실시간의 혼잡도·사람 구성·분위기를<br />
             보여주지 못합니다.
           </p>
-          <p className="font-black pt-2" style={{ fontSize: '24px' }}>
-            그래서 <span className="text-primary">SPOT</span>이 시작합니다.
+          <p className="font-black pt-2" style={{ fontSize: '26px' }}>
+            그래서 이제는 <span className="text-primary">SPOT.</span>
           </p>
         </div>
       </section>
@@ -140,10 +192,10 @@ export default function Home() {
             <div
               ref={carouselRef}
               className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
-              onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+              onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; pauseAuto(); }}
               onTouchMove={(e) => { touchEndX.current = e.touches[0].clientX; }}
               onTouchEnd={() => {
-                if (touchStartX.current === null || touchEndX.current === null) return;
+                if (touchStartX.current === null || touchEndX.current === null) { resumeAuto(); return; }
                 const diff = touchStartX.current - touchEndX.current;
                 if (Math.abs(diff) > 40) {
                   if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
@@ -151,11 +203,12 @@ export default function Home() {
                 }
                 touchStartX.current = null;
                 touchEndX.current = null;
+                resumeAuto();
               }}
-              onMouseDown={(e) => { touchStartX.current = e.clientX; }}
+              onMouseDown={(e) => { touchStartX.current = e.clientX; pauseAuto(); }}
               onMouseMove={(e) => { if (touchStartX.current !== null) touchEndX.current = e.clientX; }}
               onMouseUp={() => {
-                if (touchStartX.current === null || touchEndX.current === null) return;
+                if (touchStartX.current === null || touchEndX.current === null) { resumeAuto(); return; }
                 const diff = touchStartX.current - touchEndX.current;
                 if (Math.abs(diff) > 40) {
                   if (diff > 0) setCarouselIndex(i => Math.min(i + 1, CAROUSEL_TOTAL - 1));
@@ -163,8 +216,9 @@ export default function Home() {
                 }
                 touchStartX.current = null;
                 touchEndX.current = null;
+                resumeAuto();
               }}
-              onMouseLeave={() => { touchStartX.current = null; touchEndX.current = null; }}
+              onMouseLeave={() => { touchStartX.current = null; touchEndX.current = null; resumeAuto(); }}
             >
               <div
                 className="flex transition-transform duration-300 ease-out"
@@ -221,9 +275,9 @@ export default function Home() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM: SPOTLIGHT</h3>
+                      <h3 className="text-xl font-black mb-1 text-accent">#SPOT:NEAR</h3>
                       <p className="text-sm leading-relaxed text-white/80">
-                        마커로 보는 해당 사람·공간의 지금을.<br />
+                        마커로 보는 해당 사람·공간의 지금.<br />
                         <span className="text-white">SPOTLIGHT로 누구보다 정확히.</span>
                       </p>
                     </div>
@@ -241,7 +295,7 @@ export default function Home() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM: ABOUT-ME</h3>
+                      <h3 className="text-xl font-black mb-1 text-primary">#SPOT:ME</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         이젠 실망한 모습에서 공유하고 싶은 현장을.<br />
                         <span className="text-white">지도 위에 나만의 마커를.</span>
@@ -307,9 +361,37 @@ export default function Home() {
           <p className="font-black text-primary" style={{ fontSize: '34px' }}>
             실시간의 탐색을.
           </p>
-          <p className="text-muted-foreground" style={{ fontSize: '14px' }}>
-            26.07. BETA SERVICE LAUNCH
-          </p>
+
+          {/* 카운트다운 타이머 */}
+          <div>
+            <p className="text-muted-foreground mb-3" style={{ fontSize: '13px', letterSpacing: '0.1em' }}>
+              26.07. BETA SERVICE LAUNCH
+            </p>
+            <div className="flex justify-center gap-3">
+              {[
+                { value: countdown.days, label: 'DAYS' },
+                { value: countdown.hours, label: 'HRS' },
+                { value: countdown.minutes, label: 'MIN' },
+                { value: countdown.seconds, label: 'SEC' },
+              ].map(({ value, label }) => (
+                <div key={label} className="flex flex-col items-center">
+                  <div
+                    className="rounded-lg font-black text-primary tabular-nums"
+                    style={{
+                      fontSize: '28px',
+                      minWidth: '52px',
+                      background: 'oklch(0.15 0.02 195)',
+                      border: '1px solid oklch(0.8 0.15 195 / 0.25)',
+                      padding: '6px 0',
+                    }}
+                  >
+                    {String(value).padStart(2, '0')}
+                  </div>
+                  <span className="text-muted-foreground mt-1" style={{ fontSize: '10px', letterSpacing: '0.08em' }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* CTA 단일화 — 출시 알림 받기 */}
           <Dialog open={open} onOpenChange={setOpen}>
