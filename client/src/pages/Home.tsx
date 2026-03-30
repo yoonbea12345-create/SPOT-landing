@@ -103,12 +103,12 @@ export default function Home() {
 
           <div className="space-y-6 mb-12">
             <h2 className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '24px'}}>
-              지금, 사람으로 도시를 읽어보세요.
-              
+              이젠 과거로부터의 선택에서<br />
+              <span className="text-primary">실시간의 탐색을.</span>
             </h2>
 
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              지도에서 발견하는 도시의 진짜 분위기
+              지금 이 순간, 내 취향의 사람이 어디에 있는지
             </p>
           </div>
 
@@ -133,17 +133,17 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-8 text-center">
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
-              블로그는 말합니다. <br /> 여기가<span className="text-secondary"> 핫플이라고.</span>
+              지도앱 리뷰는 <span className="text-secondary">과거 기록.</span>
             </p>
 
             <p className="text-3xl md:text-5xl font-black leading-tight" style={{fontSize: '34px'}}>
-              인스타는 보여줍니다.<br />
-              여기가<span className="text-secondary"> 예쁘다고.</span>
+              인스타 사진은<br />
+              <span className="text-secondary">사후 연출.</span>
             </p>
 
             <div className="pt-4">
               <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '30px'}}>
-                과연, <span className="text-primary">지금도</span> 그럴까요?       
+                지금 이 순간,<br /><span className="text-primary">실제로는 어떨까요?</span>       
               </p>
             </div>
           </div>
@@ -160,17 +160,17 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="space-y-10 text-center">
             <h2 className="text-5xl md:text-7xl font-black leading-tight" style={{fontSize: '42px'}}>
-              뻔한 리뷰와 사진
+              정보는 넘치는데
             </h2>
             <div className="space-y-6">
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f1f2f2'}}>
-                리뷰는 <span className="text-foreground font-black">과거</span>, 사진은 <span className="text-foreground font-black">연출</span>입니다.
+                리뷰 플랫폼은 <span className="text-foreground font-black">방문 후 후기</span>,
               </p>
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f2f1f2'}}>
-                그래서 실제로 가보면
+                인스타는 <span className="text-foreground font-black">내 취향 사람 확인 불가.</span>
               </p>
               <p className="text-3xl md:text-4xl font-black leading-tight" style={{fontSize: '28px'}}>
-                <span className="text-secondary">"생각보다 별론데?"</span>
+                <span className="text-secondary">"지금 이 순간"을 알 수 없습니다.</span>
               </p>
             </div>
           </div>
@@ -191,13 +191,13 @@ export default function Home() {
             </h2>
             <div className="space-y-6">
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f3f3f3'}}>
-                SPOT은 사람의 실존 데이터를 통해
+                과거가 아닌,
               </p>
               <p className="text-2xl md:text-3xl font-bold leading-relaxed text-muted-foreground" style={{fontSize: '22px', color: '#f3f3f3'}}>
-                공간의 분위기를 보여주는
+                <span className="text-foreground font-black">지금의 공간</span>을 제시합니다.
               </p>
               <p className="text-3xl md:text-4xl font-black leading-tight" style={{fontSize: '26px', color: '#f7f7f7'}}>
-                <span className="text-primary font-black">지도 기반 소셜 플랫폼.</span>
+                <span className="text-primary font-black">지금의 공간을 보여주는 지도.</span>
               </p>
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
                         <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:Reality</h3>
                         <p className="text-sm leading-relaxed text-white/80">
-                          과거, 연출보단.<br /><span className="text-primary">실시간의 모습을.</span>
+                          리뷰도, 사진도 아닌.<br /><span className="text-primary">지금 이 순간의 모습.</span>
                         </p>
                       </div>
                     </div>
@@ -275,7 +275,7 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
                         <h3 className="text-xl font-black mb-1 text-secondary">#ZOOM:WIDE</h3>
                         <p className="text-sm leading-relaxed text-white/80">
-                          오늘의 흐름이 보입니다.<br /><span className="text-secondary">어디로 모였는지.</span>
+                          지금 사람들이 어디에 있는지.<br /><span className="text-secondary">도시의 흐름이 보입니다.</span>
                         </p>
                       </div>
                     </div>
@@ -293,7 +293,7 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
                         <h3 className="text-xl font-black mb-1 text-accent">#ZOOM:NEAR</h3>
                         <p className="text-sm leading-relaxed text-white/80">
-                          나와 같은 MBTI들은.<br /><span className="text-accent">어디서, 무엇을 하고 있을까.</span>
+                          내 취향의 사람은 어디에.<br /><span className="text-accent">지금 이 순간, 같은 공간에.</span>
                         </p>
                       </div>
                     </div>
@@ -311,7 +311,7 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
                         <h3 className="text-xl font-black mb-1 text-primary">#ZOOM:3M</h3>
                         <p className="text-sm leading-relaxed text-white/80">
-                          지도에 내 위치를 표시해보세요.<br /><span className="text-primary">MBTI, 기분, 느낌, 원하는 것 무엇이든.</span>
+                          지금 여기 있다는 걸 표시해보세요.<br /><span className="text-primary">당신의 MBTI, 기분, 시그널.</span>
                         </p>
                       </div>
                     </div>
@@ -378,7 +378,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-sm mx-auto">
           <h2 className="text-3xl font-black mb-6 text-center">
-            걱정하지 마세요
+            실시간이지만, 안전합니다
           </h2>
           <div className="flex flex-col gap-2">
             {[
@@ -387,21 +387,21 @@ export default function Home() {
                 color: 'text-primary',
                 border: 'border-primary/40',
                 title: '누구인지 보이지 않습니다.',
-                desc: '상대에게는 아바타로 표시됩니다.'
+                desc: '상대에게는 MBTI 아바타로만 표시됩니다.\n이름, 얼굴, 연락처는 공개되지 않습니다.'
               },
               {
                 num: 2,
                 color: 'text-secondary',
                 border: 'border-secondary/40',
-                title: '개인정보 보호',
-                desc: 'GPS 정보는 서버에만 저장되며,\n제3자에게 유포되지 않습니다.'
+                title: '정확한 위치는 노출되지 않습니다.',
+                desc: '점이 아닌 범위로 표시됩니다.\n정확한 자리는 보이지 않습니다.'
               },
               {
                 num: 3,
                 color: 'text-accent',
                 border: 'border-accent/40',
                 title: '선택은 당신의 몫',
-                desc: 'GPS를 키지 않아도 이용이 가능합니다.\n동의 여부는 언제든지 바꾸실 수 있습니다.'
+                desc: 'GPS 없이도 탐색은 가능합니다.\n지나칠지, 다가갈지는 당신이 결정합니다.'
               }
             ].map((item) => (
               <div
@@ -443,7 +443,7 @@ export default function Home() {
               지금은 베타.
             </p>
             <p className="text-3xl md:text-5xl font-black leading-tight text-muted-foreground" style={{color: 'oklch(0.98 0 0)'}}>
-              곧, 정식 앱으로.
+              홍대·성수에서 시작합니다.
             </p>
           </div>
 
@@ -515,10 +515,10 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="space-y-6 mb-10">
             <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
-              지금, 실제 분위기를
+              과거가 아닌,
             </p>
             <p className="text-4xl md:text-6xl font-black leading-tight" style={{fontSize: '36px'}}>
-              확인해보세요.
+              <span className="text-primary">지금의 공간</span>을 탐색하세요.
             </p>
           </div>
 
