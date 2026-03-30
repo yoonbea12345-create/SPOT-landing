@@ -168,8 +168,7 @@ export default function Home() {
             </div>
           </div>
 
-          <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.7, color: '#f8f8f7' }}>
-            기존 서비스들은<br />
+          <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.7, color: '#f8f8f7' }}> 기존 서비스들은<br />
             실시간의 혼잡도·사람 구성·분위기를<br />
             보여주지 못합니다.
           </p>
@@ -275,7 +274,7 @@ export default function Home() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-accent">#SPOT:NEAR</h3>
+                      <h3 className="text-xl font-black mb-1 text-accent">#ZOOM: MAKER-VIEW</h3>
                       <p className="text-sm leading-relaxed text-white/80">
                         마커로 보는 해당 사람·공간의 지금.<br />
                         <span className="text-white">SPOTLIGHT로 누구보다 정확히.</span>
@@ -295,9 +294,9 @@ export default function Home() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pt-16 pb-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-                      <h3 className="text-xl font-black mb-1 text-primary">#SPOT:ME</h3>
+                      <h3 className="text-xl font-black mb-1 text-primary">#ZOOM: SH</h3>
                       <p className="text-sm leading-relaxed text-white/80">
-                        이젠 실망한 모습에서 공유하고 싶은 현장을.<br />
+                        이젠 실망했던 실제모습이 아닌 공유하고 싶은 현장을.<br />
                         <span className="text-white">지도 위에 나만의 마커를.</span>
                       </p>
                     </div>
