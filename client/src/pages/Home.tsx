@@ -90,14 +90,14 @@ export default function Home() {
             <span className="text-primary">SPOT</span>
           </h1>
 
-          {/* 3줄 문구 — 크기 점층적으로 커짐 */}
-          <p className="font-medium text-muted-foreground mb-2" style={{ fontSize: '18px', letterSpacing: '0.02em' }}>
+          {/* 3줄 문구 — 1·2줄 동일 스타일, 실시간 공간 분위기 강조 */}
+          <p className="font-black mb-2" style={{ fontSize: '26px' }}>
             연출된 리뷰, 평점, 사진보다
           </p>
           <p className="font-black mb-2" style={{ fontSize: '26px' }}>
-            실시간 공간 분위기 정보가
+            <span className="text-primary">실시간 공간 분위기</span> 정보가
           </p>
-          <p className="font-black text-primary mb-12" style={{ fontSize: '30px' }}>
+          <p className="font-black text-foreground mb-12" style={{ fontSize: '26px' }}>
             더 중요하니까.
           </p>
 
@@ -353,7 +353,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-8">
           <div className="space-y-3">
-            <p className="font-medium text-muted-foreground" style={{ fontSize: '18px' }}>
+            <p className="font-black" style={{ fontSize: '26px' }}>
               이젠 과거로부터의 선택이 아닌
             </p>
             <p className="font-black text-primary" style={{ fontSize: '34px' }}>
