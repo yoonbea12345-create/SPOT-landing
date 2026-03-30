@@ -119,7 +119,7 @@ export default function Home() {
           <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
             리뷰, 평점, 사진은
           </p>
-          <p className="font-black leading-tight text-secondary" style={{ fontSize: '28px' }}>
+          <p className="font-black leading-tight" style={{ fontSize: '28px', color: '#f8f8f7' }}>
             실시간 공간을 못 담기에
           </p>
           <p className="font-black leading-tight pt-2" style={{ fontSize: '28px', whiteSpace: 'nowrap' }}>
