@@ -13,7 +13,7 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
-  const totalSections = 6;
+  const totalSections = 5;
   const [carouselIndex, setCarouselIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
@@ -86,26 +86,23 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-lg mx-auto text-center">
-          <h1 className="font-black tracking-tighter mb-10" style={{ fontSize: '72px', lineHeight: 1 }}>
+          <h1 className="font-black tracking-tighter mb-8" style={{ fontSize: '72px', lineHeight: 1 }}>
             <span className="text-primary">SPOT</span>
           </h1>
 
-          {/* 3줄 문구 — 1·2줄 동일 스타일, 실시간 공간 분위기 강조 */}
-          <p className="font-black mb-2" style={{ fontSize: '26px' }}>
-            연출된 리뷰, 평점, 사진보다
+          {/* 헤드라인: 구체적 가치 제안 */}
+          <p className="font-black mb-2" style={{ fontSize: '24px' }}>
+            지금 분위기 맞는 카페·술집,
           </p>
-          <p className="font-black mb-2" style={{ fontSize: '26px' }}>
-            <span className="text-primary">실시간 공간 분위기</span> 정보가
-          </p>
-          <p className="font-black text-foreground mb-12" style={{ fontSize: '26px' }}>
-            더 중요하니까.
+          <p className="font-black mb-10" style={{ fontSize: '24px' }}>
+            <span className="text-primary">실시간</span>으로 찾는 지도.
           </p>
 
           <Button
             className="px-10 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
-            onClick={() => handleTrackAndNavigate('click_보러가기_hero', '/mvp')}
+            onClick={() => handleTrackAndNavigate('click_mvp_hero', '/mvp')}
           >
-            지금 확인하기
+            지금 MVP 체험하기
           </Button>
         </div>
       </section>
@@ -115,14 +112,16 @@ export default function Home() {
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-0 right-0 w-80 h-80 bg-secondary rounded-full filter blur-3xl animate-pulse" />
         </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-5">
-          <p className="font-black leading-tight" style={{ fontSize: '28px' }}>
-            리뷰, 평점, 사진은
+        <div className="relative z-10 max-w-lg mx-auto text-center space-y-4">
+          <p className="font-black" style={{ fontSize: '22px' }}>
+            블로그·SNS·지도 리뷰는
           </p>
-          <p className="font-black leading-tight" style={{ fontSize: '28px', color: '#f8f8f7' }}>
-            실시간 공간을 못 담기에
+          <p className="font-black text-muted-foreground" style={{ fontSize: '18px', lineHeight: 1.6 }}>
+            모두 <span style={{ color: '#f8f8f7' }}>누적 정보</span>입니다.<br />
+            지금 이 순간의 혼잡도·사람 구성·현장 무드를<br />
+            보여주지 못합니다.
           </p>
-          <p className="font-black leading-tight pt-2" style={{ fontSize: '28px', whiteSpace: 'nowrap' }}>
+          <p className="font-black pt-2" style={{ fontSize: '24px' }}>
             <span className="text-primary">SPOT</span>이 새롭게 시작합니다.
           </p>
         </div>
@@ -131,6 +130,12 @@ export default function Home() {
       {/* ─── CAROUSEL ─── */}
       <section className="relative py-0 overflow-hidden border-t border-border">
         <div className="relative z-10 max-w-sm mx-auto">
+          {/* 카드 상단 효익 문구 */}
+          <p className="text-center text-sm text-muted-foreground pt-4 pb-2 px-4">
+            방문자 수 · 실시간 사진 · 사용자 유형으로<br />
+            <span style={{ color: '#f8f8f7' }}>공간 분위기를 10초 안에 파악하세요.</span>
+          </p>
+
           <div className="relative">
             <div
               ref={carouselRef}
@@ -289,20 +294,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── BETA CTA ─── */}
+      {/* ─── BETA + FINAL CTA (통합) ─── */}
       <section className="relative py-16 px-6 border-t border-border overflow-hidden">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-secondary rounded-full filter blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
         </div>
         <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
-          <p className="font-black" style={{ fontSize: '32px' }}>
+          <p className="font-black" style={{ fontSize: '26px' }}>
+            이젠 과거의 선택이 아닌
+          </p>
+          <p className="font-black text-primary" style={{ fontSize: '34px' }}>
+            실시간의 탐색을.
+          </p>
+          <p className="text-muted-foreground" style={{ fontSize: '14px' }}>
             26.07. BETA SERVICE LAUNCH
           </p>
+
+          {/* CTA 단일화 — 출시 알림 받기 */}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button
-                className="px-10 py-6 text-base font-black border-2 border-secondary bg-transparent hover:bg-secondary/10 text-secondary transition-all hover:scale-105"
+                className="px-10 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
                 onClick={() => handleTrackEvent('click_출시알림')}
               >
                 출시 알림 받기
@@ -342,30 +355,6 @@ export default function Home() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-      </section>
-
-      {/* ─── FINAL CTA ─── */}
-      <section className="relative py-16 px-6 border-t border-border overflow-hidden">
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
-        </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-8">
-          <div className="space-y-3">
-            <p className="font-black" style={{ fontSize: '26px' }}>
-              이젠 과거로부터의 선택이 아닌
-            </p>
-            <p className="font-black text-primary" style={{ fontSize: '34px' }}>
-              실시간의 탐색을.
-            </p>
-          </div>
-          <Button
-            className="px-12 py-7 text-xl font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
-            onClick={() => handleTrackAndNavigate('click_보러가기_cta', '/mvp')}
-          >
-            보러 가기
-          </Button>
         </div>
       </section>
 
