@@ -122,10 +122,10 @@ export default function Home() {
       <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: '100svh' }}>
         {/* 배경 이미지 */}
         <img
-          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/hero_cafe_night_82fbdebe.jpg"
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/hero_map_fc9a2935.png"
           alt="공간 분위기"
           className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ filter: 'brightness(0.45)' }}
+          style={{ filter: 'brightness(0.55)' }}
         />
         {/* 오버레이 */}
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
