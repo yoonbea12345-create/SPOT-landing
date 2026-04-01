@@ -158,7 +158,7 @@ export default function Home() {
             backgroundPosition: 'center top',
           }}
         />
-        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.80)' }} />
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.68)' }} />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
           <p className="text-white/40 font-bold mb-6 tracking-widest" style={{ fontSize: '11px', letterSpacing: '0.2em' }}>THE PROBLEM</p>
           <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
@@ -201,23 +201,23 @@ export default function Home() {
       </section>
 
       {/* Step 3 — 문제 폭로 + 해결 (배경 없음) */}
-      <section className="relative overflow-hidden bg-background">
+      <section className="relative overflow-hidden" style={{ background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
-          <p className="font-black text-foreground/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
             블로그·SNS·리뷰는
           </p>
-          <p className="font-black text-foreground" style={{ fontSize: '28px', lineHeight: 1.5 }}>
+          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.5 }}>
             광고와 과거의 모습이지
           </p>
-          <p className="font-black mt-2 text-foreground/60" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+          <p className="font-black mt-2 text-white/60" style={{ fontSize: '20px', lineHeight: 1.6 }}>
             지금 이 순간의 분위기가 아닙니다.
           </p>
-          <p className="font-black mt-6 text-foreground" style={{ fontSize: '22px', lineHeight: 1.5 }}>
+          <p className="font-black mt-6 text-white" style={{ fontSize: '22px', lineHeight: 1.5 }}>
             가장 중요한 건 실시간의 모습.
           </p>
-          <div className="mt-10 w-12 h-px bg-foreground/20 mx-auto" />
+          <div className="mt-10 w-12 h-px mx-auto" style={{ background: 'rgba(255,255,255,0.15)' }} />
           <p className="font-black mt-8" style={{ fontSize: '40px', lineHeight: 1.4 }}>
-            그래서 <span style={{ color: 'oklch(0.75 0.18 195)' }}>SPOT.</span>
+            그래서 <span style={{ color: 'oklch(0.75 0.25 195)', textShadow: '0 0 20px oklch(0.75 0.25 195 / 0.7), 0 0 40px oklch(0.75 0.25 195 / 0.4)' }}>SPOT.</span>
           </p>
         </div>
       </section>
@@ -520,7 +520,7 @@ export default function Home() {
           }}
           onClick={() => handleTrackAndNavigate('click_mvp_sticky_cta', '/mvp')}
         >
-          SPOT으로 확인하기
+          내 주변 확인하기
         </button>
       </div>
 
