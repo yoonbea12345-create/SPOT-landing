@@ -123,6 +123,15 @@
   --sidebar-ring: oklch(0.7 0.25 195);
 }
 
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pb-safe-4 {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

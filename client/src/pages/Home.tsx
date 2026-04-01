@@ -456,22 +456,42 @@ export default function Home() {
 
       {/* ─── 하단 고정 CTA 바 ─── */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center px-4"
         style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          paddingTop: '12px',
+          paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
           background: 'rgba(0,0,0,0.92)',
           backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           borderTop: '1px solid rgba(255,255,255,0.08)',
-          paddingTop: '12px',
-          paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))'
         }}
       >
-        <Button
-          className="w-full max-w-sm text-base font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary transition-all"
-          style={{ height: '52px' }}
+        <button
+          style={{
+            width: '100%',
+            maxWidth: '384px',
+            height: '52px',
+            fontSize: '16px',
+            fontWeight: 900,
+            border: '2px solid oklch(0.7 0.25 195)',
+            background: 'rgba(0, 210, 220, 0.1)',
+            color: 'oklch(0.7 0.25 195)',
+            cursor: 'pointer',
+            letterSpacing: '0.02em',
+          }}
           onClick={() => handleTrackAndNavigate('click_mvp_sticky_cta', '/mvp')}
         >
           SPOT으로 확인하기
-        </Button>
+        </button>
       </div>
 
       {/* Scroll Dot Indicator */}
