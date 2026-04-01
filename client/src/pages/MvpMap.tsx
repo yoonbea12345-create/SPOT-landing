@@ -476,24 +476,18 @@ const generateDummyData = (): DummyMarker[] => {
       const sign = SIGN_LIST[Math.floor(Math.random() * SIGN_LIST.length)];
       
       let lat, lng;
+      let markerCategory: string | undefined;
 
-      // 75% 확률로 고정 장소 좌표에 정확히 배치, 그 중 30%는 외부 랜덤 재배치
-      if (nearbyFixed.length > 0 && Math.random() < 0.75) {
-        if (Math.random() < 0.30) {
-          // 30%는 도시 전체 랜덤 배치 (골목/시골 등)
-          const angle = Math.random() * Math.PI * 2;
-          const dist = Math.pow(Math.random(), 0.6) * 0.18;
-          lat = city.lat + Math.sin(angle) * dist;
-          lng = city.lng + Math.cos(angle) * dist;
-        } else {
-          // 70%는 고정 장소 좌표에 4m 이내 무작위 분산 배치 (1도 ≈ 111,000m, 4m ÷ 111,000 ≈ 0.000036)
-          const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
-          const angle = Math.random() * Math.PI * 2;
-          // 반경 4m 이내에서 무작위 분산 (제곱근 적용으로 중심부 과집중 방지)
-          const dist = Math.sqrt(Math.random()) * 0.000036;
-          lat = anchor.lat + Math.sin(angle) * dist;
-          lng = anchor.lng + Math.cos(angle) * dist;
-        }
+      // 80% 확률로 고정 장소 좌표에 배치 (카테고리 상속), 20%는 랜덤 배치
+      if (nearbyFixed.length > 0 && Math.random() < 0.80) {
+        // 고정 장소 중 하나를 선택하고 해당 카테고리를 마커에 할당
+        const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
+        markerCategory = anchor.category;
+        const angle = Math.random() * Math.PI * 2;
+        // 반경 5m 이내에서 무작위 분산 (1도 ≈ 111,000m, 5m ÷ 111,000 ≈ 0.000045)
+        const dist = Math.sqrt(Math.random()) * 0.000045;
+        lat = anchor.lat + Math.sin(angle) * dist;
+        lng = anchor.lng + Math.cos(angle) * dist;
       } else if (city.name === "제주시" || city.name === "서귀포") {
         let attempts = 0;
         do {
@@ -516,7 +510,7 @@ const generateDummyData = (): DummyMarker[] => {
       
       // 체크인 시각: 1~90분 전 랜덤
       const checkinTime = Date.now() - Math.floor(Math.random() * 90 + 1) * 60 * 1000;
-      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig(), checkinTime });
+      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig(), checkinTime, category: markerCategory });
     }
   });
   
@@ -621,7 +615,6 @@ function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbt
           style={{
             background: `${badge.color}18`,
             border: `1px solid ${badge.color}55`,
-            boxShadow: `0 0 10px ${badge.glow}`,
           }}
         >
           <span style={{ fontSize: '13px' }}>{badge.emoji}</span>
@@ -629,7 +622,6 @@ function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbt
             className="text-[10px] font-black tracking-wide"
             style={{
               color: badge.color,
-              textShadow: `0 0 8px ${badge.glow}`,
             }}
           >
             {badge.label}
@@ -645,7 +637,6 @@ function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbt
             height: '6px',
             borderRadius: '50%',
             background: mbtiColor,
-            boxShadow: `0 0 8px ${mbtiColor}`,
             animation: 'pulse-dot 1.5s ease-in-out infinite',
             flexShrink: 0,
           }}
@@ -654,7 +645,6 @@ function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbt
           className="text-sm font-black tabular-nums"
           style={{
             color: mbtiColor,
-            textShadow: `0 0 10px ${mbtiColor}88`,
             letterSpacing: '0.02em',
           }}
         >
@@ -1326,7 +1316,6 @@ export default function MvpMap() {
       background: white;
       border: 3px solid #00f0ff;
       border-radius: 50%;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.8);
     `;
 
     userMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
@@ -1368,7 +1357,6 @@ export default function MvpMap() {
           border-radius: 50%;
           background: ${color}22;
           border: 2.5px solid ${color};
-          box-shadow: 0 0 10px ${color}66;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1569,26 +1557,23 @@ export default function MvpMap() {
         <div class="sparkle-core" style="
           position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
           font-size: 9px; line-height: 1;
-          filter: drop-shadow(0 0 3px rgba(255,220,80,1)) drop-shadow(0 0 6px rgba(255,180,0,0.8));
+
         ">✨</div>
         <div class="sparkle-dot" style="
           position: absolute; top: 50%; left: 50%; margin: -1.5px;
           width: 3px; height: 3px; border-radius: 50%;
           background: rgba(255,220,80,0.9);
-          box-shadow: 0 0 3px rgba(255,220,80,0.8);
         "></div>
         <div class="sparkle-dot" style="
           position: absolute; top: 50%; left: 50%; margin: -1px;
           width: 2px; height: 2px; border-radius: 50%;
           background: rgba(255,160,0,0.8);
-          box-shadow: 0 0 2px rgba(255,160,0,0.7);
           animation-delay: -0.83s;
         "></div>
         <div class="sparkle-dot" style="
           position: absolute; top: 50%; left: 50%; margin: -1px;
           width: 2px; height: 2px; border-radius: 50%;
           background: rgba(255,255,160,0.9);
-          box-shadow: 0 0 2px rgba(255,255,160,0.8);
           animation-delay: -1.66s;
         "></div>
       `;
@@ -1824,7 +1809,7 @@ export default function MvpMap() {
           opacity: 0;
           transition: opacity 0.3s, transform 0.15s;
           position: relative;
-          box-shadow: 0 0 12px rgba(255,69,0,0.5), inset 0 0 8px rgba(255,69,0,0.1);
+          
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
@@ -1832,12 +1817,12 @@ export default function MvpMap() {
         labelElement.innerHTML = `
           <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
             <span style="font-size:11px;">&#x1F525;</span>
-            <span style="font-size:11px;font-weight:900;color:#ff6a00;text-shadow:0 0 8px rgba(255,106,0,0.8);">핫플</span>
+            <span style="font-size:11px;font-weight:900;color:#ff6a00;">핫플</span>
             <span style="font-size:10px;color:rgba(255,180,100,0.9);font-weight:700;"> ${actualMarkerCount}명</span>
           </div>
-          <div style="font-size:11px;color:#ffcc66;font-weight:900;margin-bottom:2px;text-shadow:0 0 6px rgba(255,204,102,0.6);letter-spacing:0.5px;">${city.name}</div>
+          <div style="font-size:11px;color:#ffcc66;font-weight:900;margin-bottom:2px;letter-spacing:0.5px;">${city.name}</div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}66;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
+            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
           ).join('')}
         `;
       } else {
@@ -1851,15 +1836,15 @@ export default function MvpMap() {
           cursor: pointer;
           opacity: 0;
           transition: opacity 0.3s, transform 0.15s;
-          box-shadow: 0 0 8px rgba(0,240,255,0.25);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
         labelElement.innerHTML = `
-          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;text-shadow:0 0 6px rgba(0,240,255,0.7);letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualMarkerCount})</span></div>
+          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualMarkerCount})</span></div>
           ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;text-shadow:0 0 4px ${MBTI_COLORS[mbti]}55;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
+            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
           ).join('')}
         `;
       }
@@ -1942,7 +1927,7 @@ export default function MvpMap() {
         border-radius: 50%;
         background: ${color}33;
         border: 2.5px solid ${color};
-        box-shadow: 0 0 14px ${color}99, 0 0 6px ${color};
+        
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2137,8 +2122,7 @@ export default function MvpMap() {
           className="text-6xl font-bold"
           style={{
             fontFamily: "'Orbitron', sans-serif",
-            color: "#00f0ff",
-            textShadow: "0 0 30px rgba(0, 240, 255, 0.8)",
+            color: "#ffffff",
           }}
         >
           SPOT
@@ -2159,20 +2143,7 @@ export default function MvpMap() {
     >
       <Toaster position="top-right" />
       
-      {/* 상단 헤더 */}
-      <div className="bg-black/95 backdrop-blur-lg border-b border-cyan-500/20 px-4 py-3 flex items-center justify-between z-10">
-        <h1
-          className="text-2xl font-bold"
-          style={{
-            fontFamily: "'Orbitron', sans-serif",
-            color: "#00f0ff",
-            textShadow: "0 0 20px rgba(0, 240, 255, 0.8)",
-          }}
-        >
-          SPOT
-        </h1>
-        <p className="text-sm text-gray-400">사람으로 공간을 탐험하다.</p>
-      </div>
+
 
 
       {/* 핫플레이스 팝업 모달 */}
@@ -2249,7 +2220,7 @@ export default function MvpMap() {
               <div className="flex items-center gap-2">
                 <span className="hotspot-fire" style={{ fontSize: '20px' }}>🔥</span>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#ff6a00', textShadow: '0 0 10px #ff450099', letterSpacing: '1px' }}>핫플레이스 TOP3</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#ff6a00', letterSpacing: '1px' }}>핫플레이스 TOP3</div>
                   <div style={{ fontSize: '10px', color: 'rgba(255,150,80,0.7)', marginTop: '1px' }}>지금 가장 핫한 골목 큐레이션</div>
                 </div>
               </div>
@@ -2301,9 +2272,6 @@ export default function MvpMap() {
                       : '2px solid transparent',
                     background: 'none',
                     cursor: 'pointer',
-                    textShadow: selectedHotplaceTab === idx
-                      ? `0 0 8px ${idx === 0 ? '#ffd700aa' : idx === 1 ? '#c0c0c088' : '#cd7f3288'}`
-                      : 'none',
                   }}
                 >
                   <span className={selectedHotplaceTab === idx && idx === 0 ? 'hotspot-rank-1-city' : ''}>
@@ -2335,7 +2303,7 @@ export default function MvpMap() {
                     <div style={{ fontSize: '11px', color: rankColor, fontWeight: 700, marginBottom: '4px', letterSpacing: '0.5px' }}>
                       {venue.category}
                     </div>
-                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '4px', textShadow: `0 0 12px ${rankColor}55` }}>
+                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '4px',  }}>
                       {venue.name}
                     </div>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginBottom: '8px' }}>
@@ -2401,7 +2369,7 @@ export default function MvpMap() {
             }}
             className="bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-2 shadow-2xl hover:scale-110 transition-transform"
             style={{
-              boxShadow: "0 0 14px rgba(0, 240, 255, 0.5)",
+              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
               width: '38px',
               height: '38px',
               display: 'flex',
@@ -2430,7 +2398,7 @@ export default function MvpMap() {
             style={{
               background: 'rgba(0,5,15,0.95)',
               border: '1.5px solid rgba(0,240,255,0.55)',
-              boxShadow: '0 0 8px rgba(0,240,255,0.3)',
+              boxShadow: 'none',
               width: '34px',
               height: '34px',
               display: 'flex',
@@ -2454,7 +2422,7 @@ export default function MvpMap() {
               style={{
                 background: 'rgba(10,5,0,0.95)',
                 border: '1.5px solid rgba(255,100,0,0.65)',
-                boxShadow: '0 0 8px rgba(255,69,0,0.4)',
+                boxShadow: 'none',
                 width: '34px',
                 height: '34px',
                 display: 'flex',
@@ -2475,7 +2443,7 @@ export default function MvpMap() {
               style={{
                 background: 'rgba(5,0,10,0.95)',
                 border: '1.5px solid rgba(180,0,255,0.65)',
-                boxShadow: '0 0 8px rgba(180,0,255,0.35)',
+                boxShadow: 'none',
                 width: '34px',
                 height: '34px',
                 display: 'flex',
@@ -2500,7 +2468,7 @@ export default function MvpMap() {
             style={{
               background: 'rgba(0,5,10,0.95)',
               border: showSearch ? '1.5px solid rgba(0,240,255,0.9)' : '1.5px solid rgba(0,200,255,0.45)',
-              boxShadow: showSearch ? '0 0 12px rgba(0,240,255,0.6)' : '0 0 6px rgba(0,200,255,0.25)',
+              boxShadow: 'none',
               width: '34px',
               height: '34px',
               display: 'flex',
@@ -2562,7 +2530,7 @@ export default function MvpMap() {
                 background: 'rgba(4,4,14,0.97)',
                 border: '1.5px solid rgba(0,240,255,0.6)',
                 borderRadius: '14px',
-                boxShadow: '0 0 28px rgba(0,240,255,0.3), 0 4px 20px rgba(0,0,0,0.6)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
                 overflow: 'hidden',
               }}
             >
@@ -2650,7 +2618,7 @@ export default function MvpMap() {
                           background: isActive ? `${color}25` : 'rgba(255,255,255,0.05)',
                           border: `1px solid ${isActive ? color : 'rgba(255,255,255,0.12)'}`,
                           color: isActive ? color : 'rgba(255,255,255,0.45)',
-                          boxShadow: isActive ? `0 0 8px ${color}44` : 'none',
+                          boxShadow: 'none',
                           cursor: 'pointer',
                           flexShrink: 0,
                         }}
@@ -2795,450 +2763,230 @@ export default function MvpMap() {
                 onTouchMove={(e) => e.stopPropagation()}
                 onWheel={(e) => e.stopPropagation()}
                 style={{
-                  background: 'rgba(4, 4, 14, 0.97)',
-                  border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}99`,
+                  background: 'rgba(8, 8, 16, 0.97)',
+                  border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}66`,
                   borderRadius: '14px',
-                  boxShadow: `0 0 24px ${MBTI_COLORS[popupData.mbti]}55, 0 8px 32px rgba(0,0,0,0.9)`,
+                  boxShadow: `0 8px 32px rgba(0,0,0,0.8)`,
                   overflow: 'hidden',
                   pointerEvents: 'auto',
                 }}
               >
-                {/* ── 기본 카드 (항상 보임) ── */}
-                {/* 헤더: 아바타 + MBTI + X */}
-                <div
-                  className="flex items-center gap-2 px-2.5 pt-2 pb-1.5"
-                  style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
-                >
-                  {/* 아바타 원형 */}
-                  {popupData.avatar ? (
-                    <div style={{
-                      borderRadius: '50%',
-                      border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
-                      boxShadow: `0 0 10px ${MBTI_COLORS[popupData.mbti]}55`,
-                      overflow: 'hidden',
-                      width: '36px',
-                      height: '36px',
-                      flexShrink: 0,
-                    }}>
-                      <AvatarSVG config={popupData.avatar} size={36} bgColor={`${MBTI_COLORS[popupData.mbti]}33`} showEmoji={true} />
-                    </div>
-                  ) : (
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
-                      background: `${MBTI_COLORS[popupData.mbti]}22`,
-                      border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ fontSize: '16px' }}>👤</span>
-                    </div>
-                  )}
-                  {/* MBTI + 거리 */}
-                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                    <span
-                      className="text-sm font-black tracking-widest"
-                      style={{
-                        color: MBTI_COLORS[popupData.mbti],
-                        textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88`,
-                      }}
-                    >{popupData.mbti}</span>
-                    <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                      {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`} · {popupAddress ?? (popupPlaceName ?? '위치 확인 중...')}
-                    </span>
-                  </div>
-                  {/* X 버튼 */}
-                  <button
-                    onClick={() => closePopup()}
-                    style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '50%', width: '18px', height: '18px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'rgba(255,255,255,0.6)', fontSize: '9px',
-                      cursor: 'pointer', flexShrink: 0,
-                    }}
-                  >✕</button>
-                </div>
+                {/* ── 헤더: MBTI 아바타 + 장소명(주소) + 시간 + X ── */}
+                {(() => {
+                  const isVenueType = ['cafe', 'restaurant', 'bar'].includes(popupData.category ?? '');
+                  const n = popupData.nearbyCount ?? 0;
+                  const vibe = n >= 20
+                    ? { emoji: '🔥', label: '혼잡도(90%)', color: '#ff4500', bg: 'rgba(255,69,0,0.12)', border: 'rgba(255,69,0,0.3)' }
+                    : n >= 8
+                    ? { emoji: '😊', label: '혼잡도(60%)', color: '#00c896', bg: 'rgba(0,200,150,0.1)', border: 'rgba(0,200,150,0.3)' }
+                    : n >= 3
+                    ? { emoji: '😌', label: '혼잡도(30%)', color: '#c77dff', bg: 'rgba(199,125,255,0.1)', border: 'rgba(199,125,255,0.3)' }
+                    : { emoji: '🌙', label: '조용한 편', color: '#8888aa', bg: 'rgba(136,136,170,0.1)', border: 'rgba(136,136,170,0.25)' };
 
-                {/* MOOD + MODE + 분위기 지표 */}
-                <div className="px-2.5 py-2" style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}18` }}>
-                  {/* 분위기 지표 (상단 크게) */}
-                  {popupData.nearbyCount !== undefined && (() => {
-                    const n = popupData.nearbyCount!;
-                    const vibe = n >= 20 ? { emoji: '🔥', label: '핫', color: '#ff4500', bg: 'rgba(255,69,0,0.15)', border: 'rgba(255,69,0,0.4)' }
-                      : n >= 8 ? { emoji: '😊', label: '활기', color: '#00f0b4', bg: 'rgba(0,240,180,0.12)', border: 'rgba(0,240,180,0.35)' }
-                      : n >= 3 ? { emoji: '😌', label: '여유', color: '#c77dff', bg: 'rgba(199,125,255,0.12)', border: 'rgba(199,125,255,0.35)' }
-                      : { emoji: '🌙', label: '조용', color: '#8888aa', bg: 'rgba(136,136,170,0.12)', border: 'rgba(136,136,170,0.3)' };
-                    return (
-                      <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl mb-2"
-                        style={{ background: vibe.bg, border: `1.5px solid ${vibe.border}` }}>
-                        <span style={{ fontSize: '28px', lineHeight: 1 }}>{vibe.emoji}</span>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-black" style={{ color: vibe.color, textShadow: `0 0 8px ${vibe.color}88` }}>{vibe.label}</span>
-                          <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>주변 {n}명</span>
+                  // 분위기 태그 (카테고리별)
+                  const moodTags = isVenueType
+                    ? (popupData.mood ? [popupData.mood] : ['대기 걸어야 할수도'])
+                    : (popupData.mood ? [popupData.mood] : ['야경 추천', '벚꽃 만개']);
+
+                  return (
+                    <>
+                      {/* 헤더 행 */}
+                      <div className="flex items-start gap-2.5 px-3 pt-2.5 pb-2"
+                        style={{ borderBottom: `1px solid rgba(255,255,255,0.08)` }}
+                      >
+                        {/* 아바타 */}
+                        <div style={{
+                          borderRadius: '50%',
+                          border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
+                          overflow: 'hidden',
+                          width: '40px',
+                          height: '40px',
+                          flexShrink: 0,
+                          background: `${MBTI_COLORS[popupData.mbti]}22`,
+                        }}>
+                          {popupData.avatar
+                            ? <AvatarSVG config={popupData.avatar} size={40} bgColor={`${MBTI_COLORS[popupData.mbti]}22`} showEmoji={true} />
+                            : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}><span style={{ fontSize:'18px' }}>👤</span></div>
+                          }
                         </div>
-                        {popupData.checkinTime && (
-                          <div className="ml-auto flex flex-col items-end gap-0.5">
-                            <span className="text-[7px]" style={{ color: 'rgba(255,255,255,0.3)' }}>⏱</span>
-                            <LiveDwellCounter checkinTime={popupData.checkinTime} mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'} />
+
+                        {/* 텍스트 영역 */}
+                        <div className="flex-1 min-w-0">
+                          {/* MBTI */}
+                          <div className="text-sm font-black tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
+                            {popupData.mbti}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  {/* MOOD + MODE */}
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <div className="rounded-lg px-2 py-1.5" style={{ background: 'rgba(199,125,255,0.1)', border: '1px solid rgba(199,125,255,0.35)' }}>
-                      <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(199,125,255,0.6)', letterSpacing: '0.08em' }}>MOOD</div>
-                      <div className="text-[11px] font-black leading-tight" style={{ color: '#c77dff', textShadow: '0 0 6px rgba(199,125,255,0.6)' }}>{popupData.mood}</div>
-                    </div>
-                    <div className="rounded-lg px-2 py-1.5" style={{ background: 'rgba(0,240,180,0.1)', border: '1px solid rgba(0,240,180,0.35)' }}>
-                      <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(0,240,180,0.6)', letterSpacing: '0.08em' }}>MODE</div>
-                      <div className="text-[11px] font-black leading-tight" style={{ color: '#00f0b4', textShadow: '0 0 6px rgba(0,240,180,0.6)' }}>{popupData.mode}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 더 보기 토글 버튼 */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setPopupExpanded(prev => !prev); }}
-                  className="w-full flex items-center justify-center gap-1 py-1.5"
-                  style={{
-                    background: popupExpanded ? `${MBTI_COLORS[popupData.mbti]}12` : 'transparent',
-                    borderTop: `1px solid ${MBTI_COLORS[popupData.mbti]}22`,
-                    color: MBTI_COLORS[popupData.mbti],
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <span>{popupExpanded ? '접기' : '더 보기'}</span>
-                  <span style={{ transform: popupExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', display: 'inline-block' }}>▼</span>
-                </button>
-
-                {/* ── 확장 카드 (더 보기 클릭 시) ── */}
-                {popupExpanded && (
-                  <div
-                    style={{
-                      borderTop: `1px solid ${MBTI_COLORS[popupData.mbti]}22`,
-                      animation: 'fadeIn 0.2s ease',
-                    }}
-                  >
-                    <div className="p-2 flex flex-col gap-1.5">
-
-                      {/* 최근 체크인 타임라인 */}
-                      {popupData.nearbyRecent && popupData.nearbyRecent.length > 0 && (
-                        <div className="rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}>
-                          <div className="text-[9px] font-bold tracking-widest mb-1.5" style={{ color: MBTI_COLORS[popupData.mbti] }}>🕐 최근 체크인</div>
-                          <div className="flex flex-col gap-1">
-                            {popupData.nearbyRecent.map((r, i) => {
-                              const secAgo = Math.floor((Date.now() - r.checkinTime) / 1000);
-                              const label = secAgo < 60 ? '방금' : secAgo < 3600 ? `${Math.floor(secAgo / 60)}분 전` : `${Math.floor(secAgo / 3600)}시간 전`;
-                              const c = MBTI_COLORS[r.mbti] || '#00f0ff';
-                              return (
-                                <div key={i} className="flex items-center gap-2">
-                                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: c, boxShadow: `0 0 5px ${c}`, flexShrink: 0 }} />
-                                  <span className="text-[9px] font-black" style={{ color: c, width: '34px', flexShrink: 0 }}>{r.mbti}</span>
-                                  <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</span>
-                                </div>
-                              );
-                            })}
+                          {/* 장소명 (주소) */}
+                          <div className="text-[10px] font-medium leading-snug mt-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                            {popupPlaceName
+                              ? `${popupPlaceName}${popupAddress ? ` (${popupAddress.replace(/^(서울|경기|부산|인천|대구|광주|대전|울산|세종|강원|충북|충남|전북|전남|경북|경남|제주)\s*/, '')})` : ''}`
+                              : (popupAddress ?? '위치 확인 중...')
+                            }
                           </div>
-                        </div>
-                      )}
-
-                      {/* SIGN (메시지) - 있을 때만 표시 */}
-                      {popupData.sign && (
-                        <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.3)' }}>
-                          <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(255,200,0,0.6)', letterSpacing: '0.08em' }}>MESSAGE</div>
-                          <div className="text-[11px] font-bold leading-snug" style={{ color: '#ffc800', textShadow: '0 0 6px rgba(255,200,0,0.6)' }}>"{popupData.sign}"</div>
-                        </div>
-                      )}
-
-                      {/* 해시태그 동의 카운트 */}
-                      {(() => {
-                        const tags = getPlaceHashtags(
-                          popupData.category,
-                          popupPlaceName ? popupPlaceName.charCodeAt(0) : (popupData.lat * 1000 | 0)
-                        ).slice(0, 6);
-                        return (
-                          <div className="rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}>
-                            <div className="text-[7px] font-bold mb-1.5" style={{ color: MBTI_COLORS[popupData.mbti], letterSpacing: '0.08em' }}>이 장소 분위기</div>
-                            <div className="flex flex-wrap gap-1">
-                              {tags.map((tag, i) => {
-                                const votes = (popupTagVotes[tag] ?? Math.floor(Math.random() * 12 + 1));
-                                return (
-                                  <button
-                                    key={i}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setPopupTagVotes(prev => ({ ...prev, [tag]: (prev[tag] ?? votes) + 1 }));
-                                    }}
-                                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold"
-                                    style={{
-                                      background: popupTagVotes[tag] ? `${MBTI_COLORS[popupData.mbti]}25` : 'rgba(255,255,255,0.06)',
-                                      border: `1px solid ${popupTagVotes[tag] ? MBTI_COLORS[popupData.mbti] : 'rgba(255,255,255,0.15)'}`,
-                                      color: popupTagVotes[tag] ? MBTI_COLORS[popupData.mbti] : 'rgba(255,255,255,0.5)',
-                                      cursor: 'pointer',
-                                      transition: 'all 0.15s',
-                                    }}
-                                  >
-                                    <span>#{tag}</span>
-                                    <span style={{ opacity: 0.7 }}>{votes}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* MBTI 분포 바 */}
-                      {popupData.nearbyCount !== undefined && popupData.nearbyCount > 0 && popupData.nearbyMbtiDist && (
-                        <div className="rounded-xl p-2" style={{ background: `${MBTI_COLORS[popupData.mbti]}0d`, border: `1px solid ${MBTI_COLORS[popupData.mbti]}33` }}>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="text-[7px] font-bold" style={{ color: MBTI_COLORS[popupData.mbti], letterSpacing: '0.08em' }}>MBTI 분포</div>
-                            <div className="text-[11px] font-black" style={{ color: MBTI_COLORS[popupData.mbti], textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88` }}>{popupData.nearbyCount}명</div>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            {Object.entries(popupData.nearbyMbtiDist).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([mbti, count]) => {
-                              const pct = Math.round((count / popupData.nearbyCount!) * 100);
-                              const color = MBTI_COLORS[mbti] || '#00f0ff';
-                              return (
-                                <div key={mbti} className="flex items-center gap-1.5">
-                                  <div className="text-[9px] font-bold flex-shrink-0" style={{ color, width: '30px' }}>{mbti}</div>
-                                  <div className="flex-1 rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(255,255,255,0.08)' }}>
-                                    <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '9999px', boxShadow: `0 0 4px ${color}88`, transition: 'width 0.5s ease' }} />
-                                  </div>
-                                  <div className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)', width: '22px', textAlign: 'right' }}>{pct}%</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 사진 갤러리 */}
-                      <div
-                        className="rounded-xl overflow-hidden"
-                        style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
-                        }}
-                  >
-                    {/* 헤더 - 장소명 + 해시태그 + 사진 수 */}
-                    <div className="flex flex-col"
-                      style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
-                    >
-                      {/* 상단: SPOTLIGHT 레이블 + 사진수 */}
-                      <div className="flex items-center justify-between px-2 pt-1.5 pb-0.5">
-                        <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
-                          ✨ SPOTLIGHT
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {placePhotos.length > 0 && (
-                            <div className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                              {placePhotos.length}장
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {/* 장소명 */}
-                      {popupPlaceName && (
-                        <div className="px-2 pb-0.5 text-[9px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                          {popupPlaceName}
-                        </div>
-                      )}
-                      {/* 해시태그 스트립 - 장소명 리로 표시 (핫플레이스/실제 스팟 모두 표시) */}
-                      {(() => {
-                        const tags = getPlaceHashtags(
-                          popupData.category,
-                          popupPlaceName ? popupPlaceName.charCodeAt(0) : (popupData.lat * 1000 | 0)
-                        );
-                        return (
-                          <div
-                            className="flex gap-1 px-2 pb-1.5 overflow-x-auto"
-                            style={{ scrollbarWidth: 'none' }}
-                          >
-                            {tags.map((tag, i) => (
-                              <span
-                                key={i}
-                                className="flex-shrink-0 text-[7.5px] font-bold px-1.5 py-0.5 rounded-full"
-                                style={{
-                                  background: `${MBTI_COLORS[popupData.mbti]}18`,
-                                  color: `${MBTI_COLORS[popupData.mbti]}cc`,
-                                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}33`,
-                                  letterSpacing: '0.01em',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                #{tag}
-                              </span>
+                          {/* 혼잡도 + 분위기 태그 */}
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            <span className="text-[9px] font-bold" style={{ color: vibe.color }}>
+                              {vibe.emoji} {vibe.label}
+                            </span>
+                            {moodTags.map((tag, i) => (
+                              <span key={i} className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>/ {tag}</span>
                             ))}
                           </div>
-                        );
-                      })()}
-                    </div>
+                        </div>
 
-                    {/* 사진 콘텐츠 */}
-                    {photoLoading ? (
-                      // 로딩 스켈레톤
-                      <div className="flex gap-1.5 p-2 overflow-x-auto">
-                        {[0,1,2].map(i => (
-                          <div
-                            key={i}
-                            className="flex-shrink-0 rounded-lg"
+                        {/* 우상단: 시간 + X */}
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          {popupData.checkinTime && (
+                            <LiveDwellCounter checkinTime={popupData.checkinTime} mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'} />
+                          )}
+                          <button
+                            onClick={() => closePopup()}
                             style={{
-                              width: '72px',
-                              height: '72px',
-                              background: `linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%)`,
-                              backgroundSize: '200% 100%',
-                              animation: 'shimmer 1.5s infinite',
+                              background: 'rgba(255,255,255,0.08)',
+                              border: '1px solid rgba(255,255,255,0.15)',
+                              borderRadius: '50%', width: '18px', height: '18px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: 'rgba(255,255,255,0.5)', fontSize: '9px',
+                              cursor: 'pointer',
                             }}
-                          />
-                        ))}
+                          >✕</button>
+                        </div>
                       </div>
-                    ) : placePhotos.length > 0 ? (
-                      // 사진 스트립
-                      <div
-                        className="flex gap-1.5 p-2 overflow-x-auto"
-                        style={{ scrollbarWidth: 'none' }}
-                      >
-                        {placePhotos.map((photo, idx) => (
-                          <div
-                            key={idx}
-                            className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer"
-                            style={{
-                              width: '72px',
-                              height: '72px',
-                              border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}44`,
-                              transition: 'all 0.2s',
-                              boxShadow: `0 2px 8px rgba(0,0,0,0.5)`,
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setLightboxIndex(idx);
-                            }}
-                            onMouseEnter={e => {
-                              (e.currentTarget as HTMLElement).style.border = `1.5px solid ${MBTI_COLORS[popupData.mbti]}cc`;
-                              (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={e => {
-                              (e.currentTarget as HTMLElement).style.border = `1.5px solid ${MBTI_COLORS[popupData.mbti]}44`;
-                              (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                            }}
-                          >
-                            <img
-                              src={photo.url}
-                              alt={`장소 사진 ${idx + 1}`}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                display: 'block',
-                              }}
-                            />
+
+                      {/* ── 인원 + 사진 섹션 ── */}
+                      <div className="px-3 py-2" style={{ borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
+                        {/* 인원 표시 */}
+                        <div className="text-[10px] font-bold mb-2" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                          {isVenueType ? '매장내' : '스팟내'}{' '}
+                          <span style={{ color: MBTI_COLORS[popupData.mbti], fontWeight: 900 }}>
+                            {n}명 존재
+                          </span>
+                          <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}> (실시간 {n}명 증가)</span>
+                        </div>
+
+                        {/* 사진 그리드 */}
+                        {photoLoading ? (
+                          <div className="flex gap-2">
+                            {[0,1,2].map(i => (
+                              <div key={i} className="flex-1 rounded-lg"
+                                style={{ height: '72px', background: 'rgba(255,255,255,0.06)', animation: 'shimmer 1.5s infinite' }} />
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      // 사진 없음 - 카테고리별 폴백 이미지
-                      (() => {
-                        const cat = popupData.category ?? 'landmark';
-                        const fallbackImages: Record<string, string[]> = {
-                          // 카페 - 한국 스타일 카페 느낌의 이미지
-                          cafe: [
-                            'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&h=300&fit=crop',
-                          ],
-                          // 식당 - 한국 식당/포장마사 느낌
-                          restaurant: [
-                            'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop',
-                          ],
-                          // 공원 - 한국 공원/한강 느낌
-                          park: [
-                            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&h=300&fit=crop',
-                          ],
-                          // 해변 - 한국 해수웕/해변 느낌
-                          beach: [
-                            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop&q=80',
-                            'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=300&fit=crop&q=80',
-                            'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400&h=300&fit=crop&q=80',
-                          ],
-                          // 자연 - 산/자연경관 (한라산/설악산 느낌)
-                          nature: [
-                            'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop',
-                          ],
-                          // 시장 - 재래시장/야시장 느낌
-                          market: [
-                            'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
-                          ],
-                          // 술집 - 네온 간판 한국 술집 골목 느낌
-                          bar: [
-                            'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&h=300&fit=crop',
-                          ],
-                          // 랜드마크 - 한국 구도시/거리 느낌
-                          landmark: [
-                            'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop',
-                          ],
-                          // 문화 - 갔러리/문화공간 느낌
-                          culture: [
-                            'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=400&h=300&fit=crop',
-                          ],
-                          // 스포츠 - 피트니스/스포츠시설 느낌
-                          sports: [
-                            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=300&fit=crop',
-                            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop',
-                          ],
-                        };
-                        const imgs = fallbackImages[cat] ?? fallbackImages['landmark'];
-                        return (
-                          <div>
-                            <div className="flex gap-1.5 p-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-                              {imgs.map((src, idx) => (
+                        ) : (() => {
+                          const photos = placePhotos.length > 0
+                            ? placePhotos.slice(0, 3).map(p => p.url)
+                            : (() => {
+                              const cat = popupData.category ?? 'landmark';
+                              const fallbackImages: Record<string, string[]> = {
+                                cafe: [
+                                  'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&h=300&fit=crop',
+                                ],
+                                restaurant: [
+                                  'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop',
+                                ],
+                                bar: [
+                                  'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&h=300&fit=crop',
+                                ],
+                                park: [
+                                  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&h=300&fit=crop',
+                                ],
+                                beach: [
+                                  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400&h=300&fit=crop',
+                                ],
+                                nature: [
+                                  'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop',
+                                ],
+                                market: [
+                                  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
+                                ],
+                                landmark: [
+                                  'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop',
+                                  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop',
+                                ],
+                              };
+                              return (fallbackImages[cat] ?? fallbackImages['landmark']).slice(0, 3);
+                            })();
+
+                          return (
+                            <div className="flex gap-2">
+                              {photos.map((src, idx) => (
                                 <div
                                   key={idx}
-                                  className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer relative"
-                                  style={{
-                                    width: '72px', height: '72px',
-                                    border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}33`,
-                                    opacity: 0.7,
+                                  className="flex-1 rounded-lg overflow-hidden cursor-pointer"
+                                  style={{ height: '72px', border: '1px solid rgba(255,255,255,0.12)' }}
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setLightboxIndex(idx);
+                                    if (placePhotos.length === 0) {
+                                      setPlacePhotos(photos.map(u => ({ url: u, attribution: '' })));
+                                    }
                                   }}
-                                  onClick={e => { e.stopPropagation(); setLightboxIndex(idx); setPlacePhotos(imgs.map(u => ({ url: u, attribution: '' }))); }}
                                 >
-                                  <img src={src} alt={`참고 사진 ${idx+1}`} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                                  <img src={src} alt={`사진 ${idx+1}`}
+                                    style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
                                 </div>
                               ))}
                             </div>
-                            <div className="text-center pb-1.5" style={{ color: 'rgba(255,255,255,0.2)', fontSize: '8px' }}>
-                              참고 이미지 · 실제 장소와 다를 수 있어요
-                            </div>
-                          </div>
-                        );
-                      })()
-                    )}
+                          );
+                        })()}
                       </div>
 
-                    </div>
-                  </div>
-                )}
+                      {/* ── 하단 버튼: 길찾기 + 저장하기 ── */}
+                      <div className="flex" style={{ borderTop: `1px solid rgba(255,255,255,0.06)` }}>
+                        <button
+                          className="flex-1 py-2.5 text-[12px] font-bold"
+                          style={{
+                            color: 'rgba(255,255,255,0.7)',
+                            background: 'transparent',
+                            borderRight: '1px solid rgba(255,255,255,0.08)',
+                            cursor: 'pointer',
+                          }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            const url = `https://map.kakao.com/link/to/${encodeURIComponent(popupPlaceName ?? '목적지')},${popupData.lat},${popupData.lng}`;
+                            window.open(url, '_blank');
+                          }}
+                        >
+                          길찾기
+                        </button>
+                        <button
+                          className="flex-1 py-2.5 text-[12px] font-bold"
+                          style={{
+                            color: MBTI_COLORS[popupData.mbti],
+                            background: 'transparent',
+                            cursor: 'pointer',
+                          }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            const saved = JSON.parse(localStorage.getItem('savedSpots') || '[]');
+                            const entry = { name: popupPlaceName ?? popupAddress ?? '저장된 장소', lat: popupData.lat, lng: popupData.lng, mbti: popupData.mbti, savedAt: Date.now() };
+                            localStorage.setItem('savedSpots', JSON.stringify([...saved, entry]));
+                            import('sonner').then(m => m.toast.success('저장되었습니다!'));
+                          }}
+                        >
+                          저장하기
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
+
+
 
               </div>{/* 팝업 본체 닫힘 */}
 
@@ -3301,7 +3049,7 @@ export default function MvpMap() {
                 objectFit: 'contain',
                 borderRadius: '12px',
                 border: `2px solid ${MBTI_COLORS[popupData.mbti]}88`,
-                boxShadow: `0 0 40px ${MBTI_COLORS[popupData.mbti]}44`,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
               }}
             />
             {/* 뎷 인디케이터 */}
@@ -3318,7 +3066,7 @@ export default function MvpMap() {
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'all 0.3s',
-                    boxShadow: i === lightboxIndex ? `0 0 8px ${MBTI_COLORS[popupData.mbti]}` : 'none',
+                    boxShadow: 'none',
                   }}
                 />
               ))}
@@ -3369,14 +3117,14 @@ export default function MvpMap() {
           <div
             style={{
               background: 'rgba(4, 4, 14, 0.98)',
-              border: '2px solid rgba(0, 240, 255, 0.5)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '20px',
               padding: '20px 20px',
               width: '320px',
               maxWidth: '90vw',
               maxHeight: '88vh',
               overflowY: 'auto',
-              boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.8)',
               transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
               transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
               position: 'relative',
@@ -3407,7 +3155,7 @@ export default function MvpMap() {
             </button>
 
             {/* 제목 */}
-            <p className="text-center font-black mb-4" style={{ color: '#00f0ff', fontSize: '15px', letterSpacing: '0.05em' }}>
+            <p className="text-center font-black mb-4" style={{ color: '#ffffff', fontSize: '15px', letterSpacing: '0.05em' }}>
               지도에 나를 새겨보아요!!
             </p>
 
@@ -3418,7 +3166,7 @@ export default function MvpMap() {
                 border: '2px solid rgba(0,240,255,0.3)',
                 borderRadius: '50%',
                 padding: '10px',
-                boxShadow: '0 0 24px rgba(0,240,255,0.2)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
               }}>
                 <AvatarSVG config={spotFormData.avatar} size={80} bgColor={MBTI_COLORS[spotFormData.mbti] ? `${MBTI_COLORS[spotFormData.mbti]}33` : '#0a0a1e'} showEmoji={true} />
               </div>
@@ -3610,7 +3358,7 @@ export default function MvpMap() {
 
             {/* ── MBTI 텍스트 입력 ── */}
             <div className="mb-3">
-              <label className="block text-xs font-bold mb-1.5" style={{ color: '#00f0ff', letterSpacing: '0.12em' }}>#MBTI</label>
+              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>#MBTI</label>
               <input
                 type="text"
                 value={spotFormData.mbti}
@@ -3619,8 +3367,8 @@ export default function MvpMap() {
                 maxLength={4}
                 className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
                 style={{
-                  background: 'rgba(0,240,255,0.06)',
-                  border: spotFormData.mbti && MBTI_TYPES.includes(spotFormData.mbti) ? '1.5px solid #00f0ff' : '1.5px solid rgba(0,240,255,0.25)',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: spotFormData.mbti && MBTI_TYPES.includes(spotFormData.mbti) ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid rgba(255,255,255,0.2)',
                   color: '#fff',
                   letterSpacing: '0.15em',
                 }}
@@ -3632,7 +3380,7 @@ export default function MvpMap() {
 
             {/* ── MOOD 텍스트 입력 ── */}
             <div className="mb-3">
-              <label className="block text-xs font-bold mb-1.5" style={{ color: '#c77dff', letterSpacing: '0.12em' }}>#MOOD</label>
+              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>#MOOD</label>
               <input
                 type="text"
                 value={spotFormData.mood}
@@ -3641,8 +3389,8 @@ export default function MvpMap() {
                 maxLength={30}
                 className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
                 style={{
-                  background: 'rgba(199,125,255,0.06)',
-                  border: spotFormData.mood ? '1.5px solid rgba(199,125,255,0.7)' : '1.5px solid rgba(199,125,255,0.25)',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: spotFormData.mood ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid rgba(255,255,255,0.2)',
                   color: '#fff',
                 }}
               />
@@ -3714,10 +3462,10 @@ export default function MvpMap() {
                 disabled={submitSpot.isPending}
                 className="flex-1 py-2 rounded-lg text-sm font-black"
                 style={{
-                  border: '2px solid #00f0ff',
-                  color: '#00f0ff',
-                  background: 'rgba(0, 240, 255, 0.1)',
-                  boxShadow: '0 0 16px rgba(0, 240, 255, 0.4)',
+                  border: '2px solid rgba(255,255,255,0.6)',
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                   opacity: submitSpot.isPending ? 0.6 : 1,
                 }}
               >
@@ -3744,7 +3492,6 @@ export default function MvpMap() {
               style={{
                 fontFamily: "'Noto Sans KR', sans-serif",
                 color: "#00f0ff",
-                textShadow: "0 0 15px rgba(0, 240, 255, 0.6)",
               }}
             >
               GPS를 켜주세요!
@@ -3790,9 +3537,9 @@ export default function MvpMap() {
                 onClick={() => handleConsent(true)}
                 className="flex-1 py-2 px-4 rounded-lg border-2 text-sm transition-all"
                 style={{
-                  borderColor: "#00f0ff",
-                  color: "#00f0ff",
-                  boxShadow: "0 0 20px rgba(0, 240, 255, 0.6)",
+                  borderColor: "rgba(255,255,255,0.6)",
+                  color: "#ffffff",
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                 }}
               >
                 동의
