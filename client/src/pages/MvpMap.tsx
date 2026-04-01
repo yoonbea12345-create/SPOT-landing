@@ -686,6 +686,7 @@ export default function MvpMap() {
   const realSpotMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
   // 팝업 상태
   const [popupData, setPopupData] = useState<PopupData | null>(null);
@@ -1343,6 +1344,7 @@ export default function MvpMap() {
       const markerElement = document.createElement("div");
       markerElement.className = "custom-marker";
       markerElement.dataset.mbti = item.mbti;
+      if (item.category) markerElement.dataset.category = item.category;
       // 아바타 SVG 마커
       const avatarCfg = item.avatar || randomAvatarConfig();
       const animalEmoji = ANIMALS.find(a => a.type === avatarCfg.animal)?.emoji || '🐶';
@@ -1774,8 +1776,6 @@ export default function MvpMap() {
         }
         .hotspot-fire {
           display: inline-block;
-          animation: fire-shake 1.2s ease-in-out infinite;
-          transform-origin: bottom center;
         }
         .hotspot-rank-1-city {
           animation: rank-1-glow 2s ease-in-out infinite;
@@ -1790,44 +1790,10 @@ export default function MvpMap() {
           display: inline-block;
           animation: hotspot-badge-pulse 1.8s ease-in-out infinite;
         }
-        @keyframes search-border-glow {
-          0%, 100% { border-color: rgba(0,240,255,0.4); box-shadow: 0 0 10px rgba(0,240,255,0.2); }
-          50% { border-color: rgba(0,240,255,0.85); box-shadow: 0 0 20px rgba(0,240,255,0.55), 0 0 36px rgba(0,240,255,0.2); }
-        }
-        @keyframes search-icon-bounce {
-          0%, 100% { transform: rotate(-12deg) scale(1); }
-          20% { transform: rotate(10deg) scale(1.18); }
-          40% { transform: rotate(-8deg) scale(1.08); }
-          60% { transform: rotate(7deg) scale(1.14); }
-          80% { transform: rotate(-4deg) scale(1.04); }
-        }
-        .search-btn-glow {
-          animation: search-border-glow 2.2s ease-in-out infinite;
-        }
-        .search-icon-anim {
-          display: inline-block;
-          animation: search-icon-bounce 1.8s ease-in-out infinite;
-          transform-origin: center center;
-        }
-        @keyframes spot-border-glow {
-          0%, 100% { border-color: rgba(255,0,255,0.45); box-shadow: 0 0 10px rgba(255,0,255,0.2); }
-          50% { border-color: rgba(255,0,255,0.9); box-shadow: 0 0 22px rgba(255,0,255,0.6), 0 0 40px rgba(255,0,255,0.2); }
-        }
-        @keyframes spot-icon-bounce {
-          0%, 100% { transform: translateY(0) scale(1); }
-          20% { transform: translateY(-3px) scale(1.15); }
-          40% { transform: translateY(1px) scale(0.95); }
-          60% { transform: translateY(-2px) scale(1.1); }
-          80% { transform: translateY(0.5px) scale(0.98); }
-        }
-        .spot-btn-glow {
-          animation: spot-border-glow 2s ease-in-out infinite;
-        }
-        .spot-icon-anim {
-          display: inline-block;
-          animation: spot-icon-bounce 2s ease-in-out infinite;
-          transform-origin: center bottom;
-        }
+        .search-btn-glow {}
+        .search-icon-anim { display: inline-block; }
+        .spot-btn-glow {}
+        .spot-icon-anim { display: inline-block; }
       `;
       document.head.appendChild(style);
     }
@@ -2129,6 +2095,33 @@ export default function MvpMap() {
     }
   };
 
+  // 카테고리 필터링
+  const filterByCategory = (category: string) => {
+    if (selectedCategory === category) {
+      // 토글 해제 - 모두 표시
+      setSelectedCategory(null);
+      markersRef.current.forEach(marker => {
+        if (marker.content instanceof HTMLElement) {
+          marker.content.style.opacity = "1";
+          marker.content.style.display = "";
+        }
+      });
+    } else {
+      setSelectedCategory(category);
+      markersRef.current.forEach(marker => {
+        if (marker.content instanceof HTMLElement) {
+          const markerCategory = (marker.content as HTMLElement).dataset.category;
+          // category 없는 마커(일반 더미)는 카테고리 필터 시 숨김
+          if (!markerCategory) {
+            marker.content.style.opacity = "0.08";
+          } else {
+            marker.content.style.opacity = markerCategory === category ? "1" : "0.08";
+          }
+        }
+      });
+    }
+  };
+
   // 스플래시 화면
   if (screen === "splash") {
     return (
@@ -2181,28 +2174,38 @@ export default function MvpMap() {
         <p className="text-sm text-gray-400">사람으로 공간을 탐험하다.</p>
       </div>
 
-      {/* MBTI 필터 바 */}
-      <div className="bg-black/95 backdrop-blur-lg border-b border-cyan-500/20 p-4 overflow-x-auto z-10">
-        <div className="flex gap-2 min-w-max">
-          {MBTI_TYPES.map((mbti) => (
-            <Button
-              key={mbti}
-              onClick={() => filterByMBTI(mbti)}
-              variant="outline"
-              size="sm"
-              className={`
-                font-black text-xs transition-all
-                ${selectedMBTI === mbti ? 'border-2 scale-110 shadow-lg' : 'opacity-60 hover:opacity-100'}
-              `}
-              style={{
-                borderColor: MBTI_COLORS[mbti],
-                color: MBTI_COLORS[mbti],
-                boxShadow: selectedMBTI === mbti ? `0 0 20px ${MBTI_COLORS[mbti]}88` : 'none'
-              }}
-            >
-              {mbti}
-            </Button>
-          ))}
+      {/* 카테고리 필터 바 */}
+      <div className="bg-black/95 backdrop-blur-lg border-b border-cyan-500/20 overflow-x-auto z-10" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-1.5 px-3 py-2 min-w-max">
+          {([
+            { key: 'cafe',       label: '☕ 카페',    color: '#c77dff' },
+            { key: 'restaurant', label: '🍜 맛집',    color: '#ff9f43' },
+            { key: 'bar',        label: '🍺 술집',    color: '#ff6b6b' },
+            { key: 'park',       label: '🌿 공원',    color: '#00f0b4' },
+            { key: 'nature',     label: '🏔 자연',    color: '#74b9ff' },
+            { key: 'beach',      label: '🌊 해변',    color: '#00cec9' },
+            { key: 'landmark',   label: '📍 명소',    color: '#00f0ff' },
+            { key: 'market',     label: '🛒 시장',    color: '#fdcb6e' },
+          ] as { key: string; label: string; color: string }[]).map(({ key, label, color }) => {
+            const isActive = selectedCategory === key;
+            return (
+              <button
+                key={key}
+                onClick={() => filterByCategory(key)}
+                className="flex-shrink-0 rounded-full text-[11px] font-bold transition-all"
+                style={{
+                  padding: '4px 10px',
+                  background: isActive ? `${color}22` : 'rgba(255,255,255,0.04)',
+                  border: `1.5px solid ${isActive ? color : 'rgba(255,255,255,0.15)'}`,
+                  color: isActive ? color : 'rgba(255,255,255,0.55)',
+                  boxShadow: isActive ? `0 0 10px ${color}55` : 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -2457,25 +2460,22 @@ export default function MvpMap() {
           {/* 숏폼 컨텐츠 버튼 (핫플 위) */}
           <button
             onClick={() => setShowSpotFeed(true)}
-            className="backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+            className="backdrop-blur-lg rounded-full hover:scale-105 active:scale-95 transition-transform"
             style={{
               background: 'rgba(0,5,15,0.95)',
-              border: '2px solid rgba(0,240,255,0.65)',
-              boxShadow: '0 0 16px rgba(0,240,255,0.5), 0 0 6px rgba(0,200,255,0.25)',
-              width: '42px',
-              height: '42px',
+              border: '1.5px solid rgba(0,240,255,0.55)',
+              boxShadow: '0 0 8px rgba(0,240,255,0.3)',
+              width: '34px',
+              height: '34px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               padding: 0,
             }}
           >
-            {/* 세로형 숏폼 아이콘: 세로 바 3개 + 삼각형 재생 */}
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* 세로 바 3개 (숏폼 피드 느낌) */}
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="1" y="2" width="3" height="16" rx="1.5" fill="rgba(0,240,255,0.5)"/>
               <rect x="6" y="2" width="3" height="16" rx="1.5" fill="rgba(0,240,255,0.5)"/>
-              {/* 삼각형 재생 버튼 (오른쪽) */}
               <path d="M12 5 L19 10 L12 15 Z" fill="rgba(0,240,255,0.95)"/>
             </svg>
           </button>
@@ -2487,17 +2487,17 @@ export default function MvpMap() {
               className="hotspot-banner backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
               style={{
                 background: 'rgba(10,5,0,0.95)',
-                border: '2px solid rgba(255,100,0,0.75)',
-                boxShadow: '0 0 18px rgba(255,69,0,0.6), 0 0 6px rgba(255,150,0,0.3)',
-                width: '42px',
-                height: '42px',
+                border: '1.5px solid rgba(255,100,0,0.65)',
+                boxShadow: '0 0 8px rgba(255,69,0,0.4)',
+                width: '34px',
+                height: '34px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 0,
               }}
             >
-              <span className="hotspot-fire" style={{ fontSize: '20px', lineHeight: 1 }}>🔥</span>
+              <span className="hotspot-fire" style={{ fontSize: '16px', lineHeight: 1 }}>🔥</span>
             </button>
           )}
 
@@ -2508,17 +2508,17 @@ export default function MvpMap() {
               className="backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform spot-btn-glow"
               style={{
                 background: 'rgba(5,0,10,0.95)',
-                border: '2px solid rgba(180,0,255,0.75)',
-                boxShadow: '0 0 18px rgba(180,0,255,0.55), 0 0 6px rgba(255,0,200,0.3)',
-                width: '42px',
-                height: '42px',
+                border: '1.5px solid rgba(180,0,255,0.65)',
+                boxShadow: '0 0 8px rgba(180,0,255,0.35)',
+                width: '34px',
+                height: '34px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 0,
               }}
             >
-              <span className="spot-icon-anim" style={{ fontSize: '20px', lineHeight: 1 }}>🐶</span>
+              <span className="spot-icon-anim" style={{ fontSize: '16px', lineHeight: 1 }}>🐶</span>
             </button>
           )}
 
@@ -2533,18 +2533,18 @@ export default function MvpMap() {
             className={`backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform ${!showSearch ? 'search-btn-glow' : ''}`}
             style={{
               background: 'rgba(0,5,10,0.95)',
-              border: showSearch ? '2px solid rgba(0,240,255,0.95)' : '2px solid rgba(0,200,255,0.55)',
-              boxShadow: showSearch ? '0 0 22px rgba(0,240,255,0.75)' : '0 0 12px rgba(0,200,255,0.35)',
-              width: '42px',
-              height: '42px',
+              border: showSearch ? '1.5px solid rgba(0,240,255,0.9)' : '1.5px solid rgba(0,200,255,0.45)',
+              boxShadow: showSearch ? '0 0 12px rgba(0,240,255,0.6)' : '0 0 6px rgba(0,200,255,0.25)',
+              width: '34px',
+              height: '34px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               padding: 0,
             }}
           >
-            <span className={!showSearch ? 'search-icon-anim' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
