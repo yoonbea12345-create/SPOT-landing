@@ -456,11 +456,18 @@ export default function Home() {
 
       {/* ─── 하단 고정 CTA 바 ─── */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center py-3 px-4"
-        style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center px-4"
+        style={{
+          background: 'rgba(0,0,0,0.92)',
+          backdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          paddingTop: '12px',
+          paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))'
+        }}
       >
         <Button
-          className="w-full max-w-sm py-5 text-base font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary transition-all"
+          className="w-full max-w-sm text-base font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary transition-all"
+          style={{ height: '52px' }}
           onClick={() => handleTrackAndNavigate('click_mvp_sticky_cta', '/mvp')}
         >
           SPOT으로 확인하기
