@@ -2702,8 +2702,8 @@ export default function MvpMap() {
       {/* ─── 말풍선 팝업 ─── */}
       {popupData && popupScreenPos && (() => {
         // 팝업 크기 (px)
-        const PW = 260;
-        const PH = 340; // 컴팩트화로 높이 축소
+        const PW = 300;
+        const PH = 310; // 와이어프레임 기준
         const TAIL = 10; // 말풍선 코 높이
         const AVATAR_R = 11; // 아바타 원 반지름
 
@@ -2812,25 +2812,18 @@ export default function MvpMap() {
 
                         {/* 텍스트 영역 */}
                         <div className="flex-1 min-w-0">
-                          {/* MBTI */}
-                          <div className="text-sm font-black tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>
-                            {popupData.mbti}
-                          </div>
-                          {/* 장소명 (주소) */}
-                          <div className="text-[10px] font-medium leading-snug mt-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                            {popupPlaceName
-                              ? `${popupPlaceName}${popupAddress ? ` (${popupAddress.replace(/^(서울|경기|부산|인천|대구|광주|대전|울산|세종|강원|충북|충남|전북|전남|경북|경남|제주)\s*/, '')})` : ''}`
-                              : (popupAddress ?? '위치 확인 중...')
+                          {/* 장소명 (주소) - 와이어프레임: 첫 줄에 크게 */}
+                          <div className="text-[11px] font-bold leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                            {isVenueType
+                              ? (popupPlaceName
+                                  ? `장소명(주소X) EX.) ${popupPlaceName}`
+                                  : (popupAddress ?? '위치 확인 중...'))
+                              : (popupAddress ?? popupPlaceName ?? '위치 확인 중...')
                             }
                           </div>
-                          {/* 혼잡도 + 분위기 태그 */}
-                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                            <span className="text-[9px] font-bold" style={{ color: vibe.color }}>
-                              {vibe.emoji} {vibe.label}
-                            </span>
-                            {moodTags.map((tag, i) => (
-                              <span key={i} className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>/ {tag}</span>
-                            ))}
+                          {/* 혼잡도 + 분위기 태그 - 와이어프레임: 두 번째 줄 */}
+                          <div className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                            {vibe.emoji} {vibe.label}/ {moodTags.join('/ ')}
                           </div>
                         </div>
 
