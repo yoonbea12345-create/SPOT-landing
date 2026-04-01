@@ -153,9 +153,10 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg1_naver_search_ef4d1485.png)',
-            backgroundSize: 'cover',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/naver_blog_jeju_cafe_7cc8d6a5.webp)',
+            backgroundSize: '100% auto',
             backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat',
           }}
         />
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.68)' }} />
@@ -178,9 +179,10 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg1_naver_search_ef4d1485.png)',
-            backgroundSize: 'cover',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/naver_blog_jeju_cafe_7cc8d6a5.webp)',
+            backgroundSize: '100% auto',
             backgroundPosition: 'center bottom',
+            backgroundRepeat: 'no-repeat',
           }}
         />
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.75)' }} />
