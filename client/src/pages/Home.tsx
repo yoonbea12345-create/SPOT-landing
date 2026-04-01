@@ -119,7 +119,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
 
       {/* ─── HERO (풀스크린 이미지 오버레이) ─── */}
-      <section className="relative flex items-end justify-center overflow-hidden" style={{ minHeight: '100svh' }}>
+      <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: '100svh', paddingBottom: '80px' }}>
         {/* 배경 이미지 */}
         <img
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/hero_cafe_night_82fbdebe.jpg"
@@ -127,10 +127,10 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ filter: 'brightness(0.45)' }}
         />
-        {/* 하단 그라디언트 오버레이 */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.1) 100%)' }} />
+        {/* 오버레이 */}
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
 
-        <div className="relative z-10 w-full max-w-lg mx-auto px-6 pb-16 text-center">
+        <div className="relative z-10 w-full max-w-lg mx-auto px-6 text-center">
           <h1 className="font-black tracking-tighter mb-6" style={{ fontSize: '64px', lineHeight: 1 }}>
             <span className="text-primary">SPOT</span>
           </h1>
@@ -141,16 +141,9 @@ export default function Home() {
           <p className="font-black mb-2 text-white" style={{ fontSize: '22px' }}>
             <span className="text-primary">실시간 공간 분위기</span>
           </p>
-          <p className="font-black mb-10 text-white" style={{ fontSize: '22px' }}>
+          <p className="font-black text-white" style={{ fontSize: '22px' }}>
             정보가 더 중요하니까.
           </p>
-
-          <Button
-            className="px-10 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
-            onClick={() => handleTrackAndNavigate('click_mvp_hero', '/mvp')}
-          >
-            SPOT으로 확인하기
-          </Button>
         </div>
       </section>
 
