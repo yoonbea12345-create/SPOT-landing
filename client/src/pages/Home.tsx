@@ -135,7 +135,7 @@ export default function Home() {
             <span className="text-primary">SPOT</span>
           </h1>
           <p className="font-black mb-1 text-white/70" style={{ fontSize: '30px' }}>
-            블로그, SNS, 리뷰 보다
+            블로그·SNS·리뷰 보다
           </p>
           <p className="font-black mb-2 text-white" style={{ fontSize: '30px' }}>
             <span className="text-primary">실시간 공간 분위기가</span>
@@ -165,7 +165,7 @@ export default function Home() {
             우린 여행지·맛집을 찾을 때
           </p>
           <p className="font-black text-white" style={{ fontSize: '24px', lineHeight: 1.5 }}>
-            블로그, SNS, 리뷰를 찾습니다.
+            블로그·SNS·리뷰를 찾습니다.
           </p>
           <p className="font-black mt-5" style={{ fontSize: '20px', lineHeight: 1.5, color: 'oklch(0.75 0.18 195)' }}>
             그러곤  실제 방문 후 종종 실망합니다.
@@ -213,7 +213,7 @@ export default function Home() {
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.80)' }} />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
           <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
-            블로그, SNS, 리뷰는
+            블로그·SNS·리뷰는
           </p>
           <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.5 }}>
             광고와 과거의 모습이지
