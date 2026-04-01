@@ -153,7 +153,7 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg1_blog_a765c6d7.jpg)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg1_naver_search_ef4d1485.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center top',
           }}
@@ -205,7 +205,7 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg3_real_7363df74.jpg)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg3_insta_gwangalli_ce9e5fa0.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
