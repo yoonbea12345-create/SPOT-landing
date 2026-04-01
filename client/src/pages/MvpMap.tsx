@@ -2174,40 +2174,6 @@ export default function MvpMap() {
         <p className="text-sm text-gray-400">사람으로 공간을 탐험하다.</p>
       </div>
 
-      {/* 카테고리 필터 바 */}
-      <div className="bg-black/95 backdrop-blur-lg border-b border-cyan-500/20 overflow-x-auto z-10" style={{ scrollbarWidth: 'none' }}>
-        <div className="flex gap-1.5 px-3 py-2 min-w-max">
-          {([
-            { key: 'cafe',       label: '☕ 카페',    color: '#c77dff' },
-            { key: 'restaurant', label: '🍜 맛집',    color: '#ff9f43' },
-            { key: 'bar',        label: '🍺 술집',    color: '#ff6b6b' },
-            { key: 'park',       label: '🌿 공원',    color: '#00f0b4' },
-            { key: 'nature',     label: '🏔 자연',    color: '#74b9ff' },
-            { key: 'beach',      label: '🌊 해변',    color: '#00cec9' },
-            { key: 'landmark',   label: '📍 명소',    color: '#00f0ff' },
-            { key: 'market',     label: '🛒 시장',    color: '#fdcb6e' },
-          ] as { key: string; label: string; color: string }[]).map(({ key, label, color }) => {
-            const isActive = selectedCategory === key;
-            return (
-              <button
-                key={key}
-                onClick={() => filterByCategory(key)}
-                className="flex-shrink-0 rounded-full text-[11px] font-bold transition-all"
-                style={{
-                  padding: '4px 10px',
-                  background: isActive ? `${color}22` : 'rgba(255,255,255,0.04)',
-                  border: `1.5px solid ${isActive ? color : 'rgba(255,255,255,0.15)'}`,
-                  color: isActive ? color : 'rgba(255,255,255,0.55)',
-                  boxShadow: isActive ? `0 0 10px ${color}55` : 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       {/* 핫플레이스 팝업 모달 */}
       {/* 핵플레이스 bottom sheet - 배경 오버레이 없이 지도 위에 뜨우는 구조 */}
@@ -2560,7 +2526,7 @@ export default function MvpMap() {
             style={{
               bottom: '140px', // bottom-24(96px) + 버튼높이(38px) + 여백(6px)
               right: '4px',
-              width: '240px',
+              width: '270px',
               opacity: searchVisible ? 1 : 0,
               transform: searchVisible ? 'scale(1) translateY(0)' : 'scale(0.93) translateY(8px)',
               transition: 'opacity 0.18s ease, transform 0.18s ease',
@@ -2636,7 +2602,7 @@ export default function MvpMap() {
                       }
                     );
                   }}
-                  placeholder="지역 검색 (예: 홍대, 강남)"
+                  placeholder="장소·지역 검색 (예: 홍대 카페)"
                   className="flex-1 outline-none text-xs bg-transparent"
                   style={{ color: '#00f0ff' }}
                 />
@@ -2657,6 +2623,50 @@ export default function MvpMap() {
                     title="닫기"
                   >
                     ✕
+                  </button>
+                )}
+              </div>
+              {/* 카테고리 칩 - 항상 표시 */}
+              <div className="px-2.5 py-2" style={{ borderBottom: '1px solid rgba(0,240,255,0.1)' }}>
+                <div className="flex flex-wrap gap-1">
+                  {([
+                    { key: 'cafe',       label: '☕ 카페',  color: '#c77dff' },
+                    { key: 'restaurant', label: '🍜 맛집',  color: '#ff9f43' },
+                    { key: 'bar',        label: '🍺 술집',  color: '#ff6b6b' },
+                    { key: 'park',       label: '🌿 공원',  color: '#00f0b4' },
+                    { key: 'nature',     label: '🏔 자연',  color: '#74b9ff' },
+                    { key: 'beach',      label: '🌊 해변',  color: '#00cec9' },
+                    { key: 'landmark',   label: '📍 명소',  color: '#00f0ff' },
+                    { key: 'market',     label: '🛒 시장',  color: '#fdcb6e' },
+                  ] as { key: string; label: string; color: string }[]).map(({ key, label, color }) => {
+                    const isActive = selectedCategory === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => filterByCategory(key)}
+                        className="rounded-full text-[10px] font-bold transition-all"
+                        style={{
+                          padding: '3px 8px',
+                          background: isActive ? `${color}25` : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${isActive ? color : 'rgba(255,255,255,0.12)'}`,
+                          color: isActive ? color : 'rgba(255,255,255,0.45)',
+                          boxShadow: isActive ? `0 0 8px ${color}44` : 'none',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedCategory && (
+                  <button
+                    onClick={() => filterByCategory(selectedCategory)}
+                    className="mt-1.5 text-[10px] transition-colors"
+                    style={{ color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    ✕ 카테고리 필터 해제
                   </button>
                 )}
               </div>
@@ -2701,8 +2711,11 @@ export default function MvpMap() {
               {!searchLoading && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
                 <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>검색 결과가 없습니다</div>
               )}
-              {!searchQuery && (
-                <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.25)' }}>지역명을 입력하세요</div>
+              {!searchQuery && !selectedCategory && (
+                <div className="px-3 py-2 text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>위 카테고리 선택 또는 지역명 입력</div>
+              )}
+              {!searchQuery && selectedCategory && (
+                <div className="px-3 py-2 text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>지역명도 함께 입력하면 복합 검색돼요</div>
               )}
             </div>
           </div>
