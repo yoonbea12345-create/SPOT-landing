@@ -131,67 +131,82 @@ export default function Home() {
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
 
         <div className="relative z-10 w-full max-w-lg mx-auto px-6 text-center">
-          <h1 className="font-black tracking-tighter mb-6" style={{ fontSize: '64px', lineHeight: 1 }}>
+          <h1 className="font-black tracking-tighter mb-6" style={{ fontSize: '80px', lineHeight: 1 }}>
             <span className="text-primary">SPOT</span>
           </h1>
-
-          <p className="font-black mb-1 text-white/70" style={{ fontSize: '20px' }}>
+          <p className="font-black mb-1 text-white/70" style={{ fontSize: '30px' }}>
             블로그, SNS, 리뷰 보다
           </p>
-          <p className="font-black mb-2 text-white" style={{ fontSize: '22px' }}>
-            <span className="text-primary">실시간 공간 분위기</span>
+          <p className="font-black mb-2 text-white" style={{ fontSize: '30px' }}>
+            <span className="text-primary">실시간 공간 분위기가</span>
           </p>
-          <p className="font-black text-white" style={{ fontSize: '22px' }}>
-            정보가 더 중요하니까.
+          <p className="font-black text-white" style={{ fontSize: '30px' }}>
+            더 중요하니까.
           </p>
         </div>
       </section>
 
-      {/* ─── PROBLEM (사주타이트 스타일 3단계 문제인식) ─── */}
-      <section className="relative overflow-hidden bg-black">
+      {/* ─── PROBLEM (문제인식 스토리텔링) ─── */}
+      <section className="relative overflow-hidden">
+        {/* 배경 이미지 */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg_d94b6e98.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.82)' }} />
 
-        {/* Step 1 */}
-        <div className="relative flex flex-col items-center justify-center text-center px-8 py-20 border-b border-white/10" style={{ minHeight: '60vh' }}>
-          <p className="text-white/40 font-bold mb-4 tracking-widest" style={{ fontSize: '11px', letterSpacing: '0.2em' }}>THE PROBLEM</p>
-          <p className="font-black text-white/50 mb-3" style={{ fontSize: '22px', lineHeight: 1.4 }}>
-            SNS, 블로그, 리뷰는
+        {/* Step 1 — 공감 유도 */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24 border-b border-white/10" style={{ minHeight: '65vh' }}>
+          <p className="text-white/40 font-bold mb-6 tracking-widest" style={{ fontSize: '11px', letterSpacing: '0.2em' }}>THE PROBLEM</p>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+            우린 여행지·맛집을 찾을때
           </p>
-          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.4 }}>
-            광고이거나 연출일 수도 있습니다.
+          <p className="font-black text-white" style={{ fontSize: '26px', lineHeight: 1.5 }}>
+            블로그, SNS, 리뷰를 찾습니다.
+          </p>
+          <p className="font-black mt-5" style={{ fontSize: '24px', lineHeight: 1.5, color: 'oklch(0.75 0.18 195)' }}>
+            그리고 실제 방문 후 실망합니다.
           </p>
         </div>
 
-        {/* Step 2 */}
-        <div className="relative flex flex-col items-center justify-center text-center px-8 py-20 border-b border-white/10" style={{ minHeight: '60vh' }}>
-          <p className="font-black text-white/50 mb-3" style={{ fontSize: '22px', lineHeight: 1.4 }}>
-            그걸 보고 간 곳이
+        {/* Step 2 — 공감 심화 */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24 border-b border-white/10" style={{ minHeight: '65vh' }}>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+            분명 사진에선 이뻤고
           </p>
-          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.4 }}>
-            기대와 다를 때,
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+            나와 맞는 공간이고
           </p>
-          <p className="font-black mt-2" style={{ fontSize: '28px', lineHeight: 1.4, color: 'oklch(0.8 0.15 195)' }}>
-            후회하는 겁니다.
+          <p className="font-black text-white" style={{ fontSize: '26px', lineHeight: 1.5 }}>
+            리뷰와 평점도 완벽했는데.
+          </p>
+          <p className="font-black mt-8" style={{ fontSize: '30px', lineHeight: 1.4, color: 'oklch(0.75 0.18 195)' }}>
+            왜 그럴까요?
           </p>
         </div>
 
-        {/* Step 3 — 해결상 제시 */}
-        <div className="relative flex flex-col items-center justify-center text-center px-8 py-20" style={{ minHeight: '60vh' }}>
-          <p className="font-black text-white/50 mb-3" style={{ fontSize: '22px', lineHeight: 1.4 }}>
-            우리에게 필요한 건
+        {/* Step 3 — 문제 폭로 + 해결 */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+            블로그, SNS, 리뷰는 종종
           </p>
-          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.4 }}>
-            연출이 아닌
+          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.5 }}>
+            광고와 과거의 모습이지
           </p>
-          <p className="font-black mt-1" style={{ fontSize: '32px', lineHeight: 1.3, color: 'oklch(0.8 0.15 195)' }}>
-            지금 거기의 실제 분위기.
+          <p className="font-black mt-2 text-white/60" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+            지금 이 순간의 분위기가 아닙니다.
           </p>
           <div className="mt-10 w-12 h-px bg-white/20 mx-auto" />
-          <p className="font-black mt-8" style={{ fontSize: '26px', lineHeight: 1.4 }}>
-            그래서 <span style={{ color: 'oklch(0.8 0.15 195)' }}>SPOT.</span>
+          <p className="font-black mt-8" style={{ fontSize: '28px', lineHeight: 1.4 }}>
+            그래서 <span style={{ color: 'oklch(0.75 0.18 195)' }}>SPOT.</span>
           </p>
         </div>
-
       </section>
+
 
       {/* ─── CAROUSEL ─── */}
       <section className="relative py-0 overflow-hidden border-t border-border">
