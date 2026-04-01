@@ -147,38 +147,48 @@ export default function Home() {
       </section>
 
       {/* ─── PROBLEM (문제인식 스토리텔링) ─── */}
+
+      {/* Step 1 — 블로그/리뷰 검색 배경 */}
       <section className="relative overflow-hidden">
-        {/* 배경 이미지 */}
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg_d94b6e98.jpg)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg1_blog_a765c6d7.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.80)' }} />
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
+          <p className="text-white/40 font-bold mb-6 tracking-widest" style={{ fontSize: '11px', letterSpacing: '0.2em' }}>THE PROBLEM</p>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+            우린 여행지·맛집을 찾을 때
+          </p>
+          <p className="font-black text-white" style={{ fontSize: '24px', lineHeight: 1.5 }}>
+            블로그, SNS, 리뷰를 찾습니다.
+          </p>
+          <p className="font-black mt-5" style={{ fontSize: '20px', lineHeight: 1.5, color: 'oklch(0.75 0.18 195)' }}>
+            그러곤  실제 방문 후 종종 실망합니다.
+          </p>
+        </div>
+      </section>
+
+      {/* Step 2 — 인스타그램 연출 사진 배경 */}
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg2_insta_d29081c1.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
-        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.82)' }} />
-
-        {/* Step 1 — 공감 유도 */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24 border-b border-white/10" style={{ minHeight: '65vh' }}>
-          <p className="text-white/40 font-bold mb-6 tracking-widest" style={{ fontSize: '11px', letterSpacing: '0.2em' }}>THE PROBLEM</p>
-          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
-            우린 여행지·맛집을 찾을때
-          </p>
-          <p className="font-black text-white" style={{ fontSize: '26px', lineHeight: 1.5 }}>
-            블로그, SNS, 리뷰를 찾습니다.
-          </p>
-          <p className="font-black mt-5" style={{ fontSize: '24px', lineHeight: 1.5, color: 'oklch(0.75 0.18 195)' }}>
-            그리고 실제 방문 후 실망합니다.
-          </p>
-        </div>
-
-        {/* Step 2 — 공감 심화 */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24 border-b border-white/10" style={{ minHeight: '65vh' }}>
-          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.75)' }} />
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '25px', lineHeight: 1.6 }}>
             분명 사진에선 이뻤고
           </p>
-          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+          <p className="font-black text-white/60 mb-3" style={{ fontSize: '25px', lineHeight: 1.6 }}>
             나와 맞는 공간이고
           </p>
           <p className="font-black text-white" style={{ fontSize: '26px', lineHeight: 1.5 }}>
@@ -188,17 +198,31 @@ export default function Home() {
             왜 그럴까요?
           </p>
         </div>
+      </section>
 
-        {/* Step 3 — 문제 폭로 + 해결 */}
+      {/* Step 3 — 실제 현장 배경 + 문제 폭로 + 해결 */}
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg3_real_7363df74.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.80)' }} />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
           <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
-            블로그, SNS, 리뷰는 종종
+            블로그, SNS, 리뷰는
           </p>
           <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.5 }}>
             광고와 과거의 모습이지
           </p>
           <p className="font-black mt-2 text-white/60" style={{ fontSize: '20px', lineHeight: 1.6 }}>
             지금 이 순간의 분위기가 아닙니다.
+          </p>
+          <p className="font-black mt-6 text-white" style={{ fontSize: '22px', lineHeight: 1.5 }}>
+            우리에게 필요한 건 오직 실시간의 모습.
           </p>
           <div className="mt-10 w-12 h-px bg-white/20 mx-auto" />
           <p className="font-black mt-8" style={{ fontSize: '28px', lineHeight: 1.4 }}>
