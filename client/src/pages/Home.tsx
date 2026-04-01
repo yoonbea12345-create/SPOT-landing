@@ -119,7 +119,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
 
       {/* ─── HERO (풀스크린 이미지 오버레이) ─── */}
-      <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: '100svh', paddingBottom: '80px' }}>
+      <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: '100svh' }}>
         {/* 배경 이미지 */}
         <img
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/hero_cafe_night_82fbdebe.jpg"
@@ -147,34 +147,50 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── PROBLEM ─── */}
-      <section className="relative py-16 px-6 bg-card/40 border-t border-border overflow-hidden">
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-secondary rounded-full filter blur-3xl animate-pulse" />
-        </div>
-        <div className="relative z-10 max-w-lg mx-auto text-center space-y-6">
-          {/* 기존 방식 한계 비교 */}
-          <div className="grid grid-cols-2 gap-3 mb-2">
-            <div className="rounded-xl border border-border/50 bg-card/60 px-3 py-4 text-center space-y-1">
-              <p className="text-xs font-bold text-muted-foreground tracking-widest">기존</p>
-              <p className="text-sm font-black text-muted-foreground">블로그 · SNS · 지도</p>
-              <p className="text-xs text-muted-foreground/70 leading-relaxed">누적 정보<br />과거 혹은 광고</p>
-            </div>
-            <div className="rounded-xl border border-primary/40 bg-primary/5 px-3 py-4 text-center space-y-1">
-              <p className="text-xs font-bold text-primary tracking-widest">SPOT</p>
-              <p className="text-sm font-black text-primary">실시간 지도</p>
-              <p className="text-xs text-white/70 leading-relaxed">지금 이 순간<br />혼잡도 · 분위기</p>
-            </div>
-          </div>
+      {/* ─── PROBLEM (사주타이트 스타일 3단계 문제인식) ─── */}
+      <section className="relative overflow-hidden bg-black">
 
-          <p className="font-black" style={{ fontSize: '18px', lineHeight: 1.7, color: '#f8f8f7' }}> 기존 서비스들은<br />
-            실시간의 혼잡도·사람 구성·분위기를<br />
-            보여주지 못합니다.
+        {/* Step 1 */}
+        <div className="relative flex flex-col items-center justify-center text-center px-8 py-20 border-b border-white/10" style={{ minHeight: '60vh' }}>
+          <p className="text-white/40 font-bold mb-4 tracking-widest" style={{ fontSize: '11px', letterSpacing: '0.2em' }}>THE PROBLEM</p>
+          <p className="font-black text-white/50 mb-3" style={{ fontSize: '22px', lineHeight: 1.4 }}>
+            SNS, 블로그, 리뷰는
           </p>
-          <p className="font-black pt-2" style={{ fontSize: '26px' }}>
-            그래서 이제는 <span className="text-primary">SPOT.</span>
+          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.4 }}>
+            광고이거나 연출일 수도 있습니다.
           </p>
         </div>
+
+        {/* Step 2 */}
+        <div className="relative flex flex-col items-center justify-center text-center px-8 py-20 border-b border-white/10" style={{ minHeight: '60vh' }}>
+          <p className="font-black text-white/50 mb-3" style={{ fontSize: '22px', lineHeight: 1.4 }}>
+            그걸 보고 간 곳이
+          </p>
+          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.4 }}>
+            기대와 다를 때,
+          </p>
+          <p className="font-black mt-2" style={{ fontSize: '28px', lineHeight: 1.4, color: 'oklch(0.8 0.15 195)' }}>
+            후회하는 겁니다.
+          </p>
+        </div>
+
+        {/* Step 3 — 해결상 제시 */}
+        <div className="relative flex flex-col items-center justify-center text-center px-8 py-20" style={{ minHeight: '60vh' }}>
+          <p className="font-black text-white/50 mb-3" style={{ fontSize: '22px', lineHeight: 1.4 }}>
+            우리에게 필요한 건
+          </p>
+          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.4 }}>
+            연출이 아닌
+          </p>
+          <p className="font-black mt-1" style={{ fontSize: '32px', lineHeight: 1.3, color: 'oklch(0.8 0.15 195)' }}>
+            지금 거기의 실제 분위기.
+          </p>
+          <div className="mt-10 w-12 h-px bg-white/20 mx-auto" />
+          <p className="font-black mt-8" style={{ fontSize: '26px', lineHeight: 1.4 }}>
+            그래서 <span style={{ color: 'oklch(0.8 0.15 195)' }}>SPOT.</span>
+          </p>
+        </div>
+
       </section>
 
       {/* ─── CAROUSEL ─── */}
