@@ -200,32 +200,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Step 3 — 실제 현장 배경 + 문제 폭로 + 해결 */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg3_insta_gwangalli_ce9e5fa0.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.80)' }} />
+      {/* Step 3 — 문제 폭로 + 해결 (배경 없음) */}
+      <section className="relative overflow-hidden bg-background">
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
-          <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+          <p className="font-black text-foreground/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
             블로그·SNS·리뷰는
           </p>
-          <p className="font-black text-white" style={{ fontSize: '28px', lineHeight: 1.5 }}>
+          <p className="font-black text-foreground" style={{ fontSize: '28px', lineHeight: 1.5 }}>
             광고와 과거의 모습이지
           </p>
-          <p className="font-black mt-2 text-white/60" style={{ fontSize: '20px', lineHeight: 1.6 }}>
+          <p className="font-black mt-2 text-foreground/60" style={{ fontSize: '20px', lineHeight: 1.6 }}>
             지금 이 순간의 분위기가 아닙니다.
           </p>
-          <p className="font-black mt-6 text-white" style={{ fontSize: '22px', lineHeight: 1.5 }}>
-            우리에게 필요한 건 오직 실시간의 모습.
+          <p className="font-black mt-6 text-foreground" style={{ fontSize: '22px', lineHeight: 1.5 }}>
+            가장 중요한 건 실시간의 모습.
           </p>
-          <div className="mt-10 w-12 h-px bg-white/20 mx-auto" />
-          <p className="font-black mt-8" style={{ fontSize: '28px', lineHeight: 1.4 }}>
+          <div className="mt-10 w-12 h-px bg-foreground/20 mx-auto" />
+          <p className="font-black mt-8" style={{ fontSize: '40px', lineHeight: 1.4 }}>
             그래서 <span style={{ color: 'oklch(0.75 0.18 195)' }}>SPOT.</span>
           </p>
         </div>
