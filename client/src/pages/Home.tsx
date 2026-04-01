@@ -179,9 +179,9 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/naver_search_seoul_cafe_061585b8.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/naver_blog_jeju_cafe_7cc8d6a5.webp)',
+            backgroundSize: '100% auto',
+            backgroundPosition: 'center bottom',
             backgroundRepeat: 'no-repeat',
           }}
         />
@@ -203,17 +203,7 @@ export default function Home() {
       </section>
 
       {/* Step 3 — 문제 폭로 + 해결 (배경 없음) */}
-      <section className="relative overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/naver_review_cafe_3cc74654.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.78)' }} />
+      <section className="relative overflow-hidden" style={{ background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-24" style={{ minHeight: '65vh' }}>
           <p className="font-black text-white/60 mb-3" style={{ fontSize: '20px', lineHeight: 1.6 }}>
             블로그·SNS·리뷰는
