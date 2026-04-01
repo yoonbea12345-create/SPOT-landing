@@ -118,24 +118,30 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
 
-      {/* ─── HERO ─── */}
-      <section className="relative flex items-center justify-center px-6 overflow-hidden" style={{ minHeight: '75vh' }}>
-        <div className="absolute inset-0 opacity-25 pointer-events-none">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl animate-pulse" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-accent rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
-        </div>
+      {/* ─── HERO (풀스크린 이미지 오버레이) ─── */}
+      <section className="relative flex items-end justify-center overflow-hidden" style={{ minHeight: '100svh' }}>
+        {/* 배경 이미지 */}
+        <img
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/hero_cafe_night_82fbdebe.jpg"
+          alt="공간 분위기"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ filter: 'brightness(0.45)' }}
+        />
+        {/* 하단 그라디언트 오버레이 */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.1) 100%)' }} />
 
-        <div className="relative z-10 max-w-lg mx-auto text-center">
-          <h1 className="font-black tracking-tighter mb-8" style={{ fontSize: '72px', lineHeight: 1 }}>
+        <div className="relative z-10 w-full max-w-lg mx-auto px-6 pb-16 text-center">
+          <h1 className="font-black tracking-tighter mb-6" style={{ fontSize: '64px', lineHeight: 1 }}>
             <span className="text-primary">SPOT</span>
           </h1>
 
-          <p className="font-black mb-2" style={{ fontSize: '24px' }}>
+          <p className="font-black mb-1 text-white/70" style={{ fontSize: '20px' }}>
             블로그, SNS, 리뷰 보다
           </p>
-          <p className="font-black mb-10" style={{ fontSize: '24px' }}>
-            <span className="text-primary">실시간 공간 분위기</span><br />
+          <p className="font-black mb-2 text-white" style={{ fontSize: '22px' }}>
+            <span className="text-primary">실시간 공간 분위기</span>
+          </p>
+          <p className="font-black mb-10 text-white" style={{ fontSize: '22px' }}>
             정보가 더 중요하니까.
           </p>
 
@@ -143,7 +149,7 @@ export default function Home() {
             className="px-10 py-6 text-lg font-black border-2 border-primary bg-transparent hover:bg-primary/10 text-primary transition-all hover:scale-105"
             onClick={() => handleTrackAndNavigate('click_mvp_hero', '/mvp')}
           >
-            지도로 검색.
+            SPOT으로 확인하기
           </Button>
         </div>
       </section>
@@ -438,6 +444,19 @@ export default function Home() {
           </Dialog>
         </div>
       </section>
+
+      {/* ─── 하단 고정 CTA 바 ─── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center py-3 px-4"
+        style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+      >
+        <Button
+          className="w-full max-w-sm py-5 text-base font-black border-2 border-primary bg-primary/10 hover:bg-primary/20 text-primary transition-all"
+          onClick={() => handleTrackAndNavigate('click_mvp_sticky_cta', '/mvp')}
+        >
+          SPOT으로 확인하기
+        </Button>
+      </div>
 
       {/* Scroll Dot Indicator */}
       <div className="fixed right-3 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-[6px]">
