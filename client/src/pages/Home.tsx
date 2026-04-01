@@ -230,11 +230,7 @@ export default function Home() {
         <div className="relative z-10 max-w-sm mx-auto">
           {/* 카드 상단 효익 문구 */}
           <p className="text-center pt-5 pb-2 px-4 font-bold" style={{ color: '#f8f8f7', fontSize: '15px', lineHeight: 1.6 }}>
-            해당지점의 <span style={{ color: 'oklch(0.75 0.25 195)' }}>실시간 방문자 수</span>,{' '}
-            <span style={{ color: 'oklch(0.75 0.25 195)' }}>유형</span>,{' '}
-            <span style={{ color: 'oklch(0.75 0.25 195)' }}>사진</span>,{' '}
-            <span style={{ color: 'oklch(0.75 0.25 195)' }}>활동</span>으로<br />
-            실시간 공간 분위기를 탐색해보세요.
+            방문자 수, 유형, 사진으로 실시간 공간 분위기를 탐색해보세요.
           </p>
 
           <div className="relative">
