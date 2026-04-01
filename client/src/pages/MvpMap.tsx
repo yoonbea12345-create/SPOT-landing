@@ -19,10 +19,10 @@ const MBTI_TYPES = [
 
 // MBTI별 색상 (네온 컬러)
 const MBTI_COLORS: Record<string, string> = {
-  INTJ: "#00f5ff", INTP: "#00d4ff", ENTJ: "#00b8ff", ENTP: "#009cff",
-  INFJ: "#bf00ff", INFP: "#d400ff", ENFJ: "#e900ff", ENFP: "#ff00e5",
-  ISTJ: "#ff9500", ISFJ: "#ffb800", ESTJ: "#ffd700", ESFJ: "#ffaa00",
-  ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
+  INTJ: "#4db8cc", INTP: "#5ab0d4", ENTJ: "#6aa8dc", ENTP: "#7aa0e4",
+  INFJ: "#9b7fd4", INFP: "#a87dd8", ENFJ: "#b57adc", ENFP: "#c278e0",
+  ISTJ: "#d4944a", ISFJ: "#d4a84a", ESTJ: "#d4c04a", ESFJ: "#d4a84a",
+  ISTP: "#d46080", ISFP: "#d46890", ESTP: "#d470a0", ESFP: "#d478b0"
 };
 
 // MOOD 목록
@@ -2815,9 +2815,7 @@ export default function MvpMap() {
                           {/* 장소명 (주소) - 와이어프레임: 첫 줄에 크게 */}
                           <div className="text-[11px] font-bold leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
                             {isVenueType
-                              ? (popupPlaceName
-                                  ? `장소명(주소X) EX.) ${popupPlaceName}`
-                                  : (popupAddress ?? '위치 확인 중...'))
+                              ? (popupPlaceName ?? popupAddress ?? '위치 확인 중...')
                               : (popupAddress ?? popupPlaceName ?? '위치 확인 중...')
                             }
                           </div>
@@ -2827,11 +2825,8 @@ export default function MvpMap() {
                           </div>
                         </div>
 
-                        {/* 우상단: 시간 + X */}
+                        {/* 우상단: X 버튼 */}
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          {popupData.checkinTime && (
-                            <LiveDwellCounter checkinTime={popupData.checkinTime} mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'} />
-                          )}
                           <button
                             onClick={() => closePopup()}
                             style={{
