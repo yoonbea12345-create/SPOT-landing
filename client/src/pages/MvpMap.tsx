@@ -679,6 +679,7 @@ export default function MvpMap() {
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", avatar: randomAvatarConfig() });
   const [avatarTab, setAvatarTab] = useState<'animal' | 'accessory' | 'expression' | 'emoji'>('animal');
+  const [showAllAnimals, setShowAllAnimals] = useState(false);
   const [avatarTabSliding, setAvatarTabSliding] = useState(false);
   const [avatarSlideDir, setAvatarSlideDir] = useState<'left' | 'right'>('right');
   const [spotSubmitted, setSpotSubmitted] = useState(false);
@@ -2721,7 +2722,7 @@ export default function MvpMap() {
       {popupData && popupScreenPos && (() => {
         // 팝업 크기 (px)
         const PW = 260;
-        const PH = 460; // 아바타 미리보기 추가로 높이 증가
+        const PH = 340; // 컴팩트화로 높이 축소
         const TAIL = 10; // 말풍선 코 높이
         const AVATAR_R = 11; // 아바타 원 반지름
 
@@ -2790,9 +2791,9 @@ export default function MvpMap() {
                 }}
               >
                 {/* ── 기본 카드 (항상 보임) ── */}
-                {/* 헤더: 아바타 + MBTI + 주소 + X */}
+                {/* 헤더: 아바타 + MBTI + X */}
                 <div
-                  className="flex items-center gap-2.5 px-3 pt-2.5 pb-2"
+                  className="flex items-center gap-2 px-2.5 pt-2 pb-1.5"
                   style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
                 >
                   {/* 아바타 원형 */}
@@ -2802,84 +2803,85 @@ export default function MvpMap() {
                       border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
                       boxShadow: `0 0 10px ${MBTI_COLORS[popupData.mbti]}55`,
                       overflow: 'hidden',
-                      width: '40px',
-                      height: '40px',
+                      width: '36px',
+                      height: '36px',
                       flexShrink: 0,
                     }}>
-                      <AvatarSVG config={popupData.avatar} size={40} bgColor={`${MBTI_COLORS[popupData.mbti]}33`} showEmoji={true} />
+                      <AvatarSVG config={popupData.avatar} size={36} bgColor={`${MBTI_COLORS[popupData.mbti]}33`} showEmoji={true} />
                     </div>
                   ) : (
                     <div style={{
-                      width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
+                      width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
                       background: `${MBTI_COLORS[popupData.mbti]}22`,
                       border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <span style={{ fontSize: '18px' }}>👤</span>
+                      <span style={{ fontSize: '16px' }}>👤</span>
                     </div>
                   )}
-                  {/* MBTI + 주소 */}
+                  {/* MBTI + 거리 */}
                   <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="text-xs font-black tracking-widest px-1.5 py-0.5 rounded-full"
-                        style={{
-                          background: `${MBTI_COLORS[popupData.mbti]}22`,
-                          border: `1px solid ${MBTI_COLORS[popupData.mbti]}`,
-                          color: MBTI_COLORS[popupData.mbti],
-                          fontSize: '10px',
-                        }}
-                      >{popupData.mbti}</span>
-                      <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                        {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`}
-                      </span>
-                    </div>
-                    <div className="text-[9px] font-medium truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                      {popupAddress ?? (popupPlaceName ?? '위치 확인 중...')}
-                    </div>
+                    <span
+                      className="text-sm font-black tracking-widest"
+                      style={{
+                        color: MBTI_COLORS[popupData.mbti],
+                        textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88`,
+                      }}
+                    >{popupData.mbti}</span>
+                    <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                      {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`} · {popupAddress ?? (popupPlaceName ?? '위치 확인 중...')}
+                    </span>
                   </div>
                   {/* X 버튼 */}
                   <button
                     onClick={() => closePopup()}
                     style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.25)',
-                      borderRadius: '50%', width: '20px', height: '20px',
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '50%', width: '18px', height: '18px',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'rgba(255,255,255,0.7)', fontSize: '10px',
+                      color: 'rgba(255,255,255,0.6)', fontSize: '9px',
                       cursor: 'pointer', flexShrink: 0,
                     }}
                   >✕</button>
                 </div>
 
-                {/* 체류 스톱워치 대형화 + 분위기 지표 */}
-                <div className="px-3 py-2.5" style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}18` }}>
-                  <div className="flex items-center justify-between">
-                    {/* 스톱워치 대형 */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="text-[8px] font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>⏱ 이 장소에 머문 시간</div>
-                      {popupData.checkinTime ? (
-                        <LiveDwellCounter checkinTime={popupData.checkinTime} mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'} />
-                      ) : (
-                        <div className="text-lg font-black tabular-nums" style={{ color: MBTI_COLORS[popupData.mbti] || '#00f0ff', textShadow: `0 0 12px ${MBTI_COLORS[popupData.mbti] || '#00f0ff'}88` }}>—</div>
-                      )}
-                    </div>
-                    {/* 분위기 지표 */}
-                    {popupData.nearbyCount !== undefined && (() => {
-                      const n = popupData.nearbyCount!;
-                      const vibe = n >= 20 ? { emoji: '🔥', label: '핫', color: '#ff4500', bg: 'rgba(255,69,0,0.15)', border: 'rgba(255,69,0,0.4)' }
-                        : n >= 8 ? { emoji: '😊', label: '활기', color: '#00f0b4', bg: 'rgba(0,240,180,0.12)', border: 'rgba(0,240,180,0.35)' }
-                        : n >= 3 ? { emoji: '😌', label: '여유', color: '#c77dff', bg: 'rgba(199,125,255,0.12)', border: 'rgba(199,125,255,0.35)' }
-                        : { emoji: '🌙', label: '조용', color: '#8888aa', bg: 'rgba(136,136,170,0.12)', border: 'rgba(136,136,170,0.3)' };
-                      return (
-                        <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl"
-                          style={{ background: vibe.bg, border: `1px solid ${vibe.border}` }}>
-                          <span style={{ fontSize: '20px', lineHeight: 1 }}>{vibe.emoji}</span>
-                          <span className="text-[9px] font-black" style={{ color: vibe.color }}>{vibe.label}</span>
-                          <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{n}명</span>
+                {/* MOOD + MODE + 분위기 지표 */}
+                <div className="px-2.5 py-2" style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}18` }}>
+                  {/* 분위기 지표 (상단 크게) */}
+                  {popupData.nearbyCount !== undefined && (() => {
+                    const n = popupData.nearbyCount!;
+                    const vibe = n >= 20 ? { emoji: '🔥', label: '핫', color: '#ff4500', bg: 'rgba(255,69,0,0.15)', border: 'rgba(255,69,0,0.4)' }
+                      : n >= 8 ? { emoji: '😊', label: '활기', color: '#00f0b4', bg: 'rgba(0,240,180,0.12)', border: 'rgba(0,240,180,0.35)' }
+                      : n >= 3 ? { emoji: '😌', label: '여유', color: '#c77dff', bg: 'rgba(199,125,255,0.12)', border: 'rgba(199,125,255,0.35)' }
+                      : { emoji: '🌙', label: '조용', color: '#8888aa', bg: 'rgba(136,136,170,0.12)', border: 'rgba(136,136,170,0.3)' };
+                    return (
+                      <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl mb-2"
+                        style={{ background: vibe.bg, border: `1.5px solid ${vibe.border}` }}>
+                        <span style={{ fontSize: '28px', lineHeight: 1 }}>{vibe.emoji}</span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-black" style={{ color: vibe.color, textShadow: `0 0 8px ${vibe.color}88` }}>{vibe.label}</span>
+                          <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>주변 {n}명</span>
                         </div>
-                      );
-                    })()}
+                        {popupData.checkinTime && (
+                          <div className="ml-auto flex flex-col items-end gap-0.5">
+                            <span className="text-[7px]" style={{ color: 'rgba(255,255,255,0.3)' }}>⏱</span>
+                            <LiveDwellCounter checkinTime={popupData.checkinTime} mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  {/* MOOD + MODE */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div className="rounded-lg px-2 py-1.5" style={{ background: 'rgba(199,125,255,0.1)', border: '1px solid rgba(199,125,255,0.35)' }}>
+                      <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(199,125,255,0.6)', letterSpacing: '0.08em' }}>MOOD</div>
+                      <div className="text-[11px] font-black leading-tight" style={{ color: '#c77dff', textShadow: '0 0 6px rgba(199,125,255,0.6)' }}>{popupData.mood}</div>
+                    </div>
+                    <div className="rounded-lg px-2 py-1.5" style={{ background: 'rgba(0,240,180,0.1)', border: '1px solid rgba(0,240,180,0.35)' }}>
+                      <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(0,240,180,0.6)', letterSpacing: '0.08em' }}>MODE</div>
+                      <div className="text-[11px] font-black leading-tight" style={{ color: '#00f0b4', textShadow: '0 0 6px rgba(0,240,180,0.6)' }}>{popupData.mode}</div>
+                    </div>
                   </div>
                 </div>
 
@@ -2933,21 +2935,13 @@ export default function MvpMap() {
                         </div>
                       )}
 
-                      {/* MOOD / MODE / SIGN */}
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <div className="rounded-xl p-2" style={{ background: 'rgba(157,78,221,0.08)', border: '1px solid rgba(157,78,221,0.3)' }}>
-                          <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MOOD</div>
-                          <div className="text-xs font-black" style={{ color: '#c77dff', textShadow: '0 0 8px rgba(199,125,255,0.7)' }}>{popupData.mood}</div>
+                      {/* SIGN (메시지) - 있을 때만 표시 */}
+                      {popupData.sign && (
+                        <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.3)' }}>
+                          <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(255,200,0,0.6)', letterSpacing: '0.08em' }}>MESSAGE</div>
+                          <div className="text-[11px] font-bold leading-snug" style={{ color: '#ffc800', textShadow: '0 0 6px rgba(255,200,0,0.6)' }}>"{popupData.sign}"</div>
                         </div>
-                        <div className="rounded-xl p-2" style={{ background: 'rgba(0,240,180,0.08)', border: '1px solid rgba(0,240,180,0.3)' }}>
-                          <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#MODE</div>
-                          <div className="text-xs font-black leading-tight" style={{ color: '#00f0b4', textShadow: '0 0 8px rgba(0,240,180,0.7)' }}>{popupData.mode}</div>
-                        </div>
-                      </div>
-                      <div className="rounded-xl p-2" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.3)' }}>
-                        <div className="text-[9px] font-bold text-gray-600 mb-0.5 tracking-widest">#SIGN</div>
-                        <div className="text-[10px] font-bold leading-snug" style={{ color: '#ffc800', textShadow: '0 0 6px rgba(255,200,0,0.6)' }}>{popupData.sign}</div>
-                      </div>
+                      )}
 
                       {/* 해시태그 동의 카운트 */}
                       {(() => {
@@ -2957,7 +2951,7 @@ export default function MvpMap() {
                         ).slice(0, 6);
                         return (
                           <div className="rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}>
-                            <div className="text-[9px] font-bold tracking-widest mb-1.5" style={{ color: MBTI_COLORS[popupData.mbti] }}>👍 지금 이 장소</div>
+                            <div className="text-[7px] font-bold mb-1.5" style={{ color: MBTI_COLORS[popupData.mbti], letterSpacing: '0.08em' }}>이 장소 분위기</div>
                             <div className="flex flex-wrap gap-1">
                               {tags.map((tag, i) => {
                                 const votes = (popupTagVotes[tag] ?? Math.floor(Math.random() * 12 + 1));
@@ -2991,7 +2985,7 @@ export default function MvpMap() {
                       {popupData.nearbyCount !== undefined && popupData.nearbyCount > 0 && popupData.nearbyMbtiDist && (
                         <div className="rounded-xl p-2" style={{ background: `${MBTI_COLORS[popupData.mbti]}0d`, border: `1px solid ${MBTI_COLORS[popupData.mbti]}33` }}>
                           <div className="flex items-center justify-between mb-1.5">
-                            <div className="text-[9px] font-bold tracking-widest" style={{ color: MBTI_COLORS[popupData.mbti] }}>👥 MBTI 분포</div>
+                            <div className="text-[7px] font-bold" style={{ color: MBTI_COLORS[popupData.mbti], letterSpacing: '0.08em' }}>MBTI 분포</div>
                             <div className="text-[11px] font-black" style={{ color: MBTI_COLORS[popupData.mbti], textShadow: `0 0 8px ${MBTI_COLORS[popupData.mbti]}88` }}>{popupData.nearbyCount}명</div>
                           </div>
                           <div className="flex flex-col gap-1">
@@ -3474,29 +3468,49 @@ export default function MvpMap() {
               >
               {/* 동물 선택 */}
               {avatarTab === 'animal' && (
-                <div className="grid grid-cols-5 gap-1.5">
-                  {ANIMALS.map(a => (
-                    <button
-                      key={a.type}
-                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, animal: a.type } }))}
-                      style={{
-                        padding: '6px 2px',
-                        borderRadius: '8px',
-                        border: spotFormData.avatar.animal === a.type ? '1.5px solid #00f0ff' : '1.5px solid rgba(255,255,255,0.1)',
-                        background: spotFormData.avatar.animal === a.type ? 'rgba(0,240,255,0.15)' : 'rgba(255,255,255,0.03)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '2px',
-                        transition: 'all 0.12s',
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>{a.emoji}</span>
-                      <span style={{ fontSize: '8px', color: spotFormData.avatar.animal === a.type ? '#00f0ff' : 'rgba(255,255,255,0.4)' }}>{a.label}</span>
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {(showAllAnimals ? ANIMALS : ANIMALS.slice(0, 8)).map(a => (
+                      <button
+                        key={a.type}
+                        onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, animal: a.type } }))}
+                        style={{
+                          padding: '6px 2px',
+                          borderRadius: '8px',
+                          border: spotFormData.avatar.animal === a.type ? '1.5px solid #00f0ff' : '1.5px solid rgba(255,255,255,0.1)',
+                          background: spotFormData.avatar.animal === a.type ? 'rgba(0,240,255,0.15)' : 'rgba(255,255,255,0.03)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '2px',
+                          transition: 'all 0.12s',
+                        }}
+                      >
+                        <span style={{ fontSize: '18px' }}>{a.emoji}</span>
+                        <span style={{ fontSize: '8px', color: spotFormData.avatar.animal === a.type ? '#00f0ff' : 'rgba(255,255,255,0.4)' }}>{a.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setShowAllAnimals(!showAllAnimals)}
+                    style={{
+                      marginTop: '8px',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(0,240,255,0.3)',
+                      background: 'rgba(0,240,255,0.05)',
+                      color: '#00f0ff',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      width: '100%',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {showAllAnimals ? '접기 ▲' : `더보기 (${ANIMALS.length - 8}종) ▼`}
+                  </button>
+                </>
               )}
               {/* 액세서리 선택 */}
               {avatarTab === 'accessory' && (
