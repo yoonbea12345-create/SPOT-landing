@@ -130,7 +130,7 @@ export default function Home() {
         {/* 오버레이 */}
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
 
-        <div className="relative z-10 w-full max-w-lg mx-auto px-6 text-center">
+        <div className="relative z-10 w-full max-w-lg mx-auto px-6 text-center" style={{ marginBottom: '20px' }}>
           <h1 className="font-black tracking-tighter mb-6" style={{ fontSize: '80px', lineHeight: 1 }}>
             <span className="text-primary">SPOT</span>
           </h1>
@@ -178,7 +178,7 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/problem_bg2_insta_d29081c1.jpg)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663349269149/Unzs4ztvsFWb6bAqqUL6Mc/naver_map_seoul_food_04fe298c.webp)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -227,9 +227,12 @@ export default function Home() {
       <section className="relative py-0 overflow-hidden border-t border-border">
         <div className="relative z-10 max-w-sm mx-auto">
           {/* 카드 상단 효익 문구 */}
-          <p className="text-center text-sm pt-4 pb-2 px-4" style={{ color: '#f8f8f7' }}>
-            방문자 수 · 실시간 사진 · 사용자 유형으로<br />
-            <span style={{ color: '#f8f8f7' }}>실시간 공간 분위기를 탐색해보세요.</span>
+          <p className="text-center pt-5 pb-2 px-4 font-bold" style={{ color: '#f8f8f7', fontSize: '15px', lineHeight: 1.6 }}>
+            해당지점의 <span style={{ color: 'oklch(0.75 0.25 195)' }}>실시간 방문자 수</span>,{' '}
+            <span style={{ color: 'oklch(0.75 0.25 195)' }}>유형</span>,{' '}
+            <span style={{ color: 'oklch(0.75 0.25 195)' }}>사진</span>,{' '}
+            <span style={{ color: 'oklch(0.75 0.25 195)' }}>활동</span>으로<br />
+            실시간 공간 분위기를 탐색해보세요.
           </p>
 
           <div className="relative">
