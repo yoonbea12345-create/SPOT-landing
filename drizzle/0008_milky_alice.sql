@@ -1,0 +1,1 @@
+ALTER TABLE `userSpots` ADD `activity` varchar(128);

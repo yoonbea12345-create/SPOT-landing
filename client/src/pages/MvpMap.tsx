@@ -568,8 +568,10 @@ const generateDummyData = (): DummyMarker[] => {
 
       // 80% 확률로 고정 장소 좌표에 배치 (카테고리 상속), 20%는 랜덤 배치
       if (nearbyFixed.length > 0 && Math.random() < 0.80) {
-        // 고정 장소 중 하나를 선택하고 해당 카테고리를 마커에 할당
-        const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
+        // 카페/바/음식점 우선 선택 (90% 확률), 없으면 전체에서 선택
+        const venueFixed = nearbyFixed.filter(p => ['cafe', 'bar', 'restaurant', 'market'].includes(p.category));
+        const pool = venueFixed.length > 0 && Math.random() < 0.90 ? venueFixed : nearbyFixed;
+        const anchor = pool[Math.floor(Math.random() * pool.length)];
         markerCategory = anchor.category;
         const angle = Math.random() * Math.PI * 2;
         // 반경 5m 이내에서 무작위 분산 (1도 ≈ 111,000m, 5m ÷ 111,000 ≈ 0.000045)
@@ -1405,7 +1407,7 @@ export default function MvpMap() {
       width: 20px;
       height: 20px;
       background: white;
-      border: 3px solid #00f0ff;
+      border: 3px solid rgba(255,255,255,0.9);
       border-radius: 50%;
     `;
 
@@ -3046,7 +3048,7 @@ export default function MvpMap() {
 
                       {/* ── 이 장소 분위기 섹션 ── */}
                       {popupData.nearbyRecent && popupData.nearbyRecent.length > 0 && (() => {
-                        // 최근 체크인 사람들의 activity 분포 계산
+                        // 최근 체크인 사람들의 activity 분포 계산 (더미 + 실제 DB 스팟 합산)
                         const allMarkers = dummyDataRef.current.filter((m: DummyMarker) => {
                           const dist = Math.sqrt(
                             Math.pow((m.lat - popupData.lat) * 111000, 2) +
@@ -3060,6 +3062,22 @@ export default function MvpMap() {
                             const key = m.activity.text;
                             if (!activityCounts[key]) activityCounts[key] = { emoji: m.activity.emoji, count: 0 };
                             activityCounts[key].count++;
+                          }
+                        });
+                        // 실제 DB 스팟 데이터도 합산 (200m 이내)
+                        const realSpots = spotsData?.spots ?? [];
+                        realSpots.forEach((s: { lat: number; lng: number; activity?: string | null }) => {
+                          const dist = Math.sqrt(
+                            Math.pow((s.lat - popupData.lat) * 111000, 2) +
+                            Math.pow((s.lng - popupData.lng) * 111000 * Math.cos(popupData.lat * Math.PI / 180), 2)
+                          );
+                          if (dist < 200 && s.activity) {
+                            try {
+                              const parsed = JSON.parse(s.activity) as { emoji: string; text: string };
+                              const key = parsed.text;
+                              if (!activityCounts[key]) activityCounts[key] = { emoji: parsed.emoji, count: 0 };
+                              activityCounts[key].count++;
+                            } catch (_) {}
                           }
                         });
                         const sorted = Object.entries(activityCounts)
@@ -3619,9 +3637,9 @@ export default function MvpMap() {
               </button>
               <button
                 onClick={async () => {
-                  const { mbti, mood } = spotFormData;
-                  const mode = spotFormData.mood; // MOOD를 MODE로도 사용
-                  const sign = spotFormData.mood; // MOOD를 SIGN으로도 사용
+                  const { mbti, mood, activity, activityEmoji } = spotFormData;
+                  const mode = activity && activity !== '__custom__' ? activity : (mood || 'CHILL');
+                  const sign = activity && activity !== '__custom__' ? `${activityEmoji} ${activity}` : mood;
                   if (!mbti || !mood) {
                     toast.error('MBTI와 MOOD를 입력해주세요!');
                     return;
@@ -3634,6 +3652,10 @@ export default function MvpMap() {
                     toast.error('현재 위치를 확인할 수 없어요. GPS를 켜주세요.');
                     return;
                   }
+                  // activity JSON 직렬화
+                  const activityJson = activity && activity !== '__custom__'
+                    ? JSON.stringify({ emoji: activityEmoji, text: activity })
+                    : undefined;
                   const result = await submitSpot.mutateAsync({
                     mbti,
                     mood,
@@ -3642,6 +3664,7 @@ export default function MvpMap() {
                     lat: userLocation.lat,
                     lng: userLocation.lng,
                     avatar: serializeAvatar(spotFormData.avatar),
+                    activity: activityJson,
                   });
                   if (result.success) {
                     setSpotSubmitted(true);
