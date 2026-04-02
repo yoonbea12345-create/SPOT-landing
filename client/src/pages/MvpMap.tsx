@@ -60,6 +60,93 @@ const SIGN_SIGNALS = [
 
 // SIGN 목록 (더미 데이터용 - SIGN_SIGNALS와 동일한 이모지+텍스트 형식)
 const SIGN_LIST = SIGN_SIGNALS.slice(1).map(s => `${s.emoji} ${s.text}`);
+// ─────────────────────────────────────────────────────────────
+// 현재 행동 태그 (분위기 탐색의 핵심)
+// 카테고리별로 분류해 더 자연스러운 행동 표시
+// ─────────────────────────────────────────────────────────────
+const ACTION_BY_CATEGORY: Record<string, Array<{ emoji: string; text: string }>> = {
+  cafe: [
+    { emoji: "☕", text: "혼자 카페 중" },
+    { emoji: "💻", text: "작업 중" },
+    { emoji: "📖", text: "책 읽는 중" },
+    { emoji: "💬", text: "친구랑 수다 중" },
+    { emoji: "🎧", text: "음악 들으며 멍 때리는 중" },
+    { emoji: "📸", text: "카페 사진 찍는 중" },
+    { emoji: "🍰", text: "디저트 먹는 중" },
+  ],
+  bar: [
+    { emoji: "🍺", text: "혼술 중" },
+    { emoji: "🥂", text: "친구랑 한잔 중" },
+    { emoji: "🎵", text: "분위기 즐기는 중" },
+    { emoji: "🍻", text: "2차 중" },
+    { emoji: "🌙", text: "야간 탐방 중" },
+  ],
+  restaurant: [
+    { emoji: "🍽️", text: "혼밥 중" },
+    { emoji: "👥", text: "같이 밥 먹는 중" },
+    { emoji: "📸", text: "음식 사진 찍는 중" },
+    { emoji: "🍜", text: "맛집 탐방 중" },
+  ],
+  park: [
+    { emoji: "🚶", text: "산책 중" },
+    { emoji: "🐾", text: "반려동물 산책 중" },
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🌸", text: "꽃구경 중" },
+    { emoji: "🏃", text: "러닝 중" },
+    { emoji: "🧘", text: "명상 중" },
+    { emoji: "🎵", text: "음악 들으며 산책 중" },
+  ],
+  beach: [
+    { emoji: "🌊", text: "바다 구경 중" },
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🚶", text: "해변 산책 중" },
+    { emoji: "🌅", text: "노을 보는 중" },
+    { emoji: "🏄", text: "물놀이 중" },
+  ],
+  landmark: [
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🗺️", text: "구경 중" },
+    { emoji: "🎒", text: "여행 중" },
+    { emoji: "🚶", text: "산책 중" },
+    { emoji: "🌙", text: "야경 보는 중" },
+  ],
+  shopping: [
+    { emoji: "🛍️", text: "쇼핑 중" },
+    { emoji: "👀", text: "구경 중" },
+    { emoji: "💳", text: "지름신 강림 중" },
+    { emoji: "☕", text: "쇼핑 쉬는 중" },
+  ],
+  default: [
+    { emoji: "🚶", text: "산책 중" },
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🎧", text: "음악 들으며 배회 중" },
+    { emoji: "👀", text: "구경 중" },
+    { emoji: "☕", text: "카페 찾는 중" },
+    { emoji: "🌙", text: "야경 보는 중" },
+  ],
+};
+// 카테고리에 맞는 랜덤 행동 반환
+function getRandomActivity(category?: string): { emoji: string; text: string } {
+  const list = ACTION_BY_CATEGORY[category ?? 'default'] ?? ACTION_BY_CATEGORY.default;
+  return list[Math.floor(Math.random() * list.length)];
+}
+// 등록 폼용 행동 선택지 (전체 통합, 중복 제거)
+const ACTION_FORM_LIST: Array<{ emoji: string; text: string }> = [
+  { emoji: "✏️", text: "직접 입력" },
+  { emoji: "🍺", text: "혼술 중" },
+  { emoji: "🚶", text: "산책 중" },
+  { emoji: "📸", text: "사진 찍는 중" },
+  { emoji: "☕", text: "혼자 카페 중" },
+  { emoji: "💻", text: "작업 중" },
+  { emoji: "📖", text: "책 읽는 중" },
+  { emoji: "🍽️", text: "혼밥 중" },
+  { emoji: "💬", text: "친구랑 수다 중" },
+  { emoji: "🏃", text: "러닝 중" },
+  { emoji: "🎧", text: "음악 들으며 배회 중" },
+  { emoji: "🛍️", text: "쇼핑 중" },
+  { emoji: "🌙", text: "야경 보는 중" },
+  { emoji: "🎒", text: "여행 중" },
+];
 
 // ─────────────────────────────────────────────────────────────
 // 스포트라이트 해시태그 시스템
@@ -385,6 +472,7 @@ type DummyMarker = {
   mood: string;
   mode: string;
   sign: string;
+  activity?: { emoji: string; text: string }; // 현재 행동 태그
   avatar?: AvatarConfig;
   placeName?: string;   // 실제 장소명 (고정 마커)
   placeId?: string;     // Google Place ID (고정 마커)
@@ -510,7 +598,7 @@ const generateDummyData = (): DummyMarker[] => {
       
       // 체크인 시각: 1~90분 전 랜덤
       const checkinTime = Date.now() - Math.floor(Math.random() * 90 + 1) * 60 * 1000;
-      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig(), checkinTime, category: markerCategory });
+      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, activity: getRandomActivity(markerCategory), avatar: randomAvatarConfig(), checkinTime, category: markerCategory });
     }
   });
   
@@ -540,6 +628,7 @@ type PopupData = {
   mood: string;
   mode: string;
   sign: string;
+  activity?: { emoji: string; text: string }; // 현재 행동 태그
   distance: number;
   lat: number;
   lng: number;
@@ -566,6 +655,8 @@ type SpotFormData = {
   mood: string;
   mode: string;
   sign: string;
+  activity: string; // 현재 행동 (직접 입력 or 선택)
+  activityEmoji: string;
   avatar: AvatarConfig;
 };
 
@@ -667,7 +758,7 @@ export default function MvpMap() {
   const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
-  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", avatar: randomAvatarConfig() });
+  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", activity: "", activityEmoji: "", avatar: randomAvatarConfig() });
   const [avatarTab, setAvatarTab] = useState<'animal' | 'accessory' | 'expression' | 'emoji'>('animal');
   const [showAllAnimals, setShowAllAnimals] = useState(false);
   const [avatarTabSliding, setAvatarTabSliding] = useState(false);
@@ -1419,6 +1510,7 @@ export default function MvpMap() {
           mood: item.mood,
           mode: item.mode,
           sign: item.sign,
+          activity: item.activity,
           distance,
           lat: item.lat,
           lng: item.lng,
@@ -1630,6 +1722,7 @@ export default function MvpMap() {
           mood: target.mood,
           mode: target.mode,
           sign: target.sign,
+          activity: target.activity,
           distance,
           lat: target.lat,
           lng: target.lng,
@@ -2819,9 +2912,26 @@ export default function MvpMap() {
                               : (popupAddress ?? popupPlaceName ?? '위치 확인 중...')
                             }
                           </div>
-                          {/* 혼잡도 + 분위기 태그 - 와이어프레임: 두 번째 줄 */}
-                          <div className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                            {vibe.emoji} {vibe.label}/ {moodTags.join('/ ')}
+                          {/* 행동 태그 + 혼잡도 - 두 번째 줄 */}
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            {/* 현재 행동 태그 뱃지 */}
+                            {popupData.activity && (
+                              <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                style={{
+                                  background: `${MBTI_COLORS[popupData.mbti]}18`,
+                                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}55`,
+                                  color: MBTI_COLORS[popupData.mbti],
+                                }}
+                              >
+                                <span>{popupData.activity.emoji}</span>
+                                <span>{popupData.activity.text}</span>
+                              </span>
+                            )}
+                            {/* 혼잡도 */}
+                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                              {vibe.emoji} {vibe.label}
+                            </span>
                           </div>
                         </div>
 
@@ -2934,6 +3044,53 @@ export default function MvpMap() {
                         })()}
                       </div>
 
+                      {/* ── 이 장소 분위기 섹션 ── */}
+                      {popupData.nearbyRecent && popupData.nearbyRecent.length > 0 && (() => {
+                        // 최근 체크인 사람들의 activity 분포 계산
+                        const allMarkers = dummyDataRef.current.filter((m: DummyMarker) => {
+                          const dist = Math.sqrt(
+                            Math.pow((m.lat - popupData.lat) * 111000, 2) +
+                            Math.pow((m.lng - popupData.lng) * 111000 * Math.cos(popupData.lat * Math.PI / 180), 2)
+                          );
+                          return dist < 200;
+                        });
+                        const activityCounts: Record<string, { emoji: string; count: number }> = {};
+                        allMarkers.forEach((m: DummyMarker) => {
+                          if (m.activity) {
+                            const key = m.activity.text;
+                            if (!activityCounts[key]) activityCounts[key] = { emoji: m.activity.emoji, count: 0 };
+                            activityCounts[key].count++;
+                          }
+                        });
+                        const sorted = Object.entries(activityCounts)
+                          .sort((a, b) => b[1].count - a[1].count)
+                          .slice(0, 4);
+                        if (sorted.length === 0) return null;
+                        return (
+                          <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div className="text-[9px] font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
+                              지금 이 곳 사람들
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {sorted.map(([text, { emoji, count }]) => (
+                                <span
+                                  key={text}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px]"
+                                  style={{
+                                    background: 'rgba(255,255,255,0.06)',
+                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    color: 'rgba(255,255,255,0.75)',
+                                  }}
+                                >
+                                  <span>{emoji}</span>
+                                  <span>{text}</span>
+                                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>{count}</span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
                       {/* ── 하단 버튼: 길찾기 + 저장하기 ── */}
                       <div className="flex" style={{ borderTop: `1px solid rgba(255,255,255,0.06)` }}>
                         <button
@@ -3382,6 +3539,69 @@ export default function MvpMap() {
                   color: '#fff',
                 }}
               />
+            </div>
+            {/* ── 지금 뭐 하는 중? (행동 선택) ── */}
+            <div className="mb-3">
+              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>
+                지금 뭐 하는 중?
+                <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400, marginLeft: '6px' }}>선택 사항</span>
+              </label>
+              {/* 직접 입력 (맨 위) */}
+              {spotFormData.activity === '__custom__' ? (
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="직접 입력... (예: 혼자 맥주 한잔 중)"
+                  maxLength={20}
+                  className="w-full rounded-lg px-3 py-2.5 text-sm outline-none mb-2"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1.5px solid rgba(255,255,255,0.4)',
+                    color: '#fff',
+                  }}
+                  onChange={e => setSpotFormData(p => ({ ...p, activityEmoji: '✏️', mood: p.mood || e.target.value }))}
+                  onBlur={e => {
+                    if (!e.target.value.trim()) setSpotFormData(p => ({ ...p, activity: '' }));
+                    else setSpotFormData(p => ({ ...p, activity: e.target.value.trim() }));
+                  }}
+                />
+              ) : null}
+              {/* 칩 선택 */}
+              <div className="flex flex-wrap gap-1.5">
+                {/* 직접 입력 칩 (항상 맨 앞) */}
+                <button
+                  type="button"
+                  onClick={() => setSpotFormData(p => ({ ...p, activity: '__custom__', activityEmoji: '✏️' }))}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all"
+                  style={{
+                    background: spotFormData.activity === '__custom__' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: spotFormData.activity === '__custom__' ? '1.5px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)',
+                    color: spotFormData.activity === '__custom__' ? '#fff' : 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  ✏️ 직접 입력
+                </button>
+                {/* 나머지 행동 칩 (직접 입력 제외) */}
+                {ACTION_FORM_LIST.slice(1).map(({ emoji, text }) => {
+                  const isSelected = spotFormData.activity === text;
+                  return (
+                    <button
+                      key={text}
+                      type="button"
+                      onClick={() => setSpotFormData(p => ({ ...p, activity: isSelected ? '' : text, activityEmoji: isSelected ? '' : emoji }))}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all"
+                      style={{
+                        background: isSelected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                        border: isSelected ? '1.5px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
+                        color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)',
+                      }}
+                    >
+                      <span>{emoji}</span>
+                      <span>{text}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
 
