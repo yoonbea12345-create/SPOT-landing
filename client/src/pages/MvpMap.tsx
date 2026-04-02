@@ -3384,23 +3384,7 @@ export default function MvpMap() {
               />
             </div>
 
-            {/* ── MODE 텍스트 입력 (SIGN 통합) ── */}
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-1.5" style={{ color: '#00f0b4', letterSpacing: '0.12em' }}>#MODE</label>
-              <input
-                type="text"
-                value={spotFormData.mode}
-                onChange={e => setSpotFormData(p => ({ ...p, mode: e.target.value.slice(0, 30) }))}
-                placeholder="예: 출근중,,,,, / 산책중! / 쇼핑중"
-                maxLength={30}
-                className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(0,240,180,0.06)',
-                  border: spotFormData.mode ? '1.5px solid rgba(0,240,180,0.7)' : '1.5px solid rgba(0,240,180,0.25)',
-                  color: '#fff',
-                }}
-              />
-            </div>
+
 
 
 
@@ -3415,10 +3399,11 @@ export default function MvpMap() {
               </button>
               <button
                 onClick={async () => {
-                  const { mbti, mood, mode } = spotFormData;
-                  const sign = spotFormData.mode; // MODE와 SIGN 통합
-                  if (!mbti || !mood || !mode) {
-                    toast.error('MBTI, MOOD, MODE를 모두 입력해주세요!');
+                  const { mbti, mood } = spotFormData;
+                  const mode = spotFormData.mood; // MOOD를 MODE로도 사용
+                  const sign = spotFormData.mood; // MOOD를 SIGN으로도 사용
+                  if (!mbti || !mood) {
+                    toast.error('MBTI와 MOOD를 입력해주세요!');
                     return;
                   }
                   if (!MBTI_TYPES.includes(mbti)) {
