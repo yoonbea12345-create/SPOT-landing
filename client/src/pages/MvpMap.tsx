@@ -564,8 +564,8 @@ export default function MvpMap() {
       if (id) mvpLogIdRef.current = id;
     };
     const idTimer = setTimeout(checkLogId, 500);
-    const fadeTimer = setTimeout(() => setSplashFading(true), 1700);
-    const timer = setTimeout(() => { setScreen("home"); }, 2000);
+    const fadeTimer = setTimeout(() => setSplashFading(true), 500);
+    const timer = setTimeout(() => { setScreen("home"); }, 800);
     const consentTimer = setTimeout(() => setShowConsentPopup(true), 5800);
     return () => { clearTimeout(timer); clearTimeout(idTimer); clearTimeout(fadeTimer); clearTimeout(consentTimer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -662,11 +662,14 @@ export default function MvpMap() {
       const map = new kakao.maps.Map(container, mapOptions);
       mapRef.current = map;
 
-      // 컨테이너 크기 재계산 (opacity 전환 후 크기가 0으로 인식될 수 있음)
-      setTimeout(() => {
+      // 지도 생성 즉시 mapVisible 활성화 (지도가 만들어지자마자 화면 표시)
+      setMapVisible(true);
+
+      // 컨테이너 크기 재계산
+      requestAnimationFrame(() => {
         map.relayout();
         map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
-      }, 150);
+      });
 
     // 줌 이벤트
     kakao.maps.event.addListener(map, 'zoom_changed', () => {
@@ -674,7 +677,7 @@ export default function MvpMap() {
       setCurrentZoom(level);
     });
 
-    // 더미 데이터 생성 및 마커 추가
+    // 더미 데이터 생성
     const dummyData = generateDummyData();
     dummyDataRef.current = dummyData;
 
@@ -695,53 +698,61 @@ export default function MvpMap() {
       document.head.appendChild(style);
     }
 
-    // 더미 마커 생성 (단순 점 스타일)
-    dummyData.forEach(item => {
-      const mbtiColor = MBTI_COLORS[item.mbti] || "#00f0ff";
-      const el = document.createElement('div');
-      el.className = 'spot-dot-marker';
-      el.dataset.mbti = item.mbti;
-      el.dataset.category = item.category || '';
-      el.style.cssText = `
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: ${mbtiColor};
-        box-shadow: 0 0 6px ${mbtiColor}99;
-        cursor: pointer;
-        position: relative;
-      `;
-
-      const overlay = new kakao.maps.CustomOverlay({
-        position: new kakao.maps.LatLng(item.lat, item.lng),
-        content: el,
-        zIndex: 10,
+    // 더미 마커 생성 - 지도 타일 로드 후 지연 배치하여 지도 먼저 표시
+    const addMarkersDeferred = () => {
+      // 현재 지역 중심 좌표
+      const mapCenter = map.getCenter();
+      const centerLat = mapCenter.getLat();
+      const centerLng = mapCenter.getLng();
+      // 가까운 마커는 먼저, 먼 마커는 나중에 추가
+      const nearby = dummyData.filter(item => {
+        const d = Math.abs(item.lat - centerLat) + Math.abs(item.lng - centerLng);
+        return d < 0.05; // 약 5km 이내
       });
-      overlay.setMap(map);
-      (overlay as any)._spotData = item;
-
-      el.addEventListener('click', () => {
-        const userLoc = userLocation || HONGDAE_CENTER;
-        const dist = Math.round(haversineDistance(userLoc.lat, userLoc.lng, item.lat, item.lng));
-        setPopupData({
-          ...item,
-          distance: dist,
-        });
-        setPopupAddress(null);
-        setPopupExpanded(false);
-        setPopupTagVotes({});
-        // 역지오코딩
-        const geocoder = new kakao.maps.services.Geocoder();
-        geocoder.coord2Address(item.lng, item.lat, (result: any[], status: string) => {
-          if (status === kakao.maps.services.Status.OK && result.length > 0) {
-            const addr = result[0].road_address?.address_name || result[0].address?.address_name || null;
-            setPopupAddress(addr);
-          }
-        });
+      const far = dummyData.filter(item => {
+        const d = Math.abs(item.lat - centerLat) + Math.abs(item.lng - centerLng);
+        return d >= 0.05;
       });
 
-      markersRef.current.push(overlay);
-    });
+      const createMarker = (item: DummySpot) => {
+        const mbtiColor = MBTI_COLORS[item.mbti] || "#00f0ff";
+        const el = document.createElement('div');
+        el.className = 'spot-dot-marker';
+        el.dataset.mbti = item.mbti;
+        el.dataset.category = item.category || '';
+        el.style.cssText = `width:8px;height:8px;border-radius:50%;background:${mbtiColor};box-shadow:0 0 6px ${mbtiColor}99;cursor:pointer;position:relative;`;
+        const overlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(item.lat, item.lng),
+          content: el,
+          zIndex: 10,
+        });
+        overlay.setMap(map);
+        (overlay as any)._spotData = item;
+        el.addEventListener('click', () => {
+          const userLoc = userLocation || HONGDAE_CENTER;
+          const dist = Math.round(haversineDistance(userLoc.lat, userLoc.lng, item.lat, item.lng));
+          setPopupData({ ...item, distance: dist });
+          setPopupAddress(null);
+          setPopupExpanded(false);
+          setPopupTagVotes({});
+          const geocoder = new kakao.maps.services.Geocoder();
+          geocoder.coord2Address(item.lng, item.lat, (result: any[], status: string) => {
+            if (status === kakao.maps.services.Status.OK && result.length > 0) {
+              const addr = result[0].road_address?.address_name || result[0].address?.address_name || null;
+              setPopupAddress(addr);
+            }
+          });
+        });
+        markersRef.current.push(overlay);
+      };
+
+      // 1단계: 가까운 마커 즉시 추가
+      nearby.forEach(createMarker);
+      // 2단계: 먼 마커는 200ms 후 추가 (지도 타일이 로드된 후)
+      setTimeout(() => { far.forEach(createMarker); }, 200);
+    };
+    // 지도 타일이 어는 정도 로드되도록 100ms 후 마커 배치 시작
+    setTimeout(addMarkersDeferred, 100);
 
     // 사용자 위치 마커
     const userEl = document.createElement('div');
@@ -882,26 +893,22 @@ export default function MvpMap() {
       if (!spotSubmitted) setShowSpotForm(true);
     }, 11000);
 
-    // kakao.maps.load()로 SDK 로드 완료 후 초기화
-    if (window.kakao && window.kakao.maps) {
-      // 이미 로드됨
-      initMap();
-    } else if (window.kakao) {
-      // kakao 객체는 있지만 maps가 아직 로드 안됨
+    // autoload=false이므로 항상 kakao.maps.load()로 초기화
+    if (window.kakao) {
       window.kakao.maps.load(initMap);
     } else {
-      // kakao SDK 자체가 없음 - 폴링으로 대기
+      // kakao SDK 자체가 아직 없음 - 폴링으로 대기
       let retryCount = 0;
       const retryTimer = setInterval(() => {
         retryCount++;
-        if (window.kakao && window.kakao.maps) {
+        if (window.kakao) {
           clearInterval(retryTimer);
-          initMap();
-        } else if (retryCount > 20) {
+          window.kakao.maps.load(initMap);
+        } else if (retryCount > 30) {
           clearInterval(retryTimer);
           console.warn('[SPOT] Kakao Maps SDK failed to load');
         }
-      }, 200);
+      }, 100);
     }
 
     return () => {
@@ -1149,7 +1156,7 @@ export default function MvpMap() {
             onClick={() => {
               setSelectedCity('연남');
               setScreen('map');
-              setTimeout(() => setMapVisible(true), 50);
+              // mapVisible은 initMap 내부에서 지도 생성 즉시 활성화됨
             }}
             className="w-full"
             style={{
@@ -1176,7 +1183,7 @@ export default function MvpMap() {
               onClick={() => {
                 setSelectedCity('홍대');
                 setScreen('map');
-                setTimeout(() => setMapVisible(true), 50);
+                // mapVisible은 initMap 내부에서 지도 생성 즉시 활성화됨
               }}
               className="flex-1"
               style={{
@@ -1200,7 +1207,7 @@ export default function MvpMap() {
               onClick={() => {
                 setSelectedCity('성수');
                 setScreen('map');
-                setTimeout(() => setMapVisible(true), 50);
+                // mapVisible은 initMap 내부에서 지도 생성 즉시 활성화됨
               }}
               className="flex-1"
               style={{
@@ -1296,8 +1303,6 @@ export default function MvpMap() {
       style={{
         height: `${screenHeight}px`,
         background: '#F5F0E8',
-        opacity: mapVisible ? 1 : 0,
-        transition: 'opacity 0.35s ease'
       }}
     >
       <Toaster position="top-center" />
