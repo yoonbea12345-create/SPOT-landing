@@ -668,11 +668,10 @@ export default function MvpMap() {
       const map = new kakao.maps.Map(container, mapOptions);
       config.mapRef.current = map;
 
-      // 현재 선택된 지역이면 mapRef도 업데이트
+      // 현재 선택된 지역이면 mapRef도 업데이트 (mapVisible은 지역 버튼 클릭 시에만 활성화)
       if (config.name === (selectedCity || '홍대')) {
         mapRef.current = map;
         markersRef.current = config.markersRef.current;
-        setMapVisible(true);
       }
 
       // 컨테이너 크기 재계산
@@ -1110,7 +1109,7 @@ export default function MvpMap() {
             onClick={() => {
               setSelectedCity('연남');
               setScreen('map');
-              // mapVisible은 initMap 내부에서 지도 생성 즉시 활성화됨
+              setMapVisible(true);
             }}
             className="w-full"
             style={{
@@ -1137,7 +1136,7 @@ export default function MvpMap() {
               onClick={() => {
                 setSelectedCity('홍대');
                 setScreen('map');
-                // mapVisible은 initMap 내부에서 지도 생성 즉시 활성화됨
+                setMapVisible(true);
               }}
               className="flex-1"
               style={{
@@ -1161,7 +1160,7 @@ export default function MvpMap() {
               onClick={() => {
                 setSelectedCity('성수');
                 setScreen('map');
-                // mapVisible은 initMap 내부에서 지도 생성 즉시 활성화됨
+                setMapVisible(true);
               }}
               className="flex-1"
               style={{
