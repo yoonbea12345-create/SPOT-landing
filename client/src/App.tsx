@@ -30,6 +30,9 @@ function Router() {
 function App() {
   // Track page access logs
   useAccessLog();
+
+  // 브라우저 탭 제목 설정
+  document.title = "SPOT - 실시간 분위기 탐색 지도 서비스";
   
   return (
     <ErrorBoundary>
