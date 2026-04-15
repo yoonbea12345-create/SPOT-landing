@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-type Screen = "splash" | "home" | "map";
+type Screen = "splash" | "home" | "map" | "profile";
 
 // MBTI 타입 정의
 const MBTI_TYPES = [
@@ -443,6 +443,9 @@ export default function MvpMap() {
   const [selectedFilterPurpose, setSelectedFilterPurpose] = useState<string | null>(null);
   const [showMomentReport, setShowMomentReport] = useState(false);
   const [showCommunityFeed, setShowCommunityFeed] = useState(false);
+  const [profileNickname, setProfileNickname] = useState('');
+  const [profileEditingNick, setProfileEditingNick] = useState(false);
+  const [savedSpots, setSavedSpots] = useState<Array<{ name: string; region: string; date: string }>>([]);
   const [selectedKakaoPlace, setSelectedKakaoPlace] = useState<KakaoPlaceInfo | null>(null);
   const [kakaoPlaceVisible, setKakaoPlaceVisible] = useState(false);
 
@@ -1061,180 +1064,215 @@ export default function MvpMap() {
       >
         <Toaster position="top-center" />
 
-        {/* 이벤트 배너 */}
+        {/* 광고 배너 - 앱 내 광고 컨셉 */}
         <div
-          className="flex flex-col items-center justify-center px-4 py-3 text-center"
           style={{
-            background: '#F5F0E8',
-            borderBottom: '1px solid #E0D8CC',
-            minHeight: '56px'
+            background: '#2C1810',
+            color: '#F5F0E8',
+            fontSize: '12px',
+            fontWeight: 600,
+            textAlign: 'center',
+            padding: '8px 16px',
+            lineHeight: 1.5,
+            flexShrink: 0,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
           }}
         >
-          {hongdaeData?.congestLvl ? (
-            <>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#2C1810', lineHeight: 1.4 }}>
-                🔥 지금 홍대 혼잡도: <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{hongdaeData.congestLvl}</span>
-              </div>
-              <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '2px' }}>
-                실시간 서울시 데이터
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#2C1810' }}>
-                🔥 일일 수작 홍대입구역점 이벤트 진행(4/12~4/20)🔥
-              </div>
-              <div style={{ fontSize: '12px', color: '#6B5B4E', marginTop: '2px' }}>
-                2만원 이상 구매시 산리오 키링 증정
-              </div>
-            </>
-          )}
+          {/* 광고 슬라이드 - 3개 광고 순환 */}
+          {[`🔥 일일수작 홍대입구역점 4/15~4/19 소주 3천원`, `🌸 산리오 팝업 홍대 7번 출구 · 구경만 해도 키링 증정`, `☕ 메가커피 홍대점 오늘 아아 1+1 이벤트 진행 중`][Math.floor(Date.now() / 5000) % 3]}
         </div>
 
-        {/* 안내 텍스트 */}
+        {/* 상단 헤더 - SPOT 로고 */}
         <div
-          className="flex items-center justify-center px-6 py-4"
-          style={{ fontSize: '14px', fontWeight: 600, color: '#2C1810', textAlign: 'center' }}
+          className="flex items-center justify-between px-5"
+          style={{ height: '52px', flexShrink: 0, borderBottom: '1px solid #E0D8CC' }}
         >
-          해당 지역 클릭시 해당 지역만의 지도 노출
+          <span style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810', letterSpacing: '-0.02em' }}>SPOT</span>
+          <span style={{ fontSize: '11px', color: '#6B5B4E', fontWeight: 500 }}>실시간 공간 분위기 탐색 서비스</span>
         </div>
 
-        {/* 지역 선택 버튼 */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 gap-3">
-          {/* 연남 - 큰 버튼 */}
+        {/* 지역 선택 영역 */}
+        <div className="flex-1 flex flex-col px-5 py-4" style={{ gap: '12px', overflowY: 'auto' }}>
+
+          {/* 홍대 - 최상단 단독 큰 카드 */}
           <button
-            onClick={() => {
-              setSelectedCity('연남');
-              setScreen('map');
-              setMapVisible(true);
-            }}
-            className="w-full"
+            onClick={() => { setSelectedCity('홍대'); setScreen('map'); setMapVisible(true); }}
             style={{
-              background: '#FFFFFF',
-              border: '1.5px solid #2C1810',
-              borderRadius: '4px',
-              padding: '28px 24px',
-              fontSize: '22px',
-              fontWeight: 700,
-              color: '#2C1810',
+              width: '100%',
+              background: '#2C1810',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0',
               cursor: 'pointer',
-              textAlign: 'center',
-              transition: 'all 0.15s ease'
+              textAlign: 'left',
+              overflow: 'hidden',
+              flexShrink: 0,
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#F0EBE0')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
           >
-            연남
+            <div style={{ padding: '20px 22px 16px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '4px' }}>HONGDAE</div>
+              <div style={{ fontSize: '28px', fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em' }}>홍대</div>
+              <div style={{ fontSize: '12px', color: '#C0A898', marginTop: '6px', fontWeight: 500 }}>
+                {hongdaeData?.congestLvl
+                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#FF6B6B' : hongdaeData.congestLvl.includes('보통') ? '#FFD166' : '#6BCB77' }}>지금 {hongdaeData.congestLvl}</span>
+                  : '홍대입구 · 연트럴파크 인근'
+                }
+              </div>
+            </div>
+            <div style={{ height: '4px', background: 'linear-gradient(90deg, #E53E3E 0%, #D69E2E 100%)' }} />
           </button>
 
-          {/* 홍대 + 성수 - 2열 */}
-          <div className="flex gap-3 w-full">
+          {/* 연남 + 성수 - 2열 카드 */}
+          <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
             <button
-              onClick={() => {
-                setSelectedCity('홍대');
-                setScreen('map');
-                setMapVisible(true);
-              }}
-              className="flex-1"
+              onClick={() => { setSelectedCity('연남'); setScreen('map'); setMapVisible(true); }}
               style={{
+                flex: 1,
                 background: '#FFFFFF',
                 border: '1.5px solid #2C1810',
-                borderRadius: '4px',
-                padding: '28px 24px',
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#2C1810',
+                borderRadius: '8px',
+                padding: '0',
                 cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.15s ease'
+                textAlign: 'left',
+                overflow: 'hidden',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#F0EBE0')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
             >
-              홍대
+              <div style={{ padding: '16px 18px 12px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>YEONNAM</div>
+                <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>연남</div>
+                <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
+                  {yeonnamData?.congestLvl
+                    ? <span style={{ color: yeonnamData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{yeonnamData.congestLvl}</span>
+                    : '연남동 경의선숲길'
+                  }
+                </div>
+              </div>
+              <div style={{ height: '3px', background: '#D69E2E' }} />
             </button>
+
             <button
-              onClick={() => {
-                setSelectedCity('성수');
-                setScreen('map');
-                setMapVisible(true);
-              }}
-              className="flex-1"
+              onClick={() => { setSelectedCity('성수'); setScreen('map'); setMapVisible(true); }}
               style={{
+                flex: 1,
                 background: '#FFFFFF',
                 border: '1.5px solid #2C1810',
-                borderRadius: '4px',
-                padding: '28px 24px',
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#2C1810',
+                borderRadius: '8px',
+                padding: '0',
                 cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.15s ease'
+                textAlign: 'left',
+                overflow: 'hidden',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#F0EBE0')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
             >
-              성수
+              <div style={{ padding: '16px 18px 12px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>SEONGSU</div>
+                <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>성수</div>
+                <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
+                  {seongsuData?.congestLvl
+                    ? <span style={{ color: seongsuData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{seongsuData.congestLvl}</span>
+                    : '성수카페거리 · 서울숲'
+                  }
+                </div>
+              </div>
+              <div style={{ height: '3px', background: '#E53E3E' }} />
             </button>
           </div>
 
-          {/* 통합 검색 안내 */}
+          {/* 메인 카피 */}
           <div
-            className="text-center"
-            style={{ fontSize: '13px', color: '#6B5B4E', marginTop: '8px', lineHeight: 1.6 }}
+            style={{
+              marginTop: '8px',
+              padding: '20px 22px',
+              background: '#EDE8DF',
+              borderRadius: '8px',
+              flexShrink: 0,
+            }}
           >
-            홍대+성수+연남<br />
-            통합 지도 내 장소 검색
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#2C1810', lineHeight: 1.4 }}>
+              내가 갔던 나만의 느좋<br />스팟을 공유해보세요.
+            </div>
+            <div style={{ fontSize: '12px', color: '#6B5B4E', marginTop: '8px', fontWeight: 500 }}>
+              지금 이 골목 분위기, 실시간으로 확인하세요
+            </div>
           </div>
+
         </div>
 
-        {/* 하단 탭바 - 3개 */}
+        {/* 홈화면 하단 탭바 - 5개 */}
         <div
-          className="flex items-center justify-around px-4"
+          className="flex items-center justify-around px-2"
           style={{
             background: '#F5F0E8',
-            borderTop: '1px solid #E0D8CC',
-            height: '72px',
-            flexShrink: 0
+            borderTop: '1.5px solid #2C1810',
+            height: '68px',
+            flexShrink: 0,
           }}
         >
-          {/* 지도 탭 (현재 활성) */}
+          {/* 홈 탭 (현재 활성) */}
           <button
             className="flex flex-col items-center gap-1"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', padding: '4px 8px' }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* 커서/홈 아이콘 */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 700 }}>홈</span>
+          </button>
+
+          {/* 지도 탭 */}
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
+            onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
               <line x1="9" y1="3" x2="9" y2="18" />
               <line x1="15" y1="6" x2="15" y2="21" />
             </svg>
-            <span style={{ fontSize: '10px', fontWeight: 700 }}>지도</span>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>지도</span>
+          </button>
+
+          {/* 대화 탭 (오늘의 OO 3지역 종합) */}
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+            onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); setTimeout(() => setShowCommunityFeed(true), 100); }}
+          >
+            <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2C1810', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-12px', boxShadow: '0 2px 8px rgba(44,24,16,0.3)' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F0E8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <span style={{ fontSize: '9px', fontWeight: 600, color: '#2C1810' }}>대화</span>
           </button>
 
           {/* 검색 탭 */}
           <button
             className="flex flex-col items-center gap-1"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880' }}
-            onClick={() => setShowSearch(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
+            onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); setTimeout(() => { setShowSearch(true); setTimeout(() => setSearchVisible(true), 10); }, 100); }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <span style={{ fontSize: '10px', fontWeight: 500 }}>검색</span>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>검색</span>
           </button>
 
           {/* 프로필 탭 */}
           <button
             className="flex flex-col items-center gap-1"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
+            onClick={() => setScreen('profile')}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            <span style={{ fontSize: '10px', fontWeight: 500 }}>프로필</span>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>프로필</span>
           </button>
         </div>
       </div>
@@ -2088,6 +2126,328 @@ export default function MvpMap() {
         </div>
       )}
       </div>
+
+      {/* ===== 프로필 화면 ===== */}
+      <div
+        className="fixed inset-0 flex flex-col"
+        style={{ height: `${screenHeight}px`, background: '#F5F0E8', display: screen === 'profile' ? 'flex' : 'none' }}
+      >
+        {/* 상단 헤더 */}
+        <div
+          className="flex items-center px-5"
+          style={{ height: '56px', flexShrink: 0, borderBottom: '1px solid #E0D8CC' }}
+        >
+          <button
+            onClick={() => setScreen('home')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', marginRight: '12px', padding: '4px' }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <span style={{ fontSize: '17px', fontWeight: 900, color: '#2C1810' }}>프로필</span>
+        </div>
+
+        {/* 스크롤 영역 */}
+        <div className="flex-1 overflow-y-auto">
+
+          {/* 프로필 카드 */}
+          <div
+            style={{
+              margin: '20px 20px 0',
+              background: '#FFFFFF',
+              border: '1.5px solid #E0D8CC',
+              borderRadius: '12px',
+              padding: '20px',
+            }}
+          >
+            {/* 아바타 + 닉네임 */}
+            <div className="flex items-center gap-4">
+              {/* 아바타 원 */}
+              <div
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: '#2C1810',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F5F0E8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+
+              {/* 닉네임 영역 */}
+              <div className="flex-1">
+                <div style={{ fontSize: '13px', color: '#A89880', fontWeight: 500, marginBottom: '4px' }}>로그인 해서 지도를 꾸며봐요.</div>
+                {profileEditingNick ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={profileNickname}
+                      onChange={e => setProfileNickname(e.target.value)}
+                      placeholder="닉네임 입력"
+                      style={{
+                        flex: 1,
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        color: '#2C1810',
+                        border: 'none',
+                        borderBottom: '2px solid #2C1810',
+                        background: 'transparent',
+                        outline: 'none',
+                        padding: '2px 0',
+                      }}
+                      autoFocus
+                      onKeyDown={e => { if (e.key === 'Enter') setProfileEditingNick(false); }}
+                    />
+                    <button
+                      onClick={() => setProfileEditingNick(false)}
+                      style={{ background: '#2C1810', border: 'none', borderRadius: '4px', color: '#F5F0E8', fontSize: '11px', fontWeight: 700, padding: '4px 8px', cursor: 'pointer' }}
+                    >완료</button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span style={{ fontSize: '18px', fontWeight: 900, color: '#2C1810' }}>
+                      {profileNickname || '닉네임 없음'}
+                    </span>
+                    <button
+                      onClick={() => setProfileEditingNick(true)}
+                      style={{ background: 'none', border: '1px solid #C0B8AC', borderRadius: '4px', color: '#6B5B4E', fontSize: '11px', fontWeight: 600, padding: '2px 8px', cursor: 'pointer' }}
+                    >닉네임 변경</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 기능 아이콘 3개 */}
+          <div
+            style={{
+              margin: '12px 20px 0',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: '10px',
+            }}
+          >
+            {/* 내 지도 */}
+            <button
+              style={{
+                background: '#FFFFFF',
+                border: '1.5px solid #E0D8CC',
+                borderRadius: '10px',
+                padding: '16px 8px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+              onClick={() => { setScreen('home'); }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                <line x1="9" y1="3" x2="9" y2="18" />
+                <line x1="15" y1="6" x2="15" y2="21" />
+                <circle cx="12" cy="12" r="2" fill="#2C1810" stroke="none" />
+              </svg>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#2C1810' }}>내 지도</span>
+            </button>
+
+            {/* 저장한 스팟 */}
+            <button
+              style={{
+                background: '#FFFFFF',
+                border: '1.5px solid #E0D8CC',
+                borderRadius: '10px',
+                padding: '16px 8px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+              </svg>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#2C1810' }}>저장 스팟</span>
+            </button>
+
+            {/* 내 사진·영상 (필름) */}
+            <button
+              style={{
+                background: '#FFFFFF',
+                border: '1.5px solid #E0D8CC',
+                borderRadius: '10px',
+                padding: '16px 8px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                <line x1="7" y1="2" x2="7" y2="22" />
+                <line x1="17" y1="2" x2="17" y2="22" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <line x1="2" y1="7" x2="7" y2="7" />
+                <line x1="2" y1="17" x2="7" y2="17" />
+                <line x1="17" y1="17" x2="22" y2="17" />
+                <line x1="17" y1="7" x2="22" y2="7" />
+              </svg>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#2C1810' }}>사진·영상</span>
+            </button>
+          </div>
+
+          {/* 구분선 */}
+          <div style={{ margin: '20px 20px 0', borderTop: '1px solid #E0D8CC' }} />
+
+          {/* 저장한 스팟 목록 */}
+          <div style={{ margin: '16px 20px 0' }}>
+            <div style={{ fontSize: '14px', fontWeight: 900, color: '#2C1810', marginBottom: '12px' }}>저장한 스팟</div>
+            {savedSpots.length === 0 ? (
+              <div
+                style={{
+                  background: '#EDE8DF',
+                  borderRadius: '10px',
+                  padding: '32px 20px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: '28px', marginBottom: '8px' }}>📍</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#2C1810', marginBottom: '4px' }}>아직 저장한 스팟이 없어요</div>
+                <div style={{ fontSize: '12px', color: '#6B5B4E' }}>지도에서 마음에 드는 장소를 저장해보세요</div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {savedSpots.map((spot, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#FFFFFF',
+                      border: '1.5px solid #E0D8CC',
+                      borderRadius: '8px',
+                      padding: '14px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#2C1810' }}>{spot.name}</div>
+                      <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '2px' }}>{spot.region} · {spot.date}</div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#2C1810" stroke="#2C1810" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                    </svg>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 내 사진·영상 섹션 */}
+          <div style={{ margin: '20px 20px 0' }}>
+            <div style={{ fontSize: '14px', fontWeight: 900, color: '#2C1810', marginBottom: '12px' }}>내가 올린 사진·영상</div>
+            <div
+              style={{
+                background: '#EDE8DF',
+                borderRadius: '10px',
+                padding: '32px 20px',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎞️</div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#2C1810', marginBottom: '4px' }}>아직 올린 콘텐츠가 없어요</div>
+              <div style={{ fontSize: '12px', color: '#6B5B4E' }}>스팟 등록 시 사진·영상을 함께 올려보세요</div>
+            </div>
+          </div>
+
+          {/* 하단 여백 */}
+          <div style={{ height: '32px' }} />
+        </div>
+
+        {/* 프로필 화면 하단 탭바 - 5개 */}
+        <div
+          className="flex items-center justify-around px-2"
+          style={{
+            background: '#F5F0E8',
+            borderTop: '1.5px solid #2C1810',
+            height: '68px',
+            flexShrink: 0,
+          }}
+        >
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
+            onClick={() => setScreen('home')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>홈</span>
+          </button>
+
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
+            onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+              <line x1="9" y1="3" x2="9" y2="18" />
+              <line x1="15" y1="6" x2="15" y2="21" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>지도</span>
+          </button>
+
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+            onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); setTimeout(() => setShowCommunityFeed(true), 100); }}
+          >
+            <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2C1810', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-12px', boxShadow: '0 2px 8px rgba(44,24,16,0.3)' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F0E8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <span style={{ fontSize: '9px', fontWeight: 600, color: '#2C1810' }}>대화</span>
+          </button>
+
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
+            onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); setTimeout(() => { setShowSearch(true); setTimeout(() => setSearchVisible(true), 10); }, 100); }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>검색</span>
+          </button>
+
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', padding: '4px 8px' }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 700 }}>프로필</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 }
