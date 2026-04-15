@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-type Screen = "splash" | "map";
+type Screen = "splash" | "home" | "map";
 
 // MBTI 타입 정의
 const MBTI_TYPES = [
@@ -442,6 +442,15 @@ export default function MvpMap() {
   const dummyDataRef = useRef<DummySpot[]>([]);
   const [showSpotFeed, setShowSpotFeed] = useState(false);
 
+  // 새 UI 상태 변수
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState<string | null>(null);
+  const [selectedFilterPurpose, setSelectedFilterPurpose] = useState<string | null>(null);
+  const [showMomentReport, setShowMomentReport] = useState(false);
+  const [showCommunityFeed, setShowCommunityFeed] = useState(false);
+
   // 서울시 실시간 데이터 상태
   const [seoulCityData, setSeoulCityData] = useState<Record<string, any>>({});
   const [seoulBanner, setSeoulBanner] = useState<{ text: string; color: string; icon: string } | null>(null);
@@ -540,7 +549,7 @@ export default function MvpMap() {
     };
     const idTimer = setTimeout(checkLogId, 500);
     const fadeTimer = setTimeout(() => setSplashFading(true), 1700);
-    const timer = setTimeout(() => { setScreen("map"); requestAnimationFrame(() => setMapVisible(true)); }, 2000);
+    const timer = setTimeout(() => { setScreen("home"); }, 2000);
     const consentTimer = setTimeout(() => setShowConsentPopup(true), 5800);
     return () => { clearTimeout(timer); clearTimeout(idTimer); clearTimeout(fadeTimer); clearTimeout(consentTimer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -987,135 +996,312 @@ export default function MvpMap() {
     };
   }, [showSearch]);
 
+
   // 스플래시 화면
   if (screen === "splash") {
     return (
-      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center" style={{ height: `${screenHeight}px`, opacity: splashFading ? 0 : 1, transition: 'opacity 0.3s ease' }}>
-        <h1 className="text-6xl font-bold" style={{ fontFamily: "'Orbitron', sans-serif", color: "#ffffff" }}>SPOT</h1>
+      <div
+        className="fixed inset-0 flex flex-col items-center justify-center"
+        style={{
+          height: `${screenHeight}px`,
+          background: '#F5F0E8',
+          opacity: splashFading ? 0 : 1,
+          transition: 'opacity 0.3s ease'
+        }}
+      >
+        <h1
+          className="font-black tracking-tight"
+          style={{
+            fontSize: '52px',
+            color: '#2C1810',
+            fontFamily: "'Inter', 'Pretendard', sans-serif",
+            letterSpacing: '-0.02em'
+          }}
+        >
+          SPOT
+        </h1>
+      </div>
+    );
+  }
+
+  // 홈 화면 (지역 선택)
+  if (screen === "home") {
+    return (
+      <div
+        className="fixed inset-0 flex flex-col"
+        style={{ height: `${screenHeight}px`, background: '#F5F0E8' }}
+      >
+        <Toaster position="top-center" />
+
+        {/* 이벤트 배너 */}
+        <div
+          className="flex flex-col items-center justify-center px-4 py-3 text-center"
+          style={{
+            background: '#F5F0E8',
+            borderBottom: '1px solid #E0D8CC',
+            minHeight: '56px'
+          }}
+        >
+          {hongdaeData?.congestLvl ? (
+            <>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#2C1810', lineHeight: 1.4 }}>
+                🔥 지금 홍대 혼잡도: <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{hongdaeData.congestLvl}</span>
+              </div>
+              <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '2px' }}>
+                실시간 서울시 데이터
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#2C1810' }}>
+                🔥 일일 수작 홍대입구역점 이벤트 진행(4/12~4/20)🔥
+              </div>
+              <div style={{ fontSize: '12px', color: '#6B5B4E', marginTop: '2px' }}>
+                2만원 이상 구매시 산리오 키링 증정
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* 안내 텍스트 */}
+        <div
+          className="flex items-center justify-center px-6 py-4"
+          style={{ fontSize: '14px', fontWeight: 600, color: '#2C1810', textAlign: 'center' }}
+        >
+          해당 지역 클릭시 해당 지역만의 지도 노출
+        </div>
+
+        {/* 지역 선택 버튼 */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 gap-3">
+          {/* 연남 - 큰 버튼 */}
+          <button
+            onClick={() => {
+              setSelectedCity('연남');
+              setScreen('map');
+              setTimeout(() => setMapVisible(true), 50);
+            }}
+            className="w-full"
+            style={{
+              background: '#FFFFFF',
+              border: '1.5px solid #2C1810',
+              borderRadius: '4px',
+              padding: '28px 24px',
+              fontSize: '22px',
+              fontWeight: 700,
+              color: '#2C1810',
+              cursor: 'pointer',
+              textAlign: 'center',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#F0EBE0')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
+          >
+            연남
+          </button>
+
+          {/* 홍대 + 성수 - 2열 */}
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={() => {
+                setSelectedCity('홍대');
+                setScreen('map');
+                setTimeout(() => setMapVisible(true), 50);
+              }}
+              className="flex-1"
+              style={{
+                background: '#FFFFFF',
+                border: '1.5px solid #2C1810',
+                borderRadius: '4px',
+                padding: '28px 24px',
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#2C1810',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#F0EBE0')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
+            >
+              홍대
+            </button>
+            <button
+              onClick={() => {
+                setSelectedCity('성수');
+                setScreen('map');
+                setTimeout(() => setMapVisible(true), 50);
+              }}
+              className="flex-1"
+              style={{
+                background: '#FFFFFF',
+                border: '1.5px solid #2C1810',
+                borderRadius: '4px',
+                padding: '28px 24px',
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#2C1810',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#F0EBE0')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
+            >
+              성수
+            </button>
+          </div>
+
+          {/* 통합 검색 안내 */}
+          <div
+            className="text-center"
+            style={{ fontSize: '13px', color: '#6B5B4E', marginTop: '8px', lineHeight: 1.6 }}
+          >
+            홍대+성수+연남<br />
+            통합 지도 내 장소 검색
+          </div>
+        </div>
+
+        {/* 하단 탭바 - 3개 */}
+        <div
+          className="flex items-center justify-around px-4"
+          style={{
+            background: '#F5F0E8',
+            borderTop: '1px solid #E0D8CC',
+            height: '72px',
+            flexShrink: 0
+          }}
+        >
+          {/* 지도 탭 (현재 활성) */}
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810' }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+              <line x1="9" y1="3" x2="9" y2="18" />
+              <line x1="15" y1="6" x2="15" y2="21" />
+            </svg>
+            <span style={{ fontSize: '10px', fontWeight: 700 }}>지도</span>
+          </button>
+
+          {/* 검색 탭 */}
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880' }}
+            onClick={() => setShowSearch(true)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span style={{ fontSize: '10px', fontWeight: 500 }}>검색</span>
+          </button>
+
+          {/* 프로필 탭 */}
+          <button
+            className="flex flex-col items-center gap-1"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880' }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span style={{ fontSize: '10px', fontWeight: 500 }}>프로필</span>
+          </button>
+        </div>
       </div>
     );
   }
 
   // 지도 화면
+  const currentCity = selectedCity || '홍대';
+  const currentCityData = currentCity === '홍대' ? hongdaeData : currentCity === '성수' ? seongsuData : yeonnamData;
+  const congestionLevel = currentCityData?.congestLvl || '';
+  const congestionAge = currentCityData?.ppltnMin ? `${currentCityData.ppltnMin}~${currentCityData.ppltnMax}명` : '';
+
   return (
-    <div className="fixed inset-0 bg-black flex flex-col" style={{ height: `${screenHeight}px`, opacity: mapVisible ? 1 : 0, transition: 'opacity 0.35s ease' }}>
-      <Toaster position="top-right" />
+    <div
+      className="fixed inset-0 flex flex-col"
+      style={{
+        height: `${screenHeight}px`,
+        background: '#F5F0E8',
+        opacity: mapVisible ? 1 : 0,
+        transition: 'opacity 0.35s ease'
+      }}
+    >
+      <Toaster position="top-center" />
 
-      {/* 서울시 실시간 데이터 배너 */}
-      {seoulBanner && (
-        <div
-          className="absolute top-0 left-0 right-0 z-40 flex items-center justify-center gap-2 px-4 py-1.5"
-          style={{ background: 'rgba(0,0,0,0.85)', borderBottom: `1px solid ${seoulBanner.color}44`, pointerEvents: 'none' }}
+      {/* 상단 헤더 */}
+      <div
+        className="flex items-center px-4 py-2"
+        style={{
+          background: '#F5F0E8',
+          borderBottom: '1.5px solid #2C1810',
+          flexShrink: 0,
+          minHeight: '48px'
+        }}
+      >
+        {/* 뒤로가기 버튼 */}
+        <button
+          onClick={() => { setScreen('home'); setMapVisible(false); }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', marginRight: '8px', padding: '4px' }}
         >
-          <span style={{ fontSize: '11px' }}>{seoulBanner.icon}</span>
-          <span style={{ fontSize: '11px', color: seoulBanner.color, fontWeight: 700 }}>{seoulBanner.text}</span>
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>실시간</span>
-        </div>
-      )}
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
 
-      {/* 핫플레이스 바텀시트 */}
-      {showHotplacePopup && hotspotCityNames.length > 0 && (
-        <div
-          className="fixed bottom-0 left-0 right-0 z-50 flex justify-center"
-          style={{ pointerEvents: 'none', opacity: hotplaceVisible ? 1 : 0, transform: hotplaceVisible ? 'translateY(0)' : 'translateY(24px)', transition: 'opacity 0.22s ease, transform 0.22s ease' }}
-        >
-          <div ref={sheetRef} className="hotspot-banner w-full max-w-md rounded-t-2xl overflow-hidden" style={{ background: 'rgba(4,4,18,0.96)', border: '2px solid rgba(255,69,0,0.4)', borderBottom: 'none', pointerEvents: 'auto', maxHeight: '60vh', overflowY: 'auto' }}>
-            {/* 헤더 */}
-            <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="flex items-center gap-2">
-                <span style={{ fontSize: '16px' }}>🔥</span>
-                <span style={{ fontSize: '14px', fontWeight: 900, color: '#ff6a00' }}>지금 핫한 곳</span>
-              </div>
-              <button onClick={() => setShowHotplacePopup(false)} style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
-            </div>
-            {/* 탭 */}
-            <div className="flex" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {hotspotCityNames.map((city, idx) => (
-                <button key={city} onClick={() => setSelectedHotplaceTab(idx)} className="flex-1 py-2.5 text-xs font-bold transition-colors" style={{ color: selectedHotplaceTab === idx ? '#ff6a00' : 'rgba(255,255,255,0.4)', borderBottom: selectedHotplaceTab === idx ? '2px solid #ff6a00' : '2px solid transparent', background: 'none', cursor: 'pointer' }}>
-                  {city}
-                </button>
-              ))}
-            </div>
-            {/* 탭 콘텐츠 */}
-            {hotspotCityNames[selectedHotplaceTab] && (() => {
-              const cityName = hotspotCityNames[selectedHotplaceTab];
-              const city = CITIES.find(c => c.name === cityName);
-              if (!city) return null;
-              const cityRadius = 0.25;
-              const citySpots = dummyDataRef.current.filter(m =>
-                Math.abs(m.lat - city.lat) < cityRadius && Math.abs(m.lng - city.lng) < cityRadius
-              );
-              const mbtiCounts: Record<string, number> = {};
-              citySpots.forEach(s => { mbtiCounts[s.mbti] = (mbtiCounts[s.mbti] || 0) + 1; });
-              const topMBTI = Object.entries(mbtiCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-              // 서울시 실시간 데이터 (홍대/성수)
-              const apiPlaces = SEOUL_CITY_API_PLACES[cityName] || [];
-              const apiDataList = apiPlaces.map(p => seoulCityData[p]).filter(Boolean);
-              return (
-                <div className="px-4 py-4">
-                  {/* 서울시 실시간 데이터 */}
-                  {apiDataList.length > 0 && apiDataList.map((data, i) => {
-                    const congestion = data.AREA_CONGEST_LVL || "";
-                    const weather = data.WEATHER_TIME ? `${data.TEMP}°C · ${data.WEATHER_TIME}` : null;
-                    const congColor = congestion.includes("붐빔") ? "#ff4500" : congestion.includes("약간") ? "#ff9f43" : congestion.includes("보통") ? "#ffd700" : "#00c896";
-                    return (
-                      <div key={i} className="mb-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>{apiPlaces[i]}</span>
-                          <span style={{ fontSize: '11px', color: congColor, fontWeight: 900 }}>{congestion || "데이터 없음"}</span>
-                        </div>
-                        {weather && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>{weather}</div>}
-                        {data.AREA_CONGEST_MSG && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginTop: '4px', lineHeight: 1.4 }}>{data.AREA_CONGEST_MSG.slice(0, 60)}...</div>}
-                      </div>
-                    );
-                  })}
-                  {/* MBTI 분포 */}
-                  <div className="mb-3">
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>지금 이 곳의 MBTI 분포</div>
-                    {topMBTI.map(([mbti, count]) => (
-                      <div key={mbti} className="flex items-center gap-2 mb-1.5">
-                        <span style={{ fontSize: '11px', fontWeight: 900, color: MBTI_COLORS[mbti], width: '40px' }}>{mbti}</span>
-                        <div className="flex-1 rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(255,255,255,0.08)' }}>
-                          <div style={{ height: '100%', width: `${(count / citySpots.length) * 100}%`, background: MBTI_COLORS[mbti], borderRadius: '2px' }} />
-                        </div>
-                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', width: '24px', textAlign: 'right' }}>{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (mapRef.current) {
-                        mapRef.current.setCenter(new window.kakao.maps.LatLng(city.lat, city.lng));
-                        mapRef.current.setLevel(4);
-                      }
-                      setShowHotplacePopup(false);
-                    }}
-                    className="w-full py-2.5 rounded-xl text-sm font-black transition-all"
-                    style={{ background: 'rgba(255,106,0,0.15)', border: '1.5px solid rgba(255,106,0,0.4)', color: '#ff6a00' }}
-                  >
-                    {cityName} 지도로 보기 →
-                  </button>
-                </div>
-              );
-            })()}
+        <div style={{ fontSize: '18px', fontWeight: 900, color: '#2C1810' }}>{currentCity}</div>
+
+        {congestionLevel && (
+          <div
+            className="flex items-center gap-1 ml-2"
+            style={{ fontSize: '12px', color: '#6B5B4E', fontWeight: 600 }}
+          >
+            <span># 혼잡도: {congestionLevel.includes('붐빔') ? 'S' : congestionLevel.includes('보통') ? 'M' : 'L'}</span>
+            {congestionAge && <span># {congestionAge}</span>}
           </div>
-        </div>
-      )}
+        )}
+        {!congestionLevel && (
+          <div style={{ fontSize: '12px', color: '#A89880', marginLeft: '8px' }}>
+            # 혼잡도: S  #20대 압도적
+          </div>
+        )}
+      </div>
 
       {/* 카카오맵 컨테이너 */}
-      <div className="relative flex-1 overflow-hidden" style={{ marginTop: seoulBanner ? '28px' : '0' }}>
-        <div ref={mapContainerRef} className="w-full h-full" />
+      <div className="relative flex-1 overflow-hidden">
+        <div ref={mapContainerRef} className="w-full h-full" style={{ background: '#E8E0D0' }} />
+
+        {/* 카카오맵 로드 실패 시 폴백 */}
+        {!mapRef.current && screen === 'map' && (
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: '#E8E0D0', color: '#A89880', fontSize: '13px', textAlign: 'center' }}
+          >
+            <div>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🗺️</div>
+              <div>지도를 불러오는 중...</div>
+            </div>
+          </div>
+        )}
 
         {/* 검색 패널 */}
         {showSearch && (
           <div
             ref={searchPanelRef}
-            className="absolute top-2 left-2 right-2 z-30 rounded-2xl overflow-hidden"
-            style={{ background: 'rgba(4,4,14,0.97)', border: '1.5px solid rgba(0,240,255,0.3)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)', opacity: searchVisible ? 1 : 0, transform: searchVisible ? 'translateY(0)' : 'translateY(-8px)', transition: 'opacity 0.18s ease, transform 0.18s ease' }}
+            className="absolute top-2 left-2 right-2 z-30 rounded-lg overflow-hidden"
+            style={{
+              background: '#FFFFFF',
+              border: '1.5px solid #2C1810',
+              boxShadow: '0 4px 16px rgba(44,24,16,0.15)',
+              opacity: searchVisible ? 1 : 0,
+              transform: searchVisible ? 'translateY(0)' : 'translateY(-8px)',
+              transition: 'opacity 0.18s ease, transform 0.18s ease'
+            }}
           >
-            {/* 검색 입력 */}
-            <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: '1px solid rgba(0,240,255,0.1)' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: '1px solid #E0D8CC' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A89880" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input
@@ -1125,52 +1311,22 @@ export default function MvpMap() {
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="장소·지역 검색 (예: 홍대 카페)"
-                className="flex-1 outline-none text-xs bg-transparent"
-                style={{ color: '#00f0ff' }}
+                className="flex-1 outline-none text-sm bg-transparent"
+                style={{ color: '#2C1810' }}
               />
-              {searchQuery ? (
-                <button onClick={() => { setSearchQuery(''); setSearchResults([]); searchInputRef.current?.focus(); }} className="hover:text-white transition-colors text-xs leading-none flex-shrink-0" style={{ color: 'rgba(0,240,255,0.5)', padding: '2px' }}>✕</button>
-              ) : (
-                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }} className="hover:text-white transition-colors leading-none flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)', padding: '2px', fontSize: '13px' }}>✕</button>
-              )}
+              <button
+                onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
+                style={{ color: '#A89880', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
+              >✕</button>
             </div>
-            {/* 카테고리 칩 */}
-            <div className="px-2.5 py-2" style={{ borderBottom: '1px solid rgba(0,240,255,0.1)' }}>
-              <div className="flex flex-wrap gap-1">
-                {([
-                  { key: 'cafe', label: '☕ 카페', color: '#c77dff' },
-                  { key: 'restaurant', label: '🍜 맛집', color: '#ff9f43' },
-                  { key: 'bar', label: '🍺 술집', color: '#ff6b6b' },
-                  { key: 'park', label: '🌿 공원', color: '#00f0b4' },
-                  { key: 'nature', label: '🏔 자연', color: '#74b9ff' },
-                  { key: 'landmark', label: '📍 명소', color: '#00f0ff' },
-                  { key: 'shopping', label: '🛍 쇼핑', color: '#fd79a8' },
-                ] as const).map(({ key, label, color }) => {
-                  const isActive = selectedCategory === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => filterByCategory(key)}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-bold transition-all"
-                      style={{ background: isActive ? `${color}22` : 'rgba(255,255,255,0.05)', border: `1px solid ${isActive ? color : 'rgba(255,255,255,0.1)'}`, color: isActive ? color : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            {/* 검색 결과 */}
-            {searchLoading && <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(0,240,255,0.5)' }}>검색 중...</div>}
+            {searchLoading && <div className="px-3 py-3 text-center text-sm" style={{ color: '#A89880' }}>검색 중...</div>}
             {!searchLoading && searchResults.length > 0 && (
-              <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+              <div className="max-h-48 overflow-y-auto">
                 {searchResults.map((result, idx) => (
                   <button
                     key={idx}
-                    className="w-full text-left px-3 py-2.5 text-xs transition-all"
-                    style={{ color: 'rgba(255,255,255,0.8)', borderBottom: idx < searchResults.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', background: 'transparent' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,240,255,0.08)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    className="w-full text-left px-3 py-2.5 text-sm"
+                    style={{ color: '#2C1810', borderBottom: idx < searchResults.length - 1 ? '1px solid #F0EBE0' : 'none', background: 'transparent', cursor: 'pointer' }}
                     onClick={() => {
                       if (mapRef.current) {
                         mapRef.current.setCenter(new window.kakao.maps.LatLng(result.lat, result.lng));
@@ -1182,330 +1338,557 @@ export default function MvpMap() {
                       }
                     }}
                   >
-                    <div className="flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
-                      </svg>
-                      <span className="truncate">{result.name}</span>
-                    </div>
+                    📍 {result.name}
                   </button>
                 ))}
               </div>
             )}
-            {!searchLoading && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
-              <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>검색 결과가 없습니다</div>
-            )}
           </div>
         )}
 
-        {/* 하단 정보 안내 텍스트 */}
-        {!selectedMarker && !showSearch && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 border border-cyan-500/20 rounded-xl px-4 py-2 shadow-lg" style={{ pointerEvents: 'none' }}>
-            <div className="text-xs text-gray-400 whitespace-nowrap">마커를 클릭하여 MBTI 정보를 확인하세요</div>
+        {/* 업종&목적 필터 패널 (8.png) */}
+        {showFilter && (
+          <div
+            className="absolute bottom-0 left-0 right-0 z-40"
+            style={{
+              background: '#B2DFDB',
+              border: '1.5px solid #2C1810',
+              borderBottom: 'none',
+              borderRadius: '12px 12px 0 0',
+              padding: '16px',
+              opacity: filterVisible ? 1 : 0,
+              transform: filterVisible ? 'translateY(0)' : 'translateY(16px)',
+              transition: 'opacity 0.2s ease, transform 0.2s ease'
+            }}
+          >
+            {/* 업종 */}
+            <div className="flex gap-2 mb-3">
+              {['카페', '술집', '팝업', '전시'].map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedFilterCategory(prev => prev === cat ? null : cat)}
+                  style={{
+                    flex: 1,
+                    padding: '8px 4px',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    background: selectedFilterCategory === cat ? '#E53E3E' : '#E53E3E',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {/* 목적 */}
+            <div style={{ borderTop: '1.5px solid #2C1810', paddingTop: '12px' }}>
+              <div className="flex flex-wrap gap-2">
+                {['#데이트', '#카공', '#작업', '#친목', '#식사', '#술', '#쇼핑', '#구경'].map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedFilterPurpose(prev => prev === tag ? null : tag)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      background: selectedFilterPurpose === tag ? '#F6E05E' : '#F6E05E',
+                      color: '#2C1810',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* 닫기 화살표 */}
+            <div className="flex justify-center mt-3">
+              <button
+                onClick={() => { setFilterVisible(false); setTimeout(() => setShowFilter(false), 200); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810' }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* 팝업 */}
+      {/* 팝업 카드 (3/4.png 스타일) */}
       {popupData && (() => {
-        const mbtiColor = MBTI_COLORS[popupData.mbti] || "#00f0ff";
-        const hashtags = popupData.hashtags || getPlaceHashtags(popupData.category, popupData.id);
         const activity = popupData.activity || getRandomActivity(popupData.category);
         return (
           <div
-            className="fixed bottom-20 left-2 right-2 z-50 rounded-2xl overflow-hidden"
-            style={{ background: 'rgba(8,8,16,0.97)', border: `1.5px solid ${mbtiColor}66`, boxShadow: `0 8px 32px rgba(0,0,0,0.8)`, opacity: popupVisible ? 1 : 0, transform: popupVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.22s ease, transform 0.22s ease', maxWidth: '400px', margin: '0 auto' }}
+            className="absolute z-50"
+            style={{
+              bottom: '80px',
+              left: '12px',
+              right: '12px',
+              background: '#FFFFFF',
+              border: '1.5px solid #2C1810',
+              borderRadius: '4px',
+              opacity: popupVisible ? 1 : 0,
+              transform: popupVisible ? 'translateY(0)' : 'translateY(12px)',
+              transition: 'opacity 0.2s ease, transform 0.2s ease',
+              maxWidth: '400px',
+              margin: '0 auto'
+            }}
           >
-            {/* 헤더 */}
-            <div className="flex items-start gap-2.5 px-3 pt-2.5 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {/* 아바타 */}
-              <div style={{ borderRadius: '50%', border: `2px solid ${mbtiColor}`, overflow: 'hidden', width: '40px', height: '40px', flexShrink: 0, background: `${mbtiColor}22` }}>
-                {popupData.avatar ? (
-                  <AvatarSVG config={popupData.avatar} size={40} />
-                ) : (
-                  <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>👤</div>
-                )}
+            {/* 헤더 행 */}
+            <div
+              className="flex items-center gap-2 px-3 py-2"
+              style={{ borderBottom: '1px solid #E0D8CC' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#2C1810' }}>{popupData.mbti}</span>
+              <span style={{ fontSize: '12px', color: '#6B5B4E' }}>|</span>
+              <span style={{ fontSize: '12px', color: '#6B5B4E' }}>{popupData.placeName || '홍대점'}</span>
+              <span style={{ fontSize: '11px', color: '#A89880', marginLeft: 'auto' }}>
+                {popupData.createdAt ? `${Math.floor((Date.now() - popupData.createdAt) / 60000)}분전` : '방금'}
+              </span>
+              <button
+                onClick={() => { setPopupVisible(false); setTimeout(() => setPopupData(null), 220); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', fontSize: '14px', marginLeft: '4px' }}
+              >✕</button>
+            </div>
+
+            {/* 사진/동영상 2칸 */}
+            <div className="grid grid-cols-2" style={{ borderBottom: '1px solid #E0D8CC', minHeight: '100px' }}>
+              <div
+                className="flex items-center justify-center"
+                style={{ borderRight: '1px solid #E0D8CC', padding: '20px', color: '#A89880', fontSize: '13px', background: '#F5F0E8' }}
+              >
+                사진OR동영상
               </div>
-              {/* 정보 */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span style={{ fontSize: '13px', fontWeight: 900, color: mbtiColor }}>{popupData.mbti}</span>
-                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>·</span>
-                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{popupData.mood}</span>
-                </div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginBottom: '2px' }}>
-                  {activity.emoji} {activity.text}
-                </div>
-                {(popupData.placeName || popupAddress) && (
-                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    📍 {popupData.placeName || popupAddress}
-                  </div>
-                )}
-              </div>
-              {/* 닫기 + 거리 */}
-              <div className="flex flex-col items-end gap-1" style={{ flexShrink: 0 }}>
-                <button onClick={() => { setPopupVisible(false); setTimeout(() => setPopupData(null), 220); }} style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>✕</button>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>{popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`}</span>
+              <div
+                className="flex items-center justify-center"
+                style={{ padding: '20px', color: '#A89880', fontSize: '13px', background: '#F5F0E8' }}
+              >
+                사진OR동영상
               </div>
             </div>
 
-            {/* 사인 */}
-            <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>"{popupData.sign}"</div>
-            </div>
-
-            {/* 해시태그 */}
+            {/* 분위기 태그 */}
             <div className="px-3 py-2.5">
-              <div className="flex flex-wrap gap-1.5">
-                {hashtags.slice(0, 5).map((tag, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPopupTagVotes(prev => ({ ...prev, [tag]: (prev[tag] || 0) + 1 }))}
-                    className="px-2 py-0.5 rounded-full text-[10px] font-medium transition-all"
-                    style={{ background: (popupTagVotes[tag] || 0) > 0 ? `${mbtiColor}22` : 'rgba(255,255,255,0.06)', border: `1px solid ${(popupTagVotes[tag] || 0) > 0 ? mbtiColor + '66' : 'rgba(255,255,255,0.1)'}`, color: (popupTagVotes[tag] || 0) > 0 ? mbtiColor : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}
-                  >
-                    #{tag} {(popupTagVotes[tag] || 0) > 0 ? `+${popupTagVotes[tag]}` : ''}
-                  </button>
-                ))}
+              <div style={{ fontSize: '12px', color: '#2C1810', lineHeight: 1.6 }}>
+                {popupData.hashtags?.slice(0, 3).map((tag, i) => (
+                  <div key={i}>#{i+1}({i === 0 ? '현재 분위기' : i === 1 ? '체류감' : '주의사항'}): {tag}</div>
+                )) || (
+                  <>
+                    <div>#1(현재 분위기): EX.)커플 비중 높음/ 작업가능</div>
+                    <div>#2(체류감): EX.)회전 느림/오래 앉기가능</div>
+                    <div>#3(주의사항): EX.)주차불편/웨이팅</div>
+                  </>
+                )}
               </div>
             </div>
-
-            {/* 경과 시간 */}
-            {popupData.createdAt && (
-              <div className="px-3 pb-2.5">
-                <ElapsedTimer createdAt={popupData.createdAt} mbtiColor={mbtiColor} />
-              </div>
-            )}
           </div>
         );
       })()}
 
-      {/* 하단 네비게이션 바 */}
-      <div className="flex items-center justify-around px-2 py-3" style={{ background: 'rgba(4,4,14,0.97)', borderTop: '1px solid rgba(255,255,255,0.08)', height: '64px', flexShrink: 0 }}>
-        {/* 검색 버튼 */}
+      {/* 하단 네비게이션 바 - 5개 (PNG 스타일) */}
+      <div
+        className="flex items-center justify-around px-2"
+        style={{
+          background: '#F5F0E8',
+          borderTop: '1.5px solid #2C1810',
+          height: '72px',
+          flexShrink: 0
+        }}
+      >
+        {/* 채팅 (오늘의 홍대) */}
         <button
-          onClick={() => setShowSearch(prev => !prev)}
-          className="flex flex-col items-center gap-0.5 transition-all"
-          style={{ color: showSearch ? '#00f0ff' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+          onClick={() => setShowCommunityFeed(true)}
+          className="flex flex-col items-center gap-1"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', padding: '4px 8px' }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <span style={{ fontSize: '9px' }}>검색</span>
+          <span style={{ fontSize: '9px', fontWeight: 600 }}>채팅</span>
         </button>
 
-        {/* 핫플 버튼 */}
+        {/* 탐색 (필터) */}
         <button
-          onClick={() => setShowHotplacePopup(prev => !prev)}
-          className="flex flex-col items-center gap-0.5 transition-all"
-          style={{ color: showHotplacePopup ? '#ff6a00' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+          onClick={() => { setShowFilter(true); setTimeout(() => setFilterVisible(true), 10); }}
+          className="flex flex-col items-center gap-1"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', padding: '4px 8px' }}
         >
-          <span style={{ fontSize: '20px', lineHeight: 1 }}>🔥</span>
-          <span style={{ fontSize: '9px' }}>핫플</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="6" r="2" /><circle cx="11" cy="12" r="2" /><circle cx="11" cy="18" r="2" />
+            <line x1="16" y1="6" x2="22" y2="6" /><line x1="16" y1="12" x2="22" y2="12" /><line x1="16" y1="18" x2="22" y2="18" />
+            <line x1="2" y1="6" x2="6" y2="6" /><line x1="2" y1="12" x2="6" y2="12" /><line x1="2" y1="18" x2="6" y2="18" />
+          </svg>
+          <span style={{ fontSize: '9px', fontWeight: 600 }}>탐색</span>
         </button>
 
-        {/* SPOT 등록 버튼 (중앙 강조) */}
+        {/* SPOT 등록 (중앙 강조) */}
         <button
           onClick={() => setShowSpotForm(true)}
-          className="flex flex-col items-center gap-0.5 transition-all"
+          className="flex flex-col items-center gap-1"
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
         >
-          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #00f0ff, #c77dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px rgba(0,240,255,0.4)', marginTop: '-12px' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              background: '#2C1810',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: '-14px',
+              boxShadow: '0 2px 8px rgba(44,24,16,0.3)'
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5F0E8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </div>
-          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)' }}>SPOT</span>
+          <span style={{ fontSize: '9px', fontWeight: 600, color: '#2C1810' }}>SPOT</span>
         </button>
 
-        {/* 피드 버튼 */}
+        {/* 검색 */}
         <button
-          onClick={() => setShowSpotFeed(true)}
-          className="flex flex-col items-center gap-0.5 transition-all"
-          style={{ color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+          onClick={() => setShowSearch(prev => !prev)}
+          className="flex flex-col items-center gap-1"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: showSearch ? '#2C1810' : '#A89880', padding: '4px 8px' }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <span style={{ fontSize: '9px' }}>피드</span>
+          <span style={{ fontSize: '9px', fontWeight: 600 }}>검색</span>
         </button>
 
-        {/* 내 위치 버튼 */}
+        {/* 즐겨찾기 (지금이순간) */}
         <button
-          onClick={() => {
-            if (userLocation && mapRef.current) {
-              mapRef.current.setCenter(new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng));
-              mapRef.current.setLevel(4);
-            } else {
-              toast.info("위치 정보를 가져오는 중입니다...", { duration: 2000 });
-            }
-          }}
-          className="flex flex-col items-center gap-0.5 transition-all"
-          style={{ color: userLocation ? '#00f0ff' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+          onClick={() => setShowMomentReport(true)}
+          className="flex flex-col items-center gap-1"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" /><path d="M12 1v4M12 19v4M1 12h4M19 12h4" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
-          <span style={{ fontSize: '9px' }}>내 위치</span>
+          <span style={{ fontSize: '9px', fontWeight: 600 }}>이순간</span>
         </button>
       </div>
 
       {/* GPS 동의 팝업 */}
       {showConsentPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', opacity: consentVisible ? 1 : 0, transition: 'opacity 0.22s ease' }}>
-          <div style={{ background: 'rgba(4,4,14,0.98)', border: '1px solid rgba(0,240,255,0.3)', borderRadius: '20px', padding: '24px', width: '300px', maxWidth: '90vw', boxShadow: '0 4px 20px rgba(0,0,0,0.8)', transform: consentVisible ? 'scale(1)' : 'scale(0.92)', transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)' }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: 'rgba(44,24,16,0.5)', opacity: consentVisible ? 1 : 0, transition: 'opacity 0.22s ease' }}
+        >
+          <div
+            style={{
+              background: '#F5F0E8',
+              border: '1.5px solid #2C1810',
+              borderRadius: '12px',
+              padding: '24px',
+              width: '300px',
+              maxWidth: '90vw',
+              transform: consentVisible ? 'scale(1)' : 'scale(0.92)',
+              transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)'
+            }}
+          >
             <div className="text-center mb-4">
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#00f0ff', marginBottom: '6px' }}>위치 정보 사용</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>내 주변 MBTI를 보려면 위치 정보가 필요해요. 정확한 위치는 공유되지 않아요.</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#2C1810', marginBottom: '6px' }}>위치 정보 사용</div>
+              <div style={{ fontSize: '12px', color: '#6B5B4E', lineHeight: 1.6 }}>내 주변 MBTI를 보려면 위치 정보가 필요해요. 정확한 위치는 공유되지 않아요.</div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => handleConsent(false)} className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>나중에</button>
-              <button onClick={() => handleConsent(true)} className="flex-1 py-2.5 rounded-xl text-sm font-black transition-all" style={{ background: 'rgba(0,240,255,0.15)', border: '1.5px solid rgba(0,240,255,0.4)', color: '#00f0ff', cursor: 'pointer' }}>동의</button>
+              <button
+                onClick={() => handleConsent(false)}
+                className="flex-1 py-2.5 rounded-lg text-sm font-bold"
+                style={{ background: '#E0D8CC', border: '1px solid #C0B8AC', color: '#6B5B4E', cursor: 'pointer' }}
+              >나중에</button>
+              <button
+                onClick={() => handleConsent(true)}
+                className="flex-1 py-2.5 rounded-lg text-sm font-black"
+                style={{ background: '#2C1810', border: '1.5px solid #2C1810', color: '#F5F0E8', cursor: 'pointer' }}
+              >동의</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 스팟 등록 폼 */}
+      {/* 스팟 등록 폼 (6.png 스타일) */}
       {showSpotForm && !spotSubmitted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', opacity: spotFormVisible ? 1 : 0, transition: 'opacity 0.22s ease' }}>
-          <div style={{ background: 'rgba(4,4,14,0.98)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '20px', padding: '20px', width: '320px', maxWidth: '90vw', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.8)', transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)', transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)', position: 'relative' }}>
-            {/* 닫기 버튼 */}
-            <button onClick={() => setShowSpotForm(false)} style={{ position: 'absolute', top: '14px', right: '14px', color: 'rgba(255,255,255,0.3)', fontSize: '16px', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
-
-            <div style={{ fontSize: '18px', fontWeight: 900, color: '#00f0ff', marginBottom: '4px' }}>지금 여기 있어요</div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>내 MBTI를 지도에 남겨보세요</div>
-
-            {/* 아바타 선택 */}
-            <div className="mb-4">
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>아바타</div>
-              <div className="flex justify-center mb-3">
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', border: `2px solid ${spotFormData.mbti ? MBTI_COLORS[spotFormData.mbti] : 'rgba(0,240,255,0.4)'}`, overflow: 'hidden', background: 'rgba(0,240,255,0.05)' }}>
-                  <AvatarSVG config={spotFormData.avatar} size={64} />
-                </div>
-              </div>
-              {/* 아바타 탭 */}
-              <div className="flex mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                {(['animal', 'accessory', 'expression', 'emoji'] as const).map(tab => (
-                  <button key={tab} onClick={() => setAvatarTab(tab)} className="flex-1 py-1.5 text-[10px] font-bold transition-colors" style={{ color: avatarTab === tab ? '#00f0ff' : 'rgba(255,255,255,0.3)', borderBottom: avatarTab === tab ? '2px solid #00f0ff' : '2px solid transparent', background: 'none', cursor: 'pointer' }}>
-                    {tab === 'animal' ? '동물' : tab === 'accessory' ? '악세서리' : tab === 'expression' ? '표정' : '이모지'}
-                  </button>
-                ))}
-              </div>
-              {/* 아바타 옵션 */}
-              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                {avatarTab === 'animal' && (showAllAnimals ? ANIMALS : ANIMALS.slice(0, 12)).map(animal => (
-                  <button key={animal.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, animal: animal.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.animal === animal.type ? 'rgba(0,240,255,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.animal === animal.type ? 'rgba(0,240,255,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.animal === animal.type ? '#00f0ff' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{animal.emoji} {animal.label}</button>
-                ))}
-                {avatarTab === 'animal' && ANIMALS.length > 12 && (
-                  <button onClick={() => setShowAllAnimals(p => !p)} className="px-2 py-1 rounded-lg text-[10px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>{showAllAnimals ? '접기' : `+${ANIMALS.length - 12}`}</button>
-                )}
-                {avatarTab === 'accessory' && ACCESSORIES.map(acc => (
-                  <button key={acc.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, accessory: acc.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.accessory === acc.type ? 'rgba(199,125,255,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.accessory === acc.type ? 'rgba(199,125,255,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.accessory === acc.type ? '#c77dff' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{acc.emoji} {acc.label}</button>
-                ))}
-                {avatarTab === 'expression' && EXPRESSIONS.map(exp => (
-                  <button key={exp.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, expression: exp.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.expression === exp.type ? 'rgba(255,159,67,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.expression === exp.type ? 'rgba(255,159,67,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.expression === exp.type ? '#ff9f43' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{exp.emoji} {exp.label}</button>
-                ))}
-                {avatarTab === 'emoji' && EMOJIS.map(emoji => (
-                  <button key={emoji.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, emoji: emoji.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.emoji === emoji.type ? 'rgba(253,121,168,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.emoji === emoji.type ? 'rgba(253,121,168,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.emoji === emoji.type ? '#fd79a8' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{emoji.label}</button>
-                ))}
-              </div>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          style={{ background: 'rgba(44,24,16,0.4)', opacity: spotFormVisible ? 1 : 0, transition: 'opacity 0.22s ease' }}
+        >
+          <div
+            style={{
+              background: '#F5F0E8',
+              border: '1.5px solid #2C1810',
+              borderRadius: '12px 12px 0 0',
+              width: '100%',
+              maxWidth: '480px',
+              maxHeight: '88vh',
+              overflowY: 'auto',
+              transform: spotFormVisible ? 'translateY(0)' : 'translateY(24px)',
+              transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)'
+            }}
+          >
+            {/* 헤더 */}
+            <div
+              className="flex items-center px-4 py-3"
+              style={{ borderBottom: '1px solid #E0D8CC' }}
+            >
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#2C1810' }}>@{spotFormData.mbti || 'Min._.jeong'}</span>
             </div>
 
-            {/* MBTI 선택 */}
-            <div className="mb-4">
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>MBTI <span style={{ color: '#ff4500' }}>*</span></div>
-              <div className="flex flex-wrap gap-1.5">
-                {MBTI_TYPES.map(mbti => (
-                  <button key={mbti} onClick={() => setSpotFormData(prev => ({ ...prev, mbti }))} className="px-2 py-1 rounded-lg text-[11px] font-bold transition-all" style={{ background: spotFormData.mbti === mbti ? `${MBTI_COLORS[mbti]}22` : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.mbti === mbti ? MBTI_COLORS[mbti] : 'rgba(255,255,255,0.1)'}`, color: spotFormData.mbti === mbti ? MBTI_COLORS[mbti] : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>{mbti}</button>
-                ))}
+            {/* ACTIVITY 선택 */}
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid #E0D8CC' }}>
+              <div style={{ fontSize: '12px', color: '#6B5B4E', marginBottom: '8px' }}>
+                #ACTIVITY: 직접 입력이 아닌 선택하게끔(타인에게 공유X, 거시적인 정보에서만 반영)
               </div>
-            </div>
-
-            {/* MOOD 선택 */}
-            <div className="mb-4">
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>지금 기분</div>
-              <div className="flex flex-wrap gap-1.5">
-                {MOOD_LIST.slice(0, 8).map(mood => (
-                  <button key={mood} onClick={() => setSpotFormData(prev => ({ ...prev, mood }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.mood === mood ? 'rgba(0,240,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.mood === mood ? 'rgba(0,240,255,0.4)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.mood === mood ? '#00f0ff' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>{mood}</button>
-                ))}
-              </div>
-            </div>
-
-            {/* 행동 선택 */}
-            <div className="mb-4">
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>지금 뭐 해요?</div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {ACTION_FORM_LIST.map(action => (
-                  <button key={action.text} onClick={() => {
-                    if (action.text === "직접 입력") return;
-                    setSpotFormData(prev => ({ ...prev, activity: action.text, activityEmoji: action.emoji }));
-                  }} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.activity === action.text ? 'rgba(199,125,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.activity === action.text ? 'rgba(199,125,255,0.4)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.activity === action.text ? '#c77dff' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>
+                  <button
+                    key={action.text}
+                    onClick={() => setSpotFormData(prev => ({ ...prev, activity: action.text, activityEmoji: action.emoji }))}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      background: spotFormData.activity === action.text ? '#2C1810' : '#FFFFFF',
+                      border: '1px solid #2C1810',
+                      color: spotFormData.activity === action.text ? '#F5F0E8' : '#2C1810',
+                      cursor: 'pointer'
+                    }}
+                  >
                     {action.emoji} {action.text}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 사인 선택 */}
-            <div className="mb-6">
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>시그널</div>
+            {/* MBTI 선택 */}
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid #E0D8CC' }}>
+              <div style={{ fontSize: '12px', color: '#6B5B4E', marginBottom: '8px' }}>MBTI</div>
               <div className="flex flex-wrap gap-1.5">
-                {SIGN_SIGNALS.slice(1, 8).map(signal => (
-                  <button key={signal.text} onClick={() => setSpotFormData(prev => ({ ...prev, sign: `${signal.emoji} ${signal.text}` }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.sign === `${signal.emoji} ${signal.text}` ? 'rgba(255,159,67,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.sign === `${signal.emoji} ${signal.text}` ? 'rgba(255,159,67,0.4)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.sign === `${signal.emoji} ${signal.text}` ? '#ff9f43' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>
-                    {signal.emoji} {signal.text}
+                {MBTI_TYPES.map(mbti => (
+                  <button
+                    key={mbti}
+                    onClick={() => setSpotFormData(prev => ({ ...prev, mbti }))}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      background: spotFormData.mbti === mbti ? '#2C1810' : '#FFFFFF',
+                      border: '1px solid #2C1810',
+                      color: spotFormData.mbti === mbti ? '#F5F0E8' : '#2C1810',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {mbti}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 제출 버튼 */}
-            <button
-              onClick={async () => {
-                if (!spotFormData.mbti) { toast.error("MBTI를 선택해주세요"); return; }
-                const loc = userLocation || HONGDAE_CENTER;
-                try {
-                  await submitSpot.mutateAsync({
-                    mbti: spotFormData.mbti,
-                    mood: spotFormData.mood || "CHILL",
-                    mode: spotFormData.mode || "산책 중",
-                    sign: spotFormData.sign || "👋 말 걸어도 돼요",
-                    lat: loc.lat,
-                    lng: loc.lng,
-                    avatar: serializeAvatar(spotFormData.avatar),
-                  });
-                  setSpotSubmitted(true);
-                  setShowSpotForm(false);
-                  toast.success("🎉 SPOT이 등록되었어요!", { duration: 3000 });
-                  refetchSpots();
-                } catch (e) {
-                  toast.error("등록에 실패했어요. 다시 시도해주세요.");
-                }
-              }}
-              disabled={submitSpot.isPending}
-              className="w-full py-3 rounded-xl text-sm font-black transition-all"
-              style={{ background: spotFormData.mbti ? 'linear-gradient(135deg, rgba(0,240,255,0.2), rgba(199,125,255,0.2))' : 'rgba(255,255,255,0.05)', border: `1.5px solid ${spotFormData.mbti ? 'rgba(0,240,255,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.mbti ? '#00f0ff' : 'rgba(255,255,255,0.2)', cursor: spotFormData.mbti ? 'pointer' : 'not-allowed', opacity: submitSpot.isPending ? 0.6 : 1 }}
+            {/* 사진/동영상 업로드 영역 */}
+            <div
+              className="flex items-center justify-center px-4 py-8"
+              style={{ borderBottom: '1px solid #E0D8CC', color: '#A89880', fontSize: '14px', textAlign: 'center', background: '#F5F0E8' }}
             >
-              {submitSpot.isPending ? "등록 중..." : "지금 여기 있어요 ✓"}
-            </button>
+              해당 위치의 사진과 동영상을 올리고<br />
+              사람들과 공유해봐요.
+            </div>
+
+            {/* 게시/취소 버튼 */}
+            <div className="flex items-center justify-around px-8 py-4">
+              <button
+                onClick={async () => {
+                  if (!spotFormData.mbti) { toast.error("MBTI를 선택해주세요"); return; }
+                  const loc = userLocation || HONGDAE_CENTER;
+                  try {
+                    await submitSpot.mutateAsync({
+                      mbti: spotFormData.mbti,
+                      mood: spotFormData.mood || "CHILL",
+                      mode: spotFormData.mode || "산책 중",
+                      sign: spotFormData.sign || "👋 말 걸어도 돼요",
+                      lat: loc.lat,
+                      lng: loc.lng,
+                      avatar: serializeAvatar(spotFormData.avatar),
+                    });
+                    setSpotSubmitted(true);
+                    setShowSpotForm(false);
+                    toast.success("🎉 SPOT이 등록되었어요!", { duration: 3000 });
+                    refetchSpots();
+                  } catch (e) {
+                    toast.error("등록에 실패했어요. 다시 시도해주세요.");
+                  }
+                }}
+                disabled={submitSpot.isPending}
+                style={{
+                  padding: '10px 32px',
+                  borderRadius: '24px',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  background: '#F6E05E',
+                  border: 'none',
+                  color: '#2C1810',
+                  cursor: 'pointer'
+                }}
+              >
+                {submitSpot.isPending ? '게시 중...' : '게시'}
+              </button>
+              <button
+                onClick={() => setShowSpotForm(false)}
+                style={{
+                  padding: '10px 32px',
+                  borderRadius: '24px',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  background: '#6B5B4E',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* 숏폼 피드 */}
-      {showSpotFeed && (
-        <SpotFeed
-          onClose={() => setShowSpotFeed(false)}
-          mapService={null}
-          userSpots={spotsData?.spots}
-          onGoToPlace={(lat, lng, placeName) => {
-            if (mapRef.current) {
-              mapRef.current.setCenter(new window.kakao.maps.LatLng(lat, lng));
-              mapRef.current.setLevel(4);
-            }
-          }}
-        />
+      {/* 지금 이순간 AI 리포트 (7.png) */}
+      {showMomentReport && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col"
+          style={{ background: '#F5F0E8', height: `${screenHeight}px` }}
+        >
+          {/* 헤더 */}
+          <div
+            className="flex items-center px-4 py-3"
+            style={{ borderBottom: '1.5px solid #2C1810', flexShrink: 0 }}
+          >
+            <button
+              onClick={() => setShowMomentReport(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', marginRight: '8px' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#2C1810' }}>지금 이순간의 {currentCity}는</div>
+          </div>
+
+          {/* 리포트 내용 */}
+          <div className="flex-1 overflow-y-auto">
+            {currentCityData ? (
+              <div>
+                {/* #1 현재 분위기 */}
+                <div className="px-4 py-4" style={{ borderBottom: '1px solid #E0D8CC' }}>
+                  <div style={{ fontSize: '13px', color: '#2C1810', lineHeight: 1.7 }}>
+                    #1 오늘 {currentCity}는 한 곳에 오래 머무는 분위기 보다, 팝업/편집숍을 짧게 들리고 빠르게 이동하는 흐름이 강합니다.
+                  </div>
+                </div>
+                {/* #2 추천행동 */}
+                <div className="px-4 py-4" style={{ borderBottom: '1px solid #E0D8CC' }}>
+                  <div style={{ fontSize: '13px', color: '#2C1810', lineHeight: 1.7 }}>
+                    #2 오늘은 날씨가 좋아서 초저녁에는 팝업 1곳과 골목 산책을 묶은 2~3곳 동선으로 움직이는 편이 가장 만족스러울것 같아요
+                  </div>
+                </div>
+                {/* #3 비추천행동 */}
+                <div className="px-4 py-4" style={{ borderBottom: '1px solid #E0D8CC' }}>
+                  <div style={{ fontSize: '13px', color: '#2C1810', lineHeight: 1.7 }}>
+                    #3 정교하게 예약 중심으로 짜는 일정이나, 한 장소에 모든 기대를 거는 계획은 비추천입니다.
+                  </div>
+                </div>
+                {/* #4 실시간 변수 */}
+                <div className="px-4 py-4" style={{ borderBottom: '1px solid #E0D8CC' }}>
+                  <div style={{ fontSize: '13px', color: '#2C1810', lineHeight: 1.7 }}>
+                    #4 메인 상권 쪽은 순간 체류가 높고, 사진 촬영/쇼핑 후 다음 장소로 넘어가는 흐름이 빠른 편입니다.
+                    {currentCityData.congestLvl && (
+                      <span style={{ color: '#E53E3E', fontWeight: 700 }}> 현재 혼잡도: {currentCityData.congestLvl}</span>
+                    )}
+                  </div>
+                </div>
+                {/* #5 한줄 평 */}
+                <div className="px-4 py-4">
+                  <div style={{ fontSize: '13px', color: '#2C1810', lineHeight: 1.7 }}>
+                    #5 총정리: 오늘 {currentCity}는 '계획형 코스'보다 '짧고 선명한 즉흥 코스'가 더 잘 맞습니다.<br />
+                    (추천): 마음먹고 길게 있기 보다는 3시간 이내의 체류를 추천해요!
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-40" style={{ color: '#A89880', fontSize: '14px' }}>
+                실시간 데이터를 불러오는 중...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 오늘의 홍대 커뮤니티 피드 (9.png) */}
+      {showCommunityFeed && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col"
+          style={{ background: '#F5F0E8', height: `${screenHeight}px` }}
+        >
+          {/* 헤더 */}
+          <div
+            className="flex items-center px-4 py-3"
+            style={{ borderBottom: '1.5px solid #2C1810', flexShrink: 0 }}
+          >
+            <button
+              onClick={() => setShowCommunityFeed(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C1810', marginRight: '8px' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#2C1810' }}>오늘의 {currentCity}</div>
+          </div>
+
+          {/* 피드 목록 */}
+          <div className="flex-1 overflow-y-auto">
+            {[
+              { user: `@min._.jeong`, text: `${currentCity}입구역 7번 출구 산리오 팝업 스토어 이벤트로 구경만 해도 산리오 키링 주고 있습니다!!!`, isAd: false },
+              { user: `(광고)@일일수작 ${currentCity}점`, text: `4월13일 오늘 단 하루만 양주 주문시 3만원 단가의 짬뽕탕+감자튀김 무료!`, isAd: true },
+              { user: `@kihyun03`, text: `한신포차 앞에 경찰차 있던대 무슨일임?`, isAd: false },
+              { user: `@lovely_minju`, text: `지금 ${currentCity}입구역 근처 카공 가능한 곳 추천좀`, isAd: false },
+              { user: `@Auhyun._.:`, text: `외국인 웰캐 많나 진짜로;;;.`, isAd: false },
+              { user: `@nayeonyiayo`, text: `실시간 ${currentCity} 카리나 등장.`, isAd: false },
+              { user: `@zkdfwe`, text: `pastapia<<<여기 파스타 되게 ㄱㅊ은듯.`, isAd: false },
+              { user: `(광고)@PASTA IN HD`, text: `${currentCity} 1등 파스타집 파스타 인 ${currentCity}`, isAd: true },
+              { user: `@stron_minsu`, text: `메가커피 ${currentCity}점 지금 아아 1+1이래요.`, isAd: false },
+              { user: `@04_02_subin`, text: `${currentCity}입구역 7번 출구에 번따남있어요조심하세요.`, isAd: false },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="px-4 py-3 text-center"
+                style={{
+                  borderBottom: '1px solid #E0D8CC',
+                  fontSize: '14px',
+                  color: item.isAd ? '#6B5B4E' : '#2C1810',
+                  lineHeight: 1.5
+                }}
+              >
+                <span style={{ fontWeight: 700 }}>{item.user}</span>: {item.text}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
