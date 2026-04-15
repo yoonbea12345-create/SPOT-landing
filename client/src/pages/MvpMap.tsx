@@ -1079,17 +1079,15 @@ export default function MvpMap() {
             whiteSpace: 'nowrap',
           }}
         >
-          {/* 광고 슬라이드 - 3개 광고 순환 */}
-          {[`🔥 일일수작 홍대입구역점 4/15~4/19 소주 3천원`, `🌸 산리오 팝업 홍대 7번 출구 · 구경만 해도 키링 증정`, `☕ 메가커피 홍대점 오늘 아아 1+1 이벤트 진행 중`][Math.floor(Date.now() / 5000) % 3]}
+          {[`🔥 일일수작 홍대입구역점 4/15~4/19 소주 3천원`, `🌸 산리오 팝업 홍대 7번 출구 · 구경만 해도 키링 증정`, `☕ 메가커피 홍대점 오늘 아아 1+1 이벤트 진행 중`, `🍺 홍대 맥주창고 오늘 생맥주 2+1 · 테이블 예약 가능`, `🎵 클럽 FF 오늘 밤 DJ 세트 · 입장료 1만원 할인`, `🍜 연남동 파스타피아 런치 세트 8천원 · 오늘만`][Math.floor(Date.now() / 5000) % 6]}
         </div>
 
-        {/* 상단 헤더 - SPOT 로고 */}
+        {/* 상단 헤더 - SPOT 로고 중앙 */}
         <div
-          className="flex items-center justify-between px-5"
+          className="flex items-center justify-center"
           style={{ height: '52px', flexShrink: 0, borderBottom: '1px solid #E0D8CC' }}
         >
           <span style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810', letterSpacing: '-0.02em' }}>SPOT</span>
-          <span style={{ fontSize: '11px', color: '#6B5B4E', fontWeight: 500 }}>실시간 공간 분위기 탐색 서비스</span>
         </div>
 
         {/* 지역 선택 영역 */}
@@ -1115,8 +1113,8 @@ export default function MvpMap() {
               <div style={{ fontSize: '28px', fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em' }}>홍대</div>
               <div style={{ fontSize: '12px', color: '#C0A898', marginTop: '6px', fontWeight: 500 }}>
                 {hongdaeData?.congestLvl
-                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#FF6B6B' : hongdaeData.congestLvl.includes('보통') ? '#FFD166' : '#6BCB77' }}>지금 {hongdaeData.congestLvl}</span>
-                  : '홍대입구 · 연트럴파크 인근'
+                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#FF6B6B' : hongdaeData.congestLvl.includes('보통') ? '#FFD166' : '#6BCB77' }}>실시간 혼잡도(API받아온 시간): 지금 {hongdaeData.congestLvl}</span>
+                  : '홍대입구역 · 외국인·젊음 · 클럽·팝업'
                 }
               </div>
             </div>
@@ -1144,7 +1142,7 @@ export default function MvpMap() {
                 <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
                   {yeonnamData?.congestLvl
                     ? <span style={{ color: yeonnamData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{yeonnamData.congestLvl}</span>
-                    : '연남동 경의선숲길'
+                    : '카페·작업형 · 경의선숲길'
                   }
                 </div>
               </div>
@@ -1170,7 +1168,7 @@ export default function MvpMap() {
                 <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
                   {seongsuData?.congestLvl
                     ? <span style={{ color: seongsuData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{seongsuData.congestLvl}</span>
-                    : '성수카페거리 · 서울숲'
+                    : '팝업·서울숲 · 힙한감성'
                   }
                 </div>
               </div>
@@ -1178,23 +1176,7 @@ export default function MvpMap() {
             </button>
           </div>
 
-          {/* 메인 카피 */}
-          <div
-            style={{
-              marginTop: '8px',
-              padding: '20px 22px',
-              background: '#EDE8DF',
-              borderRadius: '8px',
-              flexShrink: 0,
-            }}
-          >
-            <div style={{ fontSize: '18px', fontWeight: 900, color: '#2C1810', lineHeight: 1.4 }}>
-              내가 갔던 나만의 느좋<br />스팟을 공유해보세요.
-            </div>
-            <div style={{ fontSize: '12px', color: '#6B5B4E', marginTop: '8px', fontWeight: 500 }}>
-              지금 이 골목 분위기, 실시간으로 확인하세요
-            </div>
-          </div>
+
 
         </div>
 
@@ -1235,7 +1217,7 @@ export default function MvpMap() {
             <span style={{ fontSize: '9px', fontWeight: 500 }}>지도</span>
           </button>
 
-          {/* 대화 탭 (오늘의 OO 3지역 종합) */}
+          {/* 게시판 탭 (중앙 강조) */}
           <button
             className="flex flex-col items-center gap-1"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
@@ -1243,10 +1225,14 @@ export default function MvpMap() {
           >
             <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2C1810', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-12px', boxShadow: '0 2px 8px rgba(44,24,16,0.3)' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F0E8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
               </svg>
             </div>
-            <span style={{ fontSize: '9px', fontWeight: 600, color: '#2C1810' }}>대화</span>
+            <span style={{ fontSize: '9px', fontWeight: 600, color: '#2C1810' }}>게시판</span>
           </button>
 
           {/* 검색 탭 */}
