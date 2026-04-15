@@ -451,14 +451,14 @@ export const appRouter = router({
     getDistrict: publicProcedure
       .input(z.object({ area: z.string().min(1).max(50) }))
       .query(async ({ input }) => {
-        try {
-          const key = '4c4263544469737333305778577771';
-          const encoded = encodeURIComponent(input.area);
-          const url = `http://openapi.seoul.go.kr:8088/${key}/json/citydata/1/1/${encoded}`;
-          const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json() as any;
-          if (!data.CITYDATA) throw new Error('No CITYDATA in response');
+        const key = '4c4263544469737333305778577771';
+        const encoded = encodeURIComponent(input.area);
+        const updatedAt = new Date().toISOString();
+        const failResult = { success: false, areaNm: input.area, congestLvl: '', ppltnMin: 0, ppltnMax: 0, temp: 0, updatedAt };
+
+        // 파싱 헬퍼
+        const parseJsonResult = (data: any) => {
+          if (!data.CITYDATA) throw new Error('No CITYDATA');
           const cd = data.CITYDATA;
           const ppltn = cd.LIVE_PPLTN_STTS?.[0] ?? {};
           const weather = cd.WEATHER_STTS?.[0] ?? {};
@@ -478,12 +478,65 @@ export const appRouter = router({
             precipitation: (weather.PRECIPITATION ?? '0') as string,
             pcpMsg: (weather.PCP_MSG ?? '') as string,
             uvIndexLvl: (weather.UV_INDEX_LVL ?? '') as string,
-            updatedAt: new Date().toISOString(),
+            updatedAt,
           };
-        } catch (error) {
-          console.error('[CityData] Failed:', error);
-          return { success: false, areaNm: input.area, congestLvl: '', ppltnMin: 0, ppltnMax: 0, temp: 0, updatedAt: new Date().toISOString() };
+        };
+
+        // 폴백 1: 기본 JSON 엔드포인트 (HTTP, 타임아웃 8초)
+        try {
+          const url = `http://openapi.seoul.go.kr:8088/${key}/json/citydata/1/1/${encoded}`;
+          const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json() as any;
+          return parseJsonResult(data);
+        } catch (e1) {
+          console.warn('[CityData] Fallback1 failed:', (e1 as Error).message);
         }
+
+        // 폴백 2: 재시도 - 다른 키 포맷으로 요청 (3초 타임아웃)
+        try {
+          const altKey = Buffer.from('4c4263544469737333305778577771', 'hex').toString('utf8').replace(/[^a-zA-Z0-9]/g, '') || '4c4263544469737333305778577771';
+          const url2 = `http://openapi.seoul.go.kr:8088/${key}/json/citydata_ppltn/1/1/${encoded}`;
+          const res2 = await fetch(url2, { signal: AbortSignal.timeout(5000) });
+          if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+          const data2 = await res2.json() as any;
+          // citydata_ppltn 응답 포맷 다름
+          const ppltnArr = data2['SeoulRtd.citydata_ppltn']?.row ?? data2.CITYDATA?.LIVE_PPLTN_STTS ?? [];
+          const row = Array.isArray(ppltnArr) ? ppltnArr[0] : ppltnArr;
+          if (row?.AREA_CONGEST_LVL) {
+            return {
+              success: true,
+              areaNm: input.area,
+              areaCd: '',
+              congestLvl: row.AREA_CONGEST_LVL as string,
+              congestMsg: (row.AREA_CONGEST_MSG ?? '') as string,
+              ppltnMin: Number(row.AREA_PPLTN_MIN ?? 0),
+              ppltnMax: Number(row.AREA_PPLTN_MAX ?? 0),
+              malePpltnRate: Number(row.MALE_PPLTN_RATE ?? 50),
+              femalePpltnRate: Number(row.FEMALE_PPLTN_RATE ?? 50),
+              temp: 0, humidity: 0, windSpd: 0,
+              precipitation: '0', pcpMsg: '', uvIndexLvl: '',
+              updatedAt,
+            };
+          }
+          throw new Error('No congest data in fallback2');
+        } catch (e2) {
+          console.warn('[CityData] Fallback2 failed:', (e2 as Error).message);
+        }
+
+        // 폴백 3: 재시도 - 2초 대기 후 마지막 시도
+        try {
+          await new Promise(r => setTimeout(r, 2000));
+          const url3 = `http://openapi.seoul.go.kr:8088/${key}/json/citydata/1/1/${encoded}`;
+          const res3 = await fetch(url3, { signal: AbortSignal.timeout(6000) });
+          if (!res3.ok) throw new Error(`HTTP ${res3.status}`);
+          const data3 = await res3.json() as any;
+          return parseJsonResult(data3);
+        } catch (e3) {
+          console.error('[CityData] All fallbacks failed:', (e3 as Error).message);
+        }
+
+        return failResult;
       }),
 
     // Get AI-generated atmosphere report for a district

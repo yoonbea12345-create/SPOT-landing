@@ -1100,20 +1100,29 @@ export default function MvpMap() {
               width: '100%',
               background: '#2C1810',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               padding: '0',
               cursor: 'pointer',
               textAlign: 'left',
               overflow: 'hidden',
               flexShrink: 0,
+              boxShadow: '0 4px 16px rgba(44,24,16,0.25)',
             }}
           >
-            <div style={{ padding: '20px 22px 16px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '4px' }}>HONGDAE</div>
-              <div style={{ fontSize: '28px', fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em' }}>홍대</div>
-              <div style={{ fontSize: '12px', color: '#C0A898', marginTop: '6px', fontWeight: 500 }}>
+            <div style={{ padding: '20px 22px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '4px' }}>HONGDAE</div>
+                <div style={{ fontSize: '28px', fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em' }}>홍대</div>
+              </div>
+              {/* 홍대 대표 아이콘 - 클럽/스피커 */}
+              <div style={{ fontSize: '36px', opacity: 0.6, marginTop: '4px' }}>🎵</div>
+            </div>
+            <div style={{ paddingLeft: '22px', paddingRight: '22px', paddingBottom: '16px' }}>
+              <div style={{ fontSize: '11px', color: '#C0A898', marginTop: '6px', fontWeight: 500 }}>
                 {hongdaeData?.congestLvl
-                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#FF6B6B' : hongdaeData.congestLvl.includes('보통') ? '#FFD166' : '#6BCB77' }}>실시간 혼잡도(API받아온 시간): 지금 {hongdaeData.congestLvl}</span>
+                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#FF6B6B' : hongdaeData.congestLvl.includes('보통') ? '#FFD166' : '#6BCB77' }}>
+                      {new Date(hongdaeData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준 · 혼잡도: {hongdaeData.congestLvl}
+                    </span>
                   : '홍대입구역 · 외국인·젊음 · 클럽·팝업'
                 }
               </div>
@@ -1129,19 +1138,25 @@ export default function MvpMap() {
                 flex: 1,
                 background: '#FFFFFF',
                 border: '1.5px solid #2C1810',
-                borderRadius: '8px',
+                borderRadius: '12px',
                 padding: '0',
                 cursor: 'pointer',
                 textAlign: 'left',
                 overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(44,24,16,0.1)',
               }}
             >
-              <div style={{ padding: '16px 18px 12px' }}>
+              <div style={{ padding: '16px 18px 10px' }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>YEONNAM</div>
-                <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>연남</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>연남</div>
+                  <div style={{ fontSize: '22px', opacity: 0.5 }}>☕</div>
+                </div>
                 <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
                   {yeonnamData?.congestLvl
-                    ? <span style={{ color: yeonnamData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{yeonnamData.congestLvl}</span>
+                    ? <span style={{ color: yeonnamData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>
+                        {new Date(yeonnamData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준<br />혼잡도: {yeonnamData.congestLvl}
+                      </span>
                     : '카페·작업형 · 경의선숲길'
                   }
                 </div>
@@ -1155,19 +1170,25 @@ export default function MvpMap() {
                 flex: 1,
                 background: '#FFFFFF',
                 border: '1.5px solid #2C1810',
-                borderRadius: '8px',
+                borderRadius: '12px',
                 padding: '0',
                 cursor: 'pointer',
                 textAlign: 'left',
                 overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(44,24,16,0.1)',
               }}
             >
-              <div style={{ padding: '16px 18px 12px' }}>
+              <div style={{ padding: '16px 18px 10px' }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>SEONGSU</div>
-                <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>성수</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>성수</div>
+                  <div style={{ fontSize: '22px', opacity: 0.5 }}>🏭</div>
+                </div>
                 <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
                   {seongsuData?.congestLvl
-                    ? <span style={{ color: seongsuData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>{seongsuData.congestLvl}</span>
+                    ? <span style={{ color: seongsuData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>
+                        {new Date(seongsuData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준<br />혼잡도: {seongsuData.congestLvl}
+                      </span>
                     : '팝업·서울숲 · 힙한감성'
                   }
                 </div>
@@ -1217,22 +1238,20 @@ export default function MvpMap() {
             <span style={{ fontSize: '9px', fontWeight: 500 }}>지도</span>
           </button>
 
-          {/* 게시판 탭 (중앙 강조) */}
+          {/* 게시판 탭 - 강조 없이 다른 탭과 동일하게 */}
           <button
             className="flex flex-col items-center gap-1"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px 8px' }}
             onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); setTimeout(() => setShowCommunityFeed(true), 100); }}
           >
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2C1810', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-12px', boxShadow: '0 2px 8px rgba(44,24,16,0.3)' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F0E8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
-            </div>
-            <span style={{ fontSize: '9px', fontWeight: 600, color: '#2C1810' }}>게시판</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 500 }}>게시판</span>
           </button>
 
           {/* 검색 탭 */}
