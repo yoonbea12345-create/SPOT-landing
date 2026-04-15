@@ -322,45 +322,11 @@ function generateDummyData(): DummySpot[] {
 }
 
 // 도시 목록
+// MVP: 홍대/연남/성수 3개 지역만
 const CITIES = [
   { name: "홍대", lat: 37.5566, lng: 126.9236 },
-  { name: "강남", lat: 37.4979, lng: 127.0276 },
-  { name: "여의도", lat: 37.5219, lng: 126.9245 },
+  { name: "연남", lat: 37.5630, lng: 126.9260 },
   { name: "성수", lat: 37.5444, lng: 127.0557 },
-  { name: "명동", lat: 37.5838, lng: 127.0017 },
-  { name: "부산", lat: 35.1796, lng: 129.0756 },
-  { name: "대구", lat: 35.8714, lng: 128.6014 },
-  { name: "인천", lat: 37.4563, lng: 126.7052 },
-  { name: "광주", lat: 35.1595, lng: 126.8526 },
-  { name: "대전", lat: 36.3504, lng: 127.3845 },
-  { name: "울산", lat: 35.5384, lng: 129.3114 },
-  { name: "수원", lat: 37.2636, lng: 127.0286 },
-  { name: "성남", lat: 37.4386, lng: 127.1378 },
-  { name: "고양", lat: 37.6584, lng: 126.8320 },
-  { name: "용인", lat: 37.2411, lng: 127.1776 },
-  { name: "부천", lat: 37.4989, lng: 126.7831 },
-  { name: "안양", lat: 37.3943, lng: 126.9568 },
-  { name: "안산", lat: 37.3219, lng: 126.8309 },
-  { name: "평택", lat: 37.0703, lng: 127.1127 },
-  { name: "파주", lat: 37.7608, lng: 126.7800 },
-  { name: "춘천", lat: 37.8813, lng: 127.7300 },
-  { name: "강릉", lat: 37.7519, lng: 128.8761 },
-  { name: "원주", lat: 37.3422, lng: 127.9202 },
-  { name: "청주", lat: 36.6424, lng: 127.4890 },
-  { name: "천안", lat: 36.8151, lng: 127.1139 },
-  { name: "충주", lat: 36.9910, lng: 127.9258 },
-  { name: "창원", lat: 35.5396, lng: 128.6292 },
-  { name: "김해", lat: 35.2285, lng: 128.8811 },
-  { name: "진주", lat: 35.1800, lng: 128.1076 },
-  { name: "포항", lat: 36.0190, lng: 129.3435 },
-  { name: "경주", lat: 35.8562, lng: 129.2247 },
-  { name: "전주", lat: 35.8242, lng: 127.1480 },
-  { name: "군산", lat: 35.9761, lng: 126.7366 },
-  { name: "여수", lat: 34.7604, lng: 127.6622 },
-  { name: "순천", lat: 34.9507, lng: 127.4872 },
-  { name: "목포", lat: 34.8118, lng: 126.3922 },
-  { name: "제주시", lat: 33.4996, lng: 126.5312 },
-  { name: "서귀포", lat: 33.2541, lng: 126.5601 },
 ];
 
 // 서울시 실시간 API 연동 장소 매핑
@@ -427,14 +393,27 @@ export default function MvpMap() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [popupPlaceName, setPopupPlaceName] = useState<string | null>(null);
 
-  // 카카오맵 refs
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
+  // 카카오맵 refs - 3개 지역 미리 초기화용
+  const mapContainerRef = useRef<HTMLDivElement | null>(null); // 현재 활성 지도 컨테이너 (하위 호환)
+  // 지역별 독립 컨테이너 refs
+  const hongdaeContainerRef = useRef<HTMLDivElement | null>(null);
+  const yeonnamContainerRef = useRef<HTMLDivElement | null>(null);
+  const seongsuContainerRef = useRef<HTMLDivElement | null>(null);
+  // 지역별 독립 지도 refs
+  const hongdaeMapRef = useRef<any>(null);
+  const yeonnamMapRef = useRef<any>(null);
+  const seongsuMapRef = useRef<any>(null);
+  // 지역별 마커 refs
+  const hongdaeMarkersRef = useRef<any[]>([]);
+  const yeonnamMarkersRef = useRef<any[]>([]);
+  const seongsuMarkersRef = useRef<any[]>([]);
+  const mapRef = useRef<any>(null); // 현재 활성 지도 (하위 호환)
   const markersRef = useRef<any[]>([]);
   const realSpotMarkersRef = useRef<any[]>([]);
   const userMarkerRef = useRef<any>(null);
   const cityLabelsRef = useRef<any[]>([]);
   const watchIdRef = useRef<number | null>(null);
+  const [mapsPreloaded, setMapsPreloaded] = useState(false); // 3개 지도 미리 로드 완료 여부
 
   const [currentZoom, setCurrentZoom] = useState(15.0);
   const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
@@ -643,45 +622,13 @@ export default function MvpMap() {
     return { cities: CITIES, cityStats };
   }, []);
 
-  // 카카오맵 초기화
+  // 카카오맵 초기화 - 스플래시 중 3개 지역 동시 미리 로드
   useEffect(() => {
-    if (screen !== "map" || !mapContainerRef.current) return;
-
-    const container = mapContainerRef.current;
-    const center = userLocation || HONGDAE_CENTER;
-
-    const initMap = () => {
-      if (!container || !window.kakao) return;
-      const kakao = window.kakao;
-
-      // 지도 생성
-      const mapOptions = {
-        center: new kakao.maps.LatLng(center.lat, center.lng),
-        level: 4,
-      };
-      const map = new kakao.maps.Map(container, mapOptions);
-      mapRef.current = map;
-
-      // 지도 생성 즉시 mapVisible 활성화 (지도가 만들어지자마자 화면 표시)
-      setMapVisible(true);
-
-      // 컨테이너 크기 재계산
-      requestAnimationFrame(() => {
-        map.relayout();
-        map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
-      });
-
-    // 줌 이벤트
-    kakao.maps.event.addListener(map, 'zoom_changed', () => {
-      const level = map.getLevel();
-      setCurrentZoom(level);
-    });
-
-    // 더미 데이터 생성
+    // 더미 데이터 미리 생성
     const dummyData = generateDummyData();
     dummyDataRef.current = dummyData;
 
-    // CSS 주입
+    // CSS 주입 (한 번만)
     if (!document.getElementById('spot-map-style')) {
       const style = document.createElement('style');
       style.id = 'spot-map-style';
@@ -698,21 +645,61 @@ export default function MvpMap() {
       document.head.appendChild(style);
     }
 
-    // 더미 마커 생성 - 지도 타일 로드 후 지연 배치하여 지도 먼저 표시
-    const addMarkersDeferred = () => {
-      // 현재 지역 중심 좌표
-      const mapCenter = map.getCenter();
-      const centerLat = mapCenter.getLat();
-      const centerLng = mapCenter.getLng();
-      // 가까운 마커는 먼저, 먼 마커는 나중에 추가
-      const nearby = dummyData.filter(item => {
-        const d = Math.abs(item.lat - centerLat) + Math.abs(item.lng - centerLng);
-        return d < 0.05; // 약 5km 이내
+    // 3개 지역 정보
+    const REGION_CONFIGS = [
+      { name: '홍대', center: HONGDAE_CENTER, containerRef: hongdaeContainerRef, mapRef: hongdaeMapRef, markersRef: hongdaeMarkersRef },
+      { name: '연남', center: { lat: 37.5630, lng: 126.9260 }, containerRef: yeonnamContainerRef, mapRef: yeonnamMapRef, markersRef: yeonnamMarkersRef },
+      { name: '성수', center: { lat: 37.5444, lng: 127.0557 }, containerRef: seongsuContainerRef, mapRef: seongsuMapRef, markersRef: seongsuMarkersRef },
+    ];
+
+    let loadedCount = 0;
+
+    const initRegionMap = (config: typeof REGION_CONFIGS[0]) => {
+      const container = config.containerRef.current;
+      if (!container || !window.kakao) return;
+      const kakao = window.kakao;
+      const center = config.center;
+
+      // 지도 생성
+      const mapOptions = {
+        center: new kakao.maps.LatLng(center.lat, center.lng),
+        level: 4,
+      };
+      const map = new kakao.maps.Map(container, mapOptions);
+      config.mapRef.current = map;
+
+      // 현재 선택된 지역이면 mapRef도 업데이트
+      if (config.name === (selectedCity || '홍대')) {
+        mapRef.current = map;
+        markersRef.current = config.markersRef.current;
+        setMapVisible(true);
+      }
+
+      // 컨테이너 크기 재계산
+      requestAnimationFrame(() => {
+        map.relayout();
+        map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
       });
-      const far = dummyData.filter(item => {
-        const d = Math.abs(item.lat - centerLat) + Math.abs(item.lng - centerLng);
-        return d >= 0.05;
+
+      loadedCount++;
+      if (loadedCount === 3) setMapsPreloaded(true);
+
+      const map_local = map; // 클로저용
+      const container_local = container;
+      const center_local = center;
+
+      // 줌 이벤트 (현재 선택된 지역만)
+      kakao.maps.event.addListener(map, 'zoom_changed', () => {
+        const level = map.getLevel();
+        setCurrentZoom(level);
       });
+
+      // 해당 지역 더미 데이터만 필터링
+      const regionRadius = 0.08;
+      const regionData = dummyData.filter(item =>
+        Math.abs(item.lat - center.lat) < regionRadius &&
+        Math.abs(item.lng - center.lng) < regionRadius
+      );
 
       const createMarker = (item: DummySpot) => {
         const mbtiColor = MBTI_COLORS[item.mbti] || "#00f0ff";
@@ -743,168 +730,107 @@ export default function MvpMap() {
             }
           });
         });
-        markersRef.current.push(overlay);
+        config.markersRef.current.push(overlay);
+        markersRef.current.push(overlay); // 하위 호환
       };
 
-      // 1단계: 가까운 마커 즉시 추가
-      nearby.forEach(createMarker);
-      // 2단계: 먼 마커는 200ms 후 추가 (지도 타일이 로드된 후)
-      setTimeout(() => { far.forEach(createMarker); }, 200);
-    };
-    // 지도 타일이 어는 정도 로드되도록 100ms 후 마커 배치 시작
-    setTimeout(addMarkersDeferred, 100);
+      // 마커 즉시 배치 (지역별 데이터만이라 빠름)
+      regionData.forEach(createMarker);
 
-    // 사용자 위치 마커
-    const userEl = document.createElement('div');
-    userEl.style.cssText = `
-      width: 16px;
-      height: 16px;
-      background: white;
-      border: 3px solid rgba(255,255,255,0.9);
-      border-radius: 50%;
-      box-shadow: 0 0 8px rgba(255,255,255,0.6);
-    `;
-    const userOverlay = new kakao.maps.CustomOverlay({
-      position: new kakao.maps.LatLng(center.lat, center.lng),
-      content: userEl,
-      zIndex: 100,
-    });
-    userOverlay.setMap(map);
-    userMarkerRef.current = userOverlay;
-
-    // 도시 레이블 생성
-    const { cities, cityStats } = aggregateCityData();
-    const hotspots = getHotspotCities(cities.map(c => c.name));
-    setHotspotCityNames(hotspots);
-
-    cities.forEach(city => {
-      const stats = cityStats[city.name];
-      if (!stats || Object.keys(stats).length === 0) return;
-      const isHotspot = hotspots.includes(city.name);
-      const cityRadius = 0.25;
-      const actualCount = dummyData.filter(m =>
-        Math.abs(m.lat - city.lat) < cityRadius && Math.abs(m.lng - city.lng) < cityRadius
-      ).length;
-      const sortedStats = Object.entries(stats).sort((a, b) => b[1] - a[1]).slice(0, 3);
-
-      const labelEl = document.createElement('div');
-      if (isHotspot) {
-        labelEl.style.cssText = `background:rgba(0,0,0,0.97);border:2px solid #ff4500;border-radius:8px;padding:6px 10px;white-space:nowrap;pointer-events:auto;cursor:pointer;opacity:0;transition:opacity 0.3s,transform 0.15s;`;
-        labelEl.innerHTML = `
-          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
-            <span style="font-size:11px;">🔥</span>
-            <span style="font-size:11px;font-weight:900;color:#ff6a00;">핫플</span>
-            <span style="font-size:10px;color:rgba(255,180,100,0.9);font-weight:700;"> ${actualCount}명</span>
-          </div>
-          <div style="font-size:11px;color:#ffcc66;font-weight:900;margin-bottom:2px;letter-spacing:0.5px;">${city.name}</div>
-          ${sortedStats.map(([mbti, count]) => `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`).join('')}
-        `;
-      } else {
-        labelEl.style.cssText = `background:rgba(0,0,0,0.95);border:1.5px solid rgba(0,240,255,0.6);border-radius:6px;padding:5px 8px;white-space:nowrap;pointer-events:auto;cursor:pointer;opacity:0;transition:opacity 0.3s,transform 0.15s;box-shadow:0 2px 8px rgba(0,0,0,0.4);`;
-        labelEl.innerHTML = `
-          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualCount})</span></div>
-          ${sortedStats.map(([mbti, count]) => `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`).join('')}
-        `;
+      // 사용자 위치 마커 (홍대 지도에만)
+      if (config.name === '홍대') {
+        const userEl = document.createElement('div');
+        userEl.style.cssText = `width:16px;height:16px;background:white;border:3px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 8px rgba(255,255,255,0.6);`;
+        const userOverlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(center.lat, center.lng),
+          content: userEl,
+          zIndex: 100,
+        });
+        userOverlay.setMap(map);
+        userMarkerRef.current = userOverlay;
       }
 
-      labelEl.addEventListener('click', () => {
-        map.setCenter(new kakao.maps.LatLng(city.lat, city.lng));
-        map.setLevel(4);
-        setHotspotCityNames(prev => prev);
-        setShowHotplacePopup(false);
-      });
-
-      const cityLabel = new kakao.maps.CustomOverlay({
-        position: new kakao.maps.LatLng(city.lat, city.lng),
-        content: labelEl,
-        zIndex: 5,
-      });
-      cityLabel.setMap(map);
-      cityLabelsRef.current.push(cityLabel);
-    });
-
-    // 지도 클릭 시 장소 정보 조회 + 기존 팝업 닫기
-    kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
-      // 기존 MBTI 팝업 닫기
-      if (popupData) {
-        setPopupVisible(false);
-        setTimeout(() => setPopupData(null), 220);
-      }
-      // 클릭 좌표 가져오기
-      const latlng = mouseEvent.latLng;
-      if (!latlng) return;
-      const clickLat = latlng.getLat();
-      const clickLng = latlng.getLng();
-      // 카카오맵 Places API로 클릭 지점 주변 장소 검색
-      const ps = new kakao.maps.services.Places();
-      // 클릭 좌표 기준 반경 50m 내 장소 키워드 검색 (빈 문자열은 안되므로 주소 역지오코딩 활용)
-      // 먼저 역지오코딩으로 주소 구하고, 주소로 키워드 검색
-      const geocoder = new kakao.maps.services.Geocoder();
-      geocoder.coord2Address(clickLng, clickLat, (geoResult: any[], geoStatus: string) => {
-        let keyword = '장소';
-        if (geoStatus === kakao.maps.services.Status.OK && geoResult.length > 0) {
-          const addr = geoResult[0].road_address?.address_name || geoResult[0].address?.address_name || '';
-          // 동/구 단위로 키워드 구성
-          const parts = addr.split(' ');
-          keyword = parts.slice(0, 3).join(' ');
+      // 지도 클릭 이벤트 - 장소 정보 조회
+      kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
+        if (popupData) {
+          setPopupVisible(false);
+          setTimeout(() => setPopupData(null), 220);
         }
-        ps.keywordSearch(keyword, (data: any[], status: string) => {
-          if (status === kakao.maps.services.Status.OK && data.length > 0) {
-            // 클릭 좌표와 가장 가까운 장소 선택
-            let closest = data[0];
-            let minDist = Infinity;
-            data.forEach((place: any) => {
-              const pLat = parseFloat(place.y);
-              const pLng = parseFloat(place.x);
-              const dist = Math.sqrt(Math.pow(pLat - clickLat, 2) + Math.pow(pLng - clickLng, 2));
-              if (dist < minDist) { minDist = dist; closest = place; }
-            });
-            const placeInfo: KakaoPlaceInfo = {
-              id: closest.id,
-              name: closest.place_name,
-              address: closest.address_name,
-              roadAddress: closest.road_address_name || closest.address_name,
-              phone: closest.phone || '',
-              category: closest.category_name,
-              url: closest.place_url,
-              lat: parseFloat(closest.y),
-              lng: parseFloat(closest.x),
-              distance: closest.distance ? parseInt(closest.distance) : undefined,
-            };
-            // 기존 카카오맵 장소 팝업이 열려있으면 일단 닫고 새로 열기
-            setKakaoPlaceVisible(false);
-            setTimeout(() => {
-              setSelectedKakaoPlace(placeInfo);
-              setKakaoPlaceVisible(true);
-            }, 50);
+        const latlng = mouseEvent.latLng;
+        if (!latlng) return;
+        const clickLat = latlng.getLat();
+        const clickLng = latlng.getLng();
+        const ps = new kakao.maps.services.Places();
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.coord2Address(clickLng, clickLat, (geoResult: any[], geoStatus: string) => {
+          let keyword = '장소';
+          if (geoStatus === kakao.maps.services.Status.OK && geoResult.length > 0) {
+            const addr = geoResult[0].road_address?.address_name || geoResult[0].address?.address_name || '';
+            const parts = addr.split(' ');
+            keyword = parts.slice(0, 3).join(' ');
           }
-        }, {
-          location: new kakao.maps.LatLng(clickLat, clickLng),
-          radius: 50,
-          sort: kakao.maps.services.SortBy.DISTANCE,
+          ps.keywordSearch(keyword, (data: any[], status: string) => {
+            if (status === kakao.maps.services.Status.OK && data.length > 0) {
+              let closest = data[0];
+              let minDist = Infinity;
+              data.forEach((place: any) => {
+                const pLat = parseFloat(place.y);
+                const pLng = parseFloat(place.x);
+                const dist = Math.sqrt(Math.pow(pLat - clickLat, 2) + Math.pow(pLng - clickLng, 2));
+                if (dist < minDist) { minDist = dist; closest = place; }
+              });
+              const placeInfo: KakaoPlaceInfo = {
+                id: closest.id,
+                name: closest.place_name,
+                address: closest.address_name,
+                roadAddress: closest.road_address_name || closest.address_name,
+                phone: closest.phone || '',
+                category: closest.category_name,
+                url: closest.place_url,
+                lat: parseFloat(closest.y),
+                lng: parseFloat(closest.x),
+                distance: closest.distance ? parseInt(closest.distance) : undefined,
+              };
+              if (selectedKakaoPlace) {
+                setKakaoPlaceVisible(false);
+                setTimeout(() => {
+                  setSelectedKakaoPlace(placeInfo);
+                  setKakaoPlaceVisible(true);
+                }, 200);
+              } else {
+                setSelectedKakaoPlace(placeInfo);
+                setTimeout(() => setKakaoPlaceVisible(true), 50);
+              }
+            }
+          }, {
+            location: new kakao.maps.LatLng(clickLat, clickLng),
+            radius: 50,
+            sort: kakao.maps.services.SortBy.DISTANCE,
+          });
         });
       });
-    });
-
-    }; // end initMap
+    }; // end initRegionMap
 
     // 스팟 등록 폼 타이머 (11초 후)
     const spotFormTimer = setTimeout(() => {
       if (!spotSubmitted) setShowSpotForm(true);
     }, 11000);
 
-    // autoload=false이므로 항상 kakao.maps.load()로 초기화
+    // kakao SDK 로드 후 3개 지역 동시 초기화
+    const runInit = () => {
+      REGION_CONFIGS.forEach(initRegionMap);
+    };
+
     if (window.kakao) {
-      window.kakao.maps.load(initMap);
+      window.kakao.maps.load(runInit);
     } else {
-      // kakao SDK 자체가 아직 없음 - 폴링으로 대기
       let retryCount = 0;
       const retryTimer = setInterval(() => {
         retryCount++;
         if (window.kakao) {
           clearInterval(retryTimer);
-          window.kakao.maps.load(initMap);
-        } else if (retryCount > 30) {
+          window.kakao.maps.load(runInit);
+        } else if (retryCount > 50) {
           clearInterval(retryTimer);
           console.warn('[SPOT] Kakao Maps SDK failed to load');
         }
@@ -913,7 +839,9 @@ export default function MvpMap() {
 
     return () => {
       clearTimeout(spotFormTimer);
-      markersRef.current.forEach(m => m.setMap(null));
+      hongdaeMarkersRef.current.forEach(m => m.setMap(null));
+      yeonnamMarkersRef.current.forEach(m => m.setMap(null));
+      seongsuMarkersRef.current.forEach(m => m.setMap(null));
       markersRef.current = [];
       realSpotMarkersRef.current.forEach(m => m.setMap(null));
       realSpotMarkersRef.current = [];
@@ -922,7 +850,25 @@ export default function MvpMap() {
       if (userMarkerRef.current) userMarkerRef.current.setMap(null);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen]);
+  }, []);
+
+  // 지역 변경 시 mapRef 전환 + relayout
+  useEffect(() => {
+    if (screen !== 'map') return;
+    const city = selectedCity || '홍대';
+    const regionMap = city === '홍대' ? hongdaeMapRef.current
+      : city === '연남' ? yeonnamMapRef.current
+      : seongsuMapRef.current;
+    if (regionMap) {
+      mapRef.current = regionMap;
+      // 숨겨졌다 다시 보이는 지도는 relayout 필요
+      requestAnimationFrame(() => {
+        regionMap.relayout();
+      });
+      setMapVisible(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCity, screen]);
 
   // 줌 레벨에 따라 마커/레이블 표시/숨김
   useEffect(() => {
@@ -1075,29 +1021,37 @@ export default function MvpMap() {
   }, [showSearch]);
 
 
-  // 스플래시 화면
+  // 스플래시 화면 - 숨겨진 지도 div를 DOM에 유지하면서 표시
   if (screen === "splash") {
     return (
-      <div
-        className="fixed inset-0 flex flex-col items-center justify-center"
-        style={{
-          height: `${screenHeight}px`,
-          background: '#F5F0E8',
-          opacity: splashFading ? 0 : 1,
-          transition: 'opacity 0.3s ease'
-        }}
-      >
-        <h1
-          className="font-black tracking-tight"
+      <div style={{ position: 'fixed', inset: 0, height: `${screenHeight}px` }}>
+        {/* 스플래시 UI */}
+        <div
+          className="fixed inset-0 flex flex-col items-center justify-center"
           style={{
-            fontSize: '52px',
-            color: '#2C1810',
-            fontFamily: "'Inter', 'Pretendard', sans-serif",
-            letterSpacing: '-0.02em'
+            height: `${screenHeight}px`,
+            background: '#F5F0E8',
+            opacity: splashFading ? 0 : 1,
+            transition: 'opacity 0.3s ease',
+            zIndex: 10
           }}
         >
-          SPOT
-        </h1>
+          <h1
+            className="font-black tracking-tight"
+            style={{
+              fontSize: '52px',
+              color: '#2C1810',
+              fontFamily: "'Inter', 'Pretendard', sans-serif",
+              letterSpacing: '-0.02em'
+            }}
+          >
+            SPOT
+          </h1>
+        </div>
+        {/* 숨겨진 지도 컨테이너 - 스플래시 중 미리 초기화 */}
+        <div ref={hongdaeContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden' }} />
+        <div ref={yeonnamContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden' }} />
+        <div ref={seongsuContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden' }} />
       </div>
     );
   }
@@ -1287,6 +1241,10 @@ export default function MvpMap() {
             <span style={{ fontSize: '10px', fontWeight: 500 }}>프로필</span>
           </button>
         </div>
+        {/* 숨겨진 지도 컨테이너 - 홈 화면에서도 DOM 유지 */}
+        <div ref={hongdaeContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden', zIndex: -1 }} />
+        <div ref={yeonnamContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden', zIndex: -1 }} />
+        <div ref={seongsuContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden', zIndex: -1 }} />
       </div>
     );
   }
@@ -1345,9 +1303,26 @@ export default function MvpMap() {
         )}
       </div>
 
-      {/* 카카오맵 컨테이너 */}
+      {/* 카카오맵 컨테이너 - 3개 지역 미리 로드 */}
       <div className="relative flex-1 overflow-hidden">
-        <div ref={mapContainerRef} className="w-full h-full" style={{ background: '#E8E0D0' }} />
+        {/* 홍대 지도 */}
+        <div
+          ref={hongdaeContainerRef}
+          className="absolute inset-0"
+          style={{ display: currentCity === '홍대' ? 'block' : 'none', background: '#E8E0D0' }}
+        />
+        {/* 연남 지도 */}
+        <div
+          ref={yeonnamContainerRef}
+          className="absolute inset-0"
+          style={{ display: currentCity === '연남' ? 'block' : 'none', background: '#E8E0D0' }}
+        />
+        {/* 성수 지도 */}
+        <div
+          ref={seongsuContainerRef}
+          className="absolute inset-0"
+          style={{ display: currentCity === '성수' ? 'block' : 'none', background: '#E8E0D0' }}
+        />
 
         {/* 카카오맵 로드 실패 시 폴백 */}
         {!mapRef.current && screen === 'map' && (
