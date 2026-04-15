@@ -1098,29 +1098,33 @@ export default function MvpMap() {
             onClick={() => { setSelectedCity('홍대'); setScreen('map'); setMapVisible(true); }}
             style={{
               width: '100%',
-              background: '#2C1810',
-              border: 'none',
+              background: '#FFFFFF',
+              border: '1.5px solid #2C1810',
               borderRadius: '12px',
               padding: '0',
               cursor: 'pointer',
               textAlign: 'left',
               overflow: 'hidden',
               flexShrink: 0,
-              boxShadow: '0 4px 16px rgba(44,24,16,0.25)',
+              boxShadow: '0 4px 16px rgba(44,24,16,0.12)',
             }}
           >
-            <div style={{ padding: '20px 22px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div style={{ padding: '20px 22px 14px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '4px' }}>HONGDAE</div>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em' }}>홍대</div>
+                <div style={{ fontSize: '28px', fontWeight: 900, color: '#2C1810', letterSpacing: '-0.02em' }}>홍대</div>
               </div>
-              {/* 홍대 대표 아이콘 - 클럽/스피커 */}
-              <div style={{ fontSize: '36px', opacity: 0.6, marginTop: '4px' }}>🎵</div>
+              {/* 홍대 아이콘 - 나이트라이프/클럽 */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35, marginTop: '4px' }}>
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+              </svg>
             </div>
             <div style={{ paddingLeft: '22px', paddingRight: '22px', paddingBottom: '16px' }}>
-              <div style={{ fontSize: '11px', color: '#C0A898', marginTop: '6px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#6B5B4E', fontWeight: 500 }}>
                 {hongdaeData?.congestLvl
-                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#FF6B6B' : hongdaeData.congestLvl.includes('보통') ? '#FFD166' : '#6BCB77' }}>
+                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#E53E3E' : hongdaeData.congestLvl.includes('보통') ? '#D69E2E' : '#2D9E5F' }}>
                       {new Date(hongdaeData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준 · 혼잡도: {hongdaeData.congestLvl}
                     </span>
                   : '홍대입구역 · 외국인·젊음 · 클럽·팝업'
@@ -1150,7 +1154,14 @@ export default function MvpMap() {
                 <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>YEONNAM</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>연남</div>
-                  <div style={{ fontSize: '22px', opacity: 0.5 }}>☕</div>
+                  {/* 연남 아이콘 - 카페/작업 */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                    <line x1="6" y1="1" x2="6" y2="4" />
+                    <line x1="10" y1="1" x2="10" y2="4" />
+                    <line x1="14" y1="1" x2="14" y2="4" />
+                  </svg>
                 </div>
                 <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
                   {yeonnamData?.congestLvl
@@ -1182,7 +1193,11 @@ export default function MvpMap() {
                 <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>SEONGSU</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>성수</div>
-                  <div style={{ fontSize: '22px', opacity: 0.5 }}>🏭</div>
+                  {/* 성수 아이콘 - 팝업/공장감성 */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
                 </div>
                 <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
                   {seongsuData?.congestLvl
