@@ -711,7 +711,7 @@ export const appRouter = router({
             query: input.query,
             sort: 'recency',
             page: String(input.page ?? 1),
-            size: '6',
+            size: '10',
           });
           const url = `https://dapi.kakao.com/v2/search/image?${params}`;
           const res = await fetch(url, {
