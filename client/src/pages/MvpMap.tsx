@@ -460,6 +460,7 @@ export default function MvpMap() {
 
   const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
   const [screenHeight, setScreenHeight] = useState(typeof window !== "undefined" ? window.innerHeight : 800);
+  const [homeCityIndex, setHomeCityIndex] = useState(0);
 
   useEffect(() => {
     const handleResize = () => setScreenHeight(window.innerHeight);
@@ -1090,131 +1091,206 @@ export default function MvpMap() {
           <span style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810', letterSpacing: '-0.02em' }}>SPOT</span>
         </div>
 
-        {/* 지역 선택 영역 */}
-        <div className="flex-1 flex flex-col px-5 py-4" style={{ gap: '12px', overflowY: 'auto' }}>
+        {/* ===== 방향 A: 세로 풀스크린 스와이프 카드 ===== */}
+        {(() => {
+          const cities = [
+            {
+              key: '홍대',
+              en: 'HONGDAE',
+              tagline: '지금 이 골목, 뭔가 터지고 있어',
+              tags: ['#클럽', '#팝업', '#외국인', '#나이트라이프'],
+              gradient: 'linear-gradient(160deg, #1a0a05 0%, #3d1a0a 40%, #6b2a10 70%, #c0392b 100%)',
+              accentColor: '#FF6B4A',
+              dotColor: '#FF6B4A',
+              data: hongdaeData,
+            },
+            {
+              key: '연남',
+              en: 'YEONNAM',
+              tagline: '카페 창가 자리, 아직 있을까',
+              tags: ['#카페', '#작업', '#경의선숲길', '#감성'],
+              gradient: 'linear-gradient(160deg, #1a1505 0%, #3d3210 40%, #6b5a1a 70%, #c8a84b 100%)',
+              accentColor: '#F0C040',
+              dotColor: '#F0C040',
+              data: yeonnamData,
+            },
+            {
+              key: '성수',
+              en: 'SEONGSU',
+              tagline: '팝업 줄 서기 전에 미리 확인해',
+              tags: ['#팝업', '#서울숲', '#힙', '#공장감성'],
+              gradient: 'linear-gradient(160deg, #050f1a 0%, #0a2035 40%, #1a3d5a 70%, #2980b9 100%)',
+              accentColor: '#5BB8FF',
+              dotColor: '#5BB8FF',
+              data: seongsuData,
+            },
+          ];
 
-          {/* 홍대 - 최상단 단독 큰 카드 */}
-          <button
-            onClick={() => { setSelectedCity('홍대'); setScreen('map'); setMapVisible(true); }}
-            style={{
-              width: '100%',
-              background: '#FFFFFF',
-              border: '1.5px solid #2C1810',
-              borderRadius: '12px',
-              padding: '0',
-              cursor: 'pointer',
-              textAlign: 'left',
-              overflow: 'hidden',
-              flexShrink: 0,
-              boxShadow: '0 4px 16px rgba(44,24,16,0.12)',
-            }}
-          >
-            <div style={{ padding: '20px 22px 14px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '11px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '4px' }}>HONGDAE</div>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: '#2C1810', letterSpacing: '-0.02em' }}>홍대</div>
-              </div>
-              {/* 홍대 아이콘 - 나이트라이프/클럽 */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35, marginTop: '4px' }}>
-                <path d="M9 18V5l12-2v13" />
-                <circle cx="6" cy="18" r="3" />
-                <circle cx="18" cy="16" r="3" />
-              </svg>
-            </div>
-            <div style={{ paddingLeft: '22px', paddingRight: '22px', paddingBottom: '16px' }}>
-              <div style={{ fontSize: '11px', color: '#6B5B4E', fontWeight: 500 }}>
-                {hongdaeData?.congestLvl
-                  ? <span style={{ color: hongdaeData.congestLvl.includes('붐빔') ? '#E53E3E' : hongdaeData.congestLvl.includes('보통') ? '#D69E2E' : '#2D9E5F' }}>
-                      {new Date(hongdaeData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준 · 혼잡도: {hongdaeData.congestLvl}
-                    </span>
-                  : '홍대입구역 · 외국인·젊음 · 클럽·팝업'
+          return (
+            <div
+              className="flex-1 relative overflow-hidden"
+              style={{ touchAction: 'pan-y' }}
+              onTouchStart={(e) => {
+                (e.currentTarget as any)._touchStartY = e.touches[0].clientY;
+              }}
+              onTouchEnd={(e) => {
+                const startY = (e.currentTarget as any)._touchStartY;
+                const endY = e.changedTouches[0].clientY;
+                const diff = startY - endY;
+                if (Math.abs(diff) > 40) {
+                  setHomeCityIndex(prev => {
+                    if (diff > 0) return Math.min(prev + 1, 2);
+                    return Math.max(prev - 1, 0);
+                  });
                 }
-              </div>
+              }}
+            >
+              {cities.map((city, idx) => {
+                const isActive = idx === homeCityIndex;
+                const congestColor = city.data?.congestLvl?.includes('붐빔') ? '#FF4444'
+                  : city.data?.congestLvl?.includes('보통') ? '#FFD166' : '#44DD88';
+                return (
+                  <div
+                    key={city.key}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: city.gradient,
+                      opacity: isActive ? 1 : 0,
+                      transform: isActive ? 'translateY(0)' : idx < homeCityIndex ? 'translateY(-100%)' : 'translateY(100%)',
+                      transition: 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      padding: '0 0 20px 0',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => { setSelectedCity(city.key); setScreen('map'); setMapVisible(true); }}
+                  >
+                    {/* 노이즈 텍스처 오버레이 */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.04\'/%3E%3C/svg%3E")',
+                      pointerEvents: 'none',
+                    }} />
+
+                    {/* 혼잡도 pulse 애니메이션 - 우상단 */}
+                    <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {city.data?.congestLvl ? (
+                        <>
+                          <div style={{ position: 'relative', width: '10px', height: '10px' }}>
+                            <div style={{
+                              position: 'absolute', inset: 0, borderRadius: '50%',
+                              background: congestColor,
+                              animation: 'pulse-ring 1.8s ease-out infinite',
+                            }} />
+                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: congestColor, position: 'relative', zIndex: 1 }} />
+                          </div>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: congestColor, letterSpacing: '0.02em' }}>
+                            {city.data.congestLvl}
+                          </span>
+                        </>
+                      ) : (
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>데이터 로딩 중</span>
+                      )}
+                    </div>
+
+                    {/* 인덱스 도트 - 우측 중앙 */}
+                    <div style={{
+                      position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)',
+                      display: 'flex', flexDirection: 'column', gap: '6px',
+                    }}>
+                      {cities.map((_, di) => (
+                        <div key={di} style={{
+                          width: di === homeCityIndex ? '6px' : '4px',
+                          height: di === homeCityIndex ? '6px' : '4px',
+                          borderRadius: '50%',
+                          background: di === homeCityIndex ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
+                          transition: 'all 0.3s',
+                        }} />
+                      ))}
+                    </div>
+
+                    {/* 메인 콘텐츠 - 하단 */}
+                    <div style={{ padding: '0 28px 8px' }}>
+                      {/* 영문 지역명 */}
+                      <div style={{
+                        fontSize: '11px', fontWeight: 700, letterSpacing: '0.2em',
+                        color: city.accentColor, marginBottom: '8px', opacity: 0.9,
+                      }}>{city.en}</div>
+
+                      {/* 한글 지역명 - 크게 */}
+                      <div style={{
+                        fontSize: '56px', fontWeight: 900, color: '#FFFFFF',
+                        letterSpacing: '-0.03em', lineHeight: 1, marginBottom: '12px',
+                        textShadow: `0 0 40px ${city.accentColor}40`,
+                      }}>{city.key}</div>
+
+                      {/* 태그라인 */}
+                      <div style={{
+                        fontSize: '15px', color: 'rgba(255,255,255,0.75)',
+                        fontWeight: 500, marginBottom: '16px', lineHeight: 1.4,
+                      }}>{city.tagline}</div>
+
+                      {/* 해시태그 */}
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                        {city.tags.map(tag => (
+                          <span key={tag} style={{
+                            fontSize: '11px', fontWeight: 600,
+                            color: city.accentColor,
+                            background: `${city.accentColor}18`,
+                            border: `1px solid ${city.accentColor}40`,
+                            borderRadius: '20px', padding: '3px 10px',
+                          }}>{tag}</span>
+                        ))}
+                      </div>
+
+                      {/* 혼잡도 상세 + 시간 */}
+                      {city.data?.congestLvl && (
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginBottom: '20px' }}>
+                          {new Date(city.data.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준 업데이트
+                        </div>
+                      )}
+
+                      {/* 진입 버튼 */}
+                      <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '8px',
+                        background: city.accentColor,
+                        color: '#0a0a0a',
+                        fontWeight: 800, fontSize: '14px',
+                        padding: '12px 24px', borderRadius: '40px',
+                        letterSpacing: '-0.01em',
+                      }}>
+                        지금 확인하기
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* 스와이프 힌트 - 맨 아래 */}
+                    <div style={{
+                      textAlign: 'center', paddingTop: '16px',
+                      fontSize: '10px', color: 'rgba(255,255,255,0.3)',
+                      letterSpacing: '0.05em',
+                    }}>
+                      {idx < 2 ? '↓ 스와이프' : '↑ 스와이프'}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* pulse 애니메이션 keyframes */}
+              <style>{`
+                @keyframes pulse-ring {
+                  0% { transform: scale(1); opacity: 0.8; }
+                  100% { transform: scale(3.5); opacity: 0; }
+                }
+              `}</style>
             </div>
-            <div style={{ height: '4px', background: 'linear-gradient(90deg, #E53E3E 0%, #D69E2E 100%)' }} />
-          </button>
-
-          {/* 연남 + 성수 - 2열 카드 */}
-          <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
-            <button
-              onClick={() => { setSelectedCity('연남'); setScreen('map'); setMapVisible(true); }}
-              style={{
-                flex: 1,
-                background: '#FFFFFF',
-                border: '1.5px solid #2C1810',
-                borderRadius: '12px',
-                padding: '0',
-                cursor: 'pointer',
-                textAlign: 'left',
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(44,24,16,0.1)',
-              }}
-            >
-              <div style={{ padding: '16px 18px 10px' }}>
-                <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>YEONNAM</div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>연남</div>
-                  {/* 연남 아이콘 - 카페/작업 */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>
-                    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-                    <line x1="6" y1="1" x2="6" y2="4" />
-                    <line x1="10" y1="1" x2="10" y2="4" />
-                    <line x1="14" y1="1" x2="14" y2="4" />
-                  </svg>
-                </div>
-                <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
-                  {yeonnamData?.congestLvl
-                    ? <span style={{ color: yeonnamData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>
-                        {new Date(yeonnamData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준<br />혼잡도: {yeonnamData.congestLvl}
-                      </span>
-                    : '카페·작업형 · 경의선숲길'
-                  }
-                </div>
-              </div>
-              <div style={{ height: '3px', background: '#D69E2E' }} />
-            </button>
-
-            <button
-              onClick={() => { setSelectedCity('성수'); setScreen('map'); setMapVisible(true); }}
-              style={{
-                flex: 1,
-                background: '#FFFFFF',
-                border: '1.5px solid #2C1810',
-                borderRadius: '12px',
-                padding: '0',
-                cursor: 'pointer',
-                textAlign: 'left',
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(44,24,16,0.1)',
-              }}
-            >
-              <div style={{ padding: '16px 18px 10px' }}>
-                <div style={{ fontSize: '10px', fontWeight: 600, color: '#A89880', letterSpacing: '0.08em', marginBottom: '3px' }}>SEONGSU</div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810' }}>성수</div>
-                  {/* 성수 아이콘 - 팝업/공장감성 */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2C1810" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                  </svg>
-                </div>
-                <div style={{ fontSize: '11px', color: '#6B5B4E', marginTop: '4px' }}>
-                  {seongsuData?.congestLvl
-                    ? <span style={{ color: seongsuData.congestLvl.includes('붐빔') ? '#E53E3E' : '#D69E2E' }}>
-                        {new Date(seongsuData.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}기준<br />혼잡도: {seongsuData.congestLvl}
-                      </span>
-                    : '팝업·서울숲 · 힙한감성'
-                  }
-                </div>
-              </div>
-              <div style={{ height: '3px', background: '#E53E3E' }} />
-            </button>
-          </div>
-
-
-
-        </div>
+          );
+        })()}
 
         {/* 홈화면 하단 탭바 - 5개 */}
         <div
