@@ -1020,47 +1020,44 @@ export default function MvpMap() {
   }, [showSearch]);
 
 
-  // 스플래시 화면 - 숨겨진 지도 div를 DOM에 유지하면서 표시
-  if (screen === "splash") {
-    return (
-      <div style={{ position: 'fixed', inset: 0, height: `${screenHeight}px` }}>
-        {/* 스플래시 UI */}
-        <div
-          className="fixed inset-0 flex flex-col items-center justify-center"
+  // 스플래시/홈/지도 화면을 하나의 return으로 통합 (ref 항상 유지)
+  const currentCity = selectedCity || '홍대';
+  const currentCityData = currentCity === '홍대' ? hongdaeData : currentCity === '성수' ? seongsuData : yeonnamData;
+  const congestionLevel = currentCityData?.congestLvl || '';
+  const congestionAge = currentCityData?.ppltnMin ? `${currentCityData.ppltnMin}~${currentCityData.ppltnMax}명` : '';
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, height: `${screenHeight}px` }}>
+      {/* ===== 스플래시 화면 ===== */}
+      <div
+        className="fixed inset-0 flex flex-col items-center justify-center"
+        style={{
+          height: `${screenHeight}px`,
+          background: '#F5F0E8',
+          opacity: splashFading ? 0 : 1,
+          transition: 'opacity 0.3s ease',
+          zIndex: 100,
+          display: screen === 'splash' ? 'flex' : 'none',
+          pointerEvents: screen === 'splash' ? 'auto' : 'none',
+        }}
+      >
+        <h1
+          className="font-black tracking-tight"
           style={{
-            height: `${screenHeight}px`,
-            background: '#F5F0E8',
-            opacity: splashFading ? 0 : 1,
-            transition: 'opacity 0.3s ease',
-            zIndex: 10
+            fontSize: '52px',
+            color: '#2C1810',
+            fontFamily: "'Inter', 'Pretendard', sans-serif",
+            letterSpacing: '-0.02em'
           }}
         >
-          <h1
-            className="font-black tracking-tight"
-            style={{
-              fontSize: '52px',
-              color: '#2C1810',
-              fontFamily: "'Inter', 'Pretendard', sans-serif",
-              letterSpacing: '-0.02em'
-            }}
-          >
-            SPOT
-          </h1>
-        </div>
-        {/* 숨겨진 지도 컨테이너 - 스플래시 중 미리 초기화 */}
-        <div ref={hongdaeContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden' }} />
-        <div ref={yeonnamContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden' }} />
-        <div ref={seongsuContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden' }} />
+          SPOT
+        </h1>
       </div>
-    );
-  }
 
-  // 홈 화면 (지역 선택)
-  if (screen === "home") {
-    return (
+      {/* ===== 홈 화면 (지역 선택) ===== */}
       <div
         className="fixed inset-0 flex flex-col"
-        style={{ height: `${screenHeight}px`, background: '#F5F0E8' }}
+        style={{ height: `${screenHeight}px`, background: '#F5F0E8', display: screen === 'home' ? 'flex' : 'none' }}
       >
         <Toaster position="top-center" />
 
@@ -1240,28 +1237,17 @@ export default function MvpMap() {
             <span style={{ fontSize: '10px', fontWeight: 500 }}>프로필</span>
           </button>
         </div>
-        {/* 숨겨진 지도 컨테이너 - 홈 화면에서도 DOM 유지 */}
-        <div ref={hongdaeContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden', zIndex: -1 }} />
-        <div ref={yeonnamContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden', zIndex: -1 }} />
-        <div ref={seongsuContainerRef} style={{ position: 'absolute', inset: 0, visibility: 'hidden', zIndex: -1 }} />
       </div>
-    );
-  }
 
-  // 지도 화면
-  const currentCity = selectedCity || '홍대';
-  const currentCityData = currentCity === '홍대' ? hongdaeData : currentCity === '성수' ? seongsuData : yeonnamData;
-  const congestionLevel = currentCityData?.congestLvl || '';
-  const congestionAge = currentCityData?.ppltnMin ? `${currentCityData.ppltnMin}~${currentCityData.ppltnMax}명` : '';
-
-  return (
-    <div
-      className="fixed inset-0 flex flex-col"
-      style={{
-        height: `${screenHeight}px`,
-        background: '#F5F0E8',
-      }}
-    >
+      {/* ===== 지도 화면 ===== */}
+      <div
+        className="fixed inset-0 flex flex-col"
+        style={{
+          height: `${screenHeight}px`,
+          background: '#F5F0E8',
+          display: screen === 'map' ? 'flex' : 'none',
+        }}
+      >
       <Toaster position="top-center" />
 
       {/* 상단 헤더 */}
@@ -2101,6 +2087,7 @@ export default function MvpMap() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

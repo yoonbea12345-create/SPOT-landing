@@ -603,3 +603,8 @@
 - [x] 지도 미리 로드 로직이 screen을 'map'으로 바꾸는지 확인
 - [x] 스플래시 타이머 후 screen='home'으로 전환되도록 수정
 - [ ] 체크포인트 저장
+
+## 스플래시/홈/지도 화면 단일 return으로 통합 (ref 유지)
+- [x] 스플래시/홈/지도 early return을 하나의 return + display 조건부 렌더링으로 통합
+- [x] 지도 컨테이너 div 3개를 항상 DOM에 유지 (visibility/display로 제어)
+- [ ] 체크포인트 저장
