@@ -242,6 +242,20 @@ interface DummySpot {
   createdAt: number;
 }
 
+// 카카오맵 장소 상세정보 타입
+interface KakaoPlaceInfo {
+  id: string;
+  name: string;
+  address: string;
+  roadAddress: string;
+  phone: string;
+  category: string;
+  url: string;
+  lat: number;
+  lng: number;
+  distance?: number;
+}
+
 // 팝업 데이터 타입
 interface PopupData {
   id: number;
@@ -450,6 +464,8 @@ export default function MvpMap() {
   const [selectedFilterPurpose, setSelectedFilterPurpose] = useState<string | null>(null);
   const [showMomentReport, setShowMomentReport] = useState(false);
   const [showCommunityFeed, setShowCommunityFeed] = useState(false);
+  const [selectedKakaoPlace, setSelectedKakaoPlace] = useState<KakaoPlaceInfo | null>(null);
+  const [kakaoPlaceVisible, setKakaoPlaceVisible] = useState(false);
 
   // 서울시 실시간 데이터 상태
   const [seoulCityData, setSeoulCityData] = useState<Record<string, any>>({});
@@ -796,12 +812,67 @@ export default function MvpMap() {
       cityLabelsRef.current.push(cityLabel);
     });
 
-    // 지도 클릭 시 팝업 닫기
-    kakao.maps.event.addListener(map, 'click', () => {
+    // 지도 클릭 시 장소 정보 조회 + 기존 팝업 닫기
+    kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
+      // 기존 MBTI 팝업 닫기
       if (popupData) {
         setPopupVisible(false);
         setTimeout(() => setPopupData(null), 220);
       }
+      // 클릭 좌표 가져오기
+      const latlng = mouseEvent.latLng;
+      if (!latlng) return;
+      const clickLat = latlng.getLat();
+      const clickLng = latlng.getLng();
+      // 카카오맵 Places API로 클릭 지점 주변 장소 검색
+      const ps = new kakao.maps.services.Places();
+      // 클릭 좌표 기준 반경 50m 내 장소 키워드 검색 (빈 문자열은 안되므로 주소 역지오코딩 활용)
+      // 먼저 역지오코딩으로 주소 구하고, 주소로 키워드 검색
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.coord2Address(clickLng, clickLat, (geoResult: any[], geoStatus: string) => {
+        let keyword = '장소';
+        if (geoStatus === kakao.maps.services.Status.OK && geoResult.length > 0) {
+          const addr = geoResult[0].road_address?.address_name || geoResult[0].address?.address_name || '';
+          // 동/구 단위로 키워드 구성
+          const parts = addr.split(' ');
+          keyword = parts.slice(0, 3).join(' ');
+        }
+        ps.keywordSearch(keyword, (data: any[], status: string) => {
+          if (status === kakao.maps.services.Status.OK && data.length > 0) {
+            // 클릭 좌표와 가장 가까운 장소 선택
+            let closest = data[0];
+            let minDist = Infinity;
+            data.forEach((place: any) => {
+              const pLat = parseFloat(place.y);
+              const pLng = parseFloat(place.x);
+              const dist = Math.sqrt(Math.pow(pLat - clickLat, 2) + Math.pow(pLng - clickLng, 2));
+              if (dist < minDist) { minDist = dist; closest = place; }
+            });
+            const placeInfo: KakaoPlaceInfo = {
+              id: closest.id,
+              name: closest.place_name,
+              address: closest.address_name,
+              roadAddress: closest.road_address_name || closest.address_name,
+              phone: closest.phone || '',
+              category: closest.category_name,
+              url: closest.place_url,
+              lat: parseFloat(closest.y),
+              lng: parseFloat(closest.x),
+              distance: closest.distance ? parseInt(closest.distance) : undefined,
+            };
+            // 기존 카카오맵 장소 팝업이 열려있으면 일단 닫고 새로 열기
+            setKakaoPlaceVisible(false);
+            setTimeout(() => {
+              setSelectedKakaoPlace(placeInfo);
+              setKakaoPlaceVisible(true);
+            }, 50);
+          }
+        }, {
+          location: new kakao.maps.LatLng(clickLat, clickLng),
+          radius: 50,
+          sort: kakao.maps.services.SortBy.DISTANCE,
+        });
+      });
     });
 
     }; // end initMap
@@ -1495,6 +1566,167 @@ export default function MvpMap() {
           </div>
         );
       })()}
+
+      {/* 카카오맵 장소 상세정보 팝업 */}
+      {selectedKakaoPlace && (
+        <div
+          className="absolute z-50"
+          style={{
+            bottom: '80px',
+            left: '0',
+            right: '0',
+            opacity: kakaoPlaceVisible ? 1 : 0,
+            transform: kakaoPlaceVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.25s ease, transform 0.25s ease',
+            pointerEvents: kakaoPlaceVisible ? 'auto' : 'none',
+          }}
+        >
+          <div
+            style={{
+              margin: '0 12px',
+              background: '#FFFFFF',
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(44,24,16,0.18)',
+              overflow: 'hidden',
+              border: '1px solid #E0D8CC',
+            }}
+          >
+            {/* 헤더 */}
+            <div
+              className="flex items-center gap-2 px-4 py-3"
+              style={{ borderBottom: '1px solid #F0E8DC', background: '#FDFAF6' }}
+            >
+              {/* 카테고리 아이콘 */}
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  background: '#F5F0E8',
+                  border: '1.5px solid #E0D8CC',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '18px',
+                }}
+              >
+                {selectedKakaoPlace.category.includes('카페') ? '☕' :
+                 selectedKakaoPlace.category.includes('편의점') ? '🏪' :
+                 selectedKakaoPlace.category.includes('음식') || selectedKakaoPlace.category.includes('식당') || selectedKakaoPlace.category.includes('맛집') ? '🍽️' :
+                 selectedKakaoPlace.category.includes('술') || selectedKakaoPlace.category.includes('주점') || selectedKakaoPlace.category.includes('바') ? '🍺' :
+                 selectedKakaoPlace.category.includes('쇼핑') || selectedKakaoPlace.category.includes('마트') ? '🛍️' :
+                 selectedKakaoPlace.category.includes('병원') || selectedKakaoPlace.category.includes('약국') ? '🏥' :
+                 selectedKakaoPlace.category.includes('은행') || selectedKakaoPlace.category.includes('ATM') ? '🏦' :
+                 selectedKakaoPlace.category.includes('주유') ? '⛽' :
+                 selectedKakaoPlace.category.includes('주차') ? '🅿️' :
+                 selectedKakaoPlace.category.includes('지하철') || selectedKakaoPlace.category.includes('버스') ? '🚇' :
+                 selectedKakaoPlace.category.includes('공원') ? '🌿' :
+                 selectedKakaoPlace.category.includes('학교') ? '🏫' :
+                 '📍'}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '15px', fontWeight: 700, color: '#1A0F0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {selectedKakaoPlace.name}
+                </div>
+                <div style={{ fontSize: '11px', color: '#A89880', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {selectedKakaoPlace.category.split(' > ').slice(-2).join(' · ')}
+                </div>
+              </div>
+              {/* 닫기 버튼 */}
+              <button
+                onClick={() => { setKakaoPlaceVisible(false); setTimeout(() => setSelectedKakaoPlace(null), 250); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89880', padding: '4px', flexShrink: 0 }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* 주소 */}
+            <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #F0E8DC' }}>
+              <div className="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A89880" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: '2px', flexShrink: 0 }}>
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                </svg>
+                <div>
+                  {selectedKakaoPlace.roadAddress && selectedKakaoPlace.roadAddress !== selectedKakaoPlace.address && (
+                    <div style={{ fontSize: '13px', color: '#2C1810', lineHeight: 1.5 }}>{selectedKakaoPlace.roadAddress}</div>
+                  )}
+                  <div style={{ fontSize: '12px', color: '#8B7B6E', lineHeight: 1.5 }}>{selectedKakaoPlace.address}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 전화번호 */}
+            {selectedKakaoPlace.phone && (
+              <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #F0E8DC' }}>
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A89880" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  <a href={`tel:${selectedKakaoPlace.phone}`} style={{ fontSize: '13px', color: '#2C6EAF', fontWeight: 600, textDecoration: 'none' }}>
+                    {selectedKakaoPlace.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* 액션 버튼들 */}
+            <div className="flex gap-2 px-4 py-3">
+              {/* 카카오맵에서 보기 */}
+              <a
+                href={selectedKakaoPlace.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: '10px',
+                  background: '#FEE500',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#1A1A1A',
+                  textDecoration: 'none',
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                </svg>
+                카카오맵에서 보기
+              </a>
+              {/* 길찾기 */}
+              <a
+                href={`kakaomap://route?ep=${selectedKakaoPlace.lat},${selectedKakaoPlace.lng}&by=FOOT`}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: '10px',
+                  background: '#2C1810',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#F5F0E8',
+                  textDecoration: 'none',
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                </svg>
+                길찾기
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 하단 네비게이션 바 - 5개 (PNG 스타일) */}
       <div

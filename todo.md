@@ -575,3 +575,12 @@
 - [x] API 필드명 수정 (AREA_CONGEST_LVL → congestLvl, AREA_PPLTN_MIN/MAX → ppltnMin/ppltnMax)
 - [x] TypeScript 에러 0개 확인
 - [x] DB 마이그레이션 완료 (activity 컬럼)
+
+## 카카오맵 장소 클릭 시 상세정보 팝업 (카카오맵 스타일)
+- [x] KakaoPlaceInfo 타입 정의 (id, name, address, phone, category, url, lat, lng, distance)
+- [x] selectedKakaoPlace state 추가
+- [x] 카카오맵 click 이벤트에서 Places.categorySearch로 클릭 좌표 주변 장소 조회
+- [x] 가장 가까운 장소 선택 후 상세정보 팝업 표시
+- [x] 장소 상세정보 팝업 UI: 장소명, 카테고리, 주소, 전화번호, 카카오맵 링크 버튼
+- [x] 기존 MBTI 팝업과 격치지 않도록 레이어 분리
+- [ ] 체크포인트 저장
