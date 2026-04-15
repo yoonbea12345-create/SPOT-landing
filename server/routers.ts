@@ -700,6 +700,40 @@ export const appRouter = router({
         }
       }),
 
+    // 카카오 이미지 검색 - 지역 분위기 사진
+    searchImages: publicProcedure
+      .input(z.object({ query: z.string(), page: z.number().optional() }))
+      .query(async ({ input }) => {
+        try {
+          const key = process.env.KAKAO_REST_API_KEY || '';
+          if (!key) return { success: false, images: [] };
+          const params = new URLSearchParams({
+            query: input.query,
+            sort: 'recency',
+            page: String(input.page ?? 1),
+            size: '6',
+          });
+          const url = `https://dapi.kakao.com/v2/search/image?${params}`;
+          const res = await fetch(url, {
+            headers: { Authorization: `KakaoAK ${key}` },
+            signal: AbortSignal.timeout(5000),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json() as any;
+          const images = (data.documents ?? []).map((doc: any) => ({
+            url: doc.image_url,
+            thumbnail: doc.thumbnail_url,
+            source: doc.display_sitename,
+            width: doc.width,
+            height: doc.height,
+          }));
+          return { success: true, images };
+        } catch (error) {
+          console.error('[Kakao ImageSearch] Failed:', error);
+          return { success: false, images: [] };
+        }
+      }),
+
     // Reverse geocoding (coord → address)
     reverseGeocode: publicProcedure
       .input(z.object({ lat: z.number(), lng: z.number() }))
