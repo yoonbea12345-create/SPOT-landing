@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { MapView } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import { FIXED_PLACES } from "@/data/fixedPlaces";
 import { AvatarSVG, ANIMALS, ACCESSORIES, EXPRESSIONS, EMOJIS, randomAvatarConfig, serializeAvatar, deserializeAvatar, type AvatarConfig, type AnimalType, type AccessoryType, type ExpressionType, type EmojiType } from "@/components/Avatar";
 import { SpotFeed } from "@/components/SpotFeed";
+
+// 카카오맵 타입 선언
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
 
 type Screen = "splash" | "map";
 
@@ -58,12 +64,10 @@ const SIGN_SIGNALS = [
   { emoji: "💬", text: "대화 상대 찾아요" },
 ];
 
-// SIGN 목록 (더미 데이터용 - SIGN_SIGNALS와 동일한 이모지+텍스트 형식)
+// SIGN 목록 (더미 데이터용)
 const SIGN_LIST = SIGN_SIGNALS.slice(1).map(s => `${s.emoji} ${s.text}`);
-// ─────────────────────────────────────────────────────────────
-// 현재 행동 태그 (분위기 탐색의 핵심)
-// 카테고리별로 분류해 더 자연스러운 행동 표시
-// ─────────────────────────────────────────────────────────────
+
+// 카테고리별 행동 목록
 const ACTION_BY_CATEGORY: Record<string, Array<{ emoji: string; text: string }>> = {
   cafe: [
     { emoji: "☕", text: "혼자 카페 중" },
@@ -125,12 +129,12 @@ const ACTION_BY_CATEGORY: Record<string, Array<{ emoji: string; text: string }>>
     { emoji: "🌙", text: "야경 보는 중" },
   ],
 };
-// 카테고리에 맞는 랜덤 행동 반환
+
 function getRandomActivity(category?: string): { emoji: string; text: string } {
   const list = ACTION_BY_CATEGORY[category ?? 'default'] ?? ACTION_BY_CATEGORY.default;
   return list[Math.floor(Math.random() * list.length)];
 }
-// 등록 폼용 행동 선택지 (전체 통합, 중복 제거)
+
 const ACTION_FORM_LIST: Array<{ emoji: string; text: string }> = [
   { emoji: "✏️", text: "직접 입력" },
   { emoji: "🍺", text: "혼술 중" },
@@ -148,30 +152,15 @@ const ACTION_FORM_LIST: Array<{ emoji: string; text: string }> = [
   { emoji: "🎒", text: "여행 중" },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// 스포트라이트 해시태그 시스템
-// "지금 이 장소에 있는 사람만 알 수 있는" 실시간 현장 정보 중심
-// ─────────────────────────────────────────────────────────────
-
 type PlaceTagType =
-  | 'cafe'
-  | 'bar_club'
-  | 'restaurant'
-  | 'park_picnic'
-  | 'river_beach'
-  | 'accommodation'
-  | 'market'
-  | 'culture_museum'
-  | 'sports_fitness'
-  | 'shopping'
-  | 'landmark'
-  | 'nature';
+  | 'cafe' | 'bar_club' | 'restaurant' | 'park_picnic'
+  | 'river_beach' | 'accommodation' | 'market'
+  | 'culture_museum' | 'sports_fitness' | 'shopping'
+  | 'landmark' | 'nature';
 
-// 장소 카테고리 문자열 → PlaceTagType 분류
 const classifyPlaceType = (category?: string): PlaceTagType => {
   if (!category) return 'landmark';
   const c = category.toLowerCase().trim();
-  // 영문 직접 매핑 (fixedPlaces.ts 카테고리)
   if (c === 'cafe') return 'cafe';
   if (c === 'bar') return 'bar_club';
   if (c === 'restaurant') return 'restaurant';
@@ -180,579 +169,224 @@ const classifyPlaceType = (category?: string): PlaceTagType => {
   if (c === 'nature') return 'nature';
   if (c === 'market') return 'market';
   if (c === 'landmark') return 'landmark';
-  // 한글 키워드 매핑
-  if (c.includes('카페') || c.includes('커피') || c.includes('디저트') || c.includes('브런치')) return 'cafe';
-  if (c.includes('클럽') || c.includes('포차') || c.includes('비어') || c.includes('펍') || c.includes('술집') || c.includes('루프탑 바')) return 'bar_club';
-  if (c.includes('맛집') || c.includes('식당') || c.includes('라멘') || c.includes('음식') || c.includes('이색 맛')) return 'restaurant';
-  if (c.includes('공원') || c.includes('피크닉') || c.includes('야외')) return 'park_picnic';
-  if (c.includes('한강') || c.includes('해변') || c.includes('해수욕') || c.includes('오션') || c.includes('루프탑')) return 'river_beach';
-  if (c.includes('숙박') || c.includes('호텔') || c.includes('모텔') || c.includes('펜션') || c.includes('게스트')) return 'accommodation';
+  if (c.includes('카페') || c.includes('커피') || c.includes('디저트')) return 'cafe';
+  if (c.includes('클럽') || c.includes('포차') || c.includes('술집')) return 'bar_club';
+  if (c.includes('맛집') || c.includes('식당') || c.includes('음식')) return 'restaurant';
+  if (c.includes('공원') || c.includes('피크닉')) return 'park_picnic';
+  if (c.includes('한강') || c.includes('해변')) return 'river_beach';
   if (c.includes('시장') || c.includes('마트')) return 'market';
-  if (c.includes('문화') || c.includes('박물관') || c.includes('갤러리') || c.includes('미술') || c.includes('전시')) return 'culture_museum';
-  if (c.includes('스포츠') || c.includes('피트니스') || c.includes('헬스') || c.includes('운동')) return 'sports_fitness';
-  if (c.includes('쇼핑') || c.includes('백화점') || c.includes('아울렛')) return 'shopping';
-  if (c.includes('자연') || c.includes('산') || c.includes('숲') || c.includes('계곡')) return 'nature';
+  if (c.includes('문화') || c.includes('박물관') || c.includes('갤러리')) return 'culture_museum';
+  if (c.includes('스포츠') || c.includes('피트니스')) return 'sports_fitness';
+  if (c.includes('쇼핑') || c.includes('백화점')) return 'shopping';
+  if (c.includes('자연') || c.includes('산') || c.includes('숲')) return 'nature';
   return 'landmark';
 };
 
-// 장소 유형별 해시태그 풀 (현장에 있는 사람만 알 수 있는 실시간 정보)
 const PLACE_HASHTAG_POOL: Record<PlaceTagType, string[]> = {
-  cafe: [
-    '아아맛집', '따아맛집', '크로와상맛집', '화장실 깨끗', '콘센트 있음',
-    '혼자 와도 어색 안함', '줄 없음', '줄 김', '자리 많음', '자리 없음',
-    '와이파이 빠름', '노트북 하기 좋음', '뷰 실화', '사진 잘 나옴',
-    '직원 친절', '음악 좋음', '조용함', '시끄러움', '냄새 좋음',
-  ],
-  bar_club: [
-    '혼술하기 좋음', '분위기 미침', '웨이팅 있음', '웨이팅 없음',
-    '음악 너무 큼', '음악 딱 좋음', '안주 맛있음', '가성비 좋음',
-    '혼자 와도 어색 안함', '커플 많음', '혼자 온 사람 많음',
-    '직원 친절', '화장실 깨끗', '흡연구역 있음', '야외석 있음',
-    '지금 자리 있음', '지금 자리 없음', '분위기 업됨',
-  ],
-  restaurant: [
-    '웨이팅 있음', '웨이팅 없음', '줄 김', '줄 없음', '양 많음',
-    '가성비 실화', '맛 실화', '국물 진함', '매운맛 주의',
-    '혼밥 하기 좋음', '단체석 있음', '화장실 깨끗', '주차 가능',
-    '포장 가능', '배달 안됨', '현금만 됨', '카드 됨', '직원 친절',
-    '재료 신선', '양 적음', '가격 비쌈',
-  ],
-  park_picnic: [
-    '사람 없어요', '사람 많아요', '자리 있음', '자리 없음',
-    '바람 많이 붐', '날씨 딱 좋음', '구름 많음', '햇빛 강함',
-    '그늘 있음', '그늘 없음', '강아지 많음', '뛰어다니는 애들 많음',
-    '조용함', '시끄러움', '쓰레기통 있음', '화장실 있음',
-    '편의점 근처', '돗자리 필수', '모기 있음', '야경 좋음',
-  ],
-  river_beach: [
-    '한강뷰 실화', '바다뷰 실화', '노을 지금 딱 좋음', '노을 이미 짐',
-    '파도 높음', '파도 잔잔', '바람 강함', '바람 시원',
-    '사람 많음', '사람 없음', '수영 가능', '수영 금지',
-    '모래 깨끗', '쓰레기 있음', '화장실 있음', '편의점 있음',
-    '자전거 많음', '야경 미침', '사진 잘 나옴', '혼자 와도 좋음',
-  ],
-  accommodation: [
-    '침대 깨끗', '침대 불편', '직원 친절', '직원 불친절',
-    '방음 잘 됨', '방음 안 됨', '와이파이 빠름', '와이파이 느림',
-    '뷰 좋음', '뷰 별로', '청결 합격', '청결 불합격',
-    '주차 가능', '주차 불가', '조식 맛있음', '조식 별로',
-    '체크인 빠름', '체크아웃 편함', '가성비 좋음', '가격 비쌈',
-  ],
-  market: [
-    '사람 많음', '사람 없음', '가격 흥정 가능', '가격 고정',
-    '신선도 좋음', '먹거리 많음', '주차 어려움', '주차 가능',
-    '화장실 있음', '화장실 없음', '카드 됨', '현금만 됨',
-    '구경 재밌음', '냄새 강함', '좁음', '넓음',
-    '외국인 많음', '로컬 느낌', '야시장 분위기',
-  ],
-  culture_museum: [
-    '줄 없음', '줄 김', '조용함', '시끄러움', '전시 좋음',
-    '사진 찍기 좋음', '사진 금지 구역 있음', '화장실 깨끗',
-    '에어컨 빵빵', '더움', '주차 가능', '주차 어려움',
-    '혼자 와도 좋음', '설명 잘 돼 있음', '안내원 친절',
-    '카페 있음', '기념품샵 있음', '어린이 많음', '어른만 있음',
-  ],
-  sports_fitness: [
-    '기구 많음', '기구 부족', '사람 많음', '사람 없음',
-    '샤워실 깨끗', '샤워실 더러움', '직원 친절', '직원 불친절',
-    '에어컨 빵빵', '더움', '주차 가능', '와이파이 됨',
-    '운동 분위기 좋음', '초보자 환영', '고수들만 있음',
-    '락커 있음', '수건 제공', '가성비 좋음',
-  ],
-  shopping: [
-    '세일 중', '세일 없음', '사람 많음', '사람 없음',
-    '주차 가능', '주차 어려움', '에어컨 빵빵', '더움',
-    '화장실 깨끗', '음식점 많음', '카드 됨', '직원 친절',
-    '구경 재밌음', '가격 비쌈', '가성비 좋음', '신상 있음',
-    '피팅룸 있음', '재고 많음', '재고 없음',
-  ],
-  nature: [
-    '산책하기 좋음', '사람 없어요', '뷰 실화', '공기 좋음',
-    '날씨 딱 좋음', '구름 많음', '안개 있음', '바람 강함',
-    '길 험함', '길 평탄', '화장실 있음', '화장실 없음',
-    '모기 있음', '벌레 없음', '그늘 있음', '일출 좋음',
-    '일몰 좋음', '사진 잘 나옴', '혼자 와도 좋음', '강아지 동반 가능',
-  ],
-  landmark: [
-    '사진 잘 나옴', '뷰 실화', '사람 많음', '사람 없음',
-    '야경 미침', '낮에 와야 함', '밤에 와야 함',
-    '주차 가능', '주차 어려움', '화장실 있음',
-    '포토존 있음', '줄 없음', '줄 김', '입장료 있음',
-    '입장료 없음', '가이드 있음', '혼자 와도 좋음',
-    '커플 많음', '외국인 많음',
-  ],
+  cafe: ['아아맛집', '따아맛집', '크로와상맛집', '화장실 깨끗', '콘센트 있음', '혼자 와도 어색 안함', '줄 없음', '줄 김', '자리 많음', '자리 없음', '와이파이 빠름', '노트북 하기 좋음', '뷰 실화', '사진 잘 나옴', '직원 친절', '음악 좋음', '조용함', '시끄러움'],
+  bar_club: ['혼술하기 좋음', '분위기 미침', '웨이팅 있음', '웨이팅 없음', '음악 너무 큼', '음악 딱 좋음', '안주 맛있음', '가성비 좋음', '혼자 와도 어색 안함', '커플 많음', '직원 친절', '화장실 깨끗', '야외석 있음', '지금 자리 있음', '지금 자리 없음'],
+  restaurant: ['웨이팅 있음', '웨이팅 없음', '줄 김', '줄 없음', '양 많음', '가성비 실화', '맛 실화', '국물 진함', '매운맛 주의', '혼밥 하기 좋음', '단체석 있음', '화장실 깨끗', '포장 가능', '직원 친절', '재료 신선'],
+  park_picnic: ['사람 없어요', '사람 많아요', '자리 있음', '자리 없음', '바람 많이 붐', '날씨 딱 좋음', '그늘 있음', '그늘 없음', '강아지 많음', '조용함', '시끄러움', '화장실 있음', '편의점 근처', '돗자리 필수', '야경 좋음'],
+  river_beach: ['한강뷰 실화', '바다뷰 실화', '노을 지금 딱 좋음', '파도 잔잔', '바람 시원', '사람 많음', '사람 없음', '화장실 있음', '편의점 있음', '자전거 많음', '야경 미침', '사진 잘 나옴', '혼자 와도 좋음'],
+  accommodation: ['침대 깨끗', '직원 친절', '방음 잘 됨', '와이파이 빠름', '뷰 좋음', '청결 합격', '주차 가능', '조식 맛있음', '가성비 좋음'],
+  market: ['사람 많음', '사람 없음', '신선도 좋음', '먹거리 많음', '화장실 있음', '카드 됨', '구경 재밌음', '로컬 느낌', '야시장 분위기'],
+  culture_museum: ['줄 없음', '줄 김', '조용함', '전시 좋음', '사진 찍기 좋음', '화장실 깨끗', '에어컨 빵빵', '혼자 와도 좋음', '카페 있음', '기념품샵 있음'],
+  sports_fitness: ['기구 많음', '사람 많음', '사람 없음', '샤워실 깨끗', '직원 친절', '에어컨 빵빵', '운동 분위기 좋음', '초보자 환영', '가성비 좋음'],
+  shopping: ['세일 중', '사람 많음', '사람 없음', '주차 가능', '에어컨 빵빵', '화장실 깨끗', '직원 친절', '구경 재밌음', '가성비 좋음', '신상 있음'],
+  nature: ['산책하기 좋음', '사람 없어요', '뷰 실화', '공기 좋음', '날씨 딱 좋음', '길 평탄', '화장실 있음', '그늘 있음', '일몰 좋음', '사진 잘 나옴'],
+  landmark: ['사진 잘 나옴', '뷰 실화', '사람 많음', '사람 없음', '야경 미침', '주차 가능', '화장실 있음', '포토존 있음', '줄 없음', '줄 김', '입장료 없음', '혼자 와도 좋음'],
 };
 
-// 장소 유형에 맞는 해시태그 랜덤 선택 (4~5개)
 const getPlaceHashtags = (category?: string, seed?: number): string[] => {
   const type = classifyPlaceType(category);
   const pool = PLACE_HASHTAG_POOL[type];
-  // seed 기반 pseudo-random (같은 장소는 같은 태그 유지)
-  const s = seed ?? Math.floor(Date.now() / 300000); // 5분마다 갱신
-  const shuffled = [...pool].sort((a, b) => {
-    const ha = (a.charCodeAt(0) * 31 + s) % pool.length;
-    const hb = (b.charCodeAt(0) * 31 + s) % pool.length;
-    return ha - hb;
-  });
-  return shuffled.slice(0, 5);
+  const rng = (n: number) => {
+    const s = (seed ?? 42) + n * 31;
+    return ((s * 1103515245 + 12345) & 0x7fffffff) % pool.length;
+  };
+  const count = 4 + (rng(99) % 2);
+  const indices = new Set<number>();
+  let i = 0;
+  while (indices.size < count && i < 100) {
+    indices.add(rng(i++));
+  }
+  return Array.from(indices).map(idx => pool[idx]);
 };
 
-// 핫플레이스 도시별 큐레이션 데이터
-type HotplaceVenue = {
-  name: string;
-  category: string;
-  address: string;
-  description: string;
-  stats: { icon: string; text: string }[];
-};
-
-const HOTPLACE_DATA: Record<string, HotplaceVenue> = {
-  홍대: {
-    name: "핵인싸 클럽 FF",
-    category: "🍺 클럽 · 바",
-    address: "서울 마포구 와우산로 홍대입구역 3번 출구",
-    description: "홍대 골목 숨은 루프탑 바. 인스타 성지로 떠오른 네온 인테리어.",
-    stats: [
-      { icon: "💬", text: "지금 이 공간 반경 50m — ENFP 7명, ENTP 5명 감지 중. 대화 시작 확률 높은 구역" },
-      { icon: "⚡", text: "이 시간대 SPOT 신규 유입 속도 — 서울 전체 클럽 중 1위. 지금 이 순간이 피크" },
-      { icon: "🕐", text: "금요일 밤 11시, 지금 이 시간대가 역대 SPOT 밀도 최고 기록 시간대예요" },
-    ],
-  },
-  강남: {
-    name: "카페 그레이 가든",
-    category: "☕ 감성 카페",
-    address: "서울 강남구 선릉로 압구정로데오역 인근",
-    description: "압구정 골목 속 유럽풍 정원 카페. 인스타 릴스 촬영 명소.",
-    stats: [
-      { icon: "🧠", text: "이 카페 방문자 MBTI 1위 INFJ, 2위 ISFP — 감성 충전 목적 방문 비율 61%" },
-      { icon: "🤝", text: "혼자 방문한 사람 중 28%가 옆 테이블과 대화를 시작했어요 (SPOT 기록 기준)" },
-      { icon: "📍", text: "반경 100m 내 지금 SPOT 활성 유저 12명 — 강남 전체 카페 중 밀도 3위" },
-    ],
-  },
-  여의도: {
-    name: "한강 피크닉 스팟 B구역",
-    category: "🌿 야외 · 피크닉",
-    address: "서울 영등포구 여의도 한강공원 B구역",
-    description: "여의도 한강공원 숨은 피크닉 명당. 석양 뷰 최고.",
-    stats: [
-      { icon: "🌅", text: "일몰 직전 30분, 이 구역 SPOT 밀도가 하루 중 최고치 — 지금 ISFP 9명, INFP 6명 감지" },
-      { icon: "💬", text: "피크닉 매트 펼친 사람끼리 말 걸 확률 — 이 구역이 한강공원 전체 중 1위 (SPOT 집계)" },
-      { icon: "🎯", text: "오늘 이 시간대 같은 MBTI를 만날 확률 추정 68% — 지금 당장 가볼 만한 이유" },
-    ],
-  },
-  성수: {
-    name: "성수 어반 브루어리",
-    category: "🍺 크래프트 비어",
-    address: "서울 성동구 성수이로 뚝섬역 2번 출구",
-    description: "공장 개조 크래프트 비어 펍. 성수 힙스터들의 성지.",
-    stats: [
-      { icon: "🔥", text: "지금 이 펍 반경 30m — ENTJ 8명, ENTP 6명 집중. 성수 전체 SPOT 밀도 1위 구역" },
-      { icon: "🗣️", text: "이 공간 방문자 중 44%가 모르는 사람과 대화를 나눴어요 — 서울 바 중 대화 지수 최상위" },
-      { icon: "⚡", text: "퇴근 후 7~9시, ENTJ·ENTP 유형 급증 타임 — 지금이 SPOT 황금 시간대" },
-    ],
-  },
-  명동: {
-    name: "명동 이색 라멘 골목",
-    category: "🍜 맛집 · 라멘",
-    address: "서울 중구 명동8나길 명동역 8번 출구",
-    description: "외국인도 줄 서는 명동 골목 라멘집. 진한 돈코츠 국물.",
-    stats: [
-      { icon: "🌏", text: "대기줄 MBTI 분포 — ESTJ 31%, ISTJ 24%, ENTJ 18% (SPOT 대기 유저 집계 기준)" },
-      { icon: "💬", text: "평균 대기 22분 — 이 줄에서 옆 사람과 대화 시작한 비율 52%. 대기줄이 곧 만남의 광장" },
-      { icon: "🎯", text: "같은 MBTI끼리 자연스럽게 합석 성사율 — 명동 전체 맛집 중 1위 (SPOT 기록)" },
-    ],
-  },
-  부산: {
-    name: "해운대 루프탑 바 WAVE",
-    category: "🌊 루프탑 바",
-    address: "부산 해운대구 해운대해변로 해운대역 인근",
-    description: "해운대 바다 뷰 루프탑 바. 부산 여행 필수 코스.",
-    stats: [
-      { icon: "✈️", text: "여행 중 방문자 비율 78% — ENFP·ESFP 유형이 '부산 왔으면 여기'로 SPOT에 등록한 장소 1위" },
-      { icon: "🎯", text: "이 루프탑 SPOT 유저 재방문율 68% — '한 번 오면 또 오게 되는' 부산 바 1위" },
-      { icon: "🌊", text: "저녁 8시 이후 SPOT 밀도 3배 급증 — 지금 이 시간 반경 50m에 23명 감지 중" },
-    ],
-  },
-  대구: {
-    name: "동성로 빈티지 카페 거리",
-    category: "☕ 빈티지 카페",
-    address: "대구 중구 동성로 중앙로역 인근",
-    description: "대구 동성로 골목 빈티지 감성 카페 밀집 구역.",
-    stats: [
-      { icon: "🎨", text: "이 골목 SPOT 유저 MBTI 1위 INFP (34%), 2위 ISFP (27%) — 감성 유형 집중 구역" },
-      { icon: "📸", text: "오전 11시~오후 1시 자연광 타임, 이 시간대 SPOT 사진 공유 수 하루 중 최다" },
-      { icon: "🤫", text: "혼자 온 사람끼리 말 없이 같은 공간 공유하는 비율 — 대구 카페 중 1위. 조용한 연대감" },
-    ],
-  },
-  인천: {
-    name: "개항로 이색 포차",
-    category: "🍢 이색 포차",
-    address: "인천 중구 개항로 인천역 1번 출구",
-    description: "개항장 골목 옛 창고를 개조한 이색 포차. 인천 로컬 감성.",
-    stats: [
-      { icon: "🎸", text: "버스킹 시작 후 30분 내 SPOT 신규 등록 평균 +14명 — 음악이 사람을 불러모으는 공간" },
-      { icon: "🍻", text: "이 포차 방문자 중 ISTP·ESTP 비율 합산 49% — '말보다 분위기로 통하는' 유형 집중" },
-      { icon: "💬", text: "처음 온 사람이 단골처럼 어울리게 된 비율 63% — 인천 전체 포차 중 '낯선 사람 친해지기' 1위" },
-    ],
-  },
-  광주: {
-    name: "동명동 감성 카페 골목",
-    category: "☕ 감성 카페",
-    address: "광주 동구 동명동 충장로 인근",
-    description: "광주 예술의 거리 옆 감성 카페 골목. 로컬 아티스트 공간.",
-    stats: [
-      { icon: "🎨", text: "플리마켓 당일 SPOT 활성 유저 평소 대비 4.2배 급증 — INFJ·ENFJ 유형 집중 유입" },
-      { icon: "💡", text: "이 골목 방문자 중 '새로운 사람을 만나러 왔다'고 SPOT에 등록한 비율 — 광주 1위 (38%)" },
-      { icon: "🤝", text: "아티스트와 방문객이 자연스럽게 대화 시작한 비율 55% — 광주에서 가장 열린 공간" },
-    ],
-  },
-  대전: {
-    name: "성심당 옆 골목 디저트 투어",
-    category: "🍰 디저트 카페",
-    address: "대전 중구 은행동 성심당 인근",
-    description: "성심당 줄 서다 발견한 골목 디저트 카페들. 대전 여행 필수.",
-    stats: [
-      { icon: "🍞", text: "성심당 오픈런 대기줄 SPOT 등록자 중 ESFJ 35%, ENFJ 22% — '같이 기다리면 친해지는' 유형 집중" },
-      { icon: "💬", text: "대기 중 옆 사람과 디저트 추천 대화 시작 비율 67% — 대전 전체 맛집 대기줄 중 1위" },
-      { icon: "📍", text: "이 골목 반경 200m, 지금 SPOT 활성 유저 18명 — 대전 전체 핫플 중 밀도 압도적 1위" },
-    ],
-  },
-  울산: {
-    name: "태화강 국가정원 카페",
-    category: "🌿 자연 카페",
-    address: "울산 중구 태화동 태화강 국가정원 내",
-    description: "태화강 국가정원 안 힐링 카페. 대나무숲 뷰 인생샷 명소.",
-    stats: [
-      { icon: "🌿", text: "이 카페 SPOT 유저 MBTI 1위 ISFJ (31%), 2위 INFJ (26%) — 조용히 힐링하러 온 사람들의 공간" },
-      { icon: "🎋", text: "저녁 7시 이후 대나무숲 조명 점등 — 이 시간 SPOT 신규 등록 하루 중 최다, 지금 11명 감지" },
-      { icon: "🌙", text: "저녁 7시 이후 솔로 방문자 비율 71% — 혼자 와도 외롭지 않은 공간, 울산 SPOT 감성 1위" },
-    ],
-  },
-  수원: {
-    name: "행리단길 이색 맛집",
-    category: "🍽️ 이색 맛집",
-    address: "수원 팔달구 행궁동 수원화성 인근",
-    description: "수원화성 옆 행리단길 골목 이색 퓨전 맛집. 수원 로컬 핫플.",
-    stats: [
-      { icon: "🏰", text: "수원화성 야경 감상 후 이 골목 유입 비율 72% — ENTP·ENFP 유형이 '다음 코스'로 가장 많이 등록" },
-      { icon: "🍽️", text: "이 골목 합석 문화 정착 — 처음 온 솔로 방문자 중 합석 성사율 48%, 수원 1위" },
-      { icon: "🔥", text: "이 골목 SPOT 밀도 주말 저녁 기준 수원 전체 1위 — 지금 이 시간 반경 100m에 17명 감지" },
-    ],
-  },
-  고양: {
-    name: "일산 호수공원 피크닉 카페",
-    category: "🌿 호수뷰 카페",
-    address: "경기 고양시 일산동구 호수공원 인근",
-    description: "일산 호수공원 뷰 카페. 주말 피크닉 성지.",
-    stats: [
-      { icon: "🌊", text: "분수 쇼 시간(오후 2·4·6시) 전후 30분 — SPOT 밀도 평소 대비 2.8배 급증, 지금 ISFP 8명 감지" },
-      { icon: "🎯", text: "피크닉 매트 펼친 솔로 방문자 중 같은 MBTI와 자연스럽게 어울린 비율 — 경기도 1위 (41%)" },
-      { icon: "💬", text: "'강아지 때문에 대화 시작됐다'는 SPOT 후기 비율 — 이 공원이 경기도 전체 중 압도적 1위" },
-    ],
-  },
-  제주시: {
-    name: "제주 협재 해변 이색 카페",
-    category: "🌊 오션뷰 카페",
-    address: "제주 제주시 한림읍 협재리 협재해수욕장 인근",
-    description: "협재 해변 바로 앞 오션뷰 카페. 에메랄드빛 바다 뷰 인생샷.",
-    stats: [
-      { icon: "✈️", text: "제주 여행 중 SPOT 등록자 중 이 카페 방문 비율 — ENFP 1위, ESFP 2위. '제주 왔으면 여기'" },
-      { icon: "🌅", text: "일몰 1시간 전 SPOT 밀도 최고치 — 지금 이 시간 반경 100m에 ENFP 11명, ESFP 8명 감지" },
-      { icon: "🌊", text: "제주 여행자 SPOT 등록 장소 중 재방문 의향 1위 — '다음에 제주 오면 무조건 다시 올 곳'" },
-    ],
-  },
-};
+// Haversine 거리 계산 (미터 단위)
+function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 // 더미 데이터 타입
-type DummyMarker = {
-  mbti: string;
-  lat: number;
-  lng: number;
+interface DummySpot {
   id: number;
+  mbti: string;
   mood: string;
   mode: string;
   sign: string;
-  activity?: { emoji: string; text: string }; // 현재 행동 태그
-  avatar?: AvatarConfig;
-  placeName?: string;   // 실제 장소명 (고정 마커)
-  placeId?: string;     // Google Place ID (고정 마커)
-  category?: string;    // 장소 카테고리 (폴백 이미지용)
-  checkinTime?: number; // 체크인 시각 (ms timestamp)
-};
-
-// 더미 데이터 생성 (주요 도시 집약 + 전국 무작위 분포)
-const generateDummyData = (): DummyMarker[] => {
-  const data: DummyMarker[] = [];
-  let id = 0;
-  
-  // 대한민국 주요 도시 및 지역 (38개)
-  const cities = [
-    // 서울 (5개 지역)
-    { name: "홍대", lat: 37.5566, lng: 126.9236, count: [120, 200] },
-    { name: "강남", lat: 37.4979, lng: 127.0276, count: [120, 200] },
-    { name: "여의도", lat: 37.5219, lng: 126.9245, count: [80, 140] },
-    { name: "성수", lat: 37.5444, lng: 127.0557, count: [80, 140] },
-    { name: "명동", lat: 37.5838, lng: 127.0017, count: [60, 100] },
-    // 광역시
-    { name: "부산", lat: 35.1796, lng: 129.0756, count: [80, 140] },
-    { name: "대구", lat: 35.8714, lng: 128.6014, count: [80, 140] },
-    { name: "인천", lat: 37.4563, lng: 126.7052, count: [80, 140] },
-    { name: "광주", lat: 35.1595, lng: 126.8526, count: [60, 100] },
-    { name: "대전", lat: 36.3504, lng: 127.3845, count: [60, 100] },
-    { name: "울산", lat: 35.5384, lng: 129.3114, count: [50, 80] },
-    // 경기도
-    { name: "수원", lat: 37.2636, lng: 127.0286, count: [30, 60] },
-    { name: "성남", lat: 37.4386, lng: 127.1378, count: [25, 50] },
-    { name: "고양", lat: 37.6584, lng: 126.8320, count: [25, 50] },
-    { name: "용인", lat: 37.2411, lng: 127.1776, count: [25, 50] },
-    { name: "부천", lat: 37.4989, lng: 126.7831, count: [20, 40] },
-    { name: "안양", lat: 37.3943, lng: 126.9568, count: [20, 40] },
-    { name: "안산", lat: 37.3219, lng: 126.8309, count: [20, 40] },
-    { name: "평택", lat: 37.0703, lng: 127.1127, count: [15, 30] },
-    { name: "파주", lat: 37.7608, lng: 126.7800, count: [15, 30] },
-    // 강원도
-    { name: "춘천", lat: 37.8813, lng: 127.7300, count: [15, 30] },
-    { name: "강릉", lat: 37.7519, lng: 128.8761, count: [15, 30] },
-    { name: "원주", lat: 37.3422, lng: 127.9202, count: [10, 25] },
-    // 충청도
-    { name: "청주", lat: 36.6424, lng: 127.4890, count: [20, 40] },
-    { name: "천안", lat: 36.8151, lng: 127.1139, count: [15, 30] },
-    { name: "충주", lat: 36.9910, lng: 127.9258, count: [10, 25] },
-    // 경상도
-    { name: "창원", lat: 35.5396, lng: 128.6292, count: [20, 40] },
-    { name: "김해", lat: 35.2285, lng: 128.8811, count: [15, 30] },
-    { name: "진주", lat: 35.1800, lng: 128.1076, count: [10, 25] },
-    { name: "포항", lat: 36.0190, lng: 129.3435, count: [15, 30] },
-    { name: "경주", lat: 35.8562, lng: 129.2247, count: [15, 30] },
-    // 전라도
-    { name: "전주", lat: 35.8242, lng: 127.1480, count: [20, 40] },
-    { name: "군산", lat: 35.9761, lng: 126.7366, count: [10, 25] },
-    { name: "여수", lat: 34.7604, lng: 127.6622, count: [10, 25] },
-    { name: "순천", lat: 34.9507, lng: 127.4872, count: [10, 25] },
-    { name: "목포", lat: 34.8118, lng: 126.3922, count: [10, 25] },
-    // 제주도
-    { name: "제주시", lat: 33.4996, lng: 126.5312, count: [30, 60] },
-    { name: "서귀포", lat: 33.2541, lng: 126.5601, count: [15, 30] },
-  ];
-  
-  // 제주도 육지 경계 체크 함수
-  const isJejuLand = (lat: number, lng: number): boolean => {
-    if (lat < 33.20 || lat > 33.56 || lng < 126.15 || lng > 126.97) return false;
-    if (lat > 33.52) return false;
-    if (lat < 33.22) return false;
-    if (lng > 126.85 && lat > 33.45) return false;
-    if (lng > 126.90 && lat < 33.30) return false;
-    if (lng < 126.25 && lat > 33.45) return false;
-    if (lng < 126.20 && lat < 33.35) return false;
-    return true;
-  };
-
-  // 해당 도시의 고정 장소 필터링 함수
-  const getFixedPlacesNearCity = (cityLat: number, cityLng: number, radiusDeg = 0.25) =>
-    FIXED_PLACES.filter(p =>
-      Math.abs(p.lat - cityLat) < radiusDeg && Math.abs(p.lng - cityLng) < radiusDeg
-    );
-
-  cities.forEach((city) => {
-    const count = Math.floor(Math.random() * (city.count[1] - city.count[0] + 1)) + city.count[0];
-    const nearbyFixed = getFixedPlacesNearCity(city.lat, city.lng);
-
-    for (let i = 0; i < count; i++) {
-      const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
-      const mood = MOOD_LIST[Math.floor(Math.random() * MOOD_LIST.length)];
-      const mode = MODE_LIST[Math.floor(Math.random() * MODE_LIST.length)];
-      const sign = SIGN_LIST[Math.floor(Math.random() * SIGN_LIST.length)];
-      
-      let lat, lng;
-      let markerCategory: string | undefined;
-
-      // 80% 확률로 고정 장소 좌표에 배치 (카테고리 상속), 20%는 랜덤 배치
-      if (nearbyFixed.length > 0 && Math.random() < 0.80) {
-        // 카페/바/음식점 우선 선택 (90% 확률), 없으면 전체에서 선택
-        const venueFixed = nearbyFixed.filter(p => ['cafe', 'bar', 'restaurant', 'market'].includes(p.category));
-        const pool = venueFixed.length > 0 && Math.random() < 0.90 ? venueFixed : nearbyFixed;
-        const anchor = pool[Math.floor(Math.random() * pool.length)];
-        markerCategory = anchor.category;
-        const angle = Math.random() * Math.PI * 2;
-        // 반경 5m 이내에서 무작위 분산 (1도 ≈ 111,000m, 5m ÷ 111,000 ≈ 0.000045)
-        const dist = Math.sqrt(Math.random()) * 0.000045;
-        lat = anchor.lat + Math.sin(angle) * dist;
-        lng = anchor.lng + Math.cos(angle) * dist;
-      } else if (city.name === "제주시" || city.name === "서귀포") {
-        let attempts = 0;
-        do {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * 0.06;
-          lat = city.lat + Math.sin(angle) * dist;
-          lng = city.lng + Math.cos(angle) * dist;
-          attempts++;
-        } while (!isJejuLand(lat, lng) && attempts < 20);
-        if (!isJejuLand(lat, lng)) {
-          lat = city.lat + (Math.random() - 0.5) * 0.02;
-          lng = city.lng + (Math.random() - 0.5) * 0.02;
-        }
-      } else {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.pow(Math.random(), 0.6) * 0.18;
-        lat = city.lat + Math.sin(angle) * dist;
-        lng = city.lng + Math.cos(angle) * dist;
-      }
-      
-      // 체크인 시각: 1~90분 전 랜덤
-      const checkinTime = Date.now() - Math.floor(Math.random() * 90 + 1) * 60 * 1000;
-      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, activity: getRandomActivity(markerCategory), avatar: randomAvatarConfig(), checkinTime, category: markerCategory });
-    }
-  });
-  
-  // 홍대 기본 위치 1m 앞에 ENFP 고정 (랜딩페이지 예시용)
-  data.push({ 
-    mbti: "ENFP", 
-    lat: 37.5566 + 0.000009, 
-    lng: 126.9236, 
-    id: id++,
-    mood: "HAPPY",
-    mode: "산책 중",
-    sign: "모두 안녕하세요",
-    avatar: randomAvatarConfig()
-  });
-
-  // 실제 장소 고정 마커 추가
-  FIXED_PLACES.forEach(place => {
-    data.push({ ...place, id: id++ });
-  });
-  
-  return data;
-};
+  lat: number;
+  lng: number;
+  avatar: AvatarConfig;
+  placeName?: string;
+  category?: string;
+  activity: { emoji: string; text: string };
+  hashtags: string[];
+  nearbyCount: number;
+  createdAt: number;
+}
 
 // 팝업 데이터 타입
-type PopupData = {
+interface PopupData {
+  id: number;
   mbti: string;
   mood: string;
   mode: string;
   sign: string;
-  activity?: { emoji: string; text: string }; // 현재 행동 태그
-  distance: number;
   lat: number;
   lng: number;
-  screenX: number; // 클릭한 마커의 화면 X 좌표
-  screenY: number; // 클릭한 마커의 화면 Y 좌표
-  placeName?: string;  // 실제 장소명 (고정 마커)
-  category?: string;   // 장소 카테고리 (폴백용)
-  nearbyCount?: number; // 이 장소 반경 내 인원 수
-  nearbyMbtiDist?: Record<string, number>; // 반경 내 MBTI 분포
-  nearbyRecent?: Array<{ mbti: string; checkinTime: number }>; // 최근 체크인 타임라인
-  avatar?: AvatarConfig; // 아바타 정보
-  checkinTime?: number; // 체크인 시각 (ms timestamp)
-};
+  avatar?: AvatarConfig;
+  placeName?: string;
+  category?: string;
+  activity?: { emoji: string; text: string };
+  hashtags?: string[];
+  nearbyCount?: number;
+  distance: number;
+  createdAt?: number;
+  isReal?: boolean;
+}
 
-// 장소 사진 타입
-type PlacePhoto = {
-  url: string;
-  attribution: string;
-};
-
-// 실제 스팟 입력 폼 타입
-type SpotFormData = {
+// 스팟 폼 데이터 타입
+interface SpotFormData {
   mbti: string;
   mood: string;
   mode: string;
   sign: string;
-  activity: string; // 현재 행동 (직접 입력 or 선택)
+  activity: string;
   activityEmoji: string;
   avatar: AvatarConfig;
+}
+
+// 더미 데이터 생성 (서울시 실시간 API 연동 전 기본 분포)
+function generateDummyData(): DummySpot[] {
+  const spots: DummySpot[] = [];
+  let id = 1;
+
+  FIXED_PLACES.forEach((place, idx) => {
+    const count = 2 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < count; i++) {
+      const mbti = MBTI_TYPES[Math.floor(Math.random() * MBTI_TYPES.length)];
+      const latOffset = (Math.random() - 0.5) * 0.0004;
+      const lngOffset = (Math.random() - 0.5) * 0.0004;
+      const activity = getRandomActivity(place.category);
+      spots.push({
+        id: id++,
+        mbti,
+        mood: MOOD_LIST[Math.floor(Math.random() * MOOD_LIST.length)],
+        mode: MODE_LIST[Math.floor(Math.random() * MODE_LIST.length)],
+        sign: SIGN_LIST[Math.floor(Math.random() * SIGN_LIST.length)],
+        lat: place.lat + latOffset,
+        lng: place.lng + lngOffset,
+        avatar: randomAvatarConfig(),
+        placeName: place.placeName,
+        category: place.category,
+        activity,
+        hashtags: getPlaceHashtags(place.category, idx * 7 + i),
+        nearbyCount: 3 + Math.floor(Math.random() * 20),
+        createdAt: Date.now() - Math.floor(Math.random() * 3600000),
+      });
+    }
+  });
+
+  return spots;
+}
+
+// 도시 목록
+const CITIES = [
+  { name: "홍대", lat: 37.5566, lng: 126.9236 },
+  { name: "강남", lat: 37.4979, lng: 127.0276 },
+  { name: "여의도", lat: 37.5219, lng: 126.9245 },
+  { name: "성수", lat: 37.5444, lng: 127.0557 },
+  { name: "명동", lat: 37.5838, lng: 127.0017 },
+  { name: "부산", lat: 35.1796, lng: 129.0756 },
+  { name: "대구", lat: 35.8714, lng: 128.6014 },
+  { name: "인천", lat: 37.4563, lng: 126.7052 },
+  { name: "광주", lat: 35.1595, lng: 126.8526 },
+  { name: "대전", lat: 36.3504, lng: 127.3845 },
+  { name: "울산", lat: 35.5384, lng: 129.3114 },
+  { name: "수원", lat: 37.2636, lng: 127.0286 },
+  { name: "성남", lat: 37.4386, lng: 127.1378 },
+  { name: "고양", lat: 37.6584, lng: 126.8320 },
+  { name: "용인", lat: 37.2411, lng: 127.1776 },
+  { name: "부천", lat: 37.4989, lng: 126.7831 },
+  { name: "안양", lat: 37.3943, lng: 126.9568 },
+  { name: "안산", lat: 37.3219, lng: 126.8309 },
+  { name: "평택", lat: 37.0703, lng: 127.1127 },
+  { name: "파주", lat: 37.7608, lng: 126.7800 },
+  { name: "춘천", lat: 37.8813, lng: 127.7300 },
+  { name: "강릉", lat: 37.7519, lng: 128.8761 },
+  { name: "원주", lat: 37.3422, lng: 127.9202 },
+  { name: "청주", lat: 36.6424, lng: 127.4890 },
+  { name: "천안", lat: 36.8151, lng: 127.1139 },
+  { name: "충주", lat: 36.9910, lng: 127.9258 },
+  { name: "창원", lat: 35.5396, lng: 128.6292 },
+  { name: "김해", lat: 35.2285, lng: 128.8811 },
+  { name: "진주", lat: 35.1800, lng: 128.1076 },
+  { name: "포항", lat: 36.0190, lng: 129.3435 },
+  { name: "경주", lat: 35.8562, lng: 129.2247 },
+  { name: "전주", lat: 35.8242, lng: 127.1480 },
+  { name: "군산", lat: 35.9761, lng: 126.7366 },
+  { name: "여수", lat: 34.7604, lng: 127.6622 },
+  { name: "순천", lat: 34.9507, lng: 127.4872 },
+  { name: "목포", lat: 34.8118, lng: 126.3922 },
+  { name: "제주시", lat: 33.4996, lng: 126.5312 },
+  { name: "서귀포", lat: 33.2541, lng: 126.5601 },
+];
+
+// 서울시 실시간 API 연동 장소 매핑
+const SEOUL_CITY_API_PLACES: Record<string, string[]> = {
+  "홍대": ["홍대 관광특구", "연남동"],
+  "성수": ["성수카페거리"],
 };
 
-// 체류 시간 라이브 카운터 컴포넌트
-function LiveDwellCounter({ checkinTime, mbtiColor }: { checkinTime: number; mbtiColor: string }) {
-  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - checkinTime) / 1000));
+// 경과 시간 포맷
+function formatElapsed(ms: number): string {
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `${sec}초 전`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  return `${hr}시간 전`;
+}
 
+// 경과 시간 표시 컴포넌트
+function ElapsedTimer({ createdAt, mbtiColor }: { createdAt: number; mbtiColor: string }) {
+  const [elapsed, setElapsed] = useState(Date.now() - createdAt);
   useEffect(() => {
-    const timer = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - checkinTime) / 1000));
-    }, 1000);
+    const timer = setInterval(() => setElapsed(Date.now() - createdAt), 1000);
     return () => clearInterval(timer);
-  }, [checkinTime]);
-
-  const formatElapsed = (secs: number) => {
-    if (secs < 60) return `${secs}초`;
-    const mins = Math.floor(secs / 60);
-    const remainSecs = secs % 60;
-    if (mins < 60) return remainSecs > 0 ? `${mins}분 ${remainSecs}초` : `${mins}분`;
-    const hours = Math.floor(mins / 60);
-    const remainMins = mins % 60;
-    return remainMins > 0 ? `${hours}시간 ${remainMins}분` : `${hours}시간`;
-  };
-
-  // 체류 시간 기반 배지
-  const mins = Math.floor(elapsed / 60);
-  const badge = mins >= 60
-    ? { emoji: '🏠', label: '여기 살아요?', color: '#ff6b35', glow: 'rgba(255,107,53,0.6)' }
-    : mins >= 30
-    ? { emoji: '🔥', label: '오래 있는 중', color: '#ff4500', glow: 'rgba(255,69,0,0.6)' }
-    : null;
-
+  }, [createdAt]);
   return (
-    <div
-      className="rounded-xl p-2"
-      style={{
-        background: `${mbtiColor}0d`,
-        border: `1px solid ${mbtiColor}33`,
-      }}
-    >
-      <div className="text-[9px] font-bold text-gray-600 mb-1 tracking-widest">⏱️ 이 장소에 머문 시간</div>
-
-      {/* 체류 시간 배지 - 30분 이상일 때만 표시 */}
-      {badge && (
-        <div
-          className="flex items-center gap-1.5 mb-1.5 px-2 py-1 rounded-lg"
-          style={{
-            background: `${badge.color}18`,
-            border: `1px solid ${badge.color}55`,
-          }}
-        >
-          <span style={{ fontSize: '13px' }}>{badge.emoji}</span>
-          <span
-            className="text-[10px] font-black tracking-wide"
-            style={{
-              color: badge.color,
-            }}
-          >
-            {badge.label}
-          </span>
-        </div>
-      )}
-
-      <div className="flex items-center gap-2">
-        {/* 폄스 애니메이션 도트 */}
-        <div
-          style={{
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            background: mbtiColor,
-            animation: 'pulse-dot 1.5s ease-in-out infinite',
-            flexShrink: 0,
-          }}
-        />
-        <div
-          className="text-sm font-black tabular-nums"
-          style={{
-            color: mbtiColor,
-            letterSpacing: '0.02em',
-          }}
-        >
-          {formatElapsed(elapsed)}
-        </div>
-        <div className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>지나는 중</div>
+    <div className="flex items-center gap-2">
+      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: mbtiColor, animation: 'pulse-dot 1.5s ease-in-out infinite', flexShrink: 0 }} />
+      <div className="text-sm font-black tabular-nums" style={{ color: mbtiColor, letterSpacing: '0.02em' }}>
+        {formatElapsed(elapsed)}
       </div>
+      <div className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>지나는 중</div>
     </div>
   );
 }
 
 export default function MvpMap() {
   const [screen, setScreen] = useState<Screen>("splash");
-  const [splashFading, setSplashFading] = useState(false); // 스플래시 페이드아웃용
-  const [mapVisible, setMapVisible] = useState(false); // 지도 화면 페이드인용
+  const [splashFading, setSplashFading] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
   const trackGps = trpc.log.trackGps.useMutation();
   const trackEvent = trpc.log.trackEvent.useMutation();
   const submitSpot = trpc.spot.submit.useMutation();
@@ -766,62 +400,59 @@ export default function MvpMap() {
   const [avatarTabSliding, setAvatarTabSliding] = useState(false);
   const [avatarSlideDir, setAvatarSlideDir] = useState<'left' | 'right'>('right');
   const [spotSubmitted, setSpotSubmitted] = useState(false);
-  const realSpotMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedMBTI, setSelectedMBTI] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedMarker, setSelectedMarker] = useState<{mbti: string, distance: number} | null>(null);
-  // 팝업 상태
+  const [selectedMarker, setSelectedMarker] = useState<{ mbti: string; distance: number } | null>(null);
   const [popupData, setPopupData] = useState<PopupData | null>(null);
-  const [popupVisible, setPopupVisible] = useState(false); // 팝업 페이드 애니메이션용
-  const [popupExpanded, setPopupExpanded] = useState(false); // 팝업 확장 상태
-  const [popupTagVotes, setPopupTagVotes] = useState<Record<string, number>>({}); // 해시태그 동의 카운트
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupExpanded, setPopupExpanded] = useState(false);
+  const [popupTagVotes, setPopupTagVotes] = useState<Record<string, number>>({});
   const popupCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [popupAddress, setPopupAddress] = useState<string | null>(null);
-  const [placePhotos, setPlacePhotos] = useState<PlacePhoto[]>([]);
-  const [photoLoading, setPhotoLoading] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [popupPlaceName, setPopupPlaceName] = useState<string | null>(null);
 
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
-  const cityLabelsRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  // 카카오맵 refs
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const realSpotMarkersRef = useRef<any[]>([]);
+  const userMarkerRef = useRef<any>(null);
+  const cityLabelsRef = useRef<any[]>([]);
   const watchIdRef = useRef<number | null>(null);
+
   const [currentZoom, setCurrentZoom] = useState(15.0);
   const [hotspotCityNames, setHotspotCityNames] = useState<string[]>([]);
   const [showHotplacePopup, setShowHotplacePopup] = useState(false);
   const [selectedHotplaceTab, setSelectedHotplaceTab] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
-  const [searchVisible, setSearchVisible] = useState(false); // 검색창 페이드용
-  const [hotplaceVisible, setHotplaceVisible] = useState(false); // 핵플 바텀시트 페이드용
-  const [spotFormVisible, setSpotFormVisible] = useState(false); // 스팟 폼 페이드용
-  const [consentVisible, setConsentVisible] = useState(false); // GPS 동의 팝업 페이드용
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [hotplaceVisible, setHotplaceVisible] = useState(false);
+  const [spotFormVisible, setSpotFormVisible] = useState(false);
+  const [consentVisible, setConsentVisible] = useState(false);
   const spotFormCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const consentCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // 팝업 화면 좌표 (지도 이동 시 실시간 업데이트)
-  const [popupScreenPos, setPopupScreenPos] = useState<{x: number, y: number} | null>(null);
-  const popupBoundsListenerRef = useRef<google.maps.MapsEventListener | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<{name: string; lat: number; lng: number}[]>([]);
+  const [searchResults, setSearchResults] = useState<{ name: string; lat: number; lng: number }[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const searchPanelRef = useRef<HTMLDivElement | null>(null);
   const sheetRef = useRef<HTMLDivElement | null>(null);
-  const dummyDataRef = useRef<ReturnType<typeof generateDummyData>>([]);
-  const swipeTouchStartY = useRef<number | null>(null);
-  const swipeTranslateY = useRef(0);
-  const [sheetTranslateY, setSheetTranslateY] = useState(0);
-  const [showSpotFeed, setShowSpotFeed] = useState(false); // 숏폼 뷰어 표시 여부
-  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null); // Places 서비스 ref
+  const dummyDataRef = useRef<DummySpot[]>([]);
+  const [showSpotFeed, setShowSpotFeed] = useState(false);
 
-  // 초기 지도 시점: 서울 중심부 (홍대~서울역~경복궁 구간)
+  // 서울시 실시간 데이터 상태
+  const [seoulCityData, setSeoulCityData] = useState<Record<string, any>>({});
+  const [seoulBanner, setSeoulBanner] = useState<{ text: string; color: string; icon: string } | null>(null);
+
+  // 서울시 실시간 데이터 조회 (홍대 관광특구, 연남동, 성수카페거리)
+  const { data: hongdaeData } = trpc.citydata.getDistrict.useQuery({ area: "홍대 관광특구" }, { refetchInterval: 300000 });
+  const { data: yeonnamData } = trpc.citydata.getDistrict.useQuery({ area: "연남동" }, { refetchInterval: 300000 });
+  const { data: seongsuData } = trpc.citydata.getDistrict.useQuery({ area: "성수카페거리" }, { refetchInterval: 300000 });
+
   const HONGDAE_CENTER = { lat: 37.5400, lng: 126.9700 };
-
-  // 화면 높이 계산
-  const [screenHeight, setScreenHeight] = useState(
-    typeof window !== "undefined" ? window.innerHeight : 800
-  );
+  const [screenHeight, setScreenHeight] = useState(typeof window !== "undefined" ? window.innerHeight : 800);
 
   useEffect(() => {
     const handleResize = () => setScreenHeight(window.innerHeight);
@@ -829,72 +460,51 @@ export default function MvpMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // lat/lng → 화면 픽셀 변환 함수
-  const latLngToScreenPos = useCallback((lat: number, lng: number): {x: number, y: number} | null => {
-    const map = mapRef.current;
-    if (!map) return null;
-    const projection = map.getProjection();
-    const bounds = map.getBounds();
-    if (!projection || !bounds) return null;
-    const mapDiv = map.getDiv();
-    const mapRect = mapDiv.getBoundingClientRect(); // 지도 div의 븷포트 기준 오프셋
-    const mapWidth = mapRect.width;
-    const mapHeight = mapRect.height;
-    const ne = bounds.getNorthEast();
-    const sw = bounds.getSouthWest();
-    const nePoint = projection.fromLatLngToPoint(ne)!;
-    const swPoint = projection.fromLatLngToPoint(sw)!;
-    const worldWidth = nePoint.x - swPoint.x;
-    const worldHeight = swPoint.y - nePoint.y;
-    const point = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng))!;
-    // 지도 div 내 상대 좌표
-    const relX = ((point.x - swPoint.x) / worldWidth) * mapWidth;
-    const relY = ((point.y - nePoint.y) / worldHeight) * mapHeight;
-    // 븷포트 기준 절대 좌표 (fixed 포지셔닝에 사용)
-    const x = mapRect.left + relX;
-    const y = mapRect.top + relY;
-    return { x, y };
-  }, []);
+  // 서울시 실시간 데이터 → 배너 업데이트
+  useEffect(() => {
+    const allData: Record<string, any> = {};
+    if (hongdaeData?.success) allData["홍대 관광특구"] = hongdaeData;
+    if (yeonnamData?.success) allData["연남동"] = yeonnamData;
+    if (seongsuData?.success) allData["성수카페거리"] = seongsuData;
+    setSeoulCityData(allData);
 
-  // 팝업 페이드인/아웃 애니메이션 + bounds 리스너 등록
+    // 현재 지도 중심 기준 가장 가까운 장소의 혼잡도 배너 설정
+    const entries = Object.entries(allData);
+    if (entries.length === 0) return;
+
+    // 첫 번째 데이터로 배너 설정
+    const [placeName, data] = entries[0];
+    const congestion = data?.AREA_CONGEST_LVL || "";
+    let icon = "🟢";
+    let color = "#00c896";
+    let text = "";
+    if (congestion.includes("붐빔")) { icon = "🔴"; color = "#ff4500"; text = `${placeName} 지금 매우 붐빔`; }
+    else if (congestion.includes("약간 붐빔")) { icon = "🟠"; color = "#ff9f43"; text = `${placeName} 약간 붐빔`; }
+    else if (congestion.includes("보통")) { icon = "🟡"; color = "#ffd700"; text = `${placeName} 보통 혼잡`; }
+    else if (congestion.includes("여유")) { icon = "🟢"; color = "#00c896"; text = `${placeName} 여유 있음`; }
+    else { text = `${placeName} 실시간 데이터 로딩 중`; }
+
+    if (text) setSeoulBanner({ text, color, icon });
+  }, [hongdaeData, yeonnamData, seongsuData]);
+
+  // 팝업 페이드인/아웃
   useEffect(() => {
     if (popupData) {
       if (popupCloseTimerRef.current) clearTimeout(popupCloseTimerRef.current);
-      // 기존 listener 정리
-      if (popupBoundsListenerRef.current) {
-        google.maps.event.removeListener(popupBoundsListenerRef.current);
-        popupBoundsListenerRef.current = null;
-      }
-      // 초기 위치 설정
-      const pos = latLngToScreenPos(popupData.lat, popupData.lng);
-      if (pos) setPopupScreenPos(pos);
-      // 지도 이동/줄 시마다 위치 업데이트
-      if (mapRef.current) {
-        popupBoundsListenerRef.current = mapRef.current.addListener('bounds_changed', () => {
-          const newPos = latLngToScreenPos(popupData.lat, popupData.lng);
-          if (newPos) setPopupScreenPos(newPos);
-        });
-      }
       requestAnimationFrame(() => setPopupVisible(true));
     }
-  }, [popupData, latLngToScreenPos]);
+  }, [popupData]);
 
   // 검색창 페이드인/아웃
   useEffect(() => {
-    if (showSearch) {
-      requestAnimationFrame(() => setSearchVisible(true));
-    } else {
-      setSearchVisible(false);
-    }
+    if (showSearch) requestAnimationFrame(() => setSearchVisible(true));
+    else setSearchVisible(false);
   }, [showSearch]);
 
-  // 핵플 바텀시트 페이드인/아웃
+  // 핫플 바텀시트 페이드인/아웃
   useEffect(() => {
-    if (showHotplacePopup) {
-      requestAnimationFrame(() => setHotplaceVisible(true));
-    } else {
-      setHotplaceVisible(false);
-    }
+    if (showHotplacePopup) requestAnimationFrame(() => setHotplaceVisible(true));
+    else setHotplaceVisible(false);
   }, [showHotplacePopup]);
 
   // 스팟 폼 페이드인/아웃
@@ -902,9 +512,7 @@ export default function MvpMap() {
     if (showSpotForm) {
       if (spotFormCloseTimerRef.current) clearTimeout(spotFormCloseTimerRef.current);
       requestAnimationFrame(() => setSpotFormVisible(true));
-    } else {
-      setSpotFormVisible(false);
-    }
+    } else setSpotFormVisible(false);
   }, [showSpotForm]);
 
   // GPS 동의 팝업 페이드인/아웃
@@ -912,1226 +520,451 @@ export default function MvpMap() {
     if (showConsentPopup) {
       if (consentCloseTimerRef.current) clearTimeout(consentCloseTimerRef.current);
       requestAnimationFrame(() => setConsentVisible(true));
-    } else {
-      setConsentVisible(false);
-    }
+    } else setConsentVisible(false);
   }, [showConsentPopup]);
 
-  // GPS 동의 여부 ref (handleConsent 클로저에서 최신 값 참조용)
   const gpsAgreedRef = useRef<boolean>(false);
-  // GPS 재시도 타이머 ref
   const gpsRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 스플래시 → 지도 전환 + GPS 팝업 (마운트 기반, SPA 재방문 시에도 항상 동작)
+  // 스플래시 → 지도 전환
   useEffect(() => {
-    // 이전 GPS watch 완전 정리
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
-    if (gpsRetryTimerRef.current) {
-      clearTimeout(gpsRetryTimerRef.current);
-      gpsRetryTimerRef.current = null;
-    }
+    if (gpsRetryTimerRef.current) { clearTimeout(gpsRetryTimerRef.current); gpsRetryTimerRef.current = null; }
     gpsAgreedRef.current = false;
-
     const checkLogId = () => {
       const id = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
       if (id) mvpLogIdRef.current = id;
     };
     const idTimer = setTimeout(checkLogId, 500);
-    // 1.7초 후 페이드아웃 시작, 2초 후 실제 화면 전환
     const fadeTimer = setTimeout(() => setSplashFading(true), 1700);
-    const timer = setTimeout(() => {
-      setScreen("map");
-      // 지도 화면 페이드인
-      requestAnimationFrame(() => setMapVisible(true));
-    }, 2000);
-    // 마운트 기준 5.8초 후 GPS 동의 팝업 (2초 스플래시 + 3.8초 대기)
+    const timer = setTimeout(() => { setScreen("map"); requestAnimationFrame(() => setMapVisible(true)); }, 2000);
     const consentTimer = setTimeout(() => setShowConsentPopup(true), 5800);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(idTimer);
-      clearTimeout(fadeTimer);
-      clearTimeout(consentTimer);
-    };
+    return () => { clearTimeout(timer); clearTimeout(idTimer); clearTimeout(fadeTimer); clearTimeout(consentTimer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // bfcache(뒤로가기 캐시) 복원 시 GPS 팝업 재표시 및 GPS 재시작
-  useEffect(() => {
-    const handlePageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) {
-        // bfcache에서 복원된 경우 - GPS 상태 초기화 후 팝업 재표시
-        if (watchIdRef.current !== null) {
-          navigator.geolocation.clearWatch(watchIdRef.current);
-          watchIdRef.current = null;
-        }
-        if (gpsRetryTimerRef.current) {
-          clearTimeout(gpsRetryTimerRef.current);
-          gpsRetryTimerRef.current = null;
-        }
-        gpsAgreedRef.current = false;
-        // 1초 후 GPS 팝업 재표시
-        setTimeout(() => setShowConsentPopup(true), 1000);
-      }
-    };
-    window.addEventListener('pageshow', handlePageShow);
-    return () => window.removeEventListener('pageshow', handlePageShow);
-  }, []);
-
-  // 스팟 폼은 CTA 버튼으로 수동 오픈
-
-  // 팝업 닫기 - 페이드아웃 후 데이터 제거
-  const closePopup = useCallback(() => {
-    setPopupVisible(false);
-    // bounds listener 정리
-    if (popupBoundsListenerRef.current) {
-      google.maps.event.removeListener(popupBoundsListenerRef.current);
-      popupBoundsListenerRef.current = null;
-    }
-    setPopupScreenPos(null);
-    popupCloseTimerRef.current = setTimeout(() => {
-      setPopupData(null);
-    }, 180); // 페이드아웃 duration과 맞춰
-  }, []);
-
-  // GPS 시작 함수 (재사용 가능하도로 분리)
+  // GPS 추적 시작
   const startGpsWatch = useCallback((agreed: boolean) => {
-    if (!navigator.geolocation) {
-      if (agreed) toast.error("📍 이 브라우저는 GPS를 지원하지 않습니다.", { duration: 5000 });
-      return;
-    }
-
-    // 이전 watch 정리
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
-    if (gpsRetryTimerRef.current) {
-      clearTimeout(gpsRetryTimerRef.current);
-      gpsRetryTimerRef.current = null;
-    }
-
-    const isFirstRef = { current: true };
-
-    const onSuccess = (position: GeolocationPosition) => {
-      // 성공 시 재시도 타이머 취소
-      if (gpsRetryTimerRef.current) {
-        clearTimeout(gpsRetryTimerRef.current);
-        gpsRetryTimerRef.current = null;
+    const onSuccess = (pos: GeolocationPosition) => {
+      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+      setUserLocation({ lat, lng });
+      if (userMarkerRef.current && mapRef.current) {
+        userMarkerRef.current.setPosition(new window.kakao.maps.LatLng(lat, lng));
       }
-
-      const newLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      };
-
-      setUserLocation(newLocation);
-
-      if (userMarkerRef.current) {
-        userMarkerRef.current.position = newLocation;
-      }
-
-      if (isFirstRef.current) {
-        isFirstRef.current = false;
-
-        if (mapRef.current) {
-          mapRef.current.setCenter(newLocation);
-          mapRef.current.setZoom(15);
-        }
-
-        if (agreed) {
-          toast.dismiss('gps-loading');
-          toast.success("✅ 내 위치로 이동했어요!", { duration: 2000 });
-        }
-
-        // GPS 좌표 서버 저장 (1회)
-        const saveGps = (id: number) => {
-          trackGps.mutate({ logId: id, lat: newLocation.lat, lng: newLocation.lng });
-        };
-        const latestLogId = Number(sessionStorage.getItem('spotLogId_/mvp') || sessionStorage.getItem('spotLogId') || '0');
-        if (latestLogId) mvpLogIdRef.current = latestLogId;
-        const existingLogId = mvpLogIdRef.current;
-        if (existingLogId) {
-          saveGps(existingLogId);
-        } else {
-          fetch('/api/trpc/log.track?batch=1', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ "0": { json: { pathname: '/mvp' } } }),
-          }).then(r => r.json()).then(data => {
-            const newLogId = data?.[0]?.result?.data?.json?.logId;
-            if (newLogId) {
-              mvpLogIdRef.current = newLogId;
-              saveGps(newLogId);
-            }
-          }).catch(() => {});
-        }
+      if (agreed && accuracy < 100) {
+        // trackGps requires logId - skip for now
+        // trackGps.mutate({ lat, lng, accuracy, page: '/mvp' });
       }
     };
-
-    const onError = (error: GeolocationPositionError) => {
-      console.log("GPS watch error:", error.code, error.message);
-      toast.dismiss('gps-loading');
-      watchIdRef.current = null;
-
-      if (error.code === error.PERMISSION_DENIED) {
-        // 권한 거부 - 재시도 불가
-        if (agreed) {
-          toast.error("📍 GPS 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.", { duration: 5000 });
-        }
-      } else {
-        // GPS 꺼짐 / 신호 없음 - 3초 후 자동 재시도
-        if (agreed) {
-          toast.error("📍 GPS를 켜주세요. 켜지면 자동으로 위치를 받아와요.", { duration: 4000 });
-        }
-        // GPS가 켜지면 자동으로 재시도 (3초 간격)
-        gpsRetryTimerRef.current = setTimeout(() => {
-          if (gpsAgreedRef.current) {
-            startGpsWatch(true);
-          }
-        }, 3000);
-      }
+    const onError = () => {
+      if (gpsRetryTimerRef.current) clearTimeout(gpsRetryTimerRef.current);
+      gpsRetryTimerRef.current = setTimeout(() => {
+        if (!gpsAgreedRef.current) return;
+        watchIdRef.current = navigator.geolocation.watchPosition(onSuccess, onError, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+      }, 3000);
     };
-
-    if (agreed) {
-      toast.loading("📍 GPS 연결 중...", { id: 'gps-loading', duration: 10000 });
-    }
-
-    // 저정밀 모드로 즉시 첫 응답 수신 (enableHighAccuracy: false → 빠름)
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      onSuccess,
-      (lowAccuracyError) => {
-        // 저정밀 실패 시 고정밀로 폴백
-        if (watchIdRef.current !== null) {
-          navigator.geolocation.clearWatch(watchIdRef.current);
-          watchIdRef.current = null;
-        }
-        if (lowAccuracyError.code === lowAccuracyError.PERMISSION_DENIED) {
-          onError(lowAccuracyError);
-          return;
-        }
-        // 고정밀 모드로 재시도
-        watchIdRef.current = navigator.geolocation.watchPosition(
-          onSuccess,
-          onError,
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      },
-      { enableHighAccuracy: false, timeout: 3000, maximumAge: 5000 }
-    );
+    watchIdRef.current = navigator.geolocation.watchPosition(onSuccess, onError, { enableHighAccuracy: false, timeout: 3000, maximumAge: 5000 });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackGps]);
 
-  // GPS 동의 처리
   const handleConsent = useCallback((agreed: boolean) => {
     setShowConsentPopup(false);
     gpsAgreedRef.current = agreed;
-
-    // 이벤트 트래킹은 GPS와 독립적으로 비동기 실행
     trackEvent.mutate({ eventName: agreed ? 'click_GPS_동의' : 'click_GPS_미동의', page: '/mvp' });
-
-    // 동의/미동의 모두 GPS watchPosition 시작 (위치 수신 시도)
     startGpsWatch(agreed);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startGpsWatch, trackEvent]);
 
-  // 컴포넌트 언마운트 시 GPS 추적 중지 + 재시도 타이머 정리
   useEffect(() => {
     return () => {
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
-      }
-      if (gpsRetryTimerRef.current) {
-        clearTimeout(gpsRetryTimerRef.current);
-        gpsRetryTimerRef.current = null;
-      }
+      if (watchIdRef.current !== null) { navigator.geolocation.clearWatch(watchIdRef.current); watchIdRef.current = null; }
+      if (gpsRetryTimerRef.current) { clearTimeout(gpsRetryTimerRef.current); gpsRetryTimerRef.current = null; }
       gpsAgreedRef.current = false;
     };
   }, []);
 
-  // HOTSPOT 도시 (랜덤 3곳, 컴포넌트 마운트 시 1회 결정)
+  // HOTSPOT 도시 선정
   const hotspotCitiesRef = useRef<string[] | null>(null);
   const getHotspotCities = useCallback((cityNames: string[]) => {
     if (hotspotCitiesRef.current) return hotspotCitiesRef.current;
-    // 주요 도시 중에서만 선정 (서울 5곳 + 광역시 + 수원/성남/고양 등 인지도 높은 곳)
-    const candidateCities = [
-      "홍대", "강남", "여의도", "성수", "명동",
-      "부산", "대구", "인천", "광주", "대전", "울산",
-      "수원", "고양", "제주시"
-    ].filter(c => cityNames.includes(c));
-    const shuffled = [...candidateCities].sort(() => Math.random() - 0.5);
+    const candidates = ["홍대", "강남", "여의도", "성수", "명동", "부산", "대구", "인천", "광주", "대전", "울산", "수원", "고양", "제주시"].filter(c => cityNames.includes(c));
+    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
     hotspotCitiesRef.current = shuffled.slice(0, 3);
     return hotspotCitiesRef.current;
   }, []);
 
-  // 도시별 MBTI 개수 집계
+  // 도시별 MBTI 집계
   const aggregateCityData = useCallback(() => {
     const dummyData = generateDummyData();
     const cityStats: Record<string, Record<string, number>> = {};
-    
-    const cities = [
-      { name: "홍대", lat: 37.5566, lng: 126.9236 },
-      { name: "강남", lat: 37.4979, lng: 127.0276 },
-      { name: "여의도", lat: 37.5219, lng: 126.9245 },
-      { name: "성수", lat: 37.5444, lng: 127.0557 },
-      { name: "명동", lat: 37.5838, lng: 127.0017 },
-      { name: "부산", lat: 35.1796, lng: 129.0756 },
-      { name: "대구", lat: 35.8714, lng: 128.6014 },
-      { name: "인천", lat: 37.4563, lng: 126.7052 },
-      { name: "광주", lat: 35.1595, lng: 126.8526 },
-      { name: "대전", lat: 36.3504, lng: 127.3845 },
-      { name: "울산", lat: 35.5384, lng: 129.3114 },
-      { name: "수원", lat: 37.2636, lng: 127.0286 },
-      { name: "성남", lat: 37.4386, lng: 127.1378 },
-      { name: "고양", lat: 37.6584, lng: 126.8320 },
-      { name: "용인", lat: 37.2411, lng: 127.1776 },
-      { name: "부천", lat: 37.4989, lng: 126.7831 },
-      { name: "안양", lat: 37.3943, lng: 126.9568 },
-      { name: "안산", lat: 37.3219, lng: 126.8309 },
-      { name: "평택", lat: 37.0703, lng: 127.1127 },
-      { name: "파주", lat: 37.7608, lng: 126.7800 },
-      { name: "춘천", lat: 37.8813, lng: 127.7300 },
-      { name: "강릉", lat: 37.7519, lng: 128.8761 },
-      { name: "원주", lat: 37.3422, lng: 127.9202 },
-      { name: "청주", lat: 36.6424, lng: 127.4890 },
-      { name: "천안", lat: 36.8151, lng: 127.1139 },
-      { name: "충주", lat: 36.9910, lng: 127.9258 },
-      { name: "창원", lat: 35.5396, lng: 128.6292 },
-      { name: "김해", lat: 35.2285, lng: 128.8811 },
-      { name: "진주", lat: 35.1800, lng: 128.1076 },
-      { name: "포항", lat: 36.0190, lng: 129.3435 },
-      { name: "경주", lat: 35.8562, lng: 129.2247 },
-      { name: "전주", lat: 35.8242, lng: 127.1480 },
-      { name: "군산", lat: 35.9761, lng: 126.7366 },
-      { name: "여수", lat: 34.7604, lng: 127.6622 },
-      { name: "순천", lat: 34.9507, lng: 127.4872 },
-      { name: "목포", lat: 34.8118, lng: 126.3922 },
-      { name: "제주시", lat: 33.4996, lng: 126.5312 },
-      { name: "서귀포", lat: 33.2541, lng: 126.5601 },
-    ];
-
-    cities.forEach(city => {
-      cityStats[city.name] = {};
-    });
-
+    CITIES.forEach(city => { cityStats[city.name] = {}; });
     dummyData.forEach(item => {
-      let closestCity = cities[0];
-      let minDistance = Infinity;
-
-      cities.forEach(city => {
-        const distance = Math.sqrt(
-          Math.pow(city.lat - item.lat, 2) + Math.pow(city.lng - item.lng, 2)
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestCity = city;
-        }
+      let closestCity = CITIES[0];
+      let minDist = Infinity;
+      CITIES.forEach(city => {
+        const d = Math.sqrt(Math.pow(city.lat - item.lat, 2) + Math.pow(city.lng - item.lng, 2));
+        if (d < minDist) { minDist = d; closestCity = city; }
       });
-
-      if (!cityStats[closestCity.name][item.mbti]) {
-        cityStats[closestCity.name][item.mbti] = 0;
-      }
+      if (!cityStats[closestCity.name][item.mbti]) cityStats[closestCity.name][item.mbti] = 0;
       cityStats[closestCity.name][item.mbti]++;
     });
-
-    return { cities, cityStats };
+    return { cities: CITIES, cityStats };
   }, []);
 
-  // 지도 준비 완료 시 마커 생성
-  const handleMapReady = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-    // PlacesService 초기화 (숏폼 뷰어에서 사진 로드용)
-    placesServiceRef.current = new google.maps.places.PlacesService(map);
+  // 카카오맵 초기화
+  useEffect(() => {
+    if (screen !== "map" || !mapContainerRef.current) return;
+
+    const container = mapContainerRef.current;
     const center = userLocation || HONGDAE_CENTER;
 
-    // 구글 맵 기본 UI 컨트롤 제거 (전체화면 버튼만 유지)
-    map.setOptions({
-      zoomControl: false,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: false,
-      keyboardShortcuts: false,
-      rotateControl: false,
-      panControl: false,
-      tilt: 0,
-      gestureHandling: 'greedy',
+    const initMap = () => {
+      if (!container || !window.kakao) return;
+      const kakao = window.kakao;
+
+      // 지도 생성
+      const mapOptions = {
+        center: new kakao.maps.LatLng(center.lat, center.lng),
+        level: 4,
+      };
+      const map = new kakao.maps.Map(container, mapOptions);
+      mapRef.current = map;
+
+      // 컨테이너 크기 재계산 (opacity 전환 후 크기가 0으로 인식될 수 있음)
+      setTimeout(() => {
+        map.relayout();
+        map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+      }, 150);
+
+    // 줌 이벤트
+    kakao.maps.event.addListener(map, 'zoom_changed', () => {
+      const level = map.getLevel();
+      setCurrentZoom(level);
     });
 
-    // 줄 레벨 변경 감지 - 정수 단위로만 업데이트해 핀치 중 과도한 리렌더링 방지
-    let lastZoomInt = -1;
-    map.addListener('zoom_changed', () => {
-      const zoom = map.getZoom() || 15;
-      const zoomInt = Math.floor(zoom);
-      if (zoomInt !== lastZoomInt) {
-        lastZoomInt = zoomInt;
-        setCurrentZoom(zoomInt);
-      }
-    });
-
-    // ===== 더블탭 줌인 (구글맵 기본 핀치줌은 그대로 사용) =====
-    const mapDiv = map.getDiv();
-
-    // 화면 px 좌표를 지도 LatLng로 변환 (더블탭 줌인에서 사용)
-    const pixelToLatLng = (px: number, py: number, zoom: number, center: google.maps.LatLng) => {
-      const scale = Math.pow(2, zoom);
-      const rect = mapDiv.getBoundingClientRect();
-      const mapW = rect.width;
-      const mapH = rect.height;
-      const centerX = mapW / 2;
-      const centerY = mapH / 2;
-      const dxPx = px - centerX;
-      const dyPx = py - centerY;
-      const metersPerPx = 156543.03392 / scale;
-      const dLng = (dxPx * metersPerPx) / (111320 * Math.cos(center.lat() * Math.PI / 180));
-      const dLat = -(dyPx * metersPerPx) / 111320;
-      return { lat: center.lat() + dLat, lng: center.lng() + dLng };
-    };
-    let lastTapTime = 0;
-    let lastTapX = 0;
-    let lastTapY = 0;
-    const onDoubleTap = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return;
-      const now = Date.now();
-      const tapX = e.touches[0].clientX;
-      const tapY = e.touches[0].clientY;
-      const dt = now - lastTapTime;
-      const dx = Math.abs(tapX - lastTapX);
-      const dy = Math.abs(tapY - lastTapY);
-      if (dt < 300 && dx < 40 && dy < 40) {
-        // 더블탭 감지 - 탭 위치 기준으로 줌인 (부드러운 애니메이션)
-        const rect = mapDiv.getBoundingClientRect();
-        const tapPxX = tapX - rect.left;
-        const tapPxY = tapY - rect.top;
-        const curZoom = map.getZoom() ?? 15;
-        const curCenter = map.getCenter();
-        if (curCenter) {
-          const tapLatLng = pixelToLatLng(tapPxX, tapPxY, curZoom, curCenter);
-          const newZoom = Math.min(21, curZoom + 1);
-          const scaleFactor = Math.pow(2, 1);
-          const newCenterLat = tapLatLng.lat - (tapLatLng.lat - curCenter.lat()) / scaleFactor;
-          const newCenterLng = tapLatLng.lng - (tapLatLng.lng - curCenter.lng()) / scaleFactor;
-          // panTo + setZoom 대신 moveCamera로 한번에 부드럽게 전환
-          // moveCamera는 즉각 반영이지만 panTo 애니메이션과 함께 쓰면 자연스러움
-          map.panTo({ lat: newCenterLat, lng: newCenterLng });
-          // 짧은 딜레이 후 줌 적용 → panTo 애니메이션과 겹쳐 부드럽게 보임
-          setTimeout(() => {
-            map.setZoom(newZoom);
-          }, 80);
-        }
-        lastTapTime = 0;
-      } else {
-        lastTapTime = now;
-        lastTapX = tapX;
-        lastTapY = tapY;
-      }
-    };
-    // 더블탭: passive:true로 등록
-    mapDiv.addEventListener('touchstart', onDoubleTap, { passive: true, capture: false });
-
-    // ===== 소수점 줌 커스텀 핀치줌 =====
-    // 구글맵 기본 핀치줌은 정수 스냅이라 조금만 핀치하면 손 떼면 원래 줌으로 돌아감
-    // touchmove passive:false + preventDefault로 구글맵 핀치를 막고 소수점 줌 직접 적용
-    let pinchStartDist = 0;
-    let pinchStartZoom = 0;
-    let pinchStartCenterLat = 0;
-    let pinchStartCenterLng = 0;
-    let pinchStartMidX = 0;
-    let pinchStartMidY = 0;
-    let isPinching = false;
-
-    const getPinchDist = (touches: TouchList) => {
-      const dx = touches[0].clientX - touches[1].clientX;
-      const dy = touches[0].clientY - touches[1].clientY;
-      return Math.sqrt(dx * dx + dy * dy);
-    };
-
-    const onPinchStart = (e: TouchEvent) => {
-      if (e.touches.length !== 2) return;
-      isPinching = true;
-      pinchStartDist = getPinchDist(e.touches);
-      pinchStartZoom = map.getZoom() ?? 15;
-      const center = map.getCenter();
-      pinchStartCenterLat = center ? center.lat() : 0;
-      pinchStartCenterLng = center ? center.lng() : 0;
-      pinchStartMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      pinchStartMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-    };
-
-    const onPinchMove = (e: TouchEvent) => {
-      if (!isPinching || e.touches.length !== 2) return;
-      e.preventDefault(); // 구글맵 기본 핀치줌 차단
-      const dist = getPinchDist(e.touches);
-      if (pinchStartDist === 0) return;
-      const ratio = dist / pinchStartDist;
-      // 반올림 없이 완전 연속 소수점 줌 → 구글맵 내부에서 정수 스냅 없이 연속 렌더링
-      const rawZoom = pinchStartZoom + Math.log2(ratio);
-      const newZoom = Math.max(3, Math.min(21, rawZoom));
-      // 두 손가락 중간점 기준으로 지도 중심 보정
-      const rect = mapDiv.getBoundingClientRect();
-      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      const scale = Math.pow(2, pinchStartZoom);
-      const metersPerPx = 156543.03392 / scale;
-      const cosLat = Math.cos(pinchStartCenterLat * Math.PI / 180);
-      const dxStart = pinchStartMidX - (rect.left + rect.width / 2);
-      const dyStart = pinchStartMidY - (rect.top + rect.height / 2);
-      const dxCur = midX - (rect.left + rect.width / 2);
-      const dyCur = midY - (rect.top + rect.height / 2);
-      const zoomFactor = Math.pow(2, newZoom - pinchStartZoom);
-      const newCenterLat = pinchStartCenterLat + (dyStart / zoomFactor - dyCur) * metersPerPx / 111320;
-      const newCenterLng = pinchStartCenterLng - (dxStart / zoomFactor - dxCur) * metersPerPx / (111320 * cosLat);
-      // setZoom/setCenter 대신 moveCamera로 한번에 적용 → 소수점 줌 연속 렌더링 보장
-      (map as any).moveCamera({
-        zoom: newZoom,
-        center: { lat: newCenterLat, lng: newCenterLng },
-      });
-    };
-
-    const onPinchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2) isPinching = false;
-    };
-
-    // capture: true로 등록 → 구글맵 내부 핸들러보다 먼저 실행되어 preventDefault()가 실제로 동작함
-    mapDiv.addEventListener('touchstart', onPinchStart, { passive: true, capture: true });
-    mapDiv.addEventListener('touchmove', onPinchMove, { passive: false, capture: true });
-    mapDiv.addEventListener('touchend', onPinchEnd, { passive: true, capture: true });
-
-    // 사용자 위치 마커
-    const userMarkerElement = document.createElement("div");
-    userMarkerElement.style.cssText = `
-      width: 20px;
-      height: 20px;
-      background: white;
-      border: 3px solid rgba(255,255,255,0.9);
-      border-radius: 50%;
-    `;
-
-    userMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: center,
-      content: userMarkerElement,
-      title: "내 위치",
-    });
-
-    // 더미 데이터 마커 (반경원 스타일 - 작고 채워진 원, MBTI 텍스트 없음)
+    // 더미 데이터 생성 및 마커 추가
     const dummyData = generateDummyData();
     dummyDataRef.current = dummyData;
-    dummyData.forEach((item) => {
-      const color = MBTI_COLORS[item.mbti];
-      const markerElement = document.createElement("div");
-      markerElement.className = "custom-marker";
-      markerElement.dataset.mbti = item.mbti;
-      if (item.category) markerElement.dataset.category = item.category;
-      // 아바타 SVG 마커
-      const avatarCfg = item.avatar || randomAvatarConfig();
-      const animalEmoji = ANIMALS.find(a => a.type === avatarCfg.animal)?.emoji || '🐶';
-      const accessoryEmoji = ACCESSORIES.find(a => a.type === avatarCfg.accessory)?.emoji || '';
-      const expressionEmoji = EXPRESSIONS.find(e => e.type === avatarCfg.expression)?.emoji || '😊';
-      const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
-      markerElement.style.cssText = `
-        width: 44px;
-        height: 52px;
-        cursor: pointer;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: all 0.2s;
-      `;
-      markerElement.innerHTML = `
-        <div style="
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: ${color}22;
-          border: 2.5px solid ${color};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-          position: relative;
-          overflow: visible;
-        ">
-          <span style="font-size:24px;line-height:1">${animalEmoji}</span>
-          ${accessoryEmoji ? `<span style="position:absolute;top:-7px;right:-5px;font-size:13px">${accessoryEmoji}</span>` : ''}
-          ${emojiVal ? `<span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:13px;background:rgba(0,0,0,0.75);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
-        </div>
-        <div style="
-          width: 0;
-          height: 0;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-top: 6px solid ${color};
-          margin-top: 1px;
-        "></div>
-      `;
 
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: { lat: item.lat, lng: item.lng },
-        content: markerElement,
-        title: item.mbti,
-      });
-
-      // 클릭 시 팝업 표시
-      markerElement.addEventListener("click", (e: Event) => {
-        const mouseEvent = e as MouseEvent;
-        const distance = Math.round(
-          google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(center.lat, center.lng),
-            new google.maps.LatLng(item.lat, item.lng)
-          )
-        );
-        // 반경 50m 내 마커 수 및 MBTI 분포 계산
-        const NEARBY_R = 0.0005;
-        const nearbyAllM = dummyDataRef.current.filter(d =>
-          Math.abs(d.lat - item.lat) < NEARBY_R && Math.abs(d.lng - item.lng) < NEARBY_R
-        );
-        const nearbyMbtiDistM: Record<string, number> = {};
-        nearbyAllM.forEach(d => { nearbyMbtiDistM[d.mbti] = (nearbyMbtiDistM[d.mbti] || 0) + 1; });
-        // 최근 체크인 타임라인: checkinTime 있는 것만, 최신순 정렬, 최대 5개
-        const nearbyRecent = nearbyAllM
-          .filter(d => d.checkinTime)
-          .sort((a, b) => (b.checkinTime ?? 0) - (a.checkinTime ?? 0))
-          .slice(0, 5)
-          .map(d => ({ mbti: d.mbti, checkinTime: d.checkinTime! }));
-        setSelectedMarker({ mbti: item.mbti, distance });
-        setPopupAddress(null);
-        setPlacePhotos([]);
-        setLightboxIndex(null);
-        setPopupPlaceName(null);
-        setPopupExpanded(false); // 팝업 열릴 때 항상 기본 카드부터
-        setPopupTagVotes({}); // 태그 투표 초기화
-        setPopupData({
-          mbti: item.mbti,
-          mood: item.mood,
-          mode: item.mode,
-          sign: item.sign,
-          activity: item.activity,
-          distance,
-          lat: item.lat,
-          lng: item.lng,
-          screenX: mouseEvent.clientX,
-          screenY: mouseEvent.clientY - 15,
-          placeName: item.placeName,
-          category: item.category,
-          avatar: item.avatar,
-          nearbyCount: nearbyAllM.length,
-          nearbyMbtiDist: nearbyMbtiDistM,
-          nearbyRecent,
-          checkinTime: item.checkinTime,
-        });
-        // 고정 장소명 있으면 즉시 설정
-        if (item.placeName) setPopupPlaceName(item.placeName);
-        // 역지오코딩으로 주소 가져오기
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: item.lat, lng: item.lng } }, (results, status) => {
-          if (status === 'OK' && results && results[0]) {
-            const components = results[0].address_components;
-            const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
-            const si = get('administrative_area_level_1') || get('locality');
-            const gu = get('sublocality_level_1') || get('administrative_area_level_2');
-            const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
-            const addr = [si, gu, dong].filter(Boolean).join(' ');
-            setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
-          }
-        });
-        // Google Places API로 장소 사진 가져오기
-        setPhotoLoading(true);
-        const placesService = new google.maps.places.PlacesService(mapRef.current!);
-
-        const fetchPhotosByPlaceId = (placeId: string) => {
-          placesService.getDetails(
-            { placeId, fields: ['photos', 'name'] },
-            (detail, detailStatus) => {
-              if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos) {
-                const photos: PlacePhoto[] = detail.photos.slice(0, 6).map(photo => ({
-                  url: photo.getUrl({ maxWidth: 800, maxHeight: 600 }),
-                  attribution: photo.html_attributions?.[0] ?? '',
-                }));
-                setPlacePhotos(photos);
-                // Places API에서 장소명 가져오기 (고정명 없을 때)
-                if (!item.placeName && detail.name) setPopupPlaceName(detail.name);
-              }
-              setPhotoLoading(false);
-            }
-          );
-        };
-
-        if (item.placeName) {
-          // 고정 장소명이 있으면 텍스트 검색으로 Place ID 조회
-          placesService.findPlaceFromQuery(
-            {
-              query: item.placeName,
-              fields: ['place_id', 'name'],
-              locationBias: new google.maps.LatLng(item.lat, item.lng),
-            },
-            (results, status) => {
-              if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]?.place_id) {
-                fetchPhotosByPlaceId(results[0].place_id);
-              } else {
-                // 텍스트 검색 실패 시 nearbySearch 폴백
-                placesService.nearbySearch(
-                  { location: { lat: item.lat, lng: item.lng }, radius: 150, type: 'establishment' },
-                  (placeResults, placeStatus) => {
-                    if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
-                      const withPhotos = placeResults.filter(p => p.photos && p.photos.length > 0);
-                      const target = withPhotos.length > 0 ? withPhotos[0] : placeResults[0];
-                      if (target.place_id) fetchPhotosByPlaceId(target.place_id);
-                      else setPhotoLoading(false);
-                    } else { setPhotoLoading(false); }
-                  }
-                );
-              }
-            }
-          );
-        } else {
-          // 고정명 없으면 nearbySearch
-          placesService.nearbySearch(
-            { location: { lat: item.lat, lng: item.lng }, radius: 150, type: 'establishment' },
-            (placeResults, placeStatus) => {
-              if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults && placeResults.length > 0) {
-                const withPhotos = placeResults.filter(p => p.photos && p.photos.length > 0);
-                const target = withPhotos.length > 0 ? withPhotos[0] : placeResults[0];
-                if (target.place_id) fetchPhotosByPlaceId(target.place_id);
-                else setPhotoLoading(false);
-              } else { setPhotoLoading(false); }
-            }
-          );
-        }
-      });
-
-      markersRef.current.push(marker);
-    });
-
-    // 고정 장소별 마커 수 카운트 계산 → 15개 이상이면 반짝이 이펙트
-    const locationCount: Record<string, { lat: number; lng: number; count: number; name: string }> = {};
-    dummyData.forEach(item => {
-      const key = `${Math.round(item.lat / 0.00005) * 0.00005},${Math.round(item.lng / 0.00005) * 0.00005}`;
-      if (!locationCount[key]) {
-        locationCount[key] = { lat: item.lat, lng: item.lng, count: 0, name: item.placeName || '' };
-      }
-      locationCount[key].count++;
-    });
-
-    // 반짝이 CSS 주입 (중복 방지)
-    if (!document.getElementById('sparkle-style')) {
-      const sparkleStyle = document.createElement('style');
-      sparkleStyle.id = 'sparkle-style';
-      sparkleStyle.textContent = `
-        @keyframes sparkle-rotate { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(90deg) scale(1.2); } 50% { transform: rotate(180deg) scale(0.9); } 75% { transform: rotate(270deg) scale(1.15); } 100% { transform: rotate(360deg) scale(1); } }
-        @keyframes sparkle-fade { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.4; } }
-        @keyframes sparkle-orbit { 0% { transform: rotate(0deg) translateX(7px) rotate(0deg); opacity: 1; } 100% { transform: rotate(360deg) translateX(7px) rotate(-360deg); opacity: 0.6; } }
-        .sparkle-core { animation: sparkle-rotate 2s ease-in-out infinite, sparkle-fade 1.5s ease-in-out infinite; }
-        .sparkle-dot { animation: sparkle-orbit 2.5s linear infinite; }
-        .sparkle-dot:nth-child(2) { animation-delay: -0.83s; }
-        .sparkle-dot:nth-child(3) { animation-delay: -1.66s; }
-      `;
-      document.head.appendChild(sparkleStyle);
-    }
-
-    Object.values(locationCount).forEach(loc => {
-      if (loc.count < 15) return;
-      const sparkleEl = document.createElement('div');
-      // 작은 크기로 마커 옆에 붙어있는 느낌
-      sparkleEl.style.cssText = `
-        width: 12px;
-        height: 12px;
-        position: relative;
-        pointer-events: auto;
-        cursor: pointer;
-      `;
-      sparkleEl.title = loc.name || '핫스팟';
-      sparkleEl.innerHTML = `
-        <div class="sparkle-core" style="
-          position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-          font-size: 9px; line-height: 1;
-
-        ">✨</div>
-        <div class="sparkle-dot" style="
-          position: absolute; top: 50%; left: 50%; margin: -1.5px;
-          width: 3px; height: 3px; border-radius: 50%;
-          background: rgba(255,220,80,0.9);
-        "></div>
-        <div class="sparkle-dot" style="
-          position: absolute; top: 50%; left: 50%; margin: -1px;
-          width: 2px; height: 2px; border-radius: 50%;
-          background: rgba(255,160,0,0.8);
-          animation-delay: -0.83s;
-        "></div>
-        <div class="sparkle-dot" style="
-          position: absolute; top: 50%; left: 50%; margin: -1px;
-          width: 2px; height: 2px; border-radius: 50%;
-          background: rgba(255,255,160,0.9);
-          animation-delay: -1.66s;
-        "></div>
-      `;
-      // 마커 좌표에서 약간 오프셋 (lng +0.00003 정도 오른쪽 위로)
-      const offsetLat = loc.lat + 0.000025;
-      const offsetLng = loc.lng + 0.000030;
-      const sparkleMarker = new google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: { lat: offsetLat, lng: offsetLng },
-        content: sparkleEl,
-        zIndex: 998,
-      });
-
-      // 반짝이 클릭 시 해당 좌표의 더미 마커 데이터로 스포리 팝업 열기
-      sparkleEl.addEventListener('click', (e: Event) => {
-        const mouseEvent = e as MouseEvent;
-        // 해당 좌표에 있는 더미 마커 중 고정 장소명 있는 것 우선 선택
-        const nearby = dummyDataRef.current.filter(item => {
-          const dLat = Math.abs(item.lat - loc.lat);
-          const dLng = Math.abs(item.lng - loc.lng);
-          return dLat < 0.0002 && dLng < 0.0002;
-        });
-        const target = nearby.find(item => item.placeName) || nearby[0];
-        if (!target) return;
-        const center = userLocation || HONGDAE_CENTER;
-        const distance = Math.round(
-          google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(center.lat, center.lng),
-            new google.maps.LatLng(target.lat, target.lng)
-          )
-        );
-        // 반경 50m 내 마커 수 및 MBTI 분포 계산
-        const NEARBY_RS = 0.0005;
-        const nearbyAllS = dummyDataRef.current.filter(d =>
-          Math.abs(d.lat - loc.lat) < NEARBY_RS && Math.abs(d.lng - loc.lng) < NEARBY_RS
-        );
-        const nearbyMbtiDistS: Record<string, number> = {};
-        nearbyAllS.forEach(d => { nearbyMbtiDistS[d.mbti] = (nearbyMbtiDistS[d.mbti] || 0) + 1; });
-        // 최근 체크인 타임라인
-        const nearbyRecentS = nearbyAllS
-          .filter(d => d.checkinTime)
-          .sort((a, b) => (b.checkinTime ?? 0) - (a.checkinTime ?? 0))
-          .slice(0, 5)
-          .map(d => ({ mbti: d.mbti, checkinTime: d.checkinTime! }));
-        setSelectedMarker({ mbti: target.mbti, distance });
-        setPopupAddress(null);
-        setPlacePhotos([]);
-        setLightboxIndex(null);
-        setPopupPlaceName(target.placeName || null);
-        setPopupExpanded(false);
-        setPopupTagVotes({});
-        setPopupData({
-          mbti: target.mbti,
-          mood: target.mood,
-          mode: target.mode,
-          sign: target.sign,
-          activity: target.activity,
-          distance,
-          lat: target.lat,
-          lng: target.lng,
-          screenX: mouseEvent.clientX,
-          screenY: mouseEvent.clientY - 15,
-          placeName: target.placeName,
-          category: target.category,
-          avatar: target.avatar,
-          nearbyCount: nearbyAllS.length,
-          nearbyMbtiDist: nearbyMbtiDistS,
-          nearbyRecent: nearbyRecentS,
-          checkinTime: target.checkinTime,
-        });
-        // 역지오코딩
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: target.lat, lng: target.lng } }, (results, status) => {
-          if (status === 'OK' && results && results[0]) {
-            const components = results[0].address_components;
-            const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
-            const si = get('administrative_area_level_1') || get('locality');
-            const gu = get('sublocality_level_1') || get('administrative_area_level_2');
-            const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
-            const addr = [si, gu, dong].filter(Boolean).join(' ');
-            setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
-          }
-        });
-        // Places API 사진 로딩
-        setPhotoLoading(true);
-        const placesService = new google.maps.places.PlacesService(mapRef.current!);
-        const fetchPhotosByPlaceId = (placeId: string) => {
-          placesService.getDetails(
-            { placeId, fields: ['photos', 'name'] },
-            (detail, detailStatus) => {
-              if (detailStatus === google.maps.places.PlacesServiceStatus.OK && detail?.photos) {
-                const photos: PlacePhoto[] = detail.photos.slice(0, 6).map(photo => ({
-                  url: photo.getUrl({ maxWidth: 800, maxHeight: 600 }),
-                  attribution: photo.html_attributions?.[0] ?? '',
-                }));
-                setPlacePhotos(photos);
-                if (!target.placeName && detail.name) setPopupPlaceName(detail.name);
-              }
-              setPhotoLoading(false);
-            }
-          );
-        };
-        if (target.placeName) {
-          placesService.findPlaceFromQuery(
-            { query: target.placeName, fields: ['place_id'], locationBias: new google.maps.LatLng(target.lat, target.lng) },
-            (results, status) => {
-              if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]?.place_id) {
-                fetchPhotosByPlaceId(results[0].place_id!);
-              } else {
-                placesService.nearbySearch(
-                  { location: { lat: target.lat, lng: target.lng }, radius: 150, type: 'establishment' },
-                  (placeResults, placeStatus) => {
-                    if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults?.length) {
-                      const withPhotos = placeResults.filter(p => p.photos?.length);
-                      const t = withPhotos[0] || placeResults[0];
-                      if (t.place_id) fetchPhotosByPlaceId(t.place_id);
-                      else setPhotoLoading(false);
-                    } else { setPhotoLoading(false); }
-                  }
-                );
-              }
-            }
-          );
-        } else {
-          placesService.nearbySearch(
-            { location: { lat: target.lat, lng: target.lng }, radius: 150, type: 'establishment' },
-            (placeResults, placeStatus) => {
-              if (placeStatus === google.maps.places.PlacesServiceStatus.OK && placeResults?.length) {
-                const withPhotos = placeResults.filter(p => p.photos?.length);
-                const t = withPhotos[0] || placeResults[0];
-                if (t.place_id) fetchPhotosByPlaceId(t.place_id);
-                else setPhotoLoading(false);
-              } else { setPhotoLoading(false); }
-            }
-          );
-        }
-        e.stopPropagation();
-      });
-    });
-
-    // 도시별 텍스트 라벨 생성
-    const { cities, cityStats } = aggregateCityData();
-    const cityNames = cities.map(c => c.name);
-    const hotspots = getHotspotCities(cityNames);
-    setHotspotCityNames(hotspots);
-
-    // HOTSPOT 폄스 애니메이션 CSS 주입 (중복 방지)
-    if (!document.getElementById('hotspot-style')) {
+    // CSS 주입
+    if (!document.getElementById('spot-map-style')) {
       const style = document.createElement('style');
-      style.id = 'hotspot-style';
+      style.id = 'spot-map-style';
       style.textContent = `
-        @keyframes hotspot-pulse {
-          0%, 100% { box-shadow: 0 0 20px #ff4500cc, 0 0 40px #ff4500aa, 0 0 60px #ff450066; transform: scale(1); }
-          50% { box-shadow: 0 0 30px #ff6a00ff, 0 0 60px #ff4500cc, 0 0 90px #ff450099; transform: scale(1.04); }
-        }
-        @keyframes hotspot-badge-pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.85; transform: scale(1.1); }
-        }
-        .hotspot-label {
-          animation: hotspot-pulse 2s ease-in-out infinite;
-        }
-        .hotspot-badge {
-          animation: hotspot-badge-pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes banner-border-glow {
-          0%, 100% { border-color: rgba(255,69,0,0.35); box-shadow: 0 1px 8px rgba(255,69,0,0.15); }
-          50% { border-color: rgba(255,106,0,0.7); box-shadow: 0 1px 16px rgba(255,69,0,0.45); }
-        }
-        @keyframes fire-shake {
-          0%, 100% { transform: rotate(-8deg) scale(1); }
-          25% { transform: rotate(8deg) scale(1.15); }
-          50% { transform: rotate(-5deg) scale(1.05); }
-          75% { transform: rotate(6deg) scale(1.1); }
-        }
-        @keyframes rank-1-glow {
-          0%, 100% { text-shadow: 0 0 6px #ffd70066, 0 0 12px #ffd70033; color: #ffd700; }
-          50% { text-shadow: 0 0 14px #ffd700cc, 0 0 28px #ffd70088; color: #ffe84d; }
-        }
-        @keyframes banner-shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        .hotspot-banner {
-          animation: banner-border-glow 2.5s ease-in-out infinite;
-        }
-        .hotspot-fire {
-          display: inline-block;
-        }
-        .hotspot-rank-1-city {
-          animation: rank-1-glow 2s ease-in-out infinite;
-          background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: rank-1-glow 2s ease-in-out infinite, banner-shimmer 3s linear infinite;
-        }
-        .hotspot-rank-num {
-          display: inline-block;
-          animation: hotspot-badge-pulse 1.8s ease-in-out infinite;
-        }
-        .search-btn-glow {}
-        .search-icon-anim { display: inline-block; }
-        .spot-btn-glow {}
-        .spot-icon-anim { display: inline-block; }
+        @keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
+        @keyframes hotspot-badge-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        @keyframes banner-border-glow { 0%, 100% { box-shadow: 0 0 8px rgba(255,69,0,0.3); } 50% { box-shadow: 0 0 16px rgba(255,69,0,0.6); } }
+        @keyframes rank-1-glow { 0%, 100% { color: #ffd700; } 50% { color: #ffe84d; } }
+        @keyframes banner-shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        .hotspot-banner { animation: banner-border-glow 2.5s ease-in-out infinite; }
+        .spot-dot-marker { transition: transform 0.15s ease; }
+        .spot-dot-marker:hover { transform: scale(1.5); }
       `;
       document.head.appendChild(style);
     }
 
+    // 더미 마커 생성 (단순 점 스타일)
+    dummyData.forEach(item => {
+      const mbtiColor = MBTI_COLORS[item.mbti] || "#00f0ff";
+      const el = document.createElement('div');
+      el.className = 'spot-dot-marker';
+      el.dataset.mbti = item.mbti;
+      el.dataset.category = item.category || '';
+      el.style.cssText = `
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: ${mbtiColor};
+        box-shadow: 0 0 6px ${mbtiColor}99;
+        cursor: pointer;
+        position: relative;
+      `;
+
+      const overlay = new kakao.maps.CustomOverlay({
+        position: new kakao.maps.LatLng(item.lat, item.lng),
+        content: el,
+        zIndex: 10,
+      });
+      overlay.setMap(map);
+      (overlay as any)._spotData = item;
+
+      el.addEventListener('click', () => {
+        const userLoc = userLocation || HONGDAE_CENTER;
+        const dist = Math.round(haversineDistance(userLoc.lat, userLoc.lng, item.lat, item.lng));
+        setPopupData({
+          ...item,
+          distance: dist,
+        });
+        setPopupAddress(null);
+        setPopupExpanded(false);
+        setPopupTagVotes({});
+        // 역지오코딩
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.coord2Address(item.lng, item.lat, (result: any[], status: string) => {
+          if (status === kakao.maps.services.Status.OK && result.length > 0) {
+            const addr = result[0].road_address?.address_name || result[0].address?.address_name || null;
+            setPopupAddress(addr);
+          }
+        });
+      });
+
+      markersRef.current.push(overlay);
+    });
+
+    // 사용자 위치 마커
+    const userEl = document.createElement('div');
+    userEl.style.cssText = `
+      width: 16px;
+      height: 16px;
+      background: white;
+      border: 3px solid rgba(255,255,255,0.9);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+    `;
+    const userOverlay = new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(center.lat, center.lng),
+      content: userEl,
+      zIndex: 100,
+    });
+    userOverlay.setMap(map);
+    userMarkerRef.current = userOverlay;
+
+    // 도시 레이블 생성
+    const { cities, cityStats } = aggregateCityData();
+    const hotspots = getHotspotCities(cities.map(c => c.name));
+    setHotspotCityNames(hotspots);
+
     cities.forEach(city => {
       const stats = cityStats[city.name];
       if (!stats || Object.keys(stats).length === 0) return;
-
       const isHotspot = hotspots.includes(city.name);
-      const labelElement = document.createElement('div');
-
-      // 실제 마커 수 계산 (dummyData에서 해당 도시 반경 내 마커 수)
       const cityRadius = 0.25;
-      const actualMarkerCount = dummyData.filter(m =>
+      const actualCount = dummyData.filter(m =>
         Math.abs(m.lat - city.lat) < cityRadius && Math.abs(m.lng - city.lng) < cityRadius
       ).length;
+      const sortedStats = Object.entries(stats).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
+      const labelEl = document.createElement('div');
       if (isHotspot) {
-        labelElement.className = 'hotspot-label';
-        labelElement.style.cssText = `
-          background: rgba(0,0,0,0.97);
-          border: 2px solid #ff4500;
-          border-radius: 8px;
-          padding: 6px 10px;
-          white-space: nowrap;
-          pointer-events: auto;
-          cursor: pointer;
-          opacity: 0;
-          transition: opacity 0.3s, transform 0.15s;
-          position: relative;
-          
-        `;
-        const sortedStats = Object.entries(stats)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3);
-        labelElement.innerHTML = `
+        labelEl.style.cssText = `background:rgba(0,0,0,0.97);border:2px solid #ff4500;border-radius:8px;padding:6px 10px;white-space:nowrap;pointer-events:auto;cursor:pointer;opacity:0;transition:opacity 0.3s,transform 0.15s;`;
+        labelEl.innerHTML = `
           <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
-            <span style="font-size:11px;">&#x1F525;</span>
+            <span style="font-size:11px;">🔥</span>
             <span style="font-size:11px;font-weight:900;color:#ff6a00;">핫플</span>
-            <span style="font-size:10px;color:rgba(255,180,100,0.9);font-weight:700;"> ${actualMarkerCount}명</span>
+            <span style="font-size:10px;color:rgba(255,180,100,0.9);font-weight:700;"> ${actualCount}명</span>
           </div>
           <div style="font-size:11px;color:#ffcc66;font-weight:900;margin-bottom:2px;letter-spacing:0.5px;">${city.name}</div>
-          ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
-          ).join('')}
+          ${sortedStats.map(([mbti, count]) => `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.5;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`).join('')}
         `;
       } else {
-        labelElement.style.cssText = `
-          background: rgba(0,0,0,0.95);
-          border: 1.5px solid rgba(0,240,255,0.6);
-          border-radius: 6px;
-          padding: 5px 8px;
-          white-space: nowrap;
-          pointer-events: auto;
-          cursor: pointer;
-          opacity: 0;
-          transition: opacity 0.3s, transform 0.15s;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        `;
-        const sortedStats = Object.entries(stats)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3);
-        labelElement.innerHTML = `
-          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualMarkerCount})</span></div>
-          ${sortedStats.map(([mbti, count]) =>
-            `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`
-          ).join('')}
+        labelEl.style.cssText = `background:rgba(0,0,0,0.95);border:1.5px solid rgba(0,240,255,0.6);border-radius:6px;padding:5px 8px;white-space:nowrap;pointer-events:auto;cursor:pointer;opacity:0;transition:opacity 0.3s,transform 0.15s;box-shadow:0 2px 8px rgba(0,0,0,0.4);`;
+        labelEl.innerHTML = `
+          <div style="font-size:11px;font-weight:900;color:#00f0ff;margin-bottom:3px;letter-spacing:0.5px;">${city.name} <span style="color:rgba(0,240,255,0.7);font-weight:600;font-size:10px;">(${actualCount})</span></div>
+          ${sortedStats.map(([mbti, count]) => `<div style="font-size:10px;color:${MBTI_COLORS[mbti]};line-height:1.6;font-weight:700;">${mbti} <span style="opacity:0.85;font-weight:500;">(${count})</span></div>`).join('')}
         `;
       }
 
-      const cityLabel = new google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: { lat: city.lat, lng: city.lng },
-        content: labelElement,
+      labelEl.addEventListener('click', () => {
+        map.setCenter(new kakao.maps.LatLng(city.lat, city.lng));
+        map.setLevel(4);
+        setHotspotCityNames(prev => prev);
+        setShowHotplacePopup(false);
       });
 
-      // 클러스터 클릭 시 부드러운 줌인 애니메이션
-      labelElement.addEventListener('click', () => {
-        const targetZoom = 14;
-        const startZoom = map.getZoom() ?? 10;
-        const startCenter = map.getCenter()!;
-        const targetLat = city.lat;
-        const targetLng = city.lng;
-        const duration = 600; // ms
-        const startTime = performance.now();
-        // easeInOutCubic
-        const ease = (t: number) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
-        const animate = (now: number) => {
-          const t = Math.min((now - startTime) / duration, 1);
-          const e = ease(t);
-          const curZoom = startZoom + (targetZoom - startZoom) * e;
-          const curLat = startCenter.lat() + (targetLat - startCenter.lat()) * e;
-          const curLng = startCenter.lng() + (targetLng - startCenter.lng()) * e;
-          map.setZoom(curZoom);
-          map.setCenter({ lat: curLat, lng: curLng });
-          if (t < 1) requestAnimationFrame(animate);
-          else {
-            // 줌인 완료 후 핫플 도시면 팝업 자동 오픈
-            if (isHotspot) {
-              const hotIdx = hotspots.indexOf(city.name);
-              if (hotIdx >= 0) {
-                setSelectedHotplaceTab(hotIdx);
-                setShowHotplacePopup(true);
-              }
-            }
-          }
-        };
-        requestAnimationFrame(animate);
+      const cityLabel = new kakao.maps.CustomOverlay({
+        position: new kakao.maps.LatLng(city.lat, city.lng),
+        content: labelEl,
+        zIndex: 5,
       });
-      labelElement.addEventListener('mouseenter', () => {
-        labelElement.style.transform = 'scale(1.06)';
-      });
-      labelElement.addEventListener('mouseleave', () => {
-        labelElement.style.transform = 'scale(1)';
-      });
-
+      cityLabel.setMap(map);
       cityLabelsRef.current.push(cityLabel);
     });
-  }, [userLocation, aggregateCityData, getHotspotCities]);
 
-  // 실제 스팟 마커를 지도에 추가
-  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number; avatar?: AvatarConfig }, map: google.maps.Map) => {
-    const color = MBTI_COLORS[spot.mbti.toUpperCase()] || '#00f0ff';
-    const el = document.createElement('div');
-    el.className = 'custom-marker';
-    el.dataset.mbti = spot.mbti.toUpperCase();
-    // 실제 유저 마커: 아바타 스타일
-    const avatarCfg = spot.avatar || randomAvatarConfig();
-    const animalEmoji = ANIMALS.find(a => a.type === avatarCfg.animal)?.emoji || '🐶';
-    const accessoryEmoji = ACCESSORIES.find(a => a.type === avatarCfg.accessory)?.emoji || '';
-    const emojiVal = avatarCfg.emoji && avatarCfg.emoji !== 'none' ? avatarCfg.emoji : '';
-    el.style.cssText = `
-      width: 44px;
-      height: 52px;
-      cursor: pointer;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: all 0.2s;
-    `;
-    el.innerHTML = `
-      <div style="
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: ${color}33;
-        border: 2.5px solid ${color};
-        
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        position: relative;
-        overflow: visible;
-      ">
-        <span style="font-size:24px;line-height:1">${animalEmoji}</span>
-        ${accessoryEmoji ? `<span style="position:absolute;top:-7px;right:-5px;font-size:13px">${accessoryEmoji}</span>` : ''}
-        ${emojiVal ? `<span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:13px;background:rgba(0,0,0,0.75);border-radius:8px;padding:0 3px">${emojiVal}</span>` : ''}
-      </div>
-      <div style="
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 6px solid ${color};
-        margin-top: 1px;
-      "></div>
-    `;
-    const marker = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: { lat: spot.lat, lng: spot.lng },
-      content: el,
-      title: spot.mbti,
+    // 지도 클릭 시 팝업 닫기
+    kakao.maps.event.addListener(map, 'click', () => {
+      if (popupData) {
+        setPopupVisible(false);
+        setTimeout(() => setPopupData(null), 220);
+      }
     });
-    el.addEventListener('click', (e: Event) => {
-      const me = e as MouseEvent;
-      const ref = userLocation || HONGDAE_CENTER;
-      const distance = Math.round(
-        google.maps.geometry.spherical.computeDistanceBetween(
-          new google.maps.LatLng(ref.lat, ref.lng),
-          new google.maps.LatLng(spot.lat, spot.lng)
-        )
-      );
-      const NEARBY_RR = 0.0005;
-      const nearbyAllR = dummyDataRef.current.filter(d =>
-        Math.abs(d.lat - spot.lat) < NEARBY_RR && Math.abs(d.lng - spot.lng) < NEARBY_RR
-      );
-      const nearbyMbtiDistR: Record<string, number> = {};
-      nearbyAllR.forEach(d => { nearbyMbtiDistR[d.mbti] = (nearbyMbtiDistR[d.mbti] || 0) + 1; });
-      setSelectedMarker({ mbti: spot.mbti.toUpperCase(), distance });
+
+    }; // end initMap
+
+    // 스팟 등록 폼 타이머 (11초 후)
+    const spotFormTimer = setTimeout(() => {
+      if (!spotSubmitted) setShowSpotForm(true);
+    }, 11000);
+
+    // kakao.maps.load()로 SDK 로드 완료 후 초기화
+    if (window.kakao && window.kakao.maps) {
+      // 이미 로드됨
+      initMap();
+    } else if (window.kakao) {
+      // kakao 객체는 있지만 maps가 아직 로드 안됨
+      window.kakao.maps.load(initMap);
+    } else {
+      // kakao SDK 자체가 없음 - 폴링으로 대기
+      let retryCount = 0;
+      const retryTimer = setInterval(() => {
+        retryCount++;
+        if (window.kakao && window.kakao.maps) {
+          clearInterval(retryTimer);
+          initMap();
+        } else if (retryCount > 20) {
+          clearInterval(retryTimer);
+          console.warn('[SPOT] Kakao Maps SDK failed to load');
+        }
+      }, 200);
+    }
+
+    return () => {
+      clearTimeout(spotFormTimer);
+      markersRef.current.forEach(m => m.setMap(null));
+      markersRef.current = [];
+      realSpotMarkersRef.current.forEach(m => m.setMap(null));
+      realSpotMarkersRef.current = [];
+      cityLabelsRef.current.forEach(m => m.setMap(null));
+      cityLabelsRef.current = [];
+      if (userMarkerRef.current) userMarkerRef.current.setMap(null);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen]);
+
+  // 줌 레벨에 따라 마커/레이블 표시/숨김
+  useEffect(() => {
+    const isZoomedOut = currentZoom > 7;
+    markersRef.current.forEach(marker => {
+      const el = marker.getContent();
+      if (el instanceof HTMLElement) el.style.opacity = isZoomedOut ? '0' : '1';
+    });
+    cityLabelsRef.current.forEach(label => {
+      const el = label.getContent();
+      if (el instanceof HTMLElement) el.style.opacity = isZoomedOut ? '1' : '0';
+    });
+  }, [currentZoom]);
+
+  // DB 스팟 마커 업데이트
+  const addRealSpotMarker = useCallback((spot: { id: number; mbti: string; mood: string; mode: string; sign: string; lat: number; lng: number; avatar?: AvatarConfig }) => {
+    if (!mapRef.current || !window.kakao) return;
+    const kakao = window.kakao;
+    const mbtiColor = MBTI_COLORS[spot.mbti] || "#00f0ff";
+    const el = document.createElement('div');
+    el.className = 'spot-dot-marker';
+    el.dataset.mbti = spot.mbti;
+    el.style.cssText = `
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: ${mbtiColor};
+      box-shadow: 0 0 8px ${mbtiColor}cc, 0 0 16px ${mbtiColor}66;
+      cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.5);
+    `;
+    const overlay = new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(spot.lat, spot.lng),
+      content: el,
+      zIndex: 20,
+    });
+    overlay.setMap(mapRef.current);
+    (overlay as any)._spotData = spot;
+
+    el.addEventListener('click', () => {
+      const userLoc = userLocation || HONGDAE_CENTER;
+      const dist = Math.round(haversineDistance(userLoc.lat, userLoc.lng, spot.lat, spot.lng));
+      setPopupData({ ...spot, distance: dist, isReal: true });
       setPopupAddress(null);
-      setPopupData({
-        mbti: spot.mbti.toUpperCase(),
-        mood: spot.mood,
-        mode: spot.mode,
-        sign: spot.sign,
-        distance,
-        lat: spot.lat,
-        lng: spot.lng,
-        screenX: me.clientX,
-        screenY: me.clientY - 15,
-        nearbyCount: nearbyAllR.length,
-        nearbyMbtiDist: nearbyMbtiDistR,
-        avatar: spot.avatar,
-        checkinTime: Date.now(), // 실제 스팟 = 방금 체크인
-      });
-      // 역지오코딩으로 주소 가져오기
-      const geocoder2 = new google.maps.Geocoder();
-      geocoder2.geocode({ location: { lat: spot.lat, lng: spot.lng } }, (results, status) => {
-        if (status === 'OK' && results && results[0]) {
-          const components = results[0].address_components;
-          const get = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
-          const si = get('administrative_area_level_1') || get('locality');
-          const gu = get('sublocality_level_1') || get('administrative_area_level_2');
-          const dong = get('sublocality_level_2') || get('sublocality_level_3') || get('neighborhood');
-          const addr = [si, gu, dong].filter(Boolean).join(' ');
-          setPopupAddress(addr || results[0].formatted_address.split(',')[0]);
+      setPopupExpanded(false);
+      setPopupTagVotes({});
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.coord2Address(spot.lng, spot.lat, (result: any[], status: string) => {
+        if (status === kakao.maps.services.Status.OK && result.length > 0) {
+          const addr = result[0].road_address?.address_name || result[0].address?.address_name || null;
+          setPopupAddress(addr);
         }
       });
     });
-    realSpotMarkersRef.current.push(marker);
+
+    realSpotMarkersRef.current.push(overlay);
   }, [userLocation]);
 
-  // DB에서 스팟 데이터 로드 시 마커 업데이트
   useEffect(() => {
     if (!spotsData?.spots || !mapRef.current) return;
-    // 기존 실제 스팟 마커 제거
-    realSpotMarkersRef.current.forEach(m => { m.map = null; });
+    realSpotMarkersRef.current.forEach(m => m.setMap(null));
     realSpotMarkersRef.current = [];
-    // 새로 추가 (avatar JSON 문자열 파싱)
     spotsData.spots.forEach(spot => {
-      if (mapRef.current) {
-        let parsedAvatar: AvatarConfig | undefined = undefined;
-        if (spot.avatar) {
-          try { parsedAvatar = deserializeAvatar(spot.avatar); } catch (_) {}
-        }
-        addRealSpotMarker({ ...spot, avatar: parsedAvatar }, mapRef.current);
-      }
+      let parsedAvatar: AvatarConfig | undefined = undefined;
+      if (spot.avatar) { try { parsedAvatar = deserializeAvatar(spot.avatar); } catch (_) {} }
+      addRealSpotMarker({ ...spot, avatar: parsedAvatar });
     });
   }, [spotsData, addRealSpotMarker]);
 
-  // 줄 레벨 슬라이더
-  useEffect(() => {
-    const isZoomedOut = currentZoom < 12;
+  // MBTI 필터링
+  const filterByMBTI = (mbti: string) => {
+    if (selectedMBTI === mbti) {
+      setSelectedMBTI(null);
+      markersRef.current.forEach(marker => {
+        const el = marker.getContent();
+        if (el instanceof HTMLElement) el.style.opacity = "1";
+      });
+    } else {
+      setSelectedMBTI(mbti);
+      markersRef.current.forEach(marker => {
+        const el = marker.getContent();
+        if (el instanceof HTMLElement) {
+          el.style.opacity = el.dataset.mbti === mbti ? "1" : "0.15";
+        }
+      });
+    }
+  };
 
-    markersRef.current.forEach(marker => {
-      if (marker.content instanceof HTMLElement) {
-        marker.content.style.opacity = isZoomedOut ? '0' : '1';
-      }
-    });
+  // 카테고리 필터링
+  const filterByCategory = (category: string) => {
+    if (selectedCategory === category) {
+      setSelectedCategory(null);
+      markersRef.current.forEach(marker => {
+        const el = marker.getContent();
+        if (el instanceof HTMLElement) { el.style.opacity = "1"; el.style.display = ""; }
+      });
+    } else {
+      setSelectedCategory(category);
+      markersRef.current.forEach(marker => {
+        const el = marker.getContent();
+        if (el instanceof HTMLElement) {
+          const cat = el.dataset.category;
+          el.style.opacity = !cat ? "0.08" : (cat === category ? "1" : "0.08");
+        }
+      });
+    }
+  };
 
-    cityLabelsRef.current.forEach(label => {
-      if (label.content instanceof HTMLElement) {
-        label.content.style.opacity = isZoomedOut ? '1' : '0';
+  // 카카오 장소 검색
+  const handleSearch = (q: string) => {
+    setSearchQuery(q);
+    if (!q.trim() || q.trim().length < 2) { setSearchResults([]); return; }
+    if (!window.kakao || !mapRef.current) return;
+    setSearchLoading(true);
+    const ps = new window.kakao.maps.services.Places();
+    ps.keywordSearch(q, (data: any[], status: string) => {
+      setSearchLoading(false);
+      if (status === window.kakao.maps.services.Status.OK) {
+        const items = data.slice(0, 5).map((d: any) => ({
+          name: d.place_name,
+          lat: parseFloat(d.y),
+          lng: parseFloat(d.x),
+        }));
+        setSearchResults(items);
+      } else {
+        setSearchResults([]);
       }
-    });
-  }, [currentZoom]);
+    }, { location: mapRef.current.getCenter() });
+  };
 
   // 검색 패널 외부 클릭 시 닫기
   useEffect(() => {
@@ -2143,7 +976,6 @@ export default function MvpMap() {
         setSearchResults([]);
       }
     };
-    // 약간의 딥레이 후 등록 (버튼 클릭 이벤트와 충돌 방지)
     const timer = setTimeout(() => {
       document.addEventListener('mousedown', handleOutsideClick);
       document.addEventListener('touchstart', handleOutsideClick);
@@ -2155,284 +987,114 @@ export default function MvpMap() {
     };
   }, [showSearch]);
 
-  // MBTI 필터링
-  const filterByMBTI = (mbti: string) => {
-    if (selectedMBTI === mbti) {
-      setSelectedMBTI(null);
-      markersRef.current.forEach(marker => {
-        if (marker.content instanceof HTMLElement) {
-          marker.content.style.opacity = "1";
-        }
-      });
-    } else {
-      setSelectedMBTI(mbti);
-      markersRef.current.forEach(marker => {
-        if (marker.content instanceof HTMLElement) {
-          const markerMBTI = (marker.content as HTMLElement).dataset.mbti;
-          marker.content.style.opacity = markerMBTI === mbti ? "1" : "0.15";
-        }
-      });
-    }
-  };
-
-  // 카테고리 필터링
-  const filterByCategory = (category: string) => {
-    if (selectedCategory === category) {
-      // 토글 해제 - 모두 표시
-      setSelectedCategory(null);
-      markersRef.current.forEach(marker => {
-        if (marker.content instanceof HTMLElement) {
-          marker.content.style.opacity = "1";
-          marker.content.style.display = "";
-        }
-      });
-    } else {
-      setSelectedCategory(category);
-      markersRef.current.forEach(marker => {
-        if (marker.content instanceof HTMLElement) {
-          const markerCategory = (marker.content as HTMLElement).dataset.category;
-          // category 없는 마커(일반 더미)는 카테고리 필터 시 숨김
-          if (!markerCategory) {
-            marker.content.style.opacity = "0.08";
-          } else {
-            marker.content.style.opacity = markerCategory === category ? "1" : "0.08";
-          }
-        }
-      });
-    }
-  };
-
   // 스플래시 화면
   if (screen === "splash") {
     return (
-      <div
-        className="fixed inset-0 bg-black flex flex-col items-center justify-center"
-        style={{
-          height: `${screenHeight}px`,
-          opacity: splashFading ? 0 : 1,
-          transition: 'opacity 0.3s ease',
-        }}
-      >
-        <h1
-          className="text-6xl font-bold"
-          style={{
-            fontFamily: "'Orbitron', sans-serif",
-            color: "#ffffff",
-          }}
-        >
-          SPOT
-        </h1>
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center" style={{ height: `${screenHeight}px`, opacity: splashFading ? 0 : 1, transition: 'opacity 0.3s ease' }}>
+        <h1 className="text-6xl font-bold" style={{ fontFamily: "'Orbitron', sans-serif", color: "#ffffff" }}>SPOT</h1>
       </div>
     );
   }
 
   // 지도 화면
   return (
-    <div
-      className="fixed inset-0 bg-black flex flex-col"
-      style={{
-        height: `${screenHeight}px`,
-        opacity: mapVisible ? 1 : 0,
-        transition: 'opacity 0.35s ease',
-      }}
-    >
+    <div className="fixed inset-0 bg-black flex flex-col" style={{ height: `${screenHeight}px`, opacity: mapVisible ? 1 : 0, transition: 'opacity 0.35s ease' }}>
       <Toaster position="top-right" />
-      
 
+      {/* 서울시 실시간 데이터 배너 */}
+      {seoulBanner && (
+        <div
+          className="absolute top-0 left-0 right-0 z-40 flex items-center justify-center gap-2 px-4 py-1.5"
+          style={{ background: 'rgba(0,0,0,0.85)', borderBottom: `1px solid ${seoulBanner.color}44`, pointerEvents: 'none' }}
+        >
+          <span style={{ fontSize: '11px' }}>{seoulBanner.icon}</span>
+          <span style={{ fontSize: '11px', color: seoulBanner.color, fontWeight: 700 }}>{seoulBanner.text}</span>
+          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>실시간</span>
+        </div>
+      )}
 
-
-      {/* 핫플레이스 팝업 모달 */}
-      {/* 핵플레이스 bottom sheet - 배경 오버레이 없이 지도 위에 뜨우는 구조 */}
+      {/* 핫플레이스 바텀시트 */}
       {showHotplacePopup && hotspotCityNames.length > 0 && (
         <div
           className="fixed bottom-0 left-0 right-0 z-50 flex justify-center"
-          style={{
-            pointerEvents: 'none',
-            opacity: hotplaceVisible ? 1 : 0,
-            transform: hotplaceVisible ? 'translateY(0)' : 'translateY(24px)',
-            transition: 'opacity 0.22s ease, transform 0.22s ease',
-          }}
+          style={{ pointerEvents: 'none', opacity: hotplaceVisible ? 1 : 0, transform: hotplaceVisible ? 'translateY(0)' : 'translateY(24px)', transition: 'opacity 0.22s ease, transform 0.22s ease' }}
         >
-          <div
-            ref={sheetRef}
-            className="hotspot-banner w-full max-w-md rounded-t-2xl overflow-hidden"
-            style={{
-              background: 'rgba(4,4,18,0.96)',
-              backdropFilter: 'blur(24px) saturate(1.5)',
-              WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
-              border: '1.5px solid rgba(255,69,0,0.5)',
-              borderBottom: 'none',
-              boxShadow: '0 -8px 40px rgba(255,69,0,0.35)',
-              maxHeight: '70vh',
-              overflowY: 'auto',
-              pointerEvents: 'auto',
-              transform: `translateY(${sheetTranslateY}px)`,
-              transition: swipeTouchStartY.current !== null ? 'none' : 'transform 0.3s cubic-bezier(0.32,0.72,0,1)',
-            }}
-            onTouchStart={(e) => {
-              swipeTouchStartY.current = e.touches[0].clientY;
-              swipeTranslateY.current = 0;
-            }}
-            onTouchMove={(e) => {
-              if (swipeTouchStartY.current === null) return;
-              const delta = e.touches[0].clientY - swipeTouchStartY.current;
-              if (delta > 0) {
-                swipeTranslateY.current = delta;
-                setSheetTranslateY(delta);
-              }
-            }}
-            onTouchEnd={() => {
-              if (swipeTranslateY.current > 80) {
-                setSheetTranslateY(600);
-                setTimeout(() => {
-                  setShowHotplacePopup(false);
-                  setSheetTranslateY(0);
-                }, 280);
-              } else {
-                setSheetTranslateY(0);
-              }
-              swipeTouchStartY.current = null;
-              swipeTranslateY.current = 0;
-            }}
-          >
-            {/* 드래그 핸들 */}
-            <div
-              style={{ display: 'flex', justifyContent: 'center', paddingTop: '10px', paddingBottom: '4px', cursor: 'grab' }}
-              onTouchStart={(e) => {
-                swipeTouchStartY.current = e.touches[0].clientY;
-                swipeTranslateY.current = 0;
-              }}
-            >
-              <div style={{
-                width: '36px',
-                height: '4px',
-                borderRadius: '2px',
-                background: 'rgba(255,255,255,0.2)',
-              }} />
-            </div>
-            {/* 팝업 헤더 */}
-            <div className="flex items-center justify-between px-5 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(255,69,0,0.2)' }}>
+          <div ref={sheetRef} className="hotspot-banner w-full max-w-md rounded-t-2xl overflow-hidden" style={{ background: 'rgba(4,4,18,0.96)', border: '2px solid rgba(255,69,0,0.4)', borderBottom: 'none', pointerEvents: 'auto', maxHeight: '60vh', overflowY: 'auto' }}>
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="flex items-center gap-2">
-                <span className="hotspot-fire" style={{ fontSize: '20px' }}>🔥</span>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#ff6a00', letterSpacing: '1px' }}>핫플레이스 TOP3</div>
-                  <div style={{ fontSize: '10px', color: 'rgba(255,150,80,0.7)', marginTop: '1px' }}>지금 가장 핫한 골목 큐레이션</div>
-                </div>
+                <span style={{ fontSize: '16px' }}>🔥</span>
+                <span style={{ fontSize: '14px', fontWeight: 900, color: '#ff6a00' }}>지금 핫한 곳</span>
               </div>
-              <button
-                onClick={() => setShowHotplacePopup(false)}
-                style={{ color: 'rgba(255,255,255,0.4)', fontSize: '20px', lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-              >✕</button>
+              <button onClick={() => setShowHotplacePopup(false)} style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
             </div>
-
             {/* 탭 */}
-            <div className="flex" style={{ borderBottom: '1px solid rgba(255,69,0,0.15)' }}>
+            <div className="flex" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {hotspotCityNames.map((city, idx) => (
-                <button
-                  key={city}
-                  onClick={() => {
-                    setSelectedHotplaceTab(idx);
-                    // 탭 전환 시 지도를 해당 도시 좌표로 자동 이동
-                    const cityCoords: Record<string, { lat: number; lng: number }> = {
-                      '홍대': { lat: 37.5563, lng: 126.9236 },
-                      '강남': { lat: 37.5172, lng: 127.0473 },
-                      '여의도': { lat: 37.5219, lng: 126.9245 },
-                      '성수': { lat: 37.5445, lng: 127.0557 },
-                      '명동': { lat: 37.5636, lng: 126.9827 },
-                      '부산': { lat: 35.1587, lng: 129.1603 },
-                      '대구': { lat: 35.8714, lng: 128.6014 },
-                      '인천': { lat: 37.4563, lng: 126.7052 },
-                      '광주': { lat: 35.1595, lng: 126.8526 },
-                      '대전': { lat: 36.3504, lng: 127.3845 },
-                      '울산': { lat: 35.5384, lng: 129.3114 },
-                      '수원': { lat: 37.2636, lng: 127.0286 },
-                      '고양': { lat: 37.6584, lng: 126.8320 },
-                      '제주시': { lat: 33.4890, lng: 126.4983 },
-                    };
-                    const coords = cityCoords[hotspotCityNames[idx]];
-                    if (coords && mapRef.current) {
-                      mapRef.current.panTo(coords);
-                      mapRef.current.setZoom(14);
-                    }
-                  }}
-                  className="flex-1 py-3 text-center transition-all"
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 800,
-                    color: selectedHotplaceTab === idx
-                      ? (idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32')
-                      : 'rgba(255,255,255,0.35)',
-                    borderBottom: selectedHotplaceTab === idx
-                      ? `2px solid ${idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32'}`
-                      : '2px solid transparent',
-                    background: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <span className={selectedHotplaceTab === idx && idx === 0 ? 'hotspot-rank-1-city' : ''}>
-                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {city}
-                  </span>
+                <button key={city} onClick={() => setSelectedHotplaceTab(idx)} className="flex-1 py-2.5 text-xs font-bold transition-colors" style={{ color: selectedHotplaceTab === idx ? '#ff6a00' : 'rgba(255,255,255,0.4)', borderBottom: selectedHotplaceTab === idx ? '2px solid #ff6a00' : '2px solid transparent', background: 'none', cursor: 'pointer' }}>
+                  {city}
                 </button>
               ))}
             </div>
-
             {/* 탭 콘텐츠 */}
-            {(() => {
-              const city = hotspotCityNames[selectedHotplaceTab];
-              const venue = HOTPLACE_DATA[city] || {
-                name: `${city} 추천 핫플`,
-                category: '📍 로컬 명소',
-                address: `${city} 중심부`,
-                description: `${city}에서 지금 가장 주목받는 공간입니다.`,
-                stats: [
-                  { icon: '🧠', text: `${city}에서 다양한 MBTI 유형이 모여요` },
-                  { icon: '🔥', text: '주말 저녁 방문 추천' },
-                  { icon: '📅', text: '최근 SNS에서 급부상 중인 장소' },
-                ],
-              };
-              const rankColor = selectedHotplaceTab === 0 ? '#ffd700' : selectedHotplaceTab === 1 ? '#c0c0c0' : '#cd7f32';
+            {hotspotCityNames[selectedHotplaceTab] && (() => {
+              const cityName = hotspotCityNames[selectedHotplaceTab];
+              const city = CITIES.find(c => c.name === cityName);
+              if (!city) return null;
+              const cityRadius = 0.25;
+              const citySpots = dummyDataRef.current.filter(m =>
+                Math.abs(m.lat - city.lat) < cityRadius && Math.abs(m.lng - city.lng) < cityRadius
+              );
+              const mbtiCounts: Record<string, number> = {};
+              citySpots.forEach(s => { mbtiCounts[s.mbti] = (mbtiCounts[s.mbti] || 0) + 1; });
+              const topMBTI = Object.entries(mbtiCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+              // 서울시 실시간 데이터 (홍대/성수)
+              const apiPlaces = SEOUL_CITY_API_PLACES[cityName] || [];
+              const apiDataList = apiPlaces.map(p => seoulCityData[p]).filter(Boolean);
               return (
-                <div className="px-5 py-4">
-                  {/* 장소 헤더 */}
-                  <div className="mb-4">
-                    <div style={{ fontSize: '11px', color: rankColor, fontWeight: 700, marginBottom: '4px', letterSpacing: '0.5px' }}>
-                      {venue.category}
-                    </div>
-                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '4px',  }}>
-                      {venue.name}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginBottom: '8px' }}>
-                      📍 {venue.address}
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'rgba(255,180,100,0.85)', lineHeight: 1.6, padding: '10px 12px', background: 'rgba(255,69,0,0.08)', borderRadius: '8px', border: '1px solid rgba(255,69,0,0.15)' }}>
-                      {venue.description}
-                    </div>
-                  </div>
-
-                  {/* SPOT 통계 */}
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,150,80,0.8)', marginBottom: '10px', letterSpacing: '0.5px' }}>
-                    ✦ SPOT 통계
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {venue.stats.map((stat, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-3"
-                        style={{
-                          padding: '10px 12px',
-                          background: 'rgba(255,255,255,0.03)',
-                          borderRadius: '10px',
-                          border: '1px solid rgba(255,69,0,0.12)',
-                        }}
-                      >
-                        <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>{stat.icon}</span>
-                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{stat.text}</span>
+                <div className="px-4 py-4">
+                  {/* 서울시 실시간 데이터 */}
+                  {apiDataList.length > 0 && apiDataList.map((data, i) => {
+                    const congestion = data.AREA_CONGEST_LVL || "";
+                    const weather = data.WEATHER_TIME ? `${data.TEMP}°C · ${data.WEATHER_TIME}` : null;
+                    const congColor = congestion.includes("붐빔") ? "#ff4500" : congestion.includes("약간") ? "#ff9f43" : congestion.includes("보통") ? "#ffd700" : "#00c896";
+                    return (
+                      <div key={i} className="mb-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>{apiPlaces[i]}</span>
+                          <span style={{ fontSize: '11px', color: congColor, fontWeight: 900 }}>{congestion || "데이터 없음"}</span>
+                        </div>
+                        {weather && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>{weather}</div>}
+                        {data.AREA_CONGEST_MSG && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginTop: '4px', lineHeight: 1.4 }}>{data.AREA_CONGEST_MSG.slice(0, 60)}...</div>}
+                      </div>
+                    );
+                  })}
+                  {/* MBTI 분포 */}
+                  <div className="mb-3">
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>지금 이 곳의 MBTI 분포</div>
+                    {topMBTI.map(([mbti, count]) => (
+                      <div key={mbti} className="flex items-center gap-2 mb-1.5">
+                        <span style={{ fontSize: '11px', fontWeight: 900, color: MBTI_COLORS[mbti], width: '40px' }}>{mbti}</span>
+                        <div className="flex-1 rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(255,255,255,0.08)' }}>
+                          <div style={{ height: '100%', width: `${(count / citySpots.length) * 100}%`, background: MBTI_COLORS[mbti], borderRadius: '2px' }} />
+                        </div>
+                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', width: '24px', textAlign: 'right' }}>{count}</span>
                       </div>
                     ))}
                   </div>
-
-                  {/* 하단 여백 */}
-                  <div style={{ height: '16px' }} />
+                  <button
+                    onClick={() => {
+                      if (mapRef.current) {
+                        mapRef.current.setCenter(new window.kakao.maps.LatLng(city.lat, city.lng));
+                        mapRef.current.setLevel(4);
+                      }
+                      setShowHotplacePopup(false);
+                    }}
+                    className="w-full py-2.5 rounded-xl text-sm font-black transition-all"
+                    style={{ background: 'rgba(255,106,0,0.15)', border: '1.5px solid rgba(255,106,0,0.4)', color: '#ff6a00' }}
+                  >
+                    {cityName} 지도로 보기 →
+                  </button>
                 </div>
               );
             })()}
@@ -2440,1341 +1102,407 @@ export default function MvpMap() {
         </div>
       )}
 
-      {/* 지도 */}
-      <div className="flex-1 relative">
-        <MapView
-          className="w-full h-full"
-          initialCenter={userLocation || HONGDAE_CENTER}
-          initialZoom={13}
-          onMapReady={handleMapReady}
-        />
+      {/* 카카오맵 컨테이너 */}
+      <div className="relative flex-1 overflow-hidden" style={{ marginTop: seoulBanner ? '28px' : '0' }}>
+        <div ref={mapContainerRef} className="w-full h-full" />
 
-        {/* 내 위치로 돌아가기 버튼 + 내 스팟 등록 버튼 (세로 배치) */}
-        <div className="absolute bottom-24 left-4 flex flex-col items-center gap-3">
-          {/* 내 위치로 돌아가기 버튼 */}
-          <button
-            onClick={() => {
-              if (mapRef.current && userLocation) {
-                mapRef.current.panTo(userLocation);
-                mapRef.current.setZoom(15);
-                toast.success("내 위치로 이동했습니다");
-              } else {
-                toast.error("GPS 위치를 찾을 수 없습니다");
-              }
-            }}
-            className="bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-2 shadow-2xl hover:scale-110 transition-transform"
-            style={{
-              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-              width: '38px',
-              height: '38px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="3" />
-            <line x1="12" y1="2" x2="12" y2="4" />
-            <line x1="12" y1="20" x2="12" y2="22" />
-            <line x1="2" y1="12" x2="4" y2="12" />
-            <line x1="20" y1="12" x2="22" y2="12" />
-          </svg>
-          </button>
-        </div>
-
-        {/* 우측 하단 버튼 그룹: 핫플 + 아바타DIY + 돋보기 */}
-        <div className="absolute bottom-24 right-4 flex flex-col items-center gap-3">
-
-          {/* 숏폼 컨텐츠 버튼 (핫플 위) */}
-          <button
-            onClick={() => setShowSpotFeed(true)}
-            className="backdrop-blur-lg rounded-full hover:scale-105 active:scale-95 transition-transform"
-            style={{
-              background: 'rgba(0,5,15,0.95)',
-              border: '1.5px solid rgba(0,240,255,0.55)',
-              boxShadow: 'none',
-              width: '34px',
-              height: '34px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-            }}
-          >
-            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="2" width="3" height="16" rx="1.5" fill="rgba(0,240,255,0.5)"/>
-              <rect x="6" y="2" width="3" height="16" rx="1.5" fill="rgba(0,240,255,0.5)"/>
-              <path d="M12 5 L19 10 L12 15 Z" fill="rgba(0,240,255,0.95)"/>
-            </svg>
-          </button>
-
-          {/* 핫플레이스 버튼 (돋보기 위) */}
-          {hotspotCityNames.length > 0 && (
-            <button
-              onClick={() => { setSelectedHotplaceTab(0); setShowHotplacePopup(true); }}
-              className="hotspot-banner backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform"
-              style={{
-                background: 'rgba(10,5,0,0.95)',
-                border: '1.5px solid rgba(255,100,0,0.65)',
-                boxShadow: 'none',
-                width: '34px',
-                height: '34px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-              }}
-            >
-              <span className="hotspot-fire" style={{ fontSize: '16px', lineHeight: 1 }}>🔥</span>
-            </button>
-          )}
-
-          {/* 아바타 DIY 버튼 (돋보기 위) */}
-          {!spotSubmitted && (
-            <button
-              onClick={() => setShowSpotForm(true)}
-              className="backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform spot-btn-glow"
-              style={{
-                background: 'rgba(5,0,10,0.95)',
-                border: '1.5px solid rgba(180,0,255,0.65)',
-                boxShadow: 'none',
-                width: '34px',
-                height: '34px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-              }}
-            >
-              <span className="spot-icon-anim" style={{ fontSize: '16px', lineHeight: 1 }}>🐶</span>
-            </button>
-          )}
-
-          {/* 돋보기 검색 버튼 */}
-          <button
-            onClick={() => {
-              setShowSearch(prev => !prev);
-              setSearchQuery('');
-              setSearchResults([]);
-              setTimeout(() => searchInputRef.current?.focus(), 100);
-            }}
-            className={`backdrop-blur-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform ${!showSearch ? 'search-btn-glow' : ''}`}
-            style={{
-              background: 'rgba(0,5,10,0.95)',
-              border: showSearch ? '1.5px solid rgba(0,240,255,0.9)' : '1.5px solid rgba(0,200,255,0.45)',
-              boxShadow: 'none',
-              width: '34px',
-              height: '34px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </span>
-          </button>
-        </div>
-
-        {/* 검색 패널 - 말풍선 모양 */}
+        {/* 검색 패널 */}
         {showSearch && (
           <div
             ref={searchPanelRef}
-            className="absolute z-50"
-            style={{
-              bottom: '140px', // bottom-24(96px) + 버튼높이(38px) + 여백(6px)
-              right: '4px',
-              width: '270px',
-              opacity: searchVisible ? 1 : 0,
-              transform: searchVisible ? 'scale(1) translateY(0)' : 'scale(0.93) translateY(8px)',
-              transition: 'opacity 0.18s ease, transform 0.18s ease',
-              transformOrigin: 'bottom right',
-            }}
+            className="absolute top-2 left-2 right-2 z-30 rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(4,4,14,0.97)', border: '1.5px solid rgba(0,240,255,0.3)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)', opacity: searchVisible ? 1 : 0, transform: searchVisible ? 'translateY(0)' : 'translateY(-8px)', transition: 'opacity 0.18s ease, transform 0.18s ease' }}
           >
-            {/* 말풍선 꼬리 - 우측 하단 */}
-            <div style={{
-              position: 'absolute',
-              bottom: '-9px',
-              right: '14px',
-              width: 0,
-              height: 0,
-              borderLeft: '9px solid transparent',
-              borderRight: '9px solid transparent',
-              borderTop: '10px solid rgba(0,240,255,0.6)',
-              zIndex: 2,
-            }} />
-            {/* 꼬리 내부 (배경색 채우기) */}
-            <div style={{
-              position: 'absolute',
-              bottom: '-7px',
-              right: '15px',
-              width: 0,
-              height: 0,
-              borderLeft: '8px solid transparent',
-              borderRight: '8px solid transparent',
-              borderTop: '9px solid rgba(4,4,14,0.97)',
-              zIndex: 3,
-            }} />
-            <div
-              style={{
-                background: 'rgba(4,4,14,0.97)',
-                border: '1.5px solid rgba(0,240,255,0.6)',
-                borderRadius: '14px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
-                overflow: 'hidden',
-              }}
-            >
-              <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: '1px solid rgba(0,240,255,0.15)' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.6)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const q = e.target.value;
-                    setSearchQuery(q);
-                    if (!q.trim() || q.trim().length < 2) {
-                      setSearchResults([]);
-                      return;
-                    }
-                    if (!mapRef.current) return;
-                    setSearchLoading(true);
-                    const geocoder = new google.maps.Geocoder();
-                    geocoder.geocode(
-                      { address: q + ' 한국', region: 'KR' },
-                      (results, status) => {
-                        setSearchLoading(false);
-                        if (status === 'OK' && results && results.length > 0) {
-                          const items = results.slice(0, 5).map(r => ({
-                            name: r.formatted_address.replace(', 대한민국', '').replace('대한민국 ', ''),
-                            lat: r.geometry.location.lat(),
-                            lng: r.geometry.location.lng(),
-                          }));
-                          setSearchResults(items);
-                        } else {
-                          setSearchResults([]);
-                        }
-                      }
-                    );
-                  }}
-                  placeholder="장소·지역 검색 (예: 홍대 카페)"
-                  className="flex-1 outline-none text-xs bg-transparent"
-                  style={{ color: '#00f0ff' }}
-                />
-                {searchQuery ? (
-                  <button
-                    onClick={() => { setSearchQuery(''); setSearchResults([]); searchInputRef.current?.focus(); }}
-                    className="hover:text-white transition-colors text-xs leading-none flex-shrink-0"
-                    style={{ color: 'rgba(0,240,255,0.5)', padding: '2px' }}
-                    title="입력 지우기"
-                  >
-                    ✕
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
-                    className="hover:text-white transition-colors leading-none flex-shrink-0"
-                    style={{ color: 'rgba(255,255,255,0.35)', padding: '2px', fontSize: '13px' }}
-                    title="닫기"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-              {/* 카테고리 칩 - 항상 표시 */}
-              <div className="px-2.5 py-2" style={{ borderBottom: '1px solid rgba(0,240,255,0.1)' }}>
-                <div className="flex flex-wrap gap-1">
-                  {([
-                    { key: 'cafe',       label: '☕ 카페',  color: '#c77dff' },
-                    { key: 'restaurant', label: '🍜 맛집',  color: '#ff9f43' },
-                    { key: 'bar',        label: '🍺 술집',  color: '#ff6b6b' },
-                    { key: 'park',       label: '🌿 공원',  color: '#00f0b4' },
-                    { key: 'nature',     label: '🏔 자연',  color: '#74b9ff' },
-                    { key: 'beach',      label: '🌊 해변',  color: '#00cec9' },
-                    { key: 'landmark',   label: '📍 명소',  color: '#00f0ff' },
-                    { key: 'market',     label: '🛒 시장',  color: '#fdcb6e' },
-                  ] as { key: string; label: string; color: string }[]).map(({ key, label, color }) => {
-                    const isActive = selectedCategory === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => filterByCategory(key)}
-                        className="rounded-full text-[10px] font-bold transition-all"
-                        style={{
-                          padding: '3px 8px',
-                          background: isActive ? `${color}25` : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${isActive ? color : 'rgba(255,255,255,0.12)'}`,
-                          color: isActive ? color : 'rgba(255,255,255,0.45)',
-                          boxShadow: 'none',
-                          cursor: 'pointer',
-                          flexShrink: 0,
-                        }}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-                {selectedCategory && (
-                  <button
-                    onClick={() => filterByCategory(selectedCategory)}
-                    className="mt-1.5 text-[10px] transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                  >
-                    ✕ 카테고리 필터 해제
-                  </button>
-                )}
-              </div>
-              {searchLoading && (
-                <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(0,240,255,0.5)' }}>검색 중...</div>
-              )}
-              {!searchLoading && searchResults.length > 0 && (
-                <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                  {searchResults.map((result, idx) => (
-                    <button
-                      key={idx}
-                      className="w-full text-left px-3 py-2.5 text-xs transition-all"
-                      style={{
-                        color: 'rgba(255,255,255,0.8)',
-                        borderBottom: idx < searchResults.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                        background: 'transparent',
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,240,255,0.08)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => {
-                        if (mapRef.current) {
-                          mapRef.current.panTo({ lat: result.lat, lng: result.lng });
-                          mapRef.current.setZoom(14);
-                          toast.success(`📍 ${result.name}`, { duration: 2000 });
-                          setShowSearch(false);
-                          setSearchQuery('');
-                          setSearchResults([]);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        <span className="truncate">{result.name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {!searchLoading && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
-                <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>검색 결과가 없습니다</div>
-              )}
-              {!searchQuery && !selectedCategory && (
-                <div className="px-3 py-2 text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>위 카테고리 선택 또는 지역명 입력</div>
-              )}
-              {!searchQuery && selectedCategory && (
-                <div className="px-3 py-2 text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>지역명도 함께 입력하면 복합 검색돼요</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 하단 정보 안내 텍스트 */}
-        {!selectedMarker && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 border border-cyan-500/20 rounded-xl px-4 py-2 shadow-lg">
-            <div className="text-xs text-gray-400 whitespace-nowrap">
-              마커를 클릭하여 MBTI 정보를 확인하세요
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ─── 말풍선 팝업 ─── */}
-      {popupData && popupScreenPos && (() => {
-        // 팝업 크기 (px)
-        const PW = 300;
-        const PH = 310; // 와이어프레임 기준
-        const TAIL = 10; // 말풍선 코 높이
-        const AVATAR_R = 11; // 아바타 원 반지름
-
-        // 아바타 위경도 좌표 기반 화면 좌표
-        const avatarX = popupScreenPos.x;
-        const avatarY = popupScreenPos.y;
-
-        // 좌우: 중앙 정렬, 화면 바깥으로 나가도 짜림 (MARGIN 없음)
-        let left = avatarX - PW / 2;
-
-        // 항상 아바타 위로만 고정 - 공간 부족해도 절대 아래로 뒤집지 않음
-        // 짤려도 OK - 사용자가 지도 시점 이동해서 볼 것
-        // 단, 상단 MBTI 필터바(48px) 아래에서만 overflow:hidden으로 클리핑됨
-        const TOP_BOUNDARY = 48;
-        const tailBelow = false; // 항상 false - 무조건 위로만
-
-        let top = avatarY - AVATAR_R - PH - TAIL - 4;
-
-        // 코 X 위치 - 아바타 중심에 맞춰
-        const tailX = Math.min(Math.max(avatarX - left, 16), PW - 16);
-
-        return (
-          <>
-            {/* 외부 클릭 시 닫기: 팝업 외부 터치는 지도로 통과시키고, 마커 재클릭 시 닫힘 */}
-            {/* 말풍선 컨테이너 - pointer-events:none으로 지도 터치/드래그 통과 */}
-            <div
-              className="fixed z-50"
-              style={{
-                left: `${left}px`,
-                top: `${top}px`,
-                width: `${PW}px`,
-                pointerEvents: 'none',
-                opacity: popupVisible ? 1 : 0,
-                transform: popupVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(6px)',
-                transition: 'opacity 0.18s ease, transform 0.18s ease',
-                transformOrigin: tailBelow ? 'top center' : 'bottom center',
-              }}
-            >
-              {/* 코 (위에 있을 때 - 아래로 향하는 코) */}
-              {!tailBelow && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: -TAIL,
-                  left: tailX,
-                  transform: 'translateX(-50%)',
-                  width: 0,
-                  height: 0,
-                  borderLeft: '8px solid transparent',
-                  borderRight: '8px solid transparent',
-                  borderTop: `${TAIL}px solid ${MBTI_COLORS[popupData.mbti]}99`,
-                  zIndex: 1,
-                }} />
-              )}
-
-              {/* 팝업 본체 - 카드 내부만 pointer-events:auto */}
-              <div
-                onTouchMove={(e) => e.stopPropagation()}
-                onWheel={(e) => e.stopPropagation()}
-                style={{
-                  background: 'rgba(8, 8, 16, 0.97)',
-                  border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}66`,
-                  borderRadius: '14px',
-                  boxShadow: `0 8px 32px rgba(0,0,0,0.8)`,
-                  overflow: 'hidden',
-                  pointerEvents: 'auto',
-                }}
-              >
-                {/* ── 헤더: MBTI 아바타 + 장소명(주소) + 시간 + X ── */}
-                {(() => {
-                  const isVenueType = ['cafe', 'restaurant', 'bar'].includes(popupData.category ?? '');
-                  const n = popupData.nearbyCount ?? 0;
-                  const vibe = n >= 20
-                    ? { emoji: '🔥', label: '혼잡도(90%)', color: '#ff4500', bg: 'rgba(255,69,0,0.12)', border: 'rgba(255,69,0,0.3)' }
-                    : n >= 8
-                    ? { emoji: '😊', label: '혼잡도(60%)', color: '#00c896', bg: 'rgba(0,200,150,0.1)', border: 'rgba(0,200,150,0.3)' }
-                    : n >= 3
-                    ? { emoji: '😌', label: '혼잡도(30%)', color: '#c77dff', bg: 'rgba(199,125,255,0.1)', border: 'rgba(199,125,255,0.3)' }
-                    : { emoji: '🌙', label: '조용한 편', color: '#8888aa', bg: 'rgba(136,136,170,0.1)', border: 'rgba(136,136,170,0.25)' };
-
-                  // 분위기 태그 (카테고리별)
-                  const moodTags = isVenueType
-                    ? (popupData.mood ? [popupData.mood] : ['대기 걸어야 할수도'])
-                    : (popupData.mood ? [popupData.mood] : ['야경 추천', '벚꽃 만개']);
-
-                  return (
-                    <>
-                      {/* 헤더 행 */}
-                      <div className="flex items-start gap-2.5 px-3 pt-2.5 pb-2"
-                        style={{ borderBottom: `1px solid rgba(255,255,255,0.08)` }}
-                      >
-                        {/* 아바타 */}
-                        <div style={{
-                          borderRadius: '50%',
-                          border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
-                          overflow: 'hidden',
-                          width: '40px',
-                          height: '40px',
-                          flexShrink: 0,
-                          background: `${MBTI_COLORS[popupData.mbti]}22`,
-                        }}>
-                          {popupData.avatar
-                            ? <AvatarSVG config={popupData.avatar} size={40} bgColor={`${MBTI_COLORS[popupData.mbti]}22`} showEmoji={true} />
-                            : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}><span style={{ fontSize:'18px' }}>👤</span></div>
-                          }
-                        </div>
-
-                        {/* 텍스트 영역 */}
-                        <div className="flex-1 min-w-0">
-                          {/* 장소명 (주소) - 와이어프레임: 첫 줄에 크게 */}
-                          <div className="text-[11px] font-bold leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                            {isVenueType
-                              ? (popupPlaceName ?? popupAddress ?? '위치 확인 중...')
-                              : (popupAddress ?? popupPlaceName ?? '위치 확인 중...')
-                            }
-                          </div>
-                          {/* 행동 태그 + 혼잡도 - 두 번째 줄 */}
-                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                            {/* 현재 행동 태그 뱃지 */}
-                            {popupData.activity && (
-                              <span
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                style={{
-                                  background: `${MBTI_COLORS[popupData.mbti]}18`,
-                                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}55`,
-                                  color: MBTI_COLORS[popupData.mbti],
-                                }}
-                              >
-                                <span>{popupData.activity.emoji}</span>
-                                <span>{popupData.activity.text}</span>
-                              </span>
-                            )}
-                            {/* 혼잡도 */}
-                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                              {vibe.emoji} {vibe.label}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* 우상단: X 버튼 */}
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          <button
-                            onClick={() => closePopup()}
-                            style={{
-                              background: 'rgba(255,255,255,0.08)',
-                              border: '1px solid rgba(255,255,255,0.15)',
-                              borderRadius: '50%', width: '18px', height: '18px',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: 'rgba(255,255,255,0.5)', fontSize: '9px',
-                              cursor: 'pointer',
-                            }}
-                          >✕</button>
-                        </div>
-                      </div>
-
-                      {/* ── 인원 + 사진 섹션 ── */}
-                      <div className="px-3 py-2" style={{ borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
-                        {/* 인원 표시 */}
-                        <div className="text-[10px] font-bold mb-2" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                          {isVenueType ? '매장내' : '스팟내'}{' '}
-                          <span style={{ color: MBTI_COLORS[popupData.mbti], fontWeight: 900 }}>
-                            {n}명 존재
-                          </span>
-                          <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}> (실시간 {n}명 증가)</span>
-                        </div>
-
-                        {/* 사진 그리드 */}
-                        {photoLoading ? (
-                          <div className="flex gap-2">
-                            {[0,1,2].map(i => (
-                              <div key={i} className="flex-1 rounded-lg"
-                                style={{ height: '72px', background: 'rgba(255,255,255,0.06)', animation: 'shimmer 1.5s infinite' }} />
-                            ))}
-                          </div>
-                        ) : (() => {
-                          const photos = placePhotos.length > 0
-                            ? placePhotos.slice(0, 3).map(p => p.url)
-                            : (() => {
-                              const cat = popupData.category ?? 'landmark';
-                              const fallbackImages: Record<string, string[]> = {
-                                cafe: [
-                                  'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&h=300&fit=crop',
-                                ],
-                                restaurant: [
-                                  'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop',
-                                ],
-                                bar: [
-                                  'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&h=300&fit=crop',
-                                ],
-                                park: [
-                                  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&h=300&fit=crop',
-                                ],
-                                beach: [
-                                  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400&h=300&fit=crop',
-                                ],
-                                nature: [
-                                  'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop',
-                                ],
-                                market: [
-                                  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
-                                ],
-                                landmark: [
-                                  'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop',
-                                  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop',
-                                ],
-                              };
-                              return (fallbackImages[cat] ?? fallbackImages['landmark']).slice(0, 3);
-                            })();
-
-                          return (
-                            <div className="flex gap-2">
-                              {photos.map((src, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex-1 rounded-lg overflow-hidden cursor-pointer"
-                                  style={{ height: '72px', border: '1px solid rgba(255,255,255,0.12)' }}
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    setLightboxIndex(idx);
-                                    if (placePhotos.length === 0) {
-                                      setPlacePhotos(photos.map(u => ({ url: u, attribution: '' })));
-                                    }
-                                  }}
-                                >
-                                  <img src={src} alt={`사진 ${idx+1}`}
-                                    style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                      </div>
-
-                      {/* ── 이 장소 분위기 섹션 ── */}
-                      {popupData.nearbyRecent && popupData.nearbyRecent.length > 0 && (() => {
-                        // 최근 체크인 사람들의 activity 분포 계산 (더미 + 실제 DB 스팟 합산)
-                        const allMarkers = dummyDataRef.current.filter((m: DummyMarker) => {
-                          const dist = Math.sqrt(
-                            Math.pow((m.lat - popupData.lat) * 111000, 2) +
-                            Math.pow((m.lng - popupData.lng) * 111000 * Math.cos(popupData.lat * Math.PI / 180), 2)
-                          );
-                          return dist < 200;
-                        });
-                        const activityCounts: Record<string, { emoji: string; count: number }> = {};
-                        allMarkers.forEach((m: DummyMarker) => {
-                          if (m.activity) {
-                            const key = m.activity.text;
-                            if (!activityCounts[key]) activityCounts[key] = { emoji: m.activity.emoji, count: 0 };
-                            activityCounts[key].count++;
-                          }
-                        });
-                        // 실제 DB 스팟 데이터도 합산 (200m 이내)
-                        const realSpots = spotsData?.spots ?? [];
-                        realSpots.forEach((s: { lat: number; lng: number; activity?: string | null }) => {
-                          const dist = Math.sqrt(
-                            Math.pow((s.lat - popupData.lat) * 111000, 2) +
-                            Math.pow((s.lng - popupData.lng) * 111000 * Math.cos(popupData.lat * Math.PI / 180), 2)
-                          );
-                          if (dist < 200 && s.activity) {
-                            try {
-                              const parsed = JSON.parse(s.activity) as { emoji: string; text: string };
-                              const key = parsed.text;
-                              if (!activityCounts[key]) activityCounts[key] = { emoji: parsed.emoji, count: 0 };
-                              activityCounts[key].count++;
-                            } catch (_) {}
-                          }
-                        });
-                        const sorted = Object.entries(activityCounts)
-                          .sort((a, b) => b[1].count - a[1].count)
-                          .slice(0, 4);
-                        if (sorted.length === 0) return null;
-                        return (
-                          <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                            <div className="text-[9px] font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
-                              지금 이 곳 사람들
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {sorted.map(([text, { emoji, count }]) => (
-                                <span
-                                  key={text}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px]"
-                                  style={{
-                                    background: 'rgba(255,255,255,0.06)',
-                                    border: '1px solid rgba(255,255,255,0.12)',
-                                    color: 'rgba(255,255,255,0.75)',
-                                  }}
-                                >
-                                  <span>{emoji}</span>
-                                  <span>{text}</span>
-                                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>{count}</span>
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })()}
-                      {/* ── 하단 버튼: 길찾기 + 저장하기 ── */}
-                      <div className="flex" style={{ borderTop: `1px solid rgba(255,255,255,0.06)` }}>
-                        <button
-                          className="flex-1 py-2.5 text-[12px] font-bold"
-                          style={{
-                            color: 'rgba(255,255,255,0.7)',
-                            background: 'transparent',
-                            borderRight: '1px solid rgba(255,255,255,0.08)',
-                            cursor: 'pointer',
-                          }}
-                          onClick={e => {
-                            e.stopPropagation();
-                            const url = `https://map.kakao.com/link/to/${encodeURIComponent(popupPlaceName ?? '목적지')},${popupData.lat},${popupData.lng}`;
-                            window.open(url, '_blank');
-                          }}
-                        >
-                          길찾기
-                        </button>
-                        <button
-                          className="flex-1 py-2.5 text-[12px] font-bold"
-                          style={{
-                            color: MBTI_COLORS[popupData.mbti],
-                            background: 'transparent',
-                            cursor: 'pointer',
-                          }}
-                          onClick={e => {
-                            e.stopPropagation();
-                            const saved = JSON.parse(localStorage.getItem('savedSpots') || '[]');
-                            const entry = { name: popupPlaceName ?? popupAddress ?? '저장된 장소', lat: popupData.lat, lng: popupData.lng, mbti: popupData.mbti, savedAt: Date.now() };
-                            localStorage.setItem('savedSpots', JSON.stringify([...saved, entry]));
-                            import('sonner').then(m => m.toast.success('저장되었습니다!'));
-                          }}
-                        >
-                          저장하기
-                        </button>
-                      </div>
-                    </>
-                  );
-                })()}
-
-
-
-              </div>{/* 팝업 본체 닫힘 */}
-
-              {/* 코 (아래에 있을 때 - 위로 향하는 코) */}
-              {tailBelow && (
-                <div style={{
-                  position: 'absolute',
-                  top: -TAIL,
-                  left: tailX,
-                  transform: 'translateX(-50%)',
-                  width: 0,
-                  height: 0,
-                  borderLeft: '8px solid transparent',
-                  borderRight: '8px solid transparent',
-                  borderBottom: `${TAIL}px solid ${MBTI_COLORS[popupData.mbti]}99`,
-                  zIndex: 1,
-                }} />
-              )}
-            </div>{/* 외부 컨테이너 닫힘 */}
-          </>
-        );
-      })()}
-
-      {/* 라이트박스 모달 */}
-      {lightboxIndex !== null && placePhotos.length > 0 && popupData && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}
-          onClick={() => setLightboxIndex(null)}
-        >
-          {/* 이전 버튼 */}
-          {lightboxIndex > 0 && (
-            <button
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
-              style={{
-                width: '40px', height: '40px',
-                background: 'rgba(255,255,255,0.12)',
-                border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}66`,
-                borderRadius: '50%',
-                color: '#fff',
-                fontSize: '18px',
-                cursor: 'pointer',
-              }}
-              onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? Math.max(0, i - 1) : 0); }}
-            >‹</button>
-          )}
-
-          {/* 메인 이미지 */}
-          <div
-            className="relative flex flex-col items-center"
-            onClick={e => e.stopPropagation()}
-            style={{ maxWidth: '90vw', maxHeight: '80vh' }}
-          >
-            <img
-              src={placePhotos[lightboxIndex].url}
-              alt="장소 사진"
-              style={{
-                maxWidth: '90vw',
-                maxHeight: '70vh',
-                objectFit: 'contain',
-                borderRadius: '12px',
-                border: `2px solid ${MBTI_COLORS[popupData.mbti]}88`,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
-              }}
-            />
-            {/* 뎷 인디케이터 */}
-            <div className="flex gap-2 mt-4">
-              {placePhotos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setLightboxIndex(i)}
-                  style={{
-                    width: i === lightboxIndex ? '20px' : '6px',
-                    height: '6px',
-                    borderRadius: '3px',
-                    background: i === lightboxIndex ? MBTI_COLORS[popupData.mbti] : 'rgba(255,255,255,0.3)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                    boxShadow: 'none',
-                  }}
-                />
-              ))}
-            </div>
-            {/* 닫기 버튼 */}
-            <button
-              className="absolute top-2 right-2"
-              style={{
-                width: '28px', height: '28px',
-                background: 'rgba(0,0,0,0.6)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '50%',
-                color: 'rgba(255,255,255,0.7)',
-                fontSize: '14px',
-                cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-              onClick={() => setLightboxIndex(null)}
-            >✕</button>
-          </div>
-
-          {/* 다음 버튼 */}
-          {lightboxIndex < placePhotos.length - 1 && (
-            <button
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
-              style={{
-                width: '40px', height: '40px',
-                background: 'rgba(255,255,255,0.12)',
-                border: `1.5px solid ${MBTI_COLORS[popupData.mbti]}66`,
-                borderRadius: '50%',
-                color: '#fff',
-                fontSize: '18px',
-                cursor: 'pointer',
-              }}
-              onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? Math.min(placePhotos.length - 1, i + 1) : 0); }}
-            >›</button>
-          )}
-        </div>
-      )}
-
-      {/* 스팝 입력 팝업 (11초 후) */}
-      {showSpotForm && !spotSubmitted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{
-          background: 'rgba(0,0,0,0.7)',
-          opacity: spotFormVisible ? 1 : 0,
-          transition: 'opacity 0.22s ease',
-        }}>
-          <div
-            style={{
-              background: 'rgba(4, 4, 14, 0.98)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '20px',
-              padding: '20px 20px',
-              width: '320px',
-              maxWidth: '90vw',
-              maxHeight: '88vh',
-              overflowY: 'auto',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.8)',
-              transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
-              transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
-              position: 'relative',
-            }}
-          >
-            {/* 닫기 버튼 */}
-            <button
-              onClick={() => setShowSpotForm(false)}
-              style={{
-                position: 'absolute',
-                top: '14px',
-                right: '14px',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '50%',
-                width: '28px',
-                height: '28px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'rgba(255,255,255,0.5)',
-                fontSize: '14px',
-                cursor: 'pointer',
-                lineHeight: 1,
-              }}
-            >
-              ✕
-            </button>
-
-            {/* 제목 */}
-            <p className="text-center font-black mb-4" style={{ color: '#ffffff', fontSize: '15px', letterSpacing: '0.05em' }}>
-              지도에 나를 새겨보아요!!
-            </p>
-
-            {/* ── 아바타 미리보기 ── */}
-            <div className="flex justify-center mb-4">
-              <div style={{
-                background: 'rgba(0,240,255,0.06)',
-                border: '2px solid rgba(0,240,255,0.3)',
-                borderRadius: '50%',
-                padding: '10px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-              }}>
-                <AvatarSVG config={spotFormData.avatar} size={80} bgColor={MBTI_COLORS[spotFormData.mbti] ? `${MBTI_COLORS[spotFormData.mbti]}33` : '#0a0a1e'} showEmoji={true} />
-              </div>
-            </div>
-
-            {/* ── 아바타 탭 ── */}
-            <div className="flex gap-1 mb-3">
-              {(['animal', 'accessory', 'expression', 'emoji'] as const).map(tab => {
-                const labels = { animal: '동물', accessory: '액세서리', expression: '표정', emoji: '이모티콘' };
-                const colors = { animal: '#00f0ff', accessory: '#c77dff', expression: '#ff9eb5', emoji: '#ffc800' };
-                const TAB_ORDER = ['animal', 'accessory', 'expression', 'emoji'];
-                const isActive = avatarTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => {
-                      if (tab === avatarTab) return;
-                      const dir = TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(avatarTab) ? 'left' : 'right';
-                      setAvatarSlideDir(dir);
-                      setAvatarTabSliding(true);
-                      setTimeout(() => {
-                        setAvatarTab(tab);
-                        setAvatarTabSliding(false);
-                      }, 180);
-                    }}
-                    style={{
-                      flex: 1,
-                      padding: '5px 2px',
-                      borderRadius: '8px',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      border: isActive ? `1.5px solid ${colors[tab]}` : '1.5px solid rgba(255,255,255,0.1)',
-                      background: isActive ? `${colors[tab]}18` : 'transparent',
-                      color: isActive ? colors[tab] : 'rgba(255,255,255,0.35)',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s',
-                    }}
-                  >{labels[tab]}</button>
-                );
-              })}
-            </div>
-
-            {/* ── 탭 콘텐츠 ── */}
-            <div
-              className="mb-4"
-              style={{
-                minHeight: '72px',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              <div
-                style={{
-                  transform: avatarTabSliding
-                    ? `translateX(${avatarSlideDir === 'left' ? '-18px' : '18px'})`
-                    : 'translateX(0)',
-                  opacity: avatarTabSliding ? 0 : 1,
-                  transition: 'transform 0.18s cubic-bezier(0.4,0,0.2,1), opacity 0.18s ease',
-                }}
-              >
-              {/* 동물 선택 */}
-              {avatarTab === 'animal' && (
-                <>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {(showAllAnimals ? ANIMALS : ANIMALS.slice(0, 8)).map(a => (
-                      <button
-                        key={a.type}
-                        onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, animal: a.type } }))}
-                        style={{
-                          padding: '6px 2px',
-                          borderRadius: '8px',
-                          border: spotFormData.avatar.animal === a.type ? '1.5px solid #00f0ff' : '1.5px solid rgba(255,255,255,0.1)',
-                          background: spotFormData.avatar.animal === a.type ? 'rgba(0,240,255,0.15)' : 'rgba(255,255,255,0.03)',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: '2px',
-                          transition: 'all 0.12s',
-                        }}
-                      >
-                        <span style={{ fontSize: '18px' }}>{a.emoji}</span>
-                        <span style={{ fontSize: '8px', color: spotFormData.avatar.animal === a.type ? '#00f0ff' : 'rgba(255,255,255,0.4)' }}>{a.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setShowAllAnimals(!showAllAnimals)}
-                    style={{
-                      marginTop: '8px',
-                      padding: '6px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(0,240,255,0.3)',
-                      background: 'rgba(0,240,255,0.05)',
-                      color: '#00f0ff',
-                      fontSize: '10px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      width: '100%',
-                      transition: 'all 0.15s',
-                    }}
-                  >
-                    {showAllAnimals ? '접기 ▲' : `더보기 (${ANIMALS.length - 8}종) ▼`}
-                  </button>
-                </>
-              )}
-              {/* 액세서리 선택 */}
-              {avatarTab === 'accessory' && (
-                <div className="grid grid-cols-4 gap-1.5">
-                  {ACCESSORIES.map(a => (
-                    <button
-                      key={a.type}
-                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, accessory: a.type } }))}
-                      style={{
-                        padding: '6px 4px',
-                        borderRadius: '8px',
-                        border: spotFormData.avatar.accessory === a.type ? '1.5px solid #c77dff' : '1.5px solid rgba(255,255,255,0.1)',
-                        background: spotFormData.avatar.accessory === a.type ? 'rgba(199,125,255,0.15)' : 'rgba(255,255,255,0.03)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '2px',
-                        transition: 'all 0.12s',
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>{a.emoji}</span>
-                      <span style={{ fontSize: '8px', color: spotFormData.avatar.accessory === a.type ? '#c77dff' : 'rgba(255,255,255,0.4)' }}>{a.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {/* 표정 선택 */}
-              {avatarTab === 'expression' && (
-                <div className="grid grid-cols-5 gap-1.5">
-                  {EXPRESSIONS.map(e => (
-                    <button
-                      key={e.type}
-                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, expression: e.type } }))}
-                      style={{
-                        padding: '8px 4px',
-                        borderRadius: '8px',
-                        border: spotFormData.avatar.expression === e.type ? '1.5px solid #ff9eb5' : '1.5px solid rgba(255,255,255,0.1)',
-                        background: spotFormData.avatar.expression === e.type ? 'rgba(255,158,181,0.15)' : 'rgba(255,255,255,0.03)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '2px',
-                        transition: 'all 0.12s',
-                      }}
-                    >
-                      <span style={{ fontSize: '22px' }}>{e.emoji}</span>
-                      <span style={{ fontSize: '8px', color: spotFormData.avatar.expression === e.type ? '#ff9eb5' : 'rgba(255,255,255,0.4)' }}>{e.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {/* 이모티콘 선택 */}
-              {avatarTab === 'emoji' && (
-                <div className="grid grid-cols-6 gap-1.5">
-                  {EMOJIS.map(e => (
-                    <button
-                      key={e.type}
-                      onClick={() => setSpotFormData(p => ({ ...p, avatar: { ...p.avatar, emoji: e.type } }))}
-                      style={{
-                        padding: '8px 4px',
-                        borderRadius: '8px',
-                        border: spotFormData.avatar.emoji === e.type ? '1.5px solid #ffc800' : '1.5px solid rgba(255,255,255,0.1)',
-                        background: spotFormData.avatar.emoji === e.type ? 'rgba(255,200,0,0.15)' : 'rgba(255,255,255,0.03)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '2px',
-                        transition: 'all 0.12s',
-                      }}
-                    >
-                      <span style={{ fontSize: e.type === 'none' ? '14px' : '22px' }}>{e.type === 'none' ? '없음' : e.type}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              </div>{/* 애니메이션 래퍼 div 닫기 */}
-            </div>
-
-            {/* ── 구분선 ── */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginBottom: '14px' }} />
-
-            {/* ── MBTI 텍스트 입력 ── */}
-            <div className="mb-3">
-              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>#MBTI</label>
+            {/* 검색 입력 */}
+            <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: '1px solid rgba(0,240,255,0.1)' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
               <input
+                ref={searchInputRef}
+                autoFocus
                 type="text"
-                value={spotFormData.mbti}
-                onChange={e => setSpotFormData(p => ({ ...p, mbti: e.target.value.toUpperCase().slice(0, 4) }))}
-                placeholder="예: ENTJ"
-                maxLength={4}
-                className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: spotFormData.mbti && MBTI_TYPES.includes(spotFormData.mbti) ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid rgba(255,255,255,0.2)',
-                  color: '#fff',
-                  letterSpacing: '0.15em',
-                }}
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="장소·지역 검색 (예: 홍대 카페)"
+                className="flex-1 outline-none text-xs bg-transparent"
+                style={{ color: '#00f0ff' }}
               />
-              {spotFormData.mbti && !MBTI_TYPES.includes(spotFormData.mbti) && (
-                <p style={{ fontSize: '10px', color: 'rgba(255,100,100,0.8)', marginTop: '4px' }}>올바른 MBTI를 입력해주세요 (예: ENFP)</p>
+              {searchQuery ? (
+                <button onClick={() => { setSearchQuery(''); setSearchResults([]); searchInputRef.current?.focus(); }} className="hover:text-white transition-colors text-xs leading-none flex-shrink-0" style={{ color: 'rgba(0,240,255,0.5)', padding: '2px' }}>✕</button>
+              ) : (
+                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }} className="hover:text-white transition-colors leading-none flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)', padding: '2px', fontSize: '13px' }}>✕</button>
               )}
             </div>
-
-            {/* ── MOOD 텍스트 입력 ── */}
-            <div className="mb-3">
-              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>#MOOD</label>
-              <input
-                type="text"
-                value={spotFormData.mood}
-                onChange={e => setSpotFormData(p => ({ ...p, mood: e.target.value.slice(0, 30) }))}
-                placeholder="예: happy / 집에가고싶다,,, / 신남!"
-                maxLength={30}
-                className="w-full rounded-lg px-3 py-2.5 text-sm font-bold outline-none"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: spotFormData.mood ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid rgba(255,255,255,0.2)',
-                  color: '#fff',
-                }}
-              />
-            </div>
-            {/* ── 지금 뭐 하는 중? (행동 선택) ── */}
-            <div className="mb-3">
-              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>
-                지금 뭐 하는 중?
-                <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400, marginLeft: '6px' }}>선택 사항</span>
-              </label>
-              {/* 직접 입력 (맨 위) */}
-              {spotFormData.activity === '__custom__' ? (
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder="직접 입력... (예: 혼자 맥주 한잔 중)"
-                  maxLength={20}
-                  className="w-full rounded-lg px-3 py-2.5 text-sm outline-none mb-2"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1.5px solid rgba(255,255,255,0.4)',
-                    color: '#fff',
-                  }}
-                  onChange={e => setSpotFormData(p => ({ ...p, activityEmoji: '✏️', mood: p.mood || e.target.value }))}
-                  onBlur={e => {
-                    if (!e.target.value.trim()) setSpotFormData(p => ({ ...p, activity: '' }));
-                    else setSpotFormData(p => ({ ...p, activity: e.target.value.trim() }));
-                  }}
-                />
-              ) : null}
-              {/* 칩 선택 */}
-              <div className="flex flex-wrap gap-1.5">
-                {/* 직접 입력 칩 (항상 맨 앞) */}
-                <button
-                  type="button"
-                  onClick={() => setSpotFormData(p => ({ ...p, activity: '__custom__', activityEmoji: '✏️' }))}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all"
-                  style={{
-                    background: spotFormData.activity === '__custom__' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: spotFormData.activity === '__custom__' ? '1.5px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)',
-                    color: spotFormData.activity === '__custom__' ? '#fff' : 'rgba(255,255,255,0.5)',
-                  }}
-                >
-                  ✏️ 직접 입력
-                </button>
-                {/* 나머지 행동 칩 (직접 입력 제외) */}
-                {ACTION_FORM_LIST.slice(1).map(({ emoji, text }) => {
-                  const isSelected = spotFormData.activity === text;
+            {/* 카테고리 칩 */}
+            <div className="px-2.5 py-2" style={{ borderBottom: '1px solid rgba(0,240,255,0.1)' }}>
+              <div className="flex flex-wrap gap-1">
+                {([
+                  { key: 'cafe', label: '☕ 카페', color: '#c77dff' },
+                  { key: 'restaurant', label: '🍜 맛집', color: '#ff9f43' },
+                  { key: 'bar', label: '🍺 술집', color: '#ff6b6b' },
+                  { key: 'park', label: '🌿 공원', color: '#00f0b4' },
+                  { key: 'nature', label: '🏔 자연', color: '#74b9ff' },
+                  { key: 'landmark', label: '📍 명소', color: '#00f0ff' },
+                  { key: 'shopping', label: '🛍 쇼핑', color: '#fd79a8' },
+                ] as const).map(({ key, label, color }) => {
+                  const isActive = selectedCategory === key;
                   return (
                     <button
-                      key={text}
-                      type="button"
-                      onClick={() => setSpotFormData(p => ({ ...p, activity: isSelected ? '' : text, activityEmoji: isSelected ? '' : emoji }))}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all"
-                      style={{
-                        background: isSelected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
-                        border: isSelected ? '1.5px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
-                        color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)',
-                      }}
+                      key={key}
+                      onClick={() => filterByCategory(key)}
+                      className="px-2 py-0.5 rounded-full text-[10px] font-bold transition-all"
+                      style={{ background: isActive ? `${color}22` : 'rgba(255,255,255,0.05)', border: `1px solid ${isActive ? color : 'rgba(255,255,255,0.1)'}`, color: isActive ? color : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}
                     >
-                      <span>{emoji}</span>
-                      <span>{text}</span>
+                      {label}
                     </button>
                   );
                 })}
               </div>
             </div>
-
-
-
-
-
-            {/* 버튼 */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSpotForm(false)}
-                className="flex-1 py-2 rounded-lg text-sm"
-                style={{ border: '1px solid rgba(255,255,255,0.2)', color: '#888' }}
-              >
-                닫기
-              </button>
-              <button
-                onClick={async () => {
-                  const { mbti, mood, activity, activityEmoji } = spotFormData;
-                  const mode = activity && activity !== '__custom__' ? activity : (mood || 'CHILL');
-                  const sign = activity && activity !== '__custom__' ? `${activityEmoji} ${activity}` : mood;
-                  if (!mbti || !mood) {
-                    toast.error('MBTI와 MOOD를 입력해주세요!');
-                    return;
-                  }
-                  if (!MBTI_TYPES.includes(mbti)) {
-                    toast.error('올바른 MBTI 유형을 입력해주세요! (ex: ENFP)');
-                    return;
-                  }
-                  if (!userLocation) {
-                    toast.error('현재 위치를 확인할 수 없어요. GPS를 켜주세요.');
-                    return;
-                  }
-                  // activity JSON 직렬화
-                  const activityJson = activity && activity !== '__custom__'
-                    ? JSON.stringify({ emoji: activityEmoji, text: activity })
-                    : undefined;
-                  const result = await submitSpot.mutateAsync({
-                    mbti,
-                    mood,
-                    mode,
-                    sign,
-                    lat: userLocation.lat,
-                    lng: userLocation.lng,
-                    avatar: serializeAvatar(spotFormData.avatar),
-                    activity: activityJson,
-                  });
-                  if (result.success) {
-                    setSpotSubmitted(true);
-                    setShowSpotForm(false);
-                    toast.success('📍 내 SPOT이 지도에 표시되었어요!');
-                    refetchSpots();
-                  } else {
-                    toast.error('저장에 실패했어요. 다시 시도해주세요.');
-                  }
-                }}
-                disabled={submitSpot.isPending}
-                className="flex-1 py-2 rounded-lg text-sm font-black"
-                style={{
-                  border: '2px solid rgba(255,255,255,0.6)',
-                  color: '#ffffff',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
-                  opacity: submitSpot.isPending ? 0.6 : 1,
-                }}
-              >
-                {submitSpot.isPending ? '저장 중...' : '지도에 표시'}
-              </button>
-            </div>
+            {/* 검색 결과 */}
+            {searchLoading && <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(0,240,255,0.5)' }}>검색 중...</div>}
+            {!searchLoading && searchResults.length > 0 && (
+              <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                {searchResults.map((result, idx) => (
+                  <button
+                    key={idx}
+                    className="w-full text-left px-3 py-2.5 text-xs transition-all"
+                    style={{ color: 'rgba(255,255,255,0.8)', borderBottom: idx < searchResults.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', background: 'transparent' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,240,255,0.08)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    onClick={() => {
+                      if (mapRef.current) {
+                        mapRef.current.setCenter(new window.kakao.maps.LatLng(result.lat, result.lng));
+                        mapRef.current.setLevel(4);
+                        toast.success(`📍 ${result.name}`, { duration: 2000 });
+                        setShowSearch(false);
+                        setSearchQuery('');
+                        setSearchResults([]);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,240,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                      </svg>
+                      <span className="truncate">{result.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+            {!searchLoading && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+              <div className="px-3 py-3 text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>검색 결과가 없습니다</div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* 하단 정보 안내 텍스트 */}
+        {!selectedMarker && !showSearch && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 border border-cyan-500/20 rounded-xl px-4 py-2 shadow-lg" style={{ pointerEvents: 'none' }}>
+            <div className="text-xs text-gray-400 whitespace-nowrap">마커를 클릭하여 MBTI 정보를 확인하세요</div>
+          </div>
+        )}
+      </div>
+
+      {/* 팝업 */}
+      {popupData && (() => {
+        const mbtiColor = MBTI_COLORS[popupData.mbti] || "#00f0ff";
+        const hashtags = popupData.hashtags || getPlaceHashtags(popupData.category, popupData.id);
+        const activity = popupData.activity || getRandomActivity(popupData.category);
+        return (
+          <div
+            className="fixed bottom-20 left-2 right-2 z-50 rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(8,8,16,0.97)', border: `1.5px solid ${mbtiColor}66`, boxShadow: `0 8px 32px rgba(0,0,0,0.8)`, opacity: popupVisible ? 1 : 0, transform: popupVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.22s ease, transform 0.22s ease', maxWidth: '400px', margin: '0 auto' }}
+          >
+            {/* 헤더 */}
+            <div className="flex items-start gap-2.5 px-3 pt-2.5 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              {/* 아바타 */}
+              <div style={{ borderRadius: '50%', border: `2px solid ${mbtiColor}`, overflow: 'hidden', width: '40px', height: '40px', flexShrink: 0, background: `${mbtiColor}22` }}>
+                {popupData.avatar ? (
+                  <AvatarSVG config={popupData.avatar} size={40} />
+                ) : (
+                  <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>👤</div>
+                )}
+              </div>
+              {/* 정보 */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span style={{ fontSize: '13px', fontWeight: 900, color: mbtiColor }}>{popupData.mbti}</span>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>·</span>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{popupData.mood}</span>
+                </div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginBottom: '2px' }}>
+                  {activity.emoji} {activity.text}
+                </div>
+                {(popupData.placeName || popupAddress) && (
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    📍 {popupData.placeName || popupAddress}
+                  </div>
+                )}
+              </div>
+              {/* 닫기 + 거리 */}
+              <div className="flex flex-col items-end gap-1" style={{ flexShrink: 0 }}>
+                <button onClick={() => { setPopupVisible(false); setTimeout(() => setPopupData(null), 220); }} style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>✕</button>
+                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>{popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`}</span>
+              </div>
+            </div>
+
+            {/* 사인 */}
+            <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>"{popupData.sign}"</div>
+            </div>
+
+            {/* 해시태그 */}
+            <div className="px-3 py-2.5">
+              <div className="flex flex-wrap gap-1.5">
+                {hashtags.slice(0, 5).map((tag, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPopupTagVotes(prev => ({ ...prev, [tag]: (prev[tag] || 0) + 1 }))}
+                    className="px-2 py-0.5 rounded-full text-[10px] font-medium transition-all"
+                    style={{ background: (popupTagVotes[tag] || 0) > 0 ? `${mbtiColor}22` : 'rgba(255,255,255,0.06)', border: `1px solid ${(popupTagVotes[tag] || 0) > 0 ? mbtiColor + '66' : 'rgba(255,255,255,0.1)'}`, color: (popupTagVotes[tag] || 0) > 0 ? mbtiColor : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}
+                  >
+                    #{tag} {(popupTagVotes[tag] || 0) > 0 ? `+${popupTagVotes[tag]}` : ''}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 경과 시간 */}
+            {popupData.createdAt && (
+              <div className="px-3 pb-2.5">
+                <ElapsedTimer createdAt={popupData.createdAt} mbtiColor={mbtiColor} />
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* 하단 네비게이션 바 */}
+      <div className="flex items-center justify-around px-2 py-3" style={{ background: 'rgba(4,4,14,0.97)', borderTop: '1px solid rgba(255,255,255,0.08)', height: '64px', flexShrink: 0 }}>
+        {/* 검색 버튼 */}
+        <button
+          onClick={() => setShowSearch(prev => !prev)}
+          className="flex flex-col items-center gap-0.5 transition-all"
+          style={{ color: showSearch ? '#00f0ff' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span style={{ fontSize: '9px' }}>검색</span>
+        </button>
+
+        {/* 핫플 버튼 */}
+        <button
+          onClick={() => setShowHotplacePopup(prev => !prev)}
+          className="flex flex-col items-center gap-0.5 transition-all"
+          style={{ color: showHotplacePopup ? '#ff6a00' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+        >
+          <span style={{ fontSize: '20px', lineHeight: 1 }}>🔥</span>
+          <span style={{ fontSize: '9px' }}>핫플</span>
+        </button>
+
+        {/* SPOT 등록 버튼 (중앙 강조) */}
+        <button
+          onClick={() => setShowSpotForm(true)}
+          className="flex flex-col items-center gap-0.5 transition-all"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+        >
+          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #00f0ff, #c77dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px rgba(0,240,255,0.4)', marginTop: '-12px' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)' }}>SPOT</span>
+        </button>
+
+        {/* 피드 버튼 */}
+        <button
+          onClick={() => setShowSpotFeed(true)}
+          className="flex flex-col items-center gap-0.5 transition-all"
+          style={{ color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span style={{ fontSize: '9px' }}>피드</span>
+        </button>
+
+        {/* 내 위치 버튼 */}
+        <button
+          onClick={() => {
+            if (userLocation && mapRef.current) {
+              mapRef.current.setCenter(new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng));
+              mapRef.current.setLevel(4);
+            } else {
+              toast.info("위치 정보를 가져오는 중입니다...", { duration: 2000 });
+            }
+          }}
+          className="flex flex-col items-center gap-0.5 transition-all"
+          style={{ color: userLocation ? '#00f0ff' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" /><path d="M12 1v4M12 19v4M1 12h4M19 12h4" />
+          </svg>
+          <span style={{ fontSize: '9px' }}>내 위치</span>
+        </button>
+      </div>
 
       {/* GPS 동의 팝업 */}
       {showConsentPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-6" style={{
-          background: 'rgba(0,0,0,0.5)',
-          opacity: consentVisible ? 1 : 0,
-          transition: 'opacity 0.22s ease',
-        }}>
-          <div className="bg-black border-2 border-cyan-500/50 rounded-2xl p-5 max-w-sm w-full space-y-3" style={{
-            transform: consentVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
-            transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
-          }}>
-            <h2
-              className="text-lg font-bold text-center"
-              style={{
-                fontFamily: "'Noto Sans KR', sans-serif",
-                color: "#00f0ff",
-              }}
-            >
-              GPS를 켜주세요!
-            </h2>
-
-            <div className="border-t border-gray-700" />
-
-            <div className="space-y-2 text-xs text-gray-300 leading-relaxed">
-              <p>
-                위치 정확도는 해당 서비스에 대해
-                <br />
-                개인화한 위치 정보를 제공합니다.
-                <br />
-                정확한 개인식별은 불가합니다.
-              </p>
-              <p>
-                해당 웹사이트에서는 현재 위치를
-                <br />
-                정확한 좌표는 어디에도 공개하지 않습니다.
-                <br />
-              </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', opacity: consentVisible ? 1 : 0, transition: 'opacity 0.22s ease' }}>
+          <div style={{ background: 'rgba(4,4,14,0.98)', border: '1px solid rgba(0,240,255,0.3)', borderRadius: '20px', padding: '24px', width: '300px', maxWidth: '90vw', boxShadow: '0 4px 20px rgba(0,0,0,0.8)', transform: consentVisible ? 'scale(1)' : 'scale(0.92)', transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)' }}>
+            <div className="text-center mb-4">
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#00f0ff', marginBottom: '6px' }}>위치 정보 사용</div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>내 주변 MBTI를 보려면 위치 정보가 필요해요. 정확한 위치는 공유되지 않아요.</div>
             </div>
-
-            <div className="border-t border-gray-700" />
-
-            <p className="text-xs text-gray-400 text-center">
-              동의하면, 지금 이 근처를 바로 보여드립니다.
-              <br />
-              <br />
-              언제든지 위치 설정에서 이 설정을 변경할수 있습니다.
-            </p>
-
-            <div className="border-t border-gray-700" />
-
-            <div className="flex gap-3 pt-1">
-              <button
-                onClick={() => handleConsent(false)}
-                className="flex-1 py-2 px-4 rounded-lg border border-gray-600 text-gray-400 text-sm hover:bg-gray-900 transition-all"
-              >
-                미동의
-              </button>
-              <button
-                onClick={() => handleConsent(true)}
-                className="flex-1 py-2 px-4 rounded-lg border-2 text-sm transition-all"
-                style={{
-                  borderColor: "rgba(255,255,255,0.6)",
-                  color: "#ffffff",
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
-                }}
-              >
-                동의
-              </button>
+            <div className="flex gap-2">
+              <button onClick={() => handleConsent(false)} className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>나중에</button>
+              <button onClick={() => handleConsent(true)} className="flex-1 py-2.5 rounded-xl text-sm font-black transition-all" style={{ background: 'rgba(0,240,255,0.15)', border: '1.5px solid rgba(0,240,255,0.4)', color: '#00f0ff', cursor: 'pointer' }}>동의</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 숏폼 컨텐츠 뷰어 */}
+      {/* 스팟 등록 폼 */}
+      {showSpotForm && !spotSubmitted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', opacity: spotFormVisible ? 1 : 0, transition: 'opacity 0.22s ease' }}>
+          <div style={{ background: 'rgba(4,4,14,0.98)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '20px', padding: '20px', width: '320px', maxWidth: '90vw', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.8)', transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)', transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)', position: 'relative' }}>
+            {/* 닫기 버튼 */}
+            <button onClick={() => setShowSpotForm(false)} style={{ position: 'absolute', top: '14px', right: '14px', color: 'rgba(255,255,255,0.3)', fontSize: '16px', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#00f0ff', marginBottom: '4px' }}>지금 여기 있어요</div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>내 MBTI를 지도에 남겨보세요</div>
+
+            {/* 아바타 선택 */}
+            <div className="mb-4">
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>아바타</div>
+              <div className="flex justify-center mb-3">
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', border: `2px solid ${spotFormData.mbti ? MBTI_COLORS[spotFormData.mbti] : 'rgba(0,240,255,0.4)'}`, overflow: 'hidden', background: 'rgba(0,240,255,0.05)' }}>
+                  <AvatarSVG config={spotFormData.avatar} size={64} />
+                </div>
+              </div>
+              {/* 아바타 탭 */}
+              <div className="flex mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                {(['animal', 'accessory', 'expression', 'emoji'] as const).map(tab => (
+                  <button key={tab} onClick={() => setAvatarTab(tab)} className="flex-1 py-1.5 text-[10px] font-bold transition-colors" style={{ color: avatarTab === tab ? '#00f0ff' : 'rgba(255,255,255,0.3)', borderBottom: avatarTab === tab ? '2px solid #00f0ff' : '2px solid transparent', background: 'none', cursor: 'pointer' }}>
+                    {tab === 'animal' ? '동물' : tab === 'accessory' ? '악세서리' : tab === 'expression' ? '표정' : '이모지'}
+                  </button>
+                ))}
+              </div>
+              {/* 아바타 옵션 */}
+              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                {avatarTab === 'animal' && (showAllAnimals ? ANIMALS : ANIMALS.slice(0, 12)).map(animal => (
+                  <button key={animal.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, animal: animal.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.animal === animal.type ? 'rgba(0,240,255,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.animal === animal.type ? 'rgba(0,240,255,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.animal === animal.type ? '#00f0ff' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{animal.emoji} {animal.label}</button>
+                ))}
+                {avatarTab === 'animal' && ANIMALS.length > 12 && (
+                  <button onClick={() => setShowAllAnimals(p => !p)} className="px-2 py-1 rounded-lg text-[10px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>{showAllAnimals ? '접기' : `+${ANIMALS.length - 12}`}</button>
+                )}
+                {avatarTab === 'accessory' && ACCESSORIES.map(acc => (
+                  <button key={acc.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, accessory: acc.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.accessory === acc.type ? 'rgba(199,125,255,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.accessory === acc.type ? 'rgba(199,125,255,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.accessory === acc.type ? '#c77dff' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{acc.emoji} {acc.label}</button>
+                ))}
+                {avatarTab === 'expression' && EXPRESSIONS.map(exp => (
+                  <button key={exp.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, expression: exp.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.expression === exp.type ? 'rgba(255,159,67,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.expression === exp.type ? 'rgba(255,159,67,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.expression === exp.type ? '#ff9f43' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{exp.emoji} {exp.label}</button>
+                ))}
+                {avatarTab === 'emoji' && EMOJIS.map(emoji => (
+                  <button key={emoji.type} onClick={() => setSpotFormData(prev => ({ ...prev, avatar: { ...prev.avatar, emoji: emoji.type } }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.avatar.emoji === emoji.type ? 'rgba(253,121,168,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.avatar.emoji === emoji.type ? 'rgba(253,121,168,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.avatar.emoji === emoji.type ? '#fd79a8' : 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>{emoji.label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* MBTI 선택 */}
+            <div className="mb-4">
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>MBTI <span style={{ color: '#ff4500' }}>*</span></div>
+              <div className="flex flex-wrap gap-1.5">
+                {MBTI_TYPES.map(mbti => (
+                  <button key={mbti} onClick={() => setSpotFormData(prev => ({ ...prev, mbti }))} className="px-2 py-1 rounded-lg text-[11px] font-bold transition-all" style={{ background: spotFormData.mbti === mbti ? `${MBTI_COLORS[mbti]}22` : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.mbti === mbti ? MBTI_COLORS[mbti] : 'rgba(255,255,255,0.1)'}`, color: spotFormData.mbti === mbti ? MBTI_COLORS[mbti] : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>{mbti}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* MOOD 선택 */}
+            <div className="mb-4">
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>지금 기분</div>
+              <div className="flex flex-wrap gap-1.5">
+                {MOOD_LIST.slice(0, 8).map(mood => (
+                  <button key={mood} onClick={() => setSpotFormData(prev => ({ ...prev, mood }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.mood === mood ? 'rgba(0,240,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.mood === mood ? 'rgba(0,240,255,0.4)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.mood === mood ? '#00f0ff' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>{mood}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* 행동 선택 */}
+            <div className="mb-4">
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>지금 뭐 해요?</div>
+              <div className="flex flex-wrap gap-1.5">
+                {ACTION_FORM_LIST.map(action => (
+                  <button key={action.text} onClick={() => {
+                    if (action.text === "직접 입력") return;
+                    setSpotFormData(prev => ({ ...prev, activity: action.text, activityEmoji: action.emoji }));
+                  }} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.activity === action.text ? 'rgba(199,125,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.activity === action.text ? 'rgba(199,125,255,0.4)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.activity === action.text ? '#c77dff' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>
+                    {action.emoji} {action.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 사인 선택 */}
+            <div className="mb-6">
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>시그널</div>
+              <div className="flex flex-wrap gap-1.5">
+                {SIGN_SIGNALS.slice(1, 8).map(signal => (
+                  <button key={signal.text} onClick={() => setSpotFormData(prev => ({ ...prev, sign: `${signal.emoji} ${signal.text}` }))} className="px-2 py-1 rounded-lg text-[10px] transition-all" style={{ background: spotFormData.sign === `${signal.emoji} ${signal.text}` ? 'rgba(255,159,67,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${spotFormData.sign === `${signal.emoji} ${signal.text}` ? 'rgba(255,159,67,0.4)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.sign === `${signal.emoji} ${signal.text}` ? '#ff9f43' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>
+                    {signal.emoji} {signal.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 제출 버튼 */}
+            <button
+              onClick={async () => {
+                if (!spotFormData.mbti) { toast.error("MBTI를 선택해주세요"); return; }
+                const loc = userLocation || HONGDAE_CENTER;
+                try {
+                  await submitSpot.mutateAsync({
+                    mbti: spotFormData.mbti,
+                    mood: spotFormData.mood || "CHILL",
+                    mode: spotFormData.mode || "산책 중",
+                    sign: spotFormData.sign || "👋 말 걸어도 돼요",
+                    lat: loc.lat,
+                    lng: loc.lng,
+                    avatar: serializeAvatar(spotFormData.avatar),
+                  });
+                  setSpotSubmitted(true);
+                  setShowSpotForm(false);
+                  toast.success("🎉 SPOT이 등록되었어요!", { duration: 3000 });
+                  refetchSpots();
+                } catch (e) {
+                  toast.error("등록에 실패했어요. 다시 시도해주세요.");
+                }
+              }}
+              disabled={submitSpot.isPending}
+              className="w-full py-3 rounded-xl text-sm font-black transition-all"
+              style={{ background: spotFormData.mbti ? 'linear-gradient(135deg, rgba(0,240,255,0.2), rgba(199,125,255,0.2))' : 'rgba(255,255,255,0.05)', border: `1.5px solid ${spotFormData.mbti ? 'rgba(0,240,255,0.5)' : 'rgba(255,255,255,0.1)'}`, color: spotFormData.mbti ? '#00f0ff' : 'rgba(255,255,255,0.2)', cursor: spotFormData.mbti ? 'pointer' : 'not-allowed', opacity: submitSpot.isPending ? 0.6 : 1 }}
+            >
+              {submitSpot.isPending ? "등록 중..." : "지금 여기 있어요 ✓"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 숏폼 피드 */}
       {showSpotFeed && (
         <SpotFeed
           onClose={() => setShowSpotFeed(false)}
-          mapService={placesServiceRef.current}
+          mapService={null}
           userSpots={spotsData?.spots}
           onGoToPlace={(lat, lng, placeName) => {
             if (mapRef.current) {
-              mapRef.current.panTo({ lat, lng });
-              mapRef.current.setZoom(17);
+              mapRef.current.setCenter(new window.kakao.maps.LatLng(lat, lng));
+              mapRef.current.setLevel(4);
             }
           }}
         />

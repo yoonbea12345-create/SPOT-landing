@@ -587,6 +587,87 @@ export const appRouter = router({
         }
       }),
   }),
+
+  // Kakao Map API proxy (server-side to hide REST API key)
+  kakao: router({
+    // Keyword search for places
+    searchKeyword: publicProcedure
+      .input(z.object({ query: z.string().min(1).max(80), x: z.string().optional(), y: z.string().optional() }))
+      .query(async ({ input }) => {
+        try {
+          const key = process.env.KAKAO_REST_API_KEY || '';
+          if (!key) return { success: false, documents: [] };
+          const params = new URLSearchParams({ query: input.query, size: '5' });
+          if (input.x) params.set('x', input.x);
+          if (input.y) params.set('y', input.y);
+          const url = `https://dapi.kakao.com/v2/local/search/keyword.json?${params}`;
+          const res = await fetch(url, { headers: { Authorization: `KakaoAK ${key}` }, signal: AbortSignal.timeout(5000) });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json() as any;
+          return {
+            success: true,
+            documents: (data.documents || []).map((d: any) => ({
+              name: d.place_name,
+              address: d.road_address_name || d.address_name,
+              lat: parseFloat(d.y),
+              lng: parseFloat(d.x),
+              category: d.category_group_code,
+            })),
+          };
+        } catch (error) {
+          console.error('[Kakao Search] Failed:', error);
+          return { success: false, documents: [] };
+        }
+      }),
+
+    // Address search
+    searchAddress: publicProcedure
+      .input(z.object({ query: z.string().min(1).max(80) }))
+      .query(async ({ input }) => {
+        try {
+          const key = process.env.KAKAO_REST_API_KEY || '';
+          if (!key) return { success: false, documents: [] };
+          const params = new URLSearchParams({ query: input.query });
+          const url = `https://dapi.kakao.com/v2/local/search/address.json?${params}`;
+          const res = await fetch(url, { headers: { Authorization: `KakaoAK ${key}` }, signal: AbortSignal.timeout(5000) });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json() as any;
+          return {
+            success: true,
+            documents: (data.documents || []).map((d: any) => ({
+              name: d.address_name,
+              address: d.address_name,
+              lat: parseFloat(d.y),
+              lng: parseFloat(d.x),
+            })),
+          };
+        } catch (error) {
+          console.error('[Kakao Address] Failed:', error);
+          return { success: false, documents: [] };
+        }
+      }),
+
+    // Reverse geocoding (coord → address)
+    reverseGeocode: publicProcedure
+      .input(z.object({ lat: z.number(), lng: z.number() }))
+      .query(async ({ input }) => {
+        try {
+          const key = process.env.KAKAO_REST_API_KEY || '';
+          if (!key) return { success: false, address: '' };
+          const url = `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${input.lng}&y=${input.lat}`;
+          const res = await fetch(url, { headers: { Authorization: `KakaoAK ${key}` }, signal: AbortSignal.timeout(5000) });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json() as any;
+          const doc = data.documents?.[0];
+          if (!doc) return { success: false, address: '' };
+          const addr = doc.road_address?.address_name || doc.address?.address_name || '';
+          return { success: true, address: addr };
+        } catch (error) {
+          console.error('[Kakao ReverseGeocode] Failed:', error);
+          return { success: false, address: '' };
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
