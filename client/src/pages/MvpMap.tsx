@@ -19,10 +19,10 @@ const MBTI_TYPES = [
 
 // MBTI별 색상 (네온 컬러)
 const MBTI_COLORS: Record<string, string> = {
-  INTJ: "#00f5ff", INTP: "#00d4ff", ENTJ: "#00b8ff", ENTP: "#009cff",
-  INFJ: "#bf00ff", INFP: "#d400ff", ENFJ: "#e900ff", ENFP: "#ff00e5",
-  ISTJ: "#ff9500", ISFJ: "#ffb800", ESTJ: "#ffd700", ESFJ: "#ffaa00",
-  ISTP: "#ff0080", ISFP: "#ff0099", ESTP: "#ff00b3", ESFP: "#ff00cc"
+  INTJ: "#4db8cc", INTP: "#5ab0d4", ENTJ: "#6aa8dc", ENTP: "#7aa0e4",
+  INFJ: "#9b7fd4", INFP: "#a87dd8", ENFJ: "#b57adc", ENFP: "#c278e0",
+  ISTJ: "#d4944a", ISFJ: "#d4a84a", ESTJ: "#d4c04a", ESFJ: "#d4a84a",
+  ISTP: "#d46080", ISFP: "#d46890", ESTP: "#d470a0", ESFP: "#d478b0"
 };
 
 // MOOD 목록
@@ -60,6 +60,93 @@ const SIGN_SIGNALS = [
 
 // SIGN 목록 (더미 데이터용 - SIGN_SIGNALS와 동일한 이모지+텍스트 형식)
 const SIGN_LIST = SIGN_SIGNALS.slice(1).map(s => `${s.emoji} ${s.text}`);
+// ─────────────────────────────────────────────────────────────
+// 현재 행동 태그 (분위기 탐색의 핵심)
+// 카테고리별로 분류해 더 자연스러운 행동 표시
+// ─────────────────────────────────────────────────────────────
+const ACTION_BY_CATEGORY: Record<string, Array<{ emoji: string; text: string }>> = {
+  cafe: [
+    { emoji: "☕", text: "혼자 카페 중" },
+    { emoji: "💻", text: "작업 중" },
+    { emoji: "📖", text: "책 읽는 중" },
+    { emoji: "💬", text: "친구랑 수다 중" },
+    { emoji: "🎧", text: "음악 들으며 멍 때리는 중" },
+    { emoji: "📸", text: "카페 사진 찍는 중" },
+    { emoji: "🍰", text: "디저트 먹는 중" },
+  ],
+  bar: [
+    { emoji: "🍺", text: "혼술 중" },
+    { emoji: "🥂", text: "친구랑 한잔 중" },
+    { emoji: "🎵", text: "분위기 즐기는 중" },
+    { emoji: "🍻", text: "2차 중" },
+    { emoji: "🌙", text: "야간 탐방 중" },
+  ],
+  restaurant: [
+    { emoji: "🍽️", text: "혼밥 중" },
+    { emoji: "👥", text: "같이 밥 먹는 중" },
+    { emoji: "📸", text: "음식 사진 찍는 중" },
+    { emoji: "🍜", text: "맛집 탐방 중" },
+  ],
+  park: [
+    { emoji: "🚶", text: "산책 중" },
+    { emoji: "🐾", text: "반려동물 산책 중" },
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🌸", text: "꽃구경 중" },
+    { emoji: "🏃", text: "러닝 중" },
+    { emoji: "🧘", text: "명상 중" },
+    { emoji: "🎵", text: "음악 들으며 산책 중" },
+  ],
+  beach: [
+    { emoji: "🌊", text: "바다 구경 중" },
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🚶", text: "해변 산책 중" },
+    { emoji: "🌅", text: "노을 보는 중" },
+    { emoji: "🏄", text: "물놀이 중" },
+  ],
+  landmark: [
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🗺️", text: "구경 중" },
+    { emoji: "🎒", text: "여행 중" },
+    { emoji: "🚶", text: "산책 중" },
+    { emoji: "🌙", text: "야경 보는 중" },
+  ],
+  shopping: [
+    { emoji: "🛍️", text: "쇼핑 중" },
+    { emoji: "👀", text: "구경 중" },
+    { emoji: "💳", text: "지름신 강림 중" },
+    { emoji: "☕", text: "쇼핑 쉬는 중" },
+  ],
+  default: [
+    { emoji: "🚶", text: "산책 중" },
+    { emoji: "📸", text: "사진 찍는 중" },
+    { emoji: "🎧", text: "음악 들으며 배회 중" },
+    { emoji: "👀", text: "구경 중" },
+    { emoji: "☕", text: "카페 찾는 중" },
+    { emoji: "🌙", text: "야경 보는 중" },
+  ],
+};
+// 카테고리에 맞는 랜덤 행동 반환
+function getRandomActivity(category?: string): { emoji: string; text: string } {
+  const list = ACTION_BY_CATEGORY[category ?? 'default'] ?? ACTION_BY_CATEGORY.default;
+  return list[Math.floor(Math.random() * list.length)];
+}
+// 등록 폼용 행동 선택지 (전체 통합, 중복 제거)
+const ACTION_FORM_LIST: Array<{ emoji: string; text: string }> = [
+  { emoji: "✏️", text: "직접 입력" },
+  { emoji: "🍺", text: "혼술 중" },
+  { emoji: "🚶", text: "산책 중" },
+  { emoji: "📸", text: "사진 찍는 중" },
+  { emoji: "☕", text: "혼자 카페 중" },
+  { emoji: "💻", text: "작업 중" },
+  { emoji: "📖", text: "책 읽는 중" },
+  { emoji: "🍽️", text: "혼밥 중" },
+  { emoji: "💬", text: "친구랑 수다 중" },
+  { emoji: "🏃", text: "러닝 중" },
+  { emoji: "🎧", text: "음악 들으며 배회 중" },
+  { emoji: "🛍️", text: "쇼핑 중" },
+  { emoji: "🌙", text: "야경 보는 중" },
+  { emoji: "🎒", text: "여행 중" },
+];
 
 // ─────────────────────────────────────────────────────────────
 // 스포트라이트 해시태그 시스템
@@ -385,6 +472,7 @@ type DummyMarker = {
   mood: string;
   mode: string;
   sign: string;
+  activity?: { emoji: string; text: string }; // 현재 행동 태그
   avatar?: AvatarConfig;
   placeName?: string;   // 실제 장소명 (고정 마커)
   placeId?: string;     // Google Place ID (고정 마커)
@@ -400,18 +488,18 @@ const generateDummyData = (): DummyMarker[] => {
   // 대한민국 주요 도시 및 지역 (38개)
   const cities = [
     // 서울 (5개 지역)
-    { name: "홍대", lat: 37.5566, lng: 126.9236, count: [50, 100] },
-    { name: "강남", lat: 37.4979, lng: 127.0276, count: [50, 100] },
-    { name: "여의도", lat: 37.5219, lng: 126.9245, count: [40, 80] },
-    { name: "성수", lat: 37.5444, lng: 127.0557, count: [40, 80] },
-    { name: "명동", lat: 37.5838, lng: 127.0017, count: [30, 60] },
+    { name: "홍대", lat: 37.5566, lng: 126.9236, count: [120, 200] },
+    { name: "강남", lat: 37.4979, lng: 127.0276, count: [120, 200] },
+    { name: "여의도", lat: 37.5219, lng: 126.9245, count: [80, 140] },
+    { name: "성수", lat: 37.5444, lng: 127.0557, count: [80, 140] },
+    { name: "명동", lat: 37.5838, lng: 127.0017, count: [60, 100] },
     // 광역시
-    { name: "부산", lat: 35.1796, lng: 129.0756, count: [40, 70] },
-    { name: "대구", lat: 35.8714, lng: 128.6014, count: [40, 70] },
-    { name: "인천", lat: 37.4563, lng: 126.7052, count: [40, 70] },
-    { name: "광주", lat: 35.1595, lng: 126.8526, count: [30, 60] },
-    { name: "대전", lat: 36.3504, lng: 127.3845, count: [30, 60] },
-    { name: "울산", lat: 35.5384, lng: 129.3114, count: [30, 60] },
+    { name: "부산", lat: 35.1796, lng: 129.0756, count: [80, 140] },
+    { name: "대구", lat: 35.8714, lng: 128.6014, count: [80, 140] },
+    { name: "인천", lat: 37.4563, lng: 126.7052, count: [80, 140] },
+    { name: "광주", lat: 35.1595, lng: 126.8526, count: [60, 100] },
+    { name: "대전", lat: 36.3504, lng: 127.3845, count: [60, 100] },
+    { name: "울산", lat: 35.5384, lng: 129.3114, count: [50, 80] },
     // 경기도
     { name: "수원", lat: 37.2636, lng: 127.0286, count: [30, 60] },
     { name: "성남", lat: 37.4386, lng: 127.1378, count: [25, 50] },
@@ -480,8 +568,10 @@ const generateDummyData = (): DummyMarker[] => {
 
       // 80% 확률로 고정 장소 좌표에 배치 (카테고리 상속), 20%는 랜덤 배치
       if (nearbyFixed.length > 0 && Math.random() < 0.80) {
-        // 고정 장소 중 하나를 선택하고 해당 카테고리를 마커에 할당
-        const anchor = nearbyFixed[Math.floor(Math.random() * nearbyFixed.length)];
+        // 카페/바/음식점 우선 선택 (90% 확률), 없으면 전체에서 선택
+        const venueFixed = nearbyFixed.filter(p => ['cafe', 'bar', 'restaurant', 'market'].includes(p.category));
+        const pool = venueFixed.length > 0 && Math.random() < 0.90 ? venueFixed : nearbyFixed;
+        const anchor = pool[Math.floor(Math.random() * pool.length)];
         markerCategory = anchor.category;
         const angle = Math.random() * Math.PI * 2;
         // 반경 5m 이내에서 무작위 분산 (1도 ≈ 111,000m, 5m ÷ 111,000 ≈ 0.000045)
@@ -510,7 +600,7 @@ const generateDummyData = (): DummyMarker[] => {
       
       // 체크인 시각: 1~90분 전 랜덤
       const checkinTime = Date.now() - Math.floor(Math.random() * 90 + 1) * 60 * 1000;
-      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, avatar: randomAvatarConfig(), checkinTime, category: markerCategory });
+      data.push({ mbti, lat, lng, id: id++, mood, mode, sign, activity: getRandomActivity(markerCategory), avatar: randomAvatarConfig(), checkinTime, category: markerCategory });
     }
   });
   
@@ -540,6 +630,7 @@ type PopupData = {
   mood: string;
   mode: string;
   sign: string;
+  activity?: { emoji: string; text: string }; // 현재 행동 태그
   distance: number;
   lat: number;
   lng: number;
@@ -566,6 +657,8 @@ type SpotFormData = {
   mood: string;
   mode: string;
   sign: string;
+  activity: string; // 현재 행동 (직접 입력 or 선택)
+  activityEmoji: string;
   avatar: AvatarConfig;
 };
 
@@ -667,7 +760,7 @@ export default function MvpMap() {
   const mvpLogIdRef = useRef<number | null>(null);
   const [showConsentPopup, setShowConsentPopup] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
-  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", avatar: randomAvatarConfig() });
+  const [spotFormData, setSpotFormData] = useState<SpotFormData>({ mbti: "", mood: "", mode: "", sign: "", activity: "", activityEmoji: "", avatar: randomAvatarConfig() });
   const [avatarTab, setAvatarTab] = useState<'animal' | 'accessory' | 'expression' | 'emoji'>('animal');
   const [showAllAnimals, setShowAllAnimals] = useState(false);
   const [avatarTabSliding, setAvatarTabSliding] = useState(false);
@@ -1314,7 +1407,7 @@ export default function MvpMap() {
       width: 20px;
       height: 20px;
       background: white;
-      border: 3px solid #00f0ff;
+      border: 3px solid rgba(255,255,255,0.9);
       border-radius: 50%;
     `;
 
@@ -1419,6 +1512,7 @@ export default function MvpMap() {
           mood: item.mood,
           mode: item.mode,
           sign: item.sign,
+          activity: item.activity,
           distance,
           lat: item.lat,
           lng: item.lng,
@@ -1630,6 +1724,7 @@ export default function MvpMap() {
           mood: target.mood,
           mode: target.mode,
           sign: target.sign,
+          activity: target.activity,
           distance,
           lat: target.lat,
           lng: target.lng,
@@ -1809,7 +1904,7 @@ export default function MvpMap() {
           opacity: 0;
           transition: opacity 0.3s, transform 0.15s;
           position: relative;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+          
         `;
         const sortedStats = Object.entries(stats)
           .sort((a, b) => b[1] - a[1])
@@ -1927,7 +2022,7 @@ export default function MvpMap() {
         border-radius: 50%;
         background: ${color}33;
         border: 2.5px solid ${color};
-        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2122,7 +2217,7 @@ export default function MvpMap() {
           className="text-6xl font-bold"
           style={{
             fontFamily: "'Orbitron', sans-serif",
-            color: "#00f0ff",
+            color: "#ffffff",
           }}
         >
           SPOT
@@ -2272,7 +2367,6 @@ export default function MvpMap() {
                       : '2px solid transparent',
                     background: 'none',
                     cursor: 'pointer',
-                    textShadow: 'none',
                   }}
                 >
                   <span className={selectedHotplaceTab === idx && idx === 0 ? 'hotspot-rank-1-city' : ''}>
@@ -2370,7 +2464,7 @@ export default function MvpMap() {
             }}
             className="bg-black/95 backdrop-blur-lg border-2 border-cyan-500/50 rounded-full p-2 shadow-2xl hover:scale-110 transition-transform"
             style={{
-              boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
               width: '38px',
               height: '38px',
               display: 'flex',
@@ -2399,7 +2493,7 @@ export default function MvpMap() {
             style={{
               background: 'rgba(0,5,15,0.95)',
               border: '1.5px solid rgba(0,240,255,0.55)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+              boxShadow: 'none',
               width: '34px',
               height: '34px',
               display: 'flex',
@@ -2423,7 +2517,7 @@ export default function MvpMap() {
               style={{
                 background: 'rgba(10,5,0,0.95)',
                 border: '1.5px solid rgba(255,100,0,0.65)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                boxShadow: 'none',
                 width: '34px',
                 height: '34px',
                 display: 'flex',
@@ -2444,7 +2538,7 @@ export default function MvpMap() {
               style={{
                 background: 'rgba(5,0,10,0.95)',
                 border: '1.5px solid rgba(180,0,255,0.65)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                boxShadow: 'none',
                 width: '34px',
                 height: '34px',
                 display: 'flex',
@@ -2469,7 +2563,7 @@ export default function MvpMap() {
             style={{
               background: 'rgba(0,5,10,0.95)',
               border: showSearch ? '1.5px solid rgba(0,240,255,0.9)' : '1.5px solid rgba(0,200,255,0.45)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+              boxShadow: 'none',
               width: '34px',
               height: '34px',
               display: 'flex',
@@ -2772,169 +2866,79 @@ export default function MvpMap() {
                   pointerEvents: 'auto',
                 }}
               >
-                {/* ── 기본 카드 (항상 보임) ── */}
-                {/* 헤더: 아바타 + MBTI + X */}
-                <div
-                  className="flex items-center gap-2 px-2.5 pt-2 pb-1.5"
-                  style={{ borderBottom: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}
-                >
-                  {/* 아바타 원형 */}
-                  {popupData.avatar ? (
-                    <div style={{
-                      borderRadius: '50%',
-                      border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
-                      
-                      overflow: 'hidden',
-                      width: '36px',
-                      height: '36px',
-                      flexShrink: 0,
-                    }}>
-                      <AvatarSVG config={popupData.avatar} size={36} bgColor={`${MBTI_COLORS[popupData.mbti]}33`} showEmoji={true} />
-                    </div>
-                  ) : (
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
-                      background: `${MBTI_COLORS[popupData.mbti]}22`,
-                      border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ fontSize: '16px' }}>👤</span>
-                    </div>
-                  )}
-                  {/* MBTI + 거리 */}
-                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                    <span
-                      className="text-sm font-black tracking-widest"
-                      style={{
-                        color: MBTI_COLORS[popupData.mbti],
-                        
-                      }}
-                    >{popupData.mbti}</span>
-                    <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                      {popupData.distance < 1000 ? `${popupData.distance}m` : `${(popupData.distance / 1000).toFixed(1)}km`} · {popupAddress ?? (popupPlaceName ?? '위치 확인 중...')}
-                    </span>
-                  </div>
-                  {/* X 버튼 */}
-                  <button
-                    onClick={() => closePopup()}
-                    style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '50%', width: '18px', height: '18px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'rgba(255,255,255,0.6)', fontSize: '9px',
-                      cursor: 'pointer', flexShrink: 0,
-                    }}
-                  >✕</button>
-                </div>
+                {/* ── 헤더: MBTI 아바타 + 장소명(주소) + 시간 + X ── */}
+                {(() => {
+                  const isVenueType = ['cafe', 'restaurant', 'bar'].includes(popupData.category ?? '');
+                  const n = popupData.nearbyCount ?? 0;
+                  const vibe = n >= 20
+                    ? { emoji: '🔥', label: '혼잡도(90%)', color: '#ff4500', bg: 'rgba(255,69,0,0.12)', border: 'rgba(255,69,0,0.3)' }
+                    : n >= 8
+                    ? { emoji: '😊', label: '혼잡도(60%)', color: '#00c896', bg: 'rgba(0,200,150,0.1)', border: 'rgba(0,200,150,0.3)' }
+                    : n >= 3
+                    ? { emoji: '😌', label: '혼잡도(30%)', color: '#c77dff', bg: 'rgba(199,125,255,0.1)', border: 'rgba(199,125,255,0.3)' }
+                    : { emoji: '🌙', label: '조용한 편', color: '#8888aa', bg: 'rgba(136,136,170,0.1)', border: 'rgba(136,136,170,0.25)' };
 
+                  // 분위기 태그 (카테고리별)
+                  const moodTags = isVenueType
+                    ? (popupData.mood ? [popupData.mood] : ['대기 걸어야 할수도'])
+                    : (popupData.mood ? [popupData.mood] : ['야경 추천', '벚꽃 만개']);
 
+                  return (
+                    <>
+                      {/* 헤더 행 */}
+                      <div className="flex items-start gap-2.5 px-3 pt-2.5 pb-2"
+                        style={{ borderBottom: `1px solid rgba(255,255,255,0.08)` }}
+                      >
+                        {/* 아바타 */}
+                        <div style={{
+                          borderRadius: '50%',
+                          border: `2px solid ${MBTI_COLORS[popupData.mbti]}`,
+                          overflow: 'hidden',
+                          width: '40px',
+                          height: '40px',
+                          flexShrink: 0,
+                          background: `${MBTI_COLORS[popupData.mbti]}22`,
+                        }}>
+                          {popupData.avatar
+                            ? <AvatarSVG config={popupData.avatar} size={40} bgColor={`${MBTI_COLORS[popupData.mbti]}22`} showEmoji={true} />
+                            : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}><span style={{ fontSize:'18px' }}>👤</span></div>
+                          }
+                        </div>
 
-                {/* ── 확장 카드 (더 보기 클릭 시) ── */}
-                {popupExpanded && (
-                  <div
-                    style={{
-                      borderTop: `1px solid ${MBTI_COLORS[popupData.mbti]}22`,
-                      animation: 'fadeIn 0.2s ease',
-                    }}
-                  >
-                    <div className="p-2 flex flex-col gap-1.5">
-
-                      {/* 최근 체크인 타임라인 */}
-                      {popupData.nearbyRecent && popupData.nearbyRecent.length > 0 && (
-                        <div className="rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}>
-                          <div className="text-[9px] font-bold tracking-widest mb-1.5" style={{ color: MBTI_COLORS[popupData.mbti] }}>🕐 최근 체크인</div>
-                          <div className="flex flex-col gap-1">
-                            {popupData.nearbyRecent.map((r, i) => {
-                              const secAgo = Math.floor((Date.now() - r.checkinTime) / 1000);
-                              const label = secAgo < 60 ? '방금' : secAgo < 3600 ? `${Math.floor(secAgo / 60)}분 전` : `${Math.floor(secAgo / 3600)}시간 전`;
-                              const c = MBTI_COLORS[r.mbti] || '#00f0ff';
-                              return (
-                                <div key={i} className="flex items-center gap-2">
-                                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: c,  flexShrink: 0 }} />
-                                  <span className="text-[9px] font-black" style={{ color: c, width: '34px', flexShrink: 0 }}>{r.mbti}</span>
-                                  <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</span>
-                                </div>
-                              );
-                            })}
+                        {/* 텍스트 영역 */}
+                        <div className="flex-1 min-w-0">
+                          {/* 장소명 (주소) - 와이어프레임: 첫 줄에 크게 */}
+                          <div className="text-[11px] font-bold leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                            {isVenueType
+                              ? (popupPlaceName ?? popupAddress ?? '위치 확인 중...')
+                              : (popupAddress ?? popupPlaceName ?? '위치 확인 중...')
+                            }
+                          </div>
+                          {/* 행동 태그 + 혼잡도 - 두 번째 줄 */}
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            {/* 현재 행동 태그 뱃지 */}
+                            {popupData.activity && (
+                              <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                style={{
+                                  background: `${MBTI_COLORS[popupData.mbti]}18`,
+                                  border: `1px solid ${MBTI_COLORS[popupData.mbti]}55`,
+                                  color: MBTI_COLORS[popupData.mbti],
+                                }}
+                              >
+                                <span>{popupData.activity.emoji}</span>
+                                <span>{popupData.activity.text}</span>
+                              </span>
+                            )}
+                            {/* 혼잡도 */}
+                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                              {vibe.emoji} {vibe.label}
+                            </span>
                           </div>
                         </div>
 
-                      {/* SIGN (메시지) - 있을 때만 표시 */}
-                      {popupData.sign && (
-                        <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,200,0,0.08)', border: '1px solid rgba(255,200,0,0.3)' }}>
-                          <div className="text-[7px] font-bold mb-0.5" style={{ color: 'rgba(255,200,0,0.6)', letterSpacing: '0.08em' }}>MESSAGE</div>
-                          <div className="text-[11px] font-bold leading-snug" style={{ color: '#ffc800',  }}>"{popupData.sign}"</div>
-                        </div>
-                      )}
-
-                      {/* 해시태그 동의 카운트 */}
-                      {(() => {
-                        const tags = getPlaceHashtags(
-                          popupData.category,
-                          popupPlaceName ? popupPlaceName.charCodeAt(0) : (popupData.lat * 1000 | 0)
-                        ).slice(0, 6);
-                        return (
-                          <div className="rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${MBTI_COLORS[popupData.mbti]}22` }}>
-                            <div className="text-[7px] font-bold mb-1.5" style={{ color: MBTI_COLORS[popupData.mbti], letterSpacing: '0.08em' }}>이 장소 분위기</div>
-                            <div className="flex flex-wrap gap-1">
-                              {tags.map((tag, i) => {
-                                const votes = (popupTagVotes[tag] ?? Math.floor(Math.random() * 12 + 1));
-                                return (
-                                  <button
-                                    key={i}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setPopupTagVotes(prev => ({ ...prev, [tag]: (prev[tag] ?? votes) + 1 }));
-                                    }}
-                                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold"
-                                    style={{
-                                      background: popupTagVotes[tag] ? `${MBTI_COLORS[popupData.mbti]}25` : 'rgba(255,255,255,0.06)',
-                                      border: `1px solid ${popupTagVotes[tag] ? MBTI_COLORS[popupData.mbti] : 'rgba(255,255,255,0.15)'}`,
-                                      color: popupTagVotes[tag] ? MBTI_COLORS[popupData.mbti] : 'rgba(255,255,255,0.5)',
-                                      cursor: 'pointer',
-                                      transition: 'all 0.15s',
-                                    }}
-                                  >
-                                    <span>#{tag}</span>
-                                    <span style={{ opacity: 0.7 }}>{votes}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* MBTI 분포 바 */}
-                      {popupData.nearbyCount !== undefined && popupData.nearbyCount > 0 && popupData.nearbyMbtiDist && (
-                        <div className="rounded-xl p-2" style={{ background: `${MBTI_COLORS[popupData.mbti]}0d`, border: `1px solid ${MBTI_COLORS[popupData.mbti]}33` }}>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="text-[7px] font-bold" style={{ color: MBTI_COLORS[popupData.mbti], letterSpacing: '0.08em' }}>MBTI 분포</div>
-                            <div className="text-[11px] font-black" style={{ color: MBTI_COLORS[popupData.mbti],  }}>{popupData.nearbyCount}명</div>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            {Object.entries(popupData.nearbyMbtiDist).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([mbti, count]) => {
-                              const pct = Math.round((count / popupData.nearbyCount!) * 100);
-                              const color = MBTI_COLORS[mbti] || '#00f0ff';
-                              return (
-                                <div key={mbti} className="flex items-center gap-1.5">
-                                  <div className="text-[9px] font-bold flex-shrink-0" style={{ color, width: '30px' }}>{mbti}</div>
-                                  <div className="flex-1 rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(255,255,255,0.08)' }}>
-                                    <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '9999px',  transition: 'width 0.5s ease' }} />
-                                  </div>
-                                  <div className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)', width: '22px', textAlign: 'right' }}>{pct}%</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* 우상단: 시간 + X */}
+                        {/* 우상단: X 버튼 */}
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          {popupData.checkinTime && (
-                            <LiveDwellCounter checkinTime={popupData.checkinTime} mbtiColor={MBTI_COLORS[popupData.mbti] || '#00f0ff'} />
-                          )}
                           <button
                             onClick={() => closePopup()}
                             style={{
@@ -3042,6 +3046,69 @@ export default function MvpMap() {
                         })()}
                       </div>
 
+                      {/* ── 이 장소 분위기 섹션 ── */}
+                      {popupData.nearbyRecent && popupData.nearbyRecent.length > 0 && (() => {
+                        // 최근 체크인 사람들의 activity 분포 계산 (더미 + 실제 DB 스팟 합산)
+                        const allMarkers = dummyDataRef.current.filter((m: DummyMarker) => {
+                          const dist = Math.sqrt(
+                            Math.pow((m.lat - popupData.lat) * 111000, 2) +
+                            Math.pow((m.lng - popupData.lng) * 111000 * Math.cos(popupData.lat * Math.PI / 180), 2)
+                          );
+                          return dist < 200;
+                        });
+                        const activityCounts: Record<string, { emoji: string; count: number }> = {};
+                        allMarkers.forEach((m: DummyMarker) => {
+                          if (m.activity) {
+                            const key = m.activity.text;
+                            if (!activityCounts[key]) activityCounts[key] = { emoji: m.activity.emoji, count: 0 };
+                            activityCounts[key].count++;
+                          }
+                        });
+                        // 실제 DB 스팟 데이터도 합산 (200m 이내)
+                        const realSpots = spotsData?.spots ?? [];
+                        realSpots.forEach((s: { lat: number; lng: number; activity?: string | null }) => {
+                          const dist = Math.sqrt(
+                            Math.pow((s.lat - popupData.lat) * 111000, 2) +
+                            Math.pow((s.lng - popupData.lng) * 111000 * Math.cos(popupData.lat * Math.PI / 180), 2)
+                          );
+                          if (dist < 200 && s.activity) {
+                            try {
+                              const parsed = JSON.parse(s.activity) as { emoji: string; text: string };
+                              const key = parsed.text;
+                              if (!activityCounts[key]) activityCounts[key] = { emoji: parsed.emoji, count: 0 };
+                              activityCounts[key].count++;
+                            } catch (_) {}
+                          }
+                        });
+                        const sorted = Object.entries(activityCounts)
+                          .sort((a, b) => b[1].count - a[1].count)
+                          .slice(0, 4);
+                        if (sorted.length === 0) return null;
+                        return (
+                          <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div className="text-[9px] font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
+                              지금 이 곳 사람들
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {sorted.map(([text, { emoji, count }]) => (
+                                <span
+                                  key={text}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px]"
+                                  style={{
+                                    background: 'rgba(255,255,255,0.06)',
+                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    color: 'rgba(255,255,255,0.75)',
+                                  }}
+                                >
+                                  <span>{emoji}</span>
+                                  <span>{text}</span>
+                                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '9px' }}>{count}</span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
                       {/* ── 하단 버튼: 길찾기 + 저장하기 ── */}
                       <div className="flex" style={{ borderTop: `1px solid rgba(255,255,255,0.06)` }}>
                         <button
@@ -3220,7 +3287,7 @@ export default function MvpMap() {
               maxWidth: '90vw',
               maxHeight: '88vh',
               overflowY: 'auto',
-              
+              boxShadow: '0 4px 20px rgba(0,0,0,0.8)',
               transform: spotFormVisible ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
               transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
               position: 'relative',
@@ -3262,7 +3329,7 @@ export default function MvpMap() {
                 border: '2px solid rgba(0,240,255,0.3)',
                 borderRadius: '50%',
                 padding: '10px',
-                
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
               }}>
                 <AvatarSVG config={spotFormData.avatar} size={80} bgColor={MBTI_COLORS[spotFormData.mbti] ? `${MBTI_COLORS[spotFormData.mbti]}33` : '#0a0a1e'} showEmoji={true} />
               </div>
@@ -3491,6 +3558,69 @@ export default function MvpMap() {
                 }}
               />
             </div>
+            {/* ── 지금 뭐 하는 중? (행동 선택) ── */}
+            <div className="mb-3">
+              <label className="block text-xs font-bold mb-1.5" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}>
+                지금 뭐 하는 중?
+                <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400, marginLeft: '6px' }}>선택 사항</span>
+              </label>
+              {/* 직접 입력 (맨 위) */}
+              {spotFormData.activity === '__custom__' ? (
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="직접 입력... (예: 혼자 맥주 한잔 중)"
+                  maxLength={20}
+                  className="w-full rounded-lg px-3 py-2.5 text-sm outline-none mb-2"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1.5px solid rgba(255,255,255,0.4)',
+                    color: '#fff',
+                  }}
+                  onChange={e => setSpotFormData(p => ({ ...p, activityEmoji: '✏️', mood: p.mood || e.target.value }))}
+                  onBlur={e => {
+                    if (!e.target.value.trim()) setSpotFormData(p => ({ ...p, activity: '' }));
+                    else setSpotFormData(p => ({ ...p, activity: e.target.value.trim() }));
+                  }}
+                />
+              ) : null}
+              {/* 칩 선택 */}
+              <div className="flex flex-wrap gap-1.5">
+                {/* 직접 입력 칩 (항상 맨 앞) */}
+                <button
+                  type="button"
+                  onClick={() => setSpotFormData(p => ({ ...p, activity: '__custom__', activityEmoji: '✏️' }))}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all"
+                  style={{
+                    background: spotFormData.activity === '__custom__' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: spotFormData.activity === '__custom__' ? '1.5px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)',
+                    color: spotFormData.activity === '__custom__' ? '#fff' : 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  ✏️ 직접 입력
+                </button>
+                {/* 나머지 행동 칩 (직접 입력 제외) */}
+                {ACTION_FORM_LIST.slice(1).map(({ emoji, text }) => {
+                  const isSelected = spotFormData.activity === text;
+                  return (
+                    <button
+                      key={text}
+                      type="button"
+                      onClick={() => setSpotFormData(p => ({ ...p, activity: isSelected ? '' : text, activityEmoji: isSelected ? '' : emoji }))}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all"
+                      style={{
+                        background: isSelected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                        border: isSelected ? '1.5px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
+                        color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)',
+                      }}
+                    >
+                      <span>{emoji}</span>
+                      <span>{text}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
 
 
@@ -3507,9 +3637,9 @@ export default function MvpMap() {
               </button>
               <button
                 onClick={async () => {
-                  const { mbti, mood } = spotFormData;
-                  const mode = spotFormData.mood; // MOOD를 MODE로도 사용
-                  const sign = spotFormData.mood; // MOOD를 SIGN으로도 사용
+                  const { mbti, mood, activity, activityEmoji } = spotFormData;
+                  const mode = activity && activity !== '__custom__' ? activity : (mood || 'CHILL');
+                  const sign = activity && activity !== '__custom__' ? `${activityEmoji} ${activity}` : mood;
                   if (!mbti || !mood) {
                     toast.error('MBTI와 MOOD를 입력해주세요!');
                     return;
@@ -3522,6 +3652,10 @@ export default function MvpMap() {
                     toast.error('현재 위치를 확인할 수 없어요. GPS를 켜주세요.');
                     return;
                   }
+                  // activity JSON 직렬화
+                  const activityJson = activity && activity !== '__custom__'
+                    ? JSON.stringify({ emoji: activityEmoji, text: activity })
+                    : undefined;
                   const result = await submitSpot.mutateAsync({
                     mbti,
                     mood,
@@ -3530,6 +3664,7 @@ export default function MvpMap() {
                     lat: userLocation.lat,
                     lng: userLocation.lng,
                     avatar: serializeAvatar(spotFormData.avatar),
+                    activity: activityJson,
                   });
                   if (result.success) {
                     setSpotSubmitted(true);
@@ -3543,10 +3678,10 @@ export default function MvpMap() {
                 disabled={submitSpot.isPending}
                 className="flex-1 py-2 rounded-lg text-sm font-black"
                 style={{
-                  border: '2px solid #00f0ff',
-                  color: '#00f0ff',
-                  background: 'rgba(0, 240, 255, 0.1)',
-                  
+                  border: '2px solid rgba(255,255,255,0.6)',
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                   opacity: submitSpot.isPending ? 0.6 : 1,
                 }}
               >
@@ -3573,7 +3708,6 @@ export default function MvpMap() {
               style={{
                 fontFamily: "'Noto Sans KR', sans-serif",
                 color: "#00f0ff",
-                
               }}
             >
               GPS를 켜주세요!
@@ -3619,8 +3753,9 @@ export default function MvpMap() {
                 onClick={() => handleConsent(true)}
                 className="flex-1 py-2 px-4 rounded-lg border-2 text-sm transition-all"
                 style={{
-                  borderColor: "#00f0ff",
-                 color: "#00f0ff",
+                  borderColor: "rgba(255,255,255,0.6)",
+                  color: "#ffffff",
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                 }}
               >
                 동의

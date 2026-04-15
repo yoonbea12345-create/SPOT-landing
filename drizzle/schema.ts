@@ -78,6 +78,7 @@ export const userSpots = mysqlTable("userSpots", {
   lng: double("lng").notNull(),
   ipAddress: varchar("ipAddress", { length: 45 }),
   avatar: varchar("avatar", { length: 512 }), // JSON string of AvatarConfig
+  activity: varchar("activity", { length: 128 }), // JSON string of { emoji, text } - 현재 행동 태그
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
