@@ -444,6 +444,89 @@ export const appRouter = router({
     }),
   }),
 
+  // Seoul City Realtime Data API proxy
+  citydata: router({
+    // Get realtime crowd data for a district
+    // area: '연남동' | '성수카페거리' | '홍대앞'
+    getDistrict: publicProcedure
+      .input(z.object({ area: z.string().min(1).max(50) }))
+      .query(async ({ input }) => {
+        try {
+          const key = '4c4263544469737333305778577771';
+          const encoded = encodeURIComponent(input.area);
+          const url = `http://openapi.seoul.go.kr:8088/${key}/json/citydata/1/1/${encoded}`;
+          const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json() as any;
+          if (!data.CITYDATA) throw new Error('No CITYDATA in response');
+          const cd = data.CITYDATA;
+          const ppltn = cd.LIVE_PPLTN_STTS?.[0] ?? {};
+          const weather = cd.WEATHER_STTS?.[0] ?? {};
+          return {
+            success: true,
+            areaNm: cd.AREA_NM as string,
+            areaCd: cd.AREA_CD as string,
+            congestLvl: (ppltn.AREA_CONGEST_LVL ?? '') as string,
+            congestMsg: (ppltn.AREA_CONGEST_MSG ?? '') as string,
+            ppltnMin: Number(ppltn.AREA_PPLTN_MIN ?? 0),
+            ppltnMax: Number(ppltn.AREA_PPLTN_MAX ?? 0),
+            malePpltnRate: Number(ppltn.MALE_PPLTN_RATE ?? 50),
+            femalePpltnRate: Number(ppltn.FEMALE_PPLTN_RATE ?? 50),
+            temp: Number(weather.TEMP ?? 0),
+            humidity: Number(weather.HUMIDITY ?? 0),
+            windSpd: Number(weather.WIND_SPD ?? 0),
+            precipitation: (weather.PRECIPITATION ?? '0') as string,
+            pcpMsg: (weather.PCP_MSG ?? '') as string,
+            uvIndexLvl: (weather.UV_INDEX_LVL ?? '') as string,
+            updatedAt: new Date().toISOString(),
+          };
+        } catch (error) {
+          console.error('[CityData] Failed:', error);
+          return { success: false, areaNm: input.area, congestLvl: '', ppltnMin: 0, ppltnMax: 0, temp: 0, updatedAt: new Date().toISOString() };
+        }
+      }),
+
+    // Get AI-generated atmosphere report for a district
+    getAtmosphereReport: publicProcedure
+      .input(z.object({ area: z.string().min(1).max(50), areaKr: z.string().min(1).max(20) }))
+      .query(async ({ input }) => {
+        try {
+          const { invokeLLM } = await import('./_core/llm');
+          // Fetch live data first
+          const key = '4c4263544469737333305778577771';
+          const encoded = encodeURIComponent(input.area);
+          const url = `http://openapi.seoul.go.kr:8088/${key}/json/citydata/1/1/${encoded}`;
+          let cityCtx = '';
+          try {
+            const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+            if (res.ok) {
+              const data = await res.json() as any;
+              const cd = data.CITYDATA;
+              const ppltn = cd?.LIVE_PPLTN_STTS?.[0] ?? {};
+              const weather = cd?.WEATHER_STTS?.[0] ?? {};
+              cityCtx = `현재 혼잡도: ${ppltn.AREA_CONGEST_LVL ?? '정보없음'}, 인구: ${ppltn.AREA_PPLTN_MIN ?? '?'}~${ppltn.AREA_PPLTN_MAX ?? '?'}명, 기온: ${weather.TEMP ?? '?'}°C, 습도: ${weather.HUMIDITY ?? '?'}%, 강수: ${weather.PCP_MSG ?? '없음'}`;
+            }
+          } catch (_) {}
+          const now = new Date();
+          const hour = now.getHours();
+          const timeCtx = hour < 6 ? '새벽' : hour < 12 ? '오전' : hour < 18 ? '오후' : hour < 22 ? '저녁' : '밤';
+          const response = await invokeLLM({
+            messages: [
+              { role: 'system', content: '당신은 서울의 핫플레이스 분위기를 감각적으로 묘사하는 에디터입니다. 짧고 감성적인 문장으로 지금 이 순간의 공간 분위기를 전달하세요. 반드시 한국어로 답하세요.' },
+              { role: 'user', content: `지금 ${timeCtx} ${input.areaKr}의 분위기를 알려주세요.\n실시간 데이터: ${cityCtx || '데이터 없음'}\n\n다음 형식으로 답하세요:\n- 한 줄 분위기 요약 (20자 이내, 감성적)
+- 지금 이 곳에 있다면 어떤 느낌인지 (2-3문장)
+- 지금 어울리는 활동 3가지 (해시태그 형식)` },
+            ],
+          });
+          const content = response.choices?.[0]?.message?.content ?? '분위기 데이터를 불러오는 중입니다.';
+          return { success: true, report: content, cityCtx, updatedAt: new Date().toISOString() };
+        } catch (error) {
+          console.error('[AtmosphereReport] Failed:', error);
+          return { success: false, report: '잠시 후 다시 시도해주세요.', cityCtx: '', updatedAt: new Date().toISOString() };
+        }
+      }),
+  }),
+
   // Email subscription management
   email: router({
     // Subscribe with email (called from landing page)
