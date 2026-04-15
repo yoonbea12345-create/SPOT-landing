@@ -840,6 +840,31 @@ export default function MvpMap() {
     // kakao SDK 로드 후 3개 지역 동시 초기화
     const runInit = () => {
       REGION_CONFIGS.forEach(initRegionMap);
+      // 홈 미니맵 초기화 (서울 전체 뷰, 인터랙션 비활성화)
+      const minimapContainer = document.getElementById('home-minimap');
+      if (minimapContainer) {
+        const minimapOptions = {
+          center: new window.kakao.maps.LatLng(37.5520, 126.9780), // 홍대~성수 중간
+          level: 7, // 서울 전체 보이는 줌
+          draggable: false,
+          scrollwheel: false,
+          disableDoubleClickZoom: true,
+          keyboardShortcuts: false,
+        };
+        const minimap = new window.kakao.maps.Map(minimapContainer, minimapOptions);
+        // 3개 지역 마커 표시
+        [{ lat: 37.5400, lng: 126.9700, label: '홍대' }, { lat: 37.5630, lng: 126.9260, label: '연남' }, { lat: 37.5444, lng: 127.0557, label: '성수' }].forEach(({ lat, lng, label }) => {
+          const markerEl = document.createElement('div');
+          markerEl.style.cssText = 'background:#00C9C9;color:#fff;font-size:11px;font-weight:900;padding:4px 9px;border-radius:14px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,201,201,0.5);white-space:nowrap;cursor:pointer;';
+          markerEl.textContent = label;
+          const overlay = new window.kakao.maps.CustomOverlay({
+            position: new window.kakao.maps.LatLng(lat, lng),
+            content: markerEl,
+            yAnchor: 0.5,
+          });
+          overlay.setMap(minimap);
+        });
+      }
     };
 
     if (window.kakao) {
@@ -1109,142 +1134,157 @@ export default function MvpMap() {
           <span style={{ fontSize: '22px', fontWeight: 900, color: '#2C1810', letterSpacing: '-0.02em' }}>SPOT</span>
         </div>
 
-        {/* ===== 인스타 피드 스타일 2x2 그리드 ===== */}
-        <div className="flex-1" style={{ overflowY: 'auto', padding: '12px', background: '#F5F0E8' }}>
+        {/* ===== Zenly+BeReal 스타일 홈화면 ===== */}
+        <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#F7F5F2' }}>
 
-          {/* 2x2 그리드 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          {/* 상단: 라이브 미니맵 */}
+          <div style={{ position: 'relative', flex: '0 0 48%', overflow: 'hidden' }}>
+            {/* 카카오맵 미니맵 배경 */}
+            <div
+              id="home-minimap"
+              style={{ width: '100%', height: '100%', filter: 'brightness(1.05) saturate(0.9)' }}
+            />
+            {/* 반투명 오버레이 */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(247,245,242,0) 50%, rgba(247,245,242,0.95) 100%)', pointerEvents: 'none' }} />
+
+            {/* 지역 핀 버튼 3개 */}
             {[
-              {
-                key: '홍대', label: '홍대', city: '홍대',
-                congestLvl: hongdaeData?.congestLvl,
-                updatedAt: hongdaeData?.updatedAt,
-                img: hongdaeImgs?.images?.[imgIndexes.hongdae]?.url || hongdaeImgs?.images?.[imgIndexes.hongdae]?.thumbnail,
-                posts: [
-                  { text: '오늘 홍대 에너지 뭔가 달라 — 다들 느낌?' },
-                  { text: '이 골목 지금 완전 내 바이브다' },
-                ],
-              },
-              {
-                key: '연남', label: '연남', city: '연남',
-                congestLvl: yeonnamData?.congestLvl,
-                updatedAt: yeonnamData?.updatedAt,
-                img: yeonnamImgs?.images?.[imgIndexes.yeonnam]?.url || yeonnamImgs?.images?.[imgIndexes.yeonnam]?.thumbnail,
-                posts: [
-                  { text: '경의선숲길 오늘 노을 진짜 말도 안 됨' },
-                  { text: '연남 카페 창가 자리 — 혼자 앉기 딱 좋다' },
-                ],
-              },
-              {
-                key: '성수', label: '성수', city: '성수',
-                congestLvl: seongsuData?.congestLvl,
-                updatedAt: seongsuData?.updatedAt,
-                img: seongsuImgs?.images?.[imgIndexes.seongsu]?.url || seongsuImgs?.images?.[imgIndexes.seongsu]?.thumbnail,
-                posts: [
-                  { text: '성수 팝업 줄 서는 사람들 표정이 다 설레보임' },
-                  { text: '서울숲 지금 완전 골든아워다 빨리 와' },
-                ],
-              },
-              {
-                key: '홍대_2', label: '홍대', city: '홍대',
-                congestLvl: hongdaeData?.congestLvl,
-                updatedAt: hongdaeData?.updatedAt,
-                img: hongdaeImgs?.images?.[(imgIndexes.hongdae + 1) % (hongdaeImgs?.images?.length || 1)]?.url || hongdaeImgs?.images?.[(imgIndexes.hongdae + 1) % (hongdaeImgs?.images?.length || 1)]?.thumbnail,
-                posts: [
-                  { text: '홍대 2번 출구 앞 지금 뭔가 터질 것 같은 분위기' },
-                  { text: '오늘 밤 여기서 뭔가 일어날 것 같은 느낌적 느낌' },
-                ],
-              },
-            ].map((district) => {
-              const congestColor = district.congestLvl?.includes('붐빔') ? '#E53E3E'
-                : district.congestLvl?.includes('보통') ? '#D69E2E' : '#38A169';
-              const congestBg = district.congestLvl?.includes('붐빔') ? '#FFF5F5'
-                : district.congestLvl?.includes('보통') ? '#FFFFF0' : '#F0FFF4';
+              { city: '홍대', x: '28%', y: '42%', congestLvl: hongdaeData?.congestLvl, updatedAt: hongdaeData?.updatedAt },
+              { city: '연남', x: '22%', y: '28%', congestLvl: yeonnamData?.congestLvl, updatedAt: yeonnamData?.updatedAt },
+              { city: '성수', x: '72%', y: '55%', congestLvl: seongsuData?.congestLvl, updatedAt: seongsuData?.updatedAt },
+            ].map((pin) => {
+              const col = pin.congestLvl?.includes('붐빔') ? '#E53E3E' : pin.congestLvl?.includes('보통') ? '#D69E2E' : '#00C9C9';
               return (
                 <button
-                  key={district.key}
-                  onClick={() => { setSelectedCity(district.city); setScreen('map'); setMapVisible(true); }}
+                  key={pin.city}
+                  onClick={() => { setSelectedCity(pin.city); setScreen('map'); setMapVisible(true); }}
                   style={{
-                    border: '1px solid #E2D9CE', borderRadius: '14px', padding: '0',
-                    cursor: 'pointer', textAlign: 'left', overflow: 'hidden',
-                    background: '#FFFFFF',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    display: 'flex', flexDirection: 'column',
+                    position: 'absolute', left: pin.x, top: pin.y,
+                    transform: 'translate(-50%, -50%)',
+                    background: '#FFFFFF', border: `2.5px solid ${col}`,
+                    borderRadius: '20px', padding: '5px 10px',
+                    cursor: 'pointer', boxShadow: `0 2px 12px ${col}55`,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
+                    zIndex: 10,
                   }}
                 >
-                  {/* 상단: 지역명 + 혼잡도 */}
-                  <div style={{
-                    padding: '10px 12px 8px',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-                    borderBottom: '1px solid #F0EBE3',
-                  }}>
-                    <span style={{ fontSize: '15px', fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.02em' }}>{district.label}</span>
-                    <div style={{ textAlign: 'right' }}>
-                      {district.congestLvl ? (
-                        <>
-                          <div style={{ fontSize: '9px', color: '#9CA3AF', marginBottom: '2px' }}>
-                            {district.updatedAt ? new Date(district.updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + '기준' : ''}
-                          </div>
-                          <div style={{
-                            fontSize: '10px', fontWeight: 700, color: congestColor,
-                            background: congestBg, borderRadius: '6px', padding: '2px 6px',
-                            display: 'flex', alignItems: 'center', gap: '4px',
-                          }}>
-                            <div style={{ position: 'relative', width: '6px', height: '6px', flexShrink: 0 }}>
-                              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: congestColor, animation: 'spot-pulse 1.8s ease-out infinite' }} />
-                              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: congestColor, position: 'relative', zIndex: 1 }} />
-                            </div>
-                            혼잡도: {district.congestLvl}
-                          </div>
-                        </>
-                      ) : (
-                        <span style={{ fontSize: '9px', color: '#D1D5DB' }}>로딩 중</span>
-                      )}
+                  <span style={{ fontSize: '13px', fontWeight: 900, color: '#1A1A1A', letterSpacing: '-0.02em' }}>{pin.city}</span>
+                  {pin.congestLvl ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <div style={{ position: 'relative', width: '5px', height: '5px' }}>
+                        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: col, animation: 'spot-pulse 1.8s ease-out infinite' }} />
+                        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: col, position: 'relative', zIndex: 1 }} />
+                      </div>
+                      <span style={{ fontSize: '9px', fontWeight: 700, color: col }}>{pin.congestLvl}</span>
                     </div>
-                  </div>
+                  ) : (
+                    <span style={{ fontSize: '9px', color: '#C0B8B0' }}>로딩 중</span>
+                  )}
+                </button>
+              );
+            })}
 
-                  {/* 중단: 지역 사진 */}
-                  <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', position: 'relative', background: '#F3EDE4' }}>
-                    {district.img ? (
-                      <img
-                        src={district.img}
-                        alt={district.label + ' 분위기'}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.5s' }}
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                      />
+            {/* LIVE 배지 */}
+            <div style={{
+              position: 'absolute', top: '12px', right: '12px',
+              background: '#FF3B30', color: '#fff',
+              fontSize: '10px', fontWeight: 800, letterSpacing: '0.05em',
+              padding: '3px 8px', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', gap: '4px',
+              boxShadow: '0 2px 8px rgba(255,59,48,0.4)',
+            }}>
+              <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#fff', animation: 'spot-pulse 1.5s ease-out infinite' }} />
+              LIVE
+            </div>
+
+            {/* 지도 보기 버튼 */}
+            <button
+              onClick={() => { setSelectedCity(selectedCity || '홍대'); setScreen('map'); setMapVisible(true); }}
+              style={{
+                position: 'absolute', bottom: '18px', left: '50%', transform: 'translateX(-50%)',
+                background: '#00C9C9', color: '#fff',
+                fontSize: '12px', fontWeight: 800, letterSpacing: '-0.01em',
+                padding: '8px 20px', borderRadius: '20px', border: 'none', cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(0,201,201,0.4)',
+                display: 'flex', alignItems: 'center', gap: '6px',
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                <line x1="9" y1="3" x2="9" y2="18" />
+                <line x1="15" y1="6" x2="15" y2="21" />
+              </svg>
+              지금 지도 보기
+            </button>
+          </div>
+
+          {/* 하단: 실시간 피드 */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0 14px 12px' }}>
+            {/* 섹션 헤더 */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0 8px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.02em' }}>지금 이 골목에서</span>
+              <span style={{ fontSize: '11px', color: '#00C9C9', fontWeight: 700 }}>전체 보기</span>
+            </div>
+
+            {/* 피드 아이템 */}
+            {[
+              { city: '홍대', time: '방금', text: '이 골목 지금 완전 내 바이브다', img: hongdaeImgs?.images?.[imgIndexes.hongdae]?.url || hongdaeImgs?.images?.[imgIndexes.hongdae]?.thumbnail, congestLvl: hongdaeData?.congestLvl },
+              { city: '성수', time: '1분 전', text: '서울숲 지금 완전 골든아워다 빨리 와', img: seongsuImgs?.images?.[imgIndexes.seongsu]?.url || seongsuImgs?.images?.[imgIndexes.seongsu]?.thumbnail, congestLvl: seongsuData?.congestLvl },
+              { city: '연남', time: '3분 전', text: '경의선숲길 오늘 노을 진짜 말도 안 됨', img: yeonnamImgs?.images?.[imgIndexes.yeonnam]?.url || yeonnamImgs?.images?.[imgIndexes.yeonnam]?.thumbnail, congestLvl: yeonnamData?.congestLvl },
+              { city: '홍대', time: '5분 전', text: '홍대 2번 출구 앞 지금 뭔가 터질 것 같은 분위기', img: hongdaeImgs?.images?.[(imgIndexes.hongdae + 2) % (hongdaeImgs?.images?.length || 1)]?.url, congestLvl: hongdaeData?.congestLvl },
+              { city: '성수', time: '8분 전', text: '성수 팝업 줄 서는 사람들 표정이 다 설레보임', img: seongsuImgs?.images?.[(imgIndexes.seongsu + 1) % (seongsuImgs?.images?.length || 1)]?.url, congestLvl: seongsuData?.congestLvl },
+            ].map((item, i) => {
+              const col = item.congestLvl?.includes('붐빔') ? '#E53E3E' : item.congestLvl?.includes('보통') ? '#D69E2E' : '#00C9C9';
+              return (
+                <button
+                  key={i}
+                  onClick={() => { setSelectedCity(item.city); setScreen('map'); setMapVisible(true); }}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '9px 0',
+                    background: 'none', border: 'none', borderBottom: '1px solid #EDEAE5',
+                    cursor: 'pointer', textAlign: 'left',
+                  }}
+                >
+                  {/* 썸네일 */}
+                  <div style={{
+                    width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
+                    overflow: 'hidden', background: '#EDE8E0',
+                    border: `2px solid ${col}33`,
+                  }}>
+                    {item.img ? (
+                      <img src={item.img} alt={item.city} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                     ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '11px', color: '#B0A090' }}>사진 로딩 중…</span>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+                        {item.city === '홍대' ? '🎵' : item.city === '연남' ? '☕' : '🏭'}
                       </div>
                     )}
                   </div>
-
-                  {/* 하단: 게시판 미리보기 */}
-                  <div style={{ padding: '8px 12px 10px', flex: 1 }}>
-                    {district.posts.slice(0, 2).map((post, i) => (
-                      <div key={i} style={{
-                        fontSize: '11px', color: '#4A4A4A', lineHeight: 1.4,
-                        padding: '4px 0',
-                        borderBottom: i === 0 ? '1px solid #F0EBE3' : 'none',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {post.text}
-                      </div>
-                    ))}
+                  {/* 텍스트 */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: col, background: col + '15', borderRadius: '6px', padding: '1px 6px' }}>{item.city}</span>
+                      <span style={{ fontSize: '10px', color: '#B0A898', fontWeight: 500 }}>{item.time}</span>
+                    </div>
+                    <p style={{ fontSize: '12px', color: '#2A2A2A', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.4 }}>{item.text}</p>
                   </div>
+                  {/* 화살표 */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C0B8B0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
                 </button>
               );
             })}
           </div>
-
-          {/* pulse 애니메이션 keyframes */}
-          <style>{`
-            @keyframes spot-pulse {
-              0% { transform: scale(1); opacity: 0.8; }
-              100% { transform: scale(3.5); opacity: 0; }
-            }
-          `}</style>
         </div>
+
+        {/* pulse 애니메이션 keyframes */}
+        <style>{`
+          @keyframes spot-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3.5); opacity: 0; }
+          }
+        `}</style>
 
         {/* 홈화면 하단 탭바 - 5개 */}
         <div
